@@ -1,4 +1,4 @@
-package uk.gov.companieshouse.companyappointments.company_appointments;
+package uk.gov.companieshouse.company_appointments;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

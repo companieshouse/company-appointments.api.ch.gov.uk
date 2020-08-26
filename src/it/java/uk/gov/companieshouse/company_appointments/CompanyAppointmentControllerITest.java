@@ -1,7 +1,8 @@
-package uk.gov.companieshouse.companyappointments.company_appointments;
+package uk.gov.companieshouse.company_appointments;
 
 import org.apache.commons.io.IOUtils;
 import org.bson.Document;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,7 +16,6 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.test.web.servlet.ResultMatcher;
 import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -28,7 +28,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@ExtendWith(SpringExtension.class)
 @Testcontainers
 @AutoConfigureMockMvc
 @SpringBootTest(classes = CompanyAppointmentsApplication.class, webEnvironment = SpringBootTest.WebEnvironment.MOCK)
@@ -67,11 +66,9 @@ public class CompanyAppointmentControllerITest {
                 .accept(MediaType.APPLICATION_JSON));
 
         //then
-        result.andExpect(ResultMatcher.matchAll(
-                status().isOk(),
-                jsonPath("$.name", is("NOSURNAME, Noname1 Noname2")),
-                jsonPath("$.date_of_birth.year", is(1936)),
-                jsonPath("$.date_of_birth.month", is(5))));
+        result.andExpect(status().isOk())
+                .andExpect(jsonPath("$.name", is("NOSURNAME, Noname1 Noname2")))
+                .andExpect(jsonPath("$.date_of_birth.year", is(1936)))
+                .andExpect(jsonPath("$.date_of_birth.month", is(5)));
     }
-
 }
