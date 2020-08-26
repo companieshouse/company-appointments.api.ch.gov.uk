@@ -23,8 +23,9 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
+import static org.hamcrest.CoreMatchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(SpringExtension.class)
@@ -68,10 +69,9 @@ public class CompanyAppointmentControllerITest {
         //then
         result.andExpect(ResultMatcher.matchAll(
                 status().isOk(),
-                model().attribute("name", "NOSURNAME, Noname1 Noname2"),
-                model().attribute("date_of_birth.year", 1936),
-                model().attribute("date_of_birth.month", 5))
-        );
+                jsonPath("$.name", is("NOSURNAME, Noname1 Noname2")),
+                jsonPath("$.date_of_birth.year", is(1936)),
+                jsonPath("$.date_of_birth.month", is(5))));
     }
 
 }
