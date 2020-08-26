@@ -11,6 +11,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentView;
 
 @ExtendWith(MockitoExtension.class)
 public class CompanyAppointmentControllerTest {
@@ -21,7 +22,7 @@ public class CompanyAppointmentControllerTest {
     private CompanyAppointmentService companyAppointmentService;
 
     @Mock
-    private CompanyAppointment companyAppointment;
+    private CompanyAppointmentView companyAppointmentView;
 
     private final static String COMPANY_NUMBER = "123456";
     private final static String APPOINTMENT_ID = "345678";
@@ -34,15 +35,15 @@ public class CompanyAppointmentControllerTest {
     @Test
     void testControllerReturns200StatusAndCompanyAppointmentsData() {
         // given
-        when(companyAppointmentService.fetchAppointment(COMPANY_NUMBER, APPOINTMENT_ID)).thenReturn(companyAppointment);
+        when(companyAppointmentService.fetchAppointment(COMPANY_NUMBER, APPOINTMENT_ID)).thenReturn(companyAppointmentView);
 
         // when
-        ResponseEntity<CompanyAppointment> response = companyAppointmentController.fetchAppointment(COMPANY_NUMBER,
+        ResponseEntity<CompanyAppointmentView> response = companyAppointmentController.fetchAppointment(COMPANY_NUMBER,
                 APPOINTMENT_ID);
 
         // then
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(companyAppointment, response.getBody());
+        assertEquals(companyAppointmentView, response.getBody());
         verify(companyAppointmentService).fetchAppointment(COMPANY_NUMBER, APPOINTMENT_ID);
     }
 }

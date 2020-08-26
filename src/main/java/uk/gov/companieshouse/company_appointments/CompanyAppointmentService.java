@@ -1,5 +1,7 @@
 package uk.gov.companieshouse.company_appointments;
 
+import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentView;
+
 public class CompanyAppointmentService {
 
     private CompanyAppointmentRepository companyAppointmentRepository;
@@ -11,7 +13,7 @@ public class CompanyAppointmentService {
         this.companyAppointmentMapper = companyAppointmentMapper;
     }
 
-    public CompanyAppointment fetchAppointment(String companyNumber, String appointmentID) {
+    public CompanyAppointmentView fetchAppointment(String companyNumber, String appointmentID) {
         return companyAppointmentMapper
                 .map(companyAppointmentRepository.readByCompanyNumberAndAppointmentID(companyNumber, appointmentID));
     }

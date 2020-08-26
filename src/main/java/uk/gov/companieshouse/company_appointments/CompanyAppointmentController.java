@@ -1,6 +1,7 @@
 package uk.gov.companieshouse.company_appointments;
 
 import org.springframework.http.ResponseEntity;
+import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentView;
 
 public class CompanyAppointmentController {
 
@@ -10,7 +11,7 @@ public class CompanyAppointmentController {
         this.companyAppointmentService = companyAppointmentService;
     }
 
-    public ResponseEntity<CompanyAppointment> fetchAppointment(String companyNumber, String appointmentID) {
+    public ResponseEntity<CompanyAppointmentView> fetchAppointment(String companyNumber, String appointmentID) {
         return ResponseEntity.ok(companyAppointmentService.fetchAppointment(companyNumber, appointmentID));
     }
 

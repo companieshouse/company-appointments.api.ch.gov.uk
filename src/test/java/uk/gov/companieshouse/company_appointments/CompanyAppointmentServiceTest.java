@@ -9,6 +9,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentData;
+import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentView;
 
 @ExtendWith(MockitoExtension.class)
 public class CompanyAppointmentServiceTest {
@@ -25,7 +27,7 @@ public class CompanyAppointmentServiceTest {
     private CompanyAppointmentData companyAppointmentData;
 
     @Mock
-    private CompanyAppointment companyAppointment;
+    private CompanyAppointmentView companyAppointmentView;
 
     private final static String COMPANY_NUMBER = "123456";
 
@@ -43,13 +45,13 @@ public class CompanyAppointmentServiceTest {
         when(companyAppointmentRepository.readByCompanyNumberAndAppointmentID(COMPANY_NUMBER, APPOINTMENT_ID))
                 .thenReturn(companyAppointmentData);
 
-        when(companyAppointmentMapper.map(companyAppointmentData)).thenReturn(companyAppointment);
+        when(companyAppointmentMapper.map(companyAppointmentData)).thenReturn(companyAppointmentView);
 
         // when
-        CompanyAppointment result = companyAppointmentService.fetchAppointment(COMPANY_NUMBER, APPOINTMENT_ID);
+        CompanyAppointmentView result = companyAppointmentService.fetchAppointment(COMPANY_NUMBER, APPOINTMENT_ID);
 
         // then
-        assertEquals(companyAppointment, result);
+        assertEquals(companyAppointmentView, result);
         verify(companyAppointmentRepository).readByCompanyNumberAndAppointmentID(COMPANY_NUMBER, APPOINTMENT_ID);
         verify(companyAppointmentMapper).map(companyAppointmentData);
     }
