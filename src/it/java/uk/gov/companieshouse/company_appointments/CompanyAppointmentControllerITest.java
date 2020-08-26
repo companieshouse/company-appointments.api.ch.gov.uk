@@ -64,7 +64,7 @@ public class CompanyAppointmentControllerITest {
         //then
         result.andExpect(status().isOk())
                 .andExpect(jsonPath("$.name", is("NOSURNAME, Noname1 Noname2")))
-                .andExpect(jsonPath("$.date_of_birth.year", is(1936)))
-                .andExpect(jsonPath("$.date_of_birth.month", is(5)));
+                .andExpect(jsonPath("$.date_of_birth.year", is(1980)))
+                .andExpect(jsonPath("$.date_of_birth.month", is(1)));
     }
 }
