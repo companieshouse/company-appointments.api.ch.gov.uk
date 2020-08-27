@@ -20,6 +20,8 @@ import uk.gov.companieshouse.company_appointments.model.view.ServiceAddressView;
 
 public class CompanyAppointmentMapper {
 
+    private static final String REGEX = "^(?:(?:[Mm]rs?)|(?:[Mm]iss)|(?:[Mm]s)|(?:[Mm]aster))$";
+
     public CompanyAppointmentView map(CompanyAppointmentData companyAppointmentData) {
         return CompanyAppointmentView.builder()
                 .withAppointedOn(companyAppointmentData.getData().getAppointedOn())
@@ -68,7 +70,7 @@ public class CompanyAppointmentMapper {
         if(!forenames.isEmpty()) {
             result = String.join(", ", companyAppointmentData.getData().getSurname(), String.join(" ", forenames));
         }
-        if(companyAppointmentData.getData().getTitle() != null){
+        if(companyAppointmentData.getData().getTitle() != null && !companyAppointmentData.getData().getTitle().matches(REGEX)){
             result = String.join(", ", result, companyAppointmentData.getData().getTitle());
         }
         return result;
