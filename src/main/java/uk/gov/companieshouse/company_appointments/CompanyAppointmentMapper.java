@@ -1,6 +1,9 @@
 package uk.gov.companieshouse.company_appointments;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -58,18 +61,15 @@ public class CompanyAppointmentMapper {
     }
 
     private String formatOfficerName(CompanyAppointmentData companyAppointmentData) {
-        String result = "";
-        result += companyAppointmentData.getData().getSurname();
-        if(companyAppointmentData.getData().getForename() != null || companyAppointmentData.getData().getOtherForenames() != null) {
-            result += ", ";
+        List<String> forenames = Stream.of(companyAppointmentData.getData().getForename(), companyAppointmentData.getData().getOtherForenames())
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+        String result = companyAppointmentData.getData().getSurname();
+        if(!forenames.isEmpty()) {
+            result = String.join(", ", companyAppointmentData.getData().getSurname(), String.join(" ", forenames));
         }
-        if(companyAppointmentData.getData().getForename() != null) {
-            result += companyAppointmentData.getData().getForename();
-            if(companyAppointmentData.getData().getOtherForenames() != null) {
-                result += " " + companyAppointmentData.getData().getOtherForenames();
-            }
-        } else if(companyAppointmentData.getData().getOtherForenames() != null) {
-            result += companyAppointmentData.getData().getOtherForenames();
+        if(companyAppointmentData.getData().getTitle() != null){
+            result = String.join(", ", result, companyAppointmentData.getData().getTitle());
         }
         return result;
     }
