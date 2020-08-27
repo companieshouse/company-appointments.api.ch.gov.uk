@@ -8,8 +8,8 @@
         <version>1.2.0</version>
         <relativePath />
     </parent>
-    <groupId>uk.gov.companieshouse.company-appointments</groupId>
-    <artifactId>company-appointments</artifactId>
+    <groupId>uk.gov.companieshouse</groupId>
+    <artifactId>company-appointments.api.ch.gov.uk</artifactId>
     <version>unversioned</version>
     <name>Company Appointments</name>
     <description>Company Appointments API</description>
