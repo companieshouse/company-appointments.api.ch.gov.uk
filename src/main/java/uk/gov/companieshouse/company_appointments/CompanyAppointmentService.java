@@ -8,7 +8,7 @@ public class CompanyAppointmentService {
     private CompanyAppointmentMapper companyAppointmentMapper;
 
     public CompanyAppointmentService(CompanyAppointmentRepository companyAppointmentRepository,
-            CompanyAppointmentMapper companyAppointmentMapper) {
+                                     CompanyAppointmentMapper companyAppointmentMapper) {
         this.companyAppointmentRepository = companyAppointmentRepository;
         this.companyAppointmentMapper = companyAppointmentMapper;
     }

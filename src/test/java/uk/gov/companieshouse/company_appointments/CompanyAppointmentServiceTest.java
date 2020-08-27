@@ -22,7 +22,7 @@ public class CompanyAppointmentServiceTest {
 
     @Mock
     private CompanyAppointmentMapper companyAppointmentMapper;
-    
+
     @Mock
     private CompanyAppointmentData companyAppointmentData;
 
@@ -38,7 +38,7 @@ public class CompanyAppointmentServiceTest {
         companyAppointmentService = new CompanyAppointmentService(companyAppointmentRepository,
                 companyAppointmentMapper);
     }
-    
+
     @Test
     void testFetchAppointmentReturnsMappedAppointmentData() {
         // given

@@ -6,7 +6,7 @@
         <groupId>uk.gov.companieshouse</groupId>
         <artifactId>companies-house-parent</artifactId>
         <version>1.2.0</version>
-        <relativePath/>
+        <relativePath />
     </parent>
     <groupId>uk.gov.companieshouse.company-appointments</groupId>
     <artifactId>company-appointments</artifactId>
