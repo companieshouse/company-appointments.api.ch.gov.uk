@@ -22,6 +22,9 @@ public class LinksData {
         this.officerLinksData = new OfficerLinksData(officerSelf, officerAppointments);
     }
 
+    public LinksData() {
+    }
+
     public OfficerLinksData getOfficerLinksData() {
         return officerLinksData;
     }

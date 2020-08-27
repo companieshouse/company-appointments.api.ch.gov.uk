@@ -1,12 +1,16 @@
 package uk.gov.companieshouse.company_appointments;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentView;
 
+@Service
 public class CompanyAppointmentService {
 
     private CompanyAppointmentRepository companyAppointmentRepository;
     private CompanyAppointmentMapper companyAppointmentMapper;
 
+    @Autowired
     public CompanyAppointmentService(CompanyAppointmentRepository companyAppointmentRepository,
                                      CompanyAppointmentMapper companyAppointmentMapper) {
         this.companyAppointmentRepository = companyAppointmentRepository;

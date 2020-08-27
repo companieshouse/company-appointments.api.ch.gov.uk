@@ -66,7 +66,7 @@ public class CompanyAppointmentMapperTest {
     }
 
     @Test
-    void testCompanyAppointmentMapperWithForenamesAndTitle(){
+    void testCompanyAppointmentMapperWithForenamesAndTitle() {
         //when
         CompanyAppointmentView actual = companyAppointmentMapper.map(companyAppointmentData(personalAppointmentDataWithForenamesAndTitle()));
 
@@ -75,12 +75,66 @@ public class CompanyAppointmentMapperTest {
     }
 
     @Test
-    void testCompanyAppointmentMapperWithForenamesOmitsTitle(){
+    void testCompanyAppointmentMapperWithForenamesOmitsTitle() {
         //when
         CompanyAppointmentView actual = companyAppointmentMapper.map(companyAppointmentData(personalAppointmentDataWithNoForenamesOmitsTitle()));
 
         //then
         assertEquals(personalAppointmentViewWithNoForenamesOmitsTitle(), actual);
+    }
+
+    @Test
+    void testCompanyAppointmentMapperWithCorporateOfficer() {
+        //when
+        CompanyAppointmentView actual = companyAppointmentMapper.map(companyAppointmentData(corporateAppointmentData()));
+
+        //then
+        assertEquals(corporateAppointmentView(), actual);
+    }
+
+    @Test
+    void testCompanyAppointmentMapperWithFormerName() {
+        //when
+        CompanyAppointmentView actual = companyAppointmentMapper.map(companyAppointmentData(personalAppointmentDataWithFormerNames()));
+
+        //then
+        assertEquals(personalAppointmentViewWithFormerNames(), actual);
+    }
+
+    @Test
+    void testCompanyAppointmentMapperWithoutServiceAddress() {
+        //when
+        CompanyAppointmentView actual = companyAppointmentMapper.map(companyAppointmentData(personalAppointmentDataWithoutServiceAddress()));
+
+        //then
+        assertEquals(personalAppointmentViewWithoutServiceAddress(), actual);
+    }
+
+    @Test
+    void testCompanyAppointmentMapperWithoutLinks() {
+        //when
+        CompanyAppointmentView actual = companyAppointmentMapper.map(companyAppointmentData(personalAppointmentDataWithoutLinks()));
+
+        //then
+        assertEquals(personalAppointmentViewWithoutLinks(), actual);
+    }
+
+    @Test
+    void testCompanyAppointmentMapperWithoutAppointmentLink() {
+        //when
+        CompanyAppointmentView actual = companyAppointmentMapper.map(companyAppointmentData(personalAppointmentDataWithoutAppointmentLink()));
+
+        //then
+        assertEquals(personalAppointmentViewWithoutAppointmentLink(), actual);
+    }
+
+    @Test
+    void testCompanyAppointmentMapperWithoutDateOfBirth() {
+        //when
+        CompanyAppointmentView actual = companyAppointmentMapper.map(companyAppointmentData(personalAppointmentDataWithoutDateOfBirth()));
+
+        //then
+        assertEquals(personalAppointmentViewWithoutDateOfBirth(), actual);
     }
 
     private CompanyAppointmentData companyAppointmentData(OfficerData officerData) {
@@ -107,15 +161,7 @@ public class CompanyAppointmentMapperTest {
                         .withPoBox("PO Box")
                         .withPremises("Premises")
                         .withRegion("Region")
-                        .build())
-                .withIdentification(IdentificationData.builder()
-                        .withIdentificationType("Identification type")
-                        .withLegalAuthority("Legal authority")
-                        .withLegalForm("Legal form")
-                        .withPlaceRegistered("Place registered")
-                        .withRegistrationNumber("Registration number")
-                        .build())
-                .withFormerNames(Collections.singletonList(new FormerNamesData("Forename", "Surname")));
+                        .build());
     }
 
     private OfficerData personalAppointmentDataWithOtherForenames() {
@@ -159,6 +205,57 @@ public class CompanyAppointmentMapperTest {
                 .build();
     }
 
+    private OfficerData corporateAppointmentData() {
+        return officerData().withIdentification(IdentificationData.builder()
+                .withIdentificationType("Identification type")
+                .withLegalAuthority("Legal authority")
+                .withLegalForm("Legal form")
+                .withPlaceRegistered("Place registered")
+                .withRegistrationNumber("Registration number")
+                .build())
+                .build();
+    }
+
+    private OfficerData personalAppointmentDataWithFormerNames() {
+        return officerData()
+                .withForename("Forename")
+                .withSurname("SURNAME")
+                .withFormerNames(Collections.singletonList(new FormerNamesData("Forename", "Surname")))
+                .build();
+    }
+
+    private OfficerData personalAppointmentDataWithoutServiceAddress() {
+        return officerData()
+                .withForename("Forename")
+                .withSurname("SURNAME")
+                .withServiceAddress(null)
+                .build();
+    }
+
+    private OfficerData personalAppointmentDataWithoutLinks() {
+        return officerData()
+                .withForename("Forename")
+                .withSurname("SURNAME")
+                .withLinks(null)
+                .build();
+    }
+
+    private OfficerData personalAppointmentDataWithoutAppointmentLink() {
+        return officerData()
+                .withForename("Forename")
+                .withSurname("SURNAME")
+                .withLinks(new LinksData(null, null))
+                .build();
+    }
+
+    private OfficerData personalAppointmentDataWithoutDateOfBirth() {
+        return officerData()
+                .withForename("Forename")
+                .withSurname("SURNAME")
+                .withDateOfBirth(null)
+                .build();
+    }
+
     private CompanyAppointmentView.Builder expectedCompanyAppointment() {
         return CompanyAppointmentView.builder()
                 .withAppointedOn(LocalDateTime.of(2020, 8, 26, 12, 0))
@@ -179,52 +276,88 @@ public class CompanyAppointmentMapperTest {
                         .withPoBox("PO Box")
                         .withPremises("Premises")
                         .withRegion("Region")
-                        .build())
-                .withIdentification(IdentificationView.builder()
-                        .withIdentificationType("Identification type")
-                        .withLegalAuthority("Legal authority")
-                        .withLegalForm("Legal form")
-                        .withPlaceRegistered("Place registered")
-                        .withRegistrationNumber("Registration number")
-                        .build())
-                .withFormerNames(Collections.singletonList(new FormerNamesView("Forename", "Surname")));
+                        .build());
     }
 
-    private CompanyAppointmentView personalAppointmentViewWithOtherForenames(){
+    private CompanyAppointmentView personalAppointmentViewWithOtherForenames() {
         return expectedCompanyAppointment()
                 .withName("SURNAME, Forename Other-Forename")
                 .build();
     }
 
-    private CompanyAppointmentView personalAppointmentViewWithNoOtherForenames(){
+    private CompanyAppointmentView personalAppointmentViewWithNoOtherForenames() {
         return expectedCompanyAppointment()
                 .withName("SURNAME, Forename")
                 .build();
     }
 
-    private CompanyAppointmentView personalAppointmentViewWithNoForenamesOrOtherForenames(){
+    private CompanyAppointmentView personalAppointmentViewWithNoForenamesOrOtherForenames() {
         return expectedCompanyAppointment()
                 .withName("SURNAME")
                 .build();
     }
 
-    private CompanyAppointmentView personalAppointmentViewWithNoForenamesAndOtherForenames(){
+    private CompanyAppointmentView personalAppointmentViewWithNoForenamesAndOtherForenames() {
         return expectedCompanyAppointment()
                 .withName("SURNAME, Other-Forename")
                 .build();
     }
 
-
-    private CompanyAppointmentView personalAppointmentViewWithForenamesAndTitle(){
+    private CompanyAppointmentView personalAppointmentViewWithForenamesAndTitle() {
         return expectedCompanyAppointment()
                 .withName("SURNAME, Forename Other-Forename, Dr")
                 .build();
     }
 
-    private CompanyAppointmentView personalAppointmentViewWithNoForenamesOmitsTitle(){
+    private CompanyAppointmentView personalAppointmentViewWithNoForenamesOmitsTitle() {
         return expectedCompanyAppointment()
                 .withName("SURNAME")
                 .build();
     }
 
+    private CompanyAppointmentView corporateAppointmentView() {
+        return expectedCompanyAppointment().withIdentification(IdentificationView.builder()
+                .withIdentificationType("Identification type")
+                .withLegalAuthority("Legal authority")
+                .withLegalForm("Legal form")
+                .withPlaceRegistered("Place registered")
+                .withRegistrationNumber("Registration number")
+                .build())
+                .build();
+    }
+
+    private CompanyAppointmentView personalAppointmentViewWithFormerNames() {
+        return expectedCompanyAppointment()
+                .withName("SURNAME, Forename")
+                .withFormerNames(Collections.singletonList(new FormerNamesView("Forename", "Surname")))
+                .build();
+    }
+
+    private CompanyAppointmentView personalAppointmentViewWithoutServiceAddress() {
+        return expectedCompanyAppointment()
+                .withName("SURNAME, Forename")
+                .withServiceAddress(null)
+                .build();
+    }
+
+    private CompanyAppointmentView personalAppointmentViewWithoutLinks() {
+        return expectedCompanyAppointment()
+                .withName("SURNAME, Forename")
+                .withLinks(null)
+                .build();
+    }
+
+    private CompanyAppointmentView personalAppointmentViewWithoutAppointmentLink() {
+        return expectedCompanyAppointment()
+                .withName("SURNAME, Forename")
+                .withLinks(new LinksView(null, (String)null))
+                .build();
+    }
+
+    private CompanyAppointmentView personalAppointmentViewWithoutDateOfBirth() {
+        return expectedCompanyAppointment()
+                .withName("SURNAME, Forename")
+                .withDateOfBirth(null)
+                .build();
+    }
 }
