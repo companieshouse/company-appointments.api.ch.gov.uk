@@ -1,10 +1,10 @@
 package uk.gov.companieshouse.company_appointments.model.data;
 
-import org.springframework.data.mongodb.core.mapping.Field;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
+
+import org.springframework.data.mongodb.core.mapping.Field;
 
 public class OfficerData {
 
@@ -48,7 +48,13 @@ public class OfficerData {
 
     private String title;
 
-    public OfficerData(ServiceAddressData serviceAddress, LocalDateTime appointedOn, LocalDateTime resignedOn, String countryOfResidence, LinksData linksData, String nationality, String occupation, String officerRole, LocalDateTime dateOfBirth, IdentificationData identificationData, List<FormerNamesData> formerNameData, String surname, String forename, String otherForenames, String title) {
+    @Field("company_name")
+    private String companyName;
+
+    public OfficerData(ServiceAddressData serviceAddress, LocalDateTime appointedOn, LocalDateTime resignedOn,
+            String countryOfResidence, LinksData linksData, String nationality, String occupation, String officerRole,
+            LocalDateTime dateOfBirth, IdentificationData identificationData, List<FormerNamesData> formerNameData,
+            String surname, String forename, String otherForenames, String title, String companyName) {
         this.serviceAddress = serviceAddress;
         this.appointedOn = appointedOn;
         this.resignedOn = resignedOn;
@@ -64,6 +70,7 @@ public class OfficerData {
         this.forename = forename;
         this.otherForenames = otherForenames;
         this.title = title;
+        this.companyName = companyName;
     }
 
     public ServiceAddressData getServiceAddress() {
@@ -186,6 +193,14 @@ public class OfficerData {
         this.title = title;
     }
 
+    public String getCompanyName() {
+        return companyName;
+    }
+
+    public void setCompanyName(String companyName) {
+        this.companyName = companyName;
+    }
+
     public static Builder builder() {
         return new Builder();
     }
@@ -206,7 +221,7 @@ public class OfficerData {
         private String forename;
         private String otherForenames;
         private String title;
-
+        private String companyName;
 
         public Builder withServiceAddress(ServiceAddressData serviceAddress) {
             this.serviceAddress = serviceAddress;
@@ -283,8 +298,15 @@ public class OfficerData {
             return this;
         }
 
+        public Builder withCompanyName(String companyName) {
+            this.companyName = companyName;
+            return this;
+        }
+
         public OfficerData build() {
-            return new OfficerData(serviceAddress, appointedOn, resignedOn, countryOfResidence, linksData, nationality, occupation, officerRole, dateOfBirth, identificationData, formerNameData, surname, forename, otherForenames, title);
+            return new OfficerData(serviceAddress, appointedOn, resignedOn, countryOfResidence, linksData, nationality,
+                    occupation, officerRole, dateOfBirth, identificationData, formerNameData, surname, forename,
+                    otherForenames, title, companyName);
         }
     }
 
@@ -307,11 +329,15 @@ public class OfficerData {
                 Objects.equals(getSurname(), that.getSurname()) &&
                 Objects.equals(getForename(), that.getForename()) &&
                 Objects.equals(getOtherForenames(), that.getOtherForenames()) &&
-                Objects.equals(getTitle(), that.getTitle());
+                Objects.equals(getTitle(), that.getTitle()) &&
+                Objects.equals(getCompanyName(), that.getCompanyName());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getServiceAddress(), getAppointedOn(), getResignedOn(), getCountryOfResidence(), getLinksData(), getNationality(), getOccupation(), getOfficerRole(), getDateOfBirth(), getIdentificationData(), getFormerNameData(), getSurname(), getForename(), getOtherForenames(), getTitle());
+        return Objects.hash(getServiceAddress(), getAppointedOn(), getResignedOn(), getCountryOfResidence(),
+                getLinksData(), getNationality(), getOccupation(), getOfficerRole(), getDateOfBirth(),
+                getIdentificationData(), getFormerNameData(), getSurname(), getForename(), getOtherForenames(),
+                getTitle(), getCompanyName());
     }
 }
