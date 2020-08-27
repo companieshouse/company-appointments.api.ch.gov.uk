@@ -1,14 +1,20 @@
 package uk.gov.companieshouse.company_appointments;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.function.Executable;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
 import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentData;
 import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentView;
 
@@ -40,10 +46,10 @@ public class CompanyAppointmentServiceTest {
     }
 
     @Test
-    void testFetchAppointmentReturnsMappedAppointmentData() {
+    void testFetchAppointmentReturnsMappedAppointmentData() throws NotFoundException {
         // given
         when(companyAppointmentRepository.readByCompanyNumberAndAppointmentID(COMPANY_NUMBER, APPOINTMENT_ID))
-                .thenReturn(companyAppointmentData);
+                .thenReturn(Optional.of(companyAppointmentData));
 
         when(companyAppointmentMapper.map(companyAppointmentData)).thenReturn(companyAppointmentView);
 
@@ -54,5 +60,15 @@ public class CompanyAppointmentServiceTest {
         assertEquals(companyAppointmentView, result);
         verify(companyAppointmentRepository).readByCompanyNumberAndAppointmentID(COMPANY_NUMBER, APPOINTMENT_ID);
         verify(companyAppointmentMapper).map(companyAppointmentData);
+    }
+
+    @Test
+    void testFetchAppointmentThrowsNotFoundExceptionIfAppointmentDoesntExist() {
+        when(companyAppointmentRepository.readByCompanyNumberAndAppointmentID(any(), any()))
+                .thenReturn(Optional.empty());
+
+        Executable result = () -> companyAppointmentService.fetchAppointment(COMPANY_NUMBER, APPOINTMENT_ID);
+
+        assertThrows(NotFoundException.class, result);
     }
 }

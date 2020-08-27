@@ -6,6 +6,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+
 import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentView;
 
 @Controller
@@ -21,7 +22,11 @@ public class CompanyAppointmentController {
 
     @GetMapping
     public ResponseEntity<CompanyAppointmentView> fetchAppointment(@PathVariable("company_number") String companyNumber, @PathVariable("appointment_id") String appointmentID) {
-        return ResponseEntity.ok(companyAppointmentService.fetchAppointment(companyNumber, appointmentID));
+        try {
+            return ResponseEntity.ok(companyAppointmentService.fetchAppointment(companyNumber, appointmentID));
+        } catch (NotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
 }

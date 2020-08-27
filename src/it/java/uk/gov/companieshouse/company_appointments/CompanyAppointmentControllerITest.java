@@ -11,6 +11,7 @@ import java.nio.charset.StandardCharsets;
 import org.apache.commons.io.IOUtils;
 import org.bson.Document;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -41,16 +42,22 @@ public class CompanyAppointmentControllerITest {
 
     @BeforeAll
     static void start() throws IOException {
-        System.setProperty("spring.data.mongodb.uri", mongoDBContainer.getReplicaSetUrl());
+        System.setProperty("spring.data.mongodb.uri",
+                mongoDBContainer.getReplicaSetUrl() + "?serverSelectionTimeoutMS=2000&connectTimeoutMS=2000");
+
         mongoTemplate = new MongoTemplate(new SimpleMongoClientDbFactory(mongoDBContainer.getReplicaSetUrl()));
         mongoTemplate.createCollection("appointments");
         mongoTemplate.insert(Document.parse(IOUtils.resourceToString("/appointment-data.json", StandardCharsets.UTF_8)), "appointments");
     }
 
+    @BeforeEach
+    void before() {
+        mongoDBContainer.getDockerClient().unpauseContainerCmd(mongoDBContainer.getContainerId());
+    }
+
     //TODO:
-    // HTTP 404 Not Found if officer doesn't exist
-    // HTTP 401 if user not authenticated
-    // HTTP 500 if database unavailable
+    // HTTP 401 if user not authenticated (seperate story)
+    // HTTP 500 if database unavailable (untestable?)
 
     @Test
     void testReturn200OKIfOfficerIsFound() throws Exception {
@@ -67,4 +74,17 @@ public class CompanyAppointmentControllerITest {
                 .andExpect(jsonPath("$.date_of_birth.year", is(1980)))
                 .andExpect(jsonPath("$.date_of_birth.month", is(1)));
     }
+
+    @Test
+    void testReturn404IfOfficerIsNotFound() throws Exception {
+        // when
+        ResultActions result = mockMvc
+                .perform(get("/company/{company_number}/appointments/{appointment_id}", "12345678", "missing")
+                        .header("ERIC-Identity", "123").header("ERIC-Identity-Type", "api")
+                        .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON));
+
+        // then
+        result.andExpect(status().isNotFound());
+    }
+
 }

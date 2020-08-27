@@ -1,6 +1,7 @@
 package uk.gov.companieshouse.company_appointments;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -11,6 +12,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+
 import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentView;
 
 @ExtendWith(MockitoExtension.class)
@@ -33,7 +35,7 @@ public class CompanyAppointmentControllerTest {
     }
 
     @Test
-    void testControllerReturns200StatusAndCompanyAppointmentsData() {
+    void testControllerReturns200StatusAndCompanyAppointmentsData() throws NotFoundException {
         // given
         when(companyAppointmentService.fetchAppointment(COMPANY_NUMBER, APPOINTMENT_ID)).thenReturn(companyAppointmentView);
 
@@ -45,5 +47,18 @@ public class CompanyAppointmentControllerTest {
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(companyAppointmentView, response.getBody());
         verify(companyAppointmentService).fetchAppointment(COMPANY_NUMBER, APPOINTMENT_ID);
+    }
+
+    @Test
+    void testControllerReturns404StatusIfAppointmentNotFound() throws NotFoundException {
+        // given
+        when(companyAppointmentService.fetchAppointment(any(), any())).thenThrow(NotFoundException.class);
+
+        // when
+        ResponseEntity<CompanyAppointmentView> response = companyAppointmentController.fetchAppointment(COMPANY_NUMBER,
+                APPOINTMENT_ID);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        verify(companyAppointmentService).fetchAppointment(any(), any());
     }
 }
