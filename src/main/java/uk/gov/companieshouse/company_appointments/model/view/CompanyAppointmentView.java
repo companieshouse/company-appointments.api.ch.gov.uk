@@ -3,6 +3,7 @@ package uk.gov.companieshouse.company_appointments.model.view;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
+import java.util.StringJoiner;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -284,5 +285,24 @@ public class CompanyAppointmentView {
         return Objects.hash(getServiceAddress(), getAppointedOn(), getResignedOn(), getCountryOfResidence(),
                 getDateOfBirth(), getFormerNames(), getIdentification(), getLinks(), getName(), getNationality(),
                 getOccupation(), getOfficerRole(), getCompanyName());
+    }
+
+    @Override
+    public String toString() {
+        return new StringJoiner(", ", CompanyAppointmentView.class.getSimpleName() + "[", "]")
+                .add("serviceAddress=" + serviceAddress)
+                .add("appointedOn=" + appointedOn)
+                .add("resignedOn=" + resignedOn)
+                .add("countryOfResidence='" + countryOfResidence + "'")
+                .add("dateOfBirth=" + dateOfBirth)
+                .add("formerNames=" + formerNames)
+                .add("identification=" + identification)
+                .add("links=" + links)
+                .add("name='" + name + "'")
+                .add("nationality='" + nationality + "'")
+                .add("occupation='" + occupation + "'")
+                .add("officerRole='" + officerRole + "'")
+                .add("companyName='" + companyName + "'")
+                .toString();
     }
 }

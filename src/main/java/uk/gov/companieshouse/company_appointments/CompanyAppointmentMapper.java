@@ -1,7 +1,12 @@
 package uk.gov.companieshouse.company_appointments;
 
+import java.util.Arrays;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import org.apache.commons.lang3.StringUtils;
 import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentData;
 import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentView;
 import uk.gov.companieshouse.company_appointments.model.view.DateOfBirth;
@@ -21,7 +26,7 @@ public class CompanyAppointmentMapper {
                         companyAppointmentData.getData().getDateOfBirth().getDayOfMonth(),
                         companyAppointmentData.getData().getDateOfBirth().getMonthValue(),
                         companyAppointmentData.getData().getDateOfBirth().getYear()))
-                .withLinks(new LinksView(companyAppointmentData.getData().getLinksData().getSelfLink(), 
+                .withLinks(new LinksView(companyAppointmentData.getData().getLinksData().getSelfLink(),
                         companyAppointmentData.getData().getLinksData().getOfficerLinksData().getAppointmentsLink()))
                 .withNationality(companyAppointmentData.getData().getNationality())
                 .withOccupation(companyAppointmentData.getData().getOccupation())
@@ -53,8 +58,20 @@ public class CompanyAppointmentMapper {
     }
 
     private String formatOfficerName(CompanyAppointmentData companyAppointmentData) {
-        return String.format("%s, %s %s", companyAppointmentData.getData().getSurname(),
-                companyAppointmentData.getData().getForename(), companyAppointmentData.getData().getOtherForenames());
+        String result = "";
+        result += companyAppointmentData.getData().getSurname();
+        if(companyAppointmentData.getData().getForename() != null || companyAppointmentData.getData().getOtherForenames() != null) {
+            result += ", ";
+        }
+        if(companyAppointmentData.getData().getForename() != null) {
+            result += companyAppointmentData.getData().getForename();
+            if(companyAppointmentData.getData().getOtherForenames() != null) {
+                result += " " + companyAppointmentData.getData().getOtherForenames();
+            }
+        } else if(companyAppointmentData.getData().getOtherForenames() != null) {
+            result += companyAppointmentData.getData().getOtherForenames();
+        }
+        return result;
     }
 
 }

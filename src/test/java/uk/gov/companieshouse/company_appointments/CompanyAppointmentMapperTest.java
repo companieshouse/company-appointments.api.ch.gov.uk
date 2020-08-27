@@ -25,22 +25,52 @@ public class CompanyAppointmentMapperTest {
     private CompanyAppointmentMapper companyAppointmentMapper;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         companyAppointmentMapper = new CompanyAppointmentMapper();
     }
 
     @Test
-    public void testCompanyAppointmentMapper() {
+    void testCompanyAppointmentMapper() {
         //when
-        CompanyAppointmentView actual = companyAppointmentMapper.map(companyAppointmentData());
+        CompanyAppointmentView actual = companyAppointmentMapper.map(companyAppointmentData(personalAppointmentDataWithOtherForenames()));
 
         //then
-        assertEquals(expectedCompanyAppointment(), actual);
-
+        assertEquals(personalAppointmentViewWithOtherForenames(), actual);
     }
 
-    private CompanyAppointmentData companyAppointmentData() {
-        return new CompanyAppointmentData("123", OfficerData.builder()
+    @Test
+    void testCompanyAppointmentMapperNoOtherForenames() {
+        //when
+        CompanyAppointmentView actual = companyAppointmentMapper.map(companyAppointmentData(personalAppointmentDataWithNoOtherForenames()));
+
+        //then
+        assertEquals(personalAppointmentViewWithNoOtherForenames(), actual);
+    }
+
+    @Test
+    void testCompanyAppointmentMapperNoForenameOrOtherForenames() {
+        //when
+        CompanyAppointmentView actual = companyAppointmentMapper.map(companyAppointmentData(personalAppointmentDataWithNoForenameOrOtherForenames()));
+
+        //then
+        assertEquals(personalAppointmentViewWithNoForenamesOrOtherForenames(), actual);
+    }
+
+    @Test
+    void testCompanyAppointmentMapperNoForenameAndOtherForenames() {
+        //when
+        CompanyAppointmentView actual = companyAppointmentMapper.map(companyAppointmentData(personalAppointmentDataWithNoForenameAndOtherForenames()));
+
+        //then
+        assertEquals(personalAppointmentViewWithNoForenamesAndOtherForenames(), actual);
+    }
+
+    private CompanyAppointmentData companyAppointmentData(OfficerData officerData) {
+        return new CompanyAppointmentData("123", officerData);
+    }
+
+    private OfficerData.Builder officerData() {
+        return OfficerData.builder()
                 .withAppointedOn(LocalDateTime.of(2020, 8, 26, 12, 0))
                 .withResignedOn(LocalDateTime.of(2020, 8, 26, 13, 0))
                 .withCountryOfResidence("Country")
@@ -67,14 +97,36 @@ public class CompanyAppointmentMapperTest {
                         .withPlaceRegistered("Place registered")
                         .withRegistrationNumber("Registration number")
                         .build())
-                .withFormerNames(Collections.singletonList(new FormerNamesData("Forename", "Surname")))
-                .withForename("Forename")
-                .withOtherForenames("Other-Forename")
-                .withSurname("SURNAME")
-                .build());
+                .withFormerNames(Collections.singletonList(new FormerNamesData("Forename", "Surname")));
     }
 
-    private CompanyAppointmentView expectedCompanyAppointment() {
+    private OfficerData personalAppointmentDataWithOtherForenames() {
+        return officerData().withForename("Forename")
+                .withOtherForenames("Other-Forename")
+                .withSurname("SURNAME")
+                .build();
+    }
+
+    private OfficerData personalAppointmentDataWithNoOtherForenames() {
+        return officerData().withForename("Forename")
+                .withSurname("SURNAME")
+                .build();
+    }
+
+    private OfficerData personalAppointmentDataWithNoForenameOrOtherForenames() {
+        return officerData()
+                .withSurname("SURNAME")
+                .build();
+    }
+
+    private OfficerData personalAppointmentDataWithNoForenameAndOtherForenames() {
+        return officerData()
+                .withSurname("SURNAME")
+                .withOtherForenames("Other-Forename")
+                .build();
+    }
+
+    private CompanyAppointmentView.Builder expectedCompanyAppointment() {
         return CompanyAppointmentView.builder()
                 .withAppointedOn(LocalDateTime.of(2020, 8, 26, 12, 0))
                 .withResignedOn(LocalDateTime.of(2020, 8, 26, 13, 0))
@@ -102,8 +154,32 @@ public class CompanyAppointmentMapperTest {
                         .withPlaceRegistered("Place registered")
                         .withRegistrationNumber("Registration number")
                         .build())
-                .withFormerNames(Collections.singletonList(new FormerNamesView("Forename", "Surname")))
+                .withFormerNames(Collections.singletonList(new FormerNamesView("Forename", "Surname")));
+    }
+
+    private CompanyAppointmentView personalAppointmentViewWithOtherForenames(){
+        return expectedCompanyAppointment()
                 .withName("SURNAME, Forename Other-Forename")
                 .build();
     }
+
+    private CompanyAppointmentView personalAppointmentViewWithNoOtherForenames(){
+        return expectedCompanyAppointment()
+                .withName("SURNAME, Forename")
+                .build();
+    }
+
+    private CompanyAppointmentView personalAppointmentViewWithNoForenamesOrOtherForenames(){
+        return expectedCompanyAppointment()
+                .withName("SURNAME")
+                .build();
+    }
+
+    private CompanyAppointmentView personalAppointmentViewWithNoForenamesAndOtherForenames(){
+        return expectedCompanyAppointment()
+                .withName("SURNAME, Other-Forename")
+                .build();
+    }
+
+
 }
