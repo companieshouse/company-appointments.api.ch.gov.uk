@@ -144,6 +144,9 @@
                         <exclude>**/*ITest.java</exclude>
                     </excludes>
                     <skipTests>${skip.unit.tests}</skipTests>
+                    <environmentVariables>
+                        <HUMAN_LOG>1</HUMAN_LOG>
+                    </environmentVariables>
                 </configuration>
             </plugin>
             <plugin>
@@ -159,11 +162,15 @@
                     </execution>
                 </executions>
                 <configuration>
+                    <classesDirectory>${project.build.outputDirectory}</classesDirectory>
                     <skipTests>${skipTests}</skipTests>
                     <skipITs>${skip.integration.tests}</skipITs>
                     <includes>
                         <include>**/*ITest.java</include>
                     </includes>
+                    <environmentVariables>
+                        <HUMAN_LOG>1</HUMAN_LOG>
+                    </environmentVariables>
                 </configuration>
             </plugin>
         </plugins>
