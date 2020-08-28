@@ -5,7 +5,7 @@ services:
     ports:
       - 27017
     volumes:
-      - ./docker/appointment-data.js:/docker-entrypoint-initdb.d/appointment-data.js
+      - ./appointment-data.js:/docker-entrypoint-initdb.d/appointment-data.js
     environment:
       - MONGO_INITDB_DATABASE=appointments
   company-appointments-api:
