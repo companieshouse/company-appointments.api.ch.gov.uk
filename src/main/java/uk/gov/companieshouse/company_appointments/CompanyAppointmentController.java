@@ -8,12 +8,16 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentView;
+import uk.gov.companieshouse.logging.Logger;
+import uk.gov.companieshouse.logging.LoggerFactory;
 
 @Controller
 @RequestMapping("/company/{company_number}/appointments/{appointment_id}")
 public class CompanyAppointmentController {
 
     private CompanyAppointmentService companyAppointmentService;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(CompanyAppointmentsApplication.APPLICATION_NAMESPACE);
 
     @Autowired
     public CompanyAppointmentController(CompanyAppointmentService companyAppointmentService) {
@@ -25,6 +29,7 @@ public class CompanyAppointmentController {
         try {
             return ResponseEntity.ok(companyAppointmentService.fetchAppointment(companyNumber, appointmentID));
         } catch (NotFoundException e) {
+            LOGGER.info(e.getMessage());
             return ResponseEntity.notFound().build();
         }
     }

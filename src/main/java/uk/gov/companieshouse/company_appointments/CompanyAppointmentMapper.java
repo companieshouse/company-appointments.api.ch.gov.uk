@@ -15,14 +15,19 @@ import uk.gov.companieshouse.company_appointments.model.view.FormerNamesView;
 import uk.gov.companieshouse.company_appointments.model.view.IdentificationView;
 import uk.gov.companieshouse.company_appointments.model.view.LinksView;
 import uk.gov.companieshouse.company_appointments.model.view.ServiceAddressView;
+import uk.gov.companieshouse.logging.Logger;
+import uk.gov.companieshouse.logging.LoggerFactory;
 
 @Component
 public class CompanyAppointmentMapper {
 
     private static final String REGEX = "^(?:(?:[Mm]rs?)|(?:[Mm]iss)|(?:[Mm]s)|(?:[Mm]aster))$";
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(CompanyAppointmentsApplication.APPLICATION_NAMESPACE);
+
     public CompanyAppointmentView map(CompanyAppointmentData companyAppointmentData) {
-        return CompanyAppointmentView.builder()
+        LOGGER.debug("Mapping data for appointment: " + companyAppointmentData.getId());
+        CompanyAppointmentView result = CompanyAppointmentView.builder()
                 .withAppointedOn(companyAppointmentData.getData().getAppointedOn())
                 .withResignedOn(companyAppointmentData.getData().getResignedOn())
                 .withCountryOfResidence(companyAppointmentData.getData().getCountryOfResidence())
@@ -36,6 +41,8 @@ public class CompanyAppointmentMapper {
                 .withFormerNames(mapFormerNames(companyAppointmentData))
                 .withName(mapOfficerName(companyAppointmentData))
                 .build();
+        LOGGER.debug("Mapped data for appointment: " + companyAppointmentData.getId());
+        return result;
     }
 
     private List<FormerNamesView> mapFormerNames(CompanyAppointmentData companyAppointmentData) {

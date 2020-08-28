@@ -42,9 +42,7 @@ public class CompanyAppointmentControllerITest {
 
     @BeforeAll
     static void start() throws IOException {
-        System.setProperty("spring.data.mongodb.uri",
-                mongoDBContainer.getReplicaSetUrl() + "?serverSelectionTimeoutMS=2000&connectTimeoutMS=2000");
-
+        System.setProperty("spring.data.mongodb.uri", mongoDBContainer.getReplicaSetUrl());
         mongoTemplate = new MongoTemplate(new SimpleMongoClientDbFactory(mongoDBContainer.getReplicaSetUrl()));
         mongoTemplate.createCollection("appointments");
         mongoTemplate.insert(Document.parse(IOUtils.resourceToString("/appointment-data.json", StandardCharsets.UTF_8)), "appointments");
