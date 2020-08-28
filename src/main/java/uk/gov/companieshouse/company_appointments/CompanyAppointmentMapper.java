@@ -21,7 +21,7 @@ import uk.gov.companieshouse.logging.LoggerFactory;
 @Component
 public class CompanyAppointmentMapper {
 
-    private static final String REGEX = "^(?:(?:[Mm]rs?)|(?:[Mm]iss)|(?:[Mm]s)|(?:[Mm]aster))$";
+    private static final String REGEX = "^(?i)(?=m)(?:mrs?|miss|ms|master)$";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CompanyAppointmentsApplication.APPLICATION_NAMESPACE);
 
@@ -97,12 +97,16 @@ public class CompanyAppointmentMapper {
     }
 
     private String mapOfficerName(CompanyAppointmentData companyAppointmentData) {
-        List<String> forenames = Stream.of(companyAppointmentData.getData().getForename(), companyAppointmentData.getData().getOtherForenames())
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+        return Optional.ofNullable(companyAppointmentData.getData().getCompanyName())
+                .orElseGet(() -> this.individualOfficerName(companyAppointmentData));
+    }
+
+    private String individualOfficerName(CompanyAppointmentData companyAppointmentData) {
         String result = companyAppointmentData.getData().getSurname();
-        if (!forenames.isEmpty()) {
-            result = String.join(", ", companyAppointmentData.getData().getSurname(), String.join(" ", forenames));
+        if (companyAppointmentData.getData().getForename() != null || companyAppointmentData.getData().getOtherForenames() != null) {
+            result = String.join(", ", companyAppointmentData.getData().getSurname(), Stream.of(companyAppointmentData.getData().getForename(), companyAppointmentData.getData().getOtherForenames())
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.joining(" ")));
         }
         if (companyAppointmentData.getData().getTitle() != null && !companyAppointmentData.getData().getTitle().matches(REGEX)) {
             result = String.join(", ", result, companyAppointmentData.getData().getTitle());

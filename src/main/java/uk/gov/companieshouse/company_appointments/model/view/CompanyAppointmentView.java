@@ -42,13 +42,10 @@ public class CompanyAppointmentView {
     @JsonProperty("officer_role")
     private String officerRole;
 
-    @JsonProperty("company_name")
-    private String companyName;
-
     public CompanyAppointmentView(ServiceAddressView serviceAddress, LocalDateTime appointedOn,
             LocalDateTime resignedOn, String countryOfResidence, DateOfBirth dateOfBirth,
             List<FormerNamesView> formerNames, IdentificationView identification, LinksView links, String name,
-            String nationality, String occupation, String officerRole, String companyName) {
+            String nationality, String occupation, String officerRole) {
         this.serviceAddress = serviceAddress;
         this.appointedOn = appointedOn;
         this.resignedOn = resignedOn;
@@ -62,7 +59,6 @@ public class CompanyAppointmentView {
         this.occupation = occupation;
         this.officerRole = officerRole;
         this.resignedOn = resignedOn;
-        this.companyName = companyName;
     }
 
     public ServiceAddressView getServiceAddress() {
@@ -161,14 +157,6 @@ public class CompanyAppointmentView {
         this.officerRole = officerRole;
     }
 
-    public String getCompanyName() {
-        return companyName;
-    }
-
-    public void setCompanyName(String companyName) {
-        this.companyName = companyName;
-    }
-
     public static Builder builder() {
         return new Builder();
     }
@@ -187,7 +175,6 @@ public class CompanyAppointmentView {
         private String nationality;
         private String occupation;
         private String officerRole;
-        private String companyName;
 
         public Builder withServiceAddress(ServiceAddressView serviceAddress) {
             this.serviceAddress = serviceAddress;
@@ -249,14 +236,9 @@ public class CompanyAppointmentView {
             return this;
         }
 
-        public Builder withCompanyName(String companyName) {
-            this.companyName = companyName;
-            return this;
-        }
-
         public CompanyAppointmentView build() {
             return new CompanyAppointmentView(serviceAddress, appointedOn, resignedOn, countryOfResidence, dateOfBirth,
-                    formerNames, identification, links, name, nationality, occupation, officerRole, companyName);
+                    formerNames, identification, links, name, nationality, occupation, officerRole);
         }
     }
 
@@ -276,33 +258,14 @@ public class CompanyAppointmentView {
                 Objects.equals(getName(), that.getName()) &&
                 Objects.equals(getNationality(), that.getNationality()) &&
                 Objects.equals(getOccupation(), that.getOccupation()) &&
-                Objects.equals(getOfficerRole(), that.getOfficerRole()) &&
-                Objects.equals(getCompanyName(), that.getCompanyName());
+                Objects.equals(getOfficerRole(), that.getOfficerRole());
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(getServiceAddress(), getAppointedOn(), getResignedOn(), getCountryOfResidence(),
                 getDateOfBirth(), getFormerNames(), getIdentification(), getLinks(), getName(), getNationality(),
-                getOccupation(), getOfficerRole(), getCompanyName());
+                getOccupation(), getOfficerRole());
     }
 
-    @Override
-    public String toString() {
-        return new StringJoiner(", ", CompanyAppointmentView.class.getSimpleName() + "[", "]")
-                .add("serviceAddress=" + serviceAddress)
-                .add("appointedOn=" + appointedOn)
-                .add("resignedOn=" + resignedOn)
-                .add("countryOfResidence='" + countryOfResidence + "'")
-                .add("dateOfBirth=" + dateOfBirth)
-                .add("formerNames=" + formerNames)
-                .add("identification=" + identification)
-                .add("links=" + links)
-                .add("name='" + name + "'")
-                .add("nationality='" + nationality + "'")
-                .add("occupation='" + occupation + "'")
-                .add("officerRole='" + officerRole + "'")
-                .add("companyName='" + companyName + "'")
-                .toString();
-    }
 }

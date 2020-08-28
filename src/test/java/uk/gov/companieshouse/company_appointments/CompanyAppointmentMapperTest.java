@@ -206,7 +206,9 @@ public class CompanyAppointmentMapperTest {
     }
 
     private OfficerData corporateAppointmentData() {
-        return officerData().withIdentification(IdentificationData.builder()
+        return officerData()
+                .withCompanyName("Company Name")
+                .withIdentification(IdentificationData.builder()
                 .withIdentificationType("Identification type")
                 .withLegalAuthority("Legal authority")
                 .withLegalForm("Legal form")
@@ -316,7 +318,9 @@ public class CompanyAppointmentMapperTest {
     }
 
     private CompanyAppointmentView corporateAppointmentView() {
-        return expectedCompanyAppointment().withIdentification(IdentificationView.builder()
+        return expectedCompanyAppointment()
+                .withName("Company Name")
+                .withIdentification(IdentificationView.builder()
                 .withIdentificationType("Identification type")
                 .withLegalAuthority("Legal authority")
                 .withLegalForm("Legal form")
