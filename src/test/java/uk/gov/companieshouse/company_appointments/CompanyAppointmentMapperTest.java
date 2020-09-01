@@ -263,7 +263,7 @@ public class CompanyAppointmentMapperTest {
                 .withAppointedOn(LocalDateTime.of(2020, 8, 26, 12, 0))
                 .withResignedOn(LocalDateTime.of(2020, 8, 26, 13, 0))
                 .withCountryOfResidence("Country")
-                .withDateOfBirth(new DateOfBirth(null, 1, 1980))
+                .withDateOfBirth(new DateOfBirth(1, 1980))
                 .withLinks(new LinksView("/company/12345678/appointment/123", "/officers/abc/appointments"))
                 .withNationality("Nationality")
                 .withOccupation("Occupation")
