@@ -30,7 +30,7 @@ public class CompanyAppointmentMapperTest {
     }
 
     @Test
-    void testCompanyAppointmentMapper() {
+    void testCompanyAppointmentMapperForenameAndOtherForenames() {
         //when
         CompanyAppointmentView actual = companyAppointmentMapper.map(companyAppointmentData(personalAppointmentDataWithOtherForenames()));
 

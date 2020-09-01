@@ -12,7 +12,7 @@ import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.logging.LoggerFactory;
 
 @Controller
-@RequestMapping("/company/{company_number}/appointments/{appointment_id}")
+@RequestMapping(path = "/company/{company_number}/appointments/{appointment_id}", produces = "application/json")
 public class CompanyAppointmentController {
 
     private CompanyAppointmentService companyAppointmentService;
