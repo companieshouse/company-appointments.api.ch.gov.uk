@@ -1,0 +1,17 @@
+version: '3'
+services:
+  mongo:
+    image: mongo:3.6
+    ports:
+      - 27017
+    volumes:
+      - ./appointment-data.js:/docker-entrypoint-initdb.d/appointment-data.js
+    environment:
+      - MONGO_INITDB_DATABASE=appointments
+  company-appointments-api:
+    image: company-appointments.api.ch.gov.uk:latest
+    ports:
+      - 18576
+    environment:
+      - LOGGING_LEVEL=DEBUG
+      - MONGODB_URL=mongodb://mongo:27017
