@@ -90,7 +90,6 @@ public class CompanyAppointmentMapper {
     private DateOfBirth mapDateOfBirth(CompanyAppointmentData companyAppointmentData) {
         return Optional.ofNullable(companyAppointmentData.getData().getDateOfBirth())
                 .map(dateOfBirth -> new DateOfBirth(
-                        dateOfBirth.getDayOfMonth(),
                         dateOfBirth.getMonthValue(),
                         dateOfBirth.getYear()))
                 .orElse(null);

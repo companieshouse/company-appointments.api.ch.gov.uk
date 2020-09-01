@@ -11,6 +11,10 @@ public class DateOfBirth {
     private Integer month;
     private Integer year;
 
+    public DateOfBirth(Integer month, Integer year) {
+        this(null, month, year);
+    }
+
     public DateOfBirth(Integer day, Integer month, Integer year) {
         this.day = day;
         this.month = month;

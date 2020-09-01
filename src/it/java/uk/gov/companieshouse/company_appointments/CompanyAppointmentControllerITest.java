@@ -1,6 +1,8 @@
 package uk.gov.companieshouse.company_appointments;
 
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -69,6 +71,9 @@ public class CompanyAppointmentControllerITest {
         //then
         result.andExpect(status().isOk())
                 .andExpect(jsonPath("$.name", is("NOSURNAME, Noname1 Noname2")))
+                .andExpect(jsonPath("$.appointed_on", is("2020-08-26")))
+                .andExpect(jsonPath("$.resigned_on", is("2020-08-26")))
+                .andExpect(jsonPath("$.date_of_birth", not(contains("day"))))
                 .andExpect(jsonPath("$.date_of_birth.year", is(1980)))
                 .andExpect(jsonPath("$.date_of_birth.month", is(1)));
     }
