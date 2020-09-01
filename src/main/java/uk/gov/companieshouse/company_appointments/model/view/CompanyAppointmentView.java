@@ -3,8 +3,8 @@ package uk.gov.companieshouse.company_appointments.model.view;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
-import java.util.StringJoiner;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -15,9 +15,11 @@ public class CompanyAppointmentView {
     private ServiceAddressView serviceAddress;
 
     @JsonProperty("appointed_on")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDateTime appointedOn;
 
     @JsonProperty("resigned_on")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDateTime resignedOn;
 
     @JsonProperty("country_of_residence")
