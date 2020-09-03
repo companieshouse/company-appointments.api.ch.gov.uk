@@ -137,6 +137,19 @@ public class CompanyAppointmentMapperTest {
         assertEquals(personalAppointmentViewWithoutDateOfBirth(), actual);
     }
 
+    @Test
+    void testCompanyAppointmentMapperDoesNotMapCountryOfResidenceOrDOBForSecretarialRoles(){
+        SecretarialRoles.stream().forEach(s -> {
+            //when
+            CompanyAppointmentView actual = companyAppointmentMapper.map(companyAppointmentData(personalAppointmentDataForSecretarialRole(s)));
+
+            //then
+            assertEquals(personalAppointmentViewOmitCountryOfResidenceAndDOBForSecretarialRole(s), actual);
+        });
+    }
+
+
+
     private CompanyAppointmentData companyAppointmentData(OfficerData officerData) {
         return new CompanyAppointmentData("123", officerData);
     }
@@ -258,6 +271,12 @@ public class CompanyAppointmentMapperTest {
                 .build();
     }
 
+    private OfficerData personalAppointmentDataForSecretarialRole(SecretarialRoles secretary){
+        return officerData()
+                .withOfficerRole(secretary.getRole())
+                .build();
+    }
+
     private CompanyAppointmentView.Builder expectedCompanyAppointment() {
         return CompanyAppointmentView.builder()
                 .withAppointedOn(LocalDateTime.of(2020, 8, 26, 12, 0))
@@ -361,6 +380,14 @@ public class CompanyAppointmentMapperTest {
     private CompanyAppointmentView personalAppointmentViewWithoutDateOfBirth() {
         return expectedCompanyAppointment()
                 .withName("SURNAME, Forename")
+                .withDateOfBirth(null)
+                .build();
+    }
+
+    private CompanyAppointmentView personalAppointmentViewOmitCountryOfResidenceAndDOBForSecretarialRole(SecretarialRoles secretary){
+        return expectedCompanyAppointment()
+                .withOfficerRole(secretary.getRole())
+                .withCountryOfResidence(null)
                 .withDateOfBirth(null)
                 .build();
     }
