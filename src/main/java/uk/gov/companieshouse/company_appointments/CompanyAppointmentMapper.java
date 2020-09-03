@@ -27,11 +27,13 @@ public class CompanyAppointmentMapper {
 
     public CompanyAppointmentView map(CompanyAppointmentData companyAppointmentData) {
         LOGGER.debug("Mapping data for appointment: " + companyAppointmentData.getId());
+        boolean isSecretary = "secretary".equals(companyAppointmentData.getData().getOfficerRole());
+
         CompanyAppointmentView result = CompanyAppointmentView.builder()
                 .withAppointedOn(companyAppointmentData.getData().getAppointedOn())
                 .withResignedOn(companyAppointmentData.getData().getResignedOn())
-                .withCountryOfResidence(companyAppointmentData.getData().getCountryOfResidence())
-                .withDateOfBirth(mapDateOfBirth(companyAppointmentData))
+                .withCountryOfResidence(isSecretary ? null : companyAppointmentData.getData().getCountryOfResidence())
+                .withDateOfBirth(isSecretary ? null : mapDateOfBirth(companyAppointmentData))
                 .withLinks(mapLinks(companyAppointmentData))
                 .withNationality(companyAppointmentData.getData().getNationality())
                 .withOccupation(companyAppointmentData.getData().getOccupation())
