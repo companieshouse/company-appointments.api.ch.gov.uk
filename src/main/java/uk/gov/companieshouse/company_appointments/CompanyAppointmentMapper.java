@@ -1,5 +1,7 @@
 package uk.gov.companieshouse.company_appointments;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -27,7 +29,7 @@ public class CompanyAppointmentMapper {
 
     public CompanyAppointmentView map(CompanyAppointmentData companyAppointmentData) {
         LOGGER.debug("Mapping data for appointment: " + companyAppointmentData.getId());
-        boolean isSecretary = "secretary".equals(companyAppointmentData.getData().getOfficerRole());
+        boolean isSecretary = SecretarialRoles.stream().anyMatch(s -> s.getRole().equals(companyAppointmentData.getData().getOfficerRole()));
 
         CompanyAppointmentView result = CompanyAppointmentView.builder()
                 .withAppointedOn(companyAppointmentData.getData().getAppointedOn())
