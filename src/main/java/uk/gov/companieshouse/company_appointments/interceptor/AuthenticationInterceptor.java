@@ -26,7 +26,6 @@ public class AuthenticationInterceptor extends HandlerInterceptorAdapter {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
-
         if (StringUtils.isEmpty(request.getHeader(ERIC_IDENTITY)) ||
                 (StringUtils.isEmpty(request.getHeader(ERIC_IDENTITY_TYPE)) || isInvalidIdentityType(request))) {
             logger.infoRequest(request, "User not authenticated", new HashMap<>());
@@ -39,7 +38,7 @@ public class AuthenticationInterceptor extends HandlerInterceptorAdapter {
 
     private boolean isInvalidIdentityType(HttpServletRequest request) {
         String identityType = request.getHeader(ERIC_IDENTITY_TYPE);
-        return !("key".equalsIgnoreCase(identityType) || "oauth".equalsIgnoreCase(identityType));
+        return !("key".equalsIgnoreCase(identityType) || "oauth2".equalsIgnoreCase(identityType));
     }
 
 }

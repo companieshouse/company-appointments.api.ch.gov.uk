@@ -120,7 +120,7 @@ public class AuthenticationInterceptorTest {
     void preHandleReturnsTrueIfEricIdentitySetAndIdentityTypeOAuth() {
         // given
         when(request.getHeader("ERIC-Identity")).thenReturn("user");
-        when(request.getHeader("ERIC-Identity-Type")).thenReturn("oauth");
+        when(request.getHeader("ERIC-Identity-Type")).thenReturn("oauth2");
 
         // when
         boolean actual = authenticationInterceptor.preHandle(request, response, handler);

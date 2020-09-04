@@ -73,7 +73,7 @@ public class CompanyAppointmentControllerITest {
         // when
         ResultActions result = mockMvc
                 .perform(get("/company/{company_number}/appointments/{appointment_id}", "12345678", "missing")
-                        .header("ERIC-Identity", "123").header("ERIC-Identity-Type", "key")
+                        .header("ERIC-Identity", "123").header("ERIC-Identity-Type", "oauth2")
                         .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON));
 
         // then
