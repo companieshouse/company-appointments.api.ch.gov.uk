@@ -54,7 +54,7 @@ public class CompanyAppointmentControllerITest {
         //when
         ResultActions result = mockMvc.perform(get("/company/{company_number}/appointments/{appointment_id}", "12345678", "7IjxamNGLlqtIingmTZJJ42Hw9Q")
                 .header("ERIC-Identity", "123")
-                .header("ERIC-Identity-Type", "api")
+                .header("ERIC-Identity-Type", "key")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON));
 
@@ -73,7 +73,7 @@ public class CompanyAppointmentControllerITest {
         // when
         ResultActions result = mockMvc
                 .perform(get("/company/{company_number}/appointments/{appointment_id}", "12345678", "missing")
-                        .header("ERIC-Identity", "123").header("ERIC-Identity-Type", "api")
+                        .header("ERIC-Identity", "123").header("ERIC-Identity-Type", "key")
                         .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON));
 
         // then

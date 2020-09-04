@@ -40,7 +40,7 @@ public class AuthenticationInterceptorTest {
     }
 
     @Test
-    void preHandleReturnsFalseIfEricIdentityIsNull() throws Exception {
+    void preHandleReturnsFalseIfEricIdentityIsNull() {
         // when
         boolean actual = authenticationInterceptor.preHandle(request, response, handler);
 
@@ -50,7 +50,7 @@ public class AuthenticationInterceptorTest {
     }
 
     @Test
-    void preHandleReturnsFalseIfEricIdentityIsEmpty() throws Exception {
+    void preHandleReturnsFalseIfEricIdentityIsEmpty() {
         // given
         when(request.getHeader("ERIC-Identity")).thenReturn("");
 
@@ -63,7 +63,7 @@ public class AuthenticationInterceptorTest {
     }
 
     @Test
-    void preHandleReturnsFalseIfEricIdentityTypeIsNull() throws Exception {
+    void preHandleReturnsFalseIfEricIdentityTypeIsNull() {
         // given
         when(request.getHeader("ERIC-Identity")).thenReturn("user");
         // when
@@ -75,7 +75,7 @@ public class AuthenticationInterceptorTest {
     }
 
     @Test
-    void preHandleReturnsFalseIfEricIdentityTypeIsEmpty() throws Exception {
+    void preHandleReturnsFalseIfEricIdentityTypeIsEmpty() {
         // given
         when(request.getHeader("ERIC-Identity")).thenReturn("user");
         when(request.getHeader("ERIC-Identity-Type")).thenReturn("");
@@ -89,10 +89,38 @@ public class AuthenticationInterceptorTest {
     }
 
     @Test
-    void preHandleReturnsTrueIfEricIdentityAndIdentityTypeAreBothSet() throws Exception {
+    void preHandleReturnsFalseIfEricIdentityTypeIsInvalid() {
         // given
         when(request.getHeader("ERIC-Identity")).thenReturn("user");
-        when(request.getHeader("ERIC-Identity-Type")).thenReturn("123");
+        when(request.getHeader("ERIC-Identity-Type")).thenReturn("stream");
+
+        // when
+        boolean actual = authenticationInterceptor.preHandle(request, response, handler);
+
+        // then
+        assertFalse(actual);
+        verify(response).setStatus(401);
+    }
+
+    @Test
+    void preHandleReturnsTrueIfEricIdentitySetAndIdentityTypeKey() {
+        // given
+        when(request.getHeader("ERIC-Identity")).thenReturn("user");
+        when(request.getHeader("ERIC-Identity-Type")).thenReturn("key");
+
+        // when
+        boolean actual = authenticationInterceptor.preHandle(request, response, handler);
+
+        // then
+        assertTrue(actual);
+        verifyNoInteractions(response);
+    }
+
+    @Test
+    void preHandleReturnsTrueIfEricIdentitySetAndIdentityTypeOAuth() {
+        // given
+        when(request.getHeader("ERIC-Identity")).thenReturn("user");
+        when(request.getHeader("ERIC-Identity-Type")).thenReturn("oauth");
 
         // when
         boolean actual = authenticationInterceptor.preHandle(request, response, handler);

@@ -5,7 +5,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
@@ -28,13 +27,19 @@ public class AuthenticationInterceptor extends HandlerInterceptorAdapter {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
 
-        if (StringUtils.isEmpty(request.getHeader(ERIC_IDENTITY)) || StringUtils.isEmpty(request.getHeader(ERIC_IDENTITY_TYPE))) {
+        if (StringUtils.isEmpty(request.getHeader(ERIC_IDENTITY)) ||
+                (StringUtils.isEmpty(request.getHeader(ERIC_IDENTITY_TYPE)) || isInvalidIdentityType(request))) {
             logger.infoRequest(request, "User not authenticated", new HashMap<>());
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return false;
         }
         logger.debugRequest(request, "User authenticated", new HashMap<>());
         return true;
+    }
+
+    private boolean isInvalidIdentityType(HttpServletRequest request) {
+        String identityType = request.getHeader(ERIC_IDENTITY_TYPE);
+        return !("key".equalsIgnoreCase(identityType) || "oauth".equalsIgnoreCase(identityType));
     }
 
 }
