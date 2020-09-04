@@ -50,6 +50,45 @@ public class AuthenticationInterceptorTest {
     }
 
     @Test
+    void preHandleReturnsFalseIfEricIdentityIsEmpty() throws Exception {
+        // given
+        when(request.getHeader("ERIC-Identity")).thenReturn("");
+
+        // when
+        boolean actual = authenticationInterceptor.preHandle(request, response, handler);
+
+        // then
+        assertFalse(actual);
+        verify(response).setStatus(401);
+    }
+
+    @Test
+    void preHandleReturnsFalseIfEricIdentityTypeIsNull() throws Exception {
+        // given
+        when(request.getHeader("ERIC-Identity")).thenReturn("user");
+        // when
+        boolean actual = authenticationInterceptor.preHandle(request, response, handler);
+
+        // then
+        assertFalse(actual);
+        verify(response).setStatus(401);
+    }
+
+    @Test
+    void preHandleReturnsFalseIfEricIdentityTypeIsEmpty() throws Exception {
+        // given
+        when(request.getHeader("ERIC-Identity")).thenReturn("user");
+        when(request.getHeader("ERIC-Identity-Type")).thenReturn("");
+
+        // when
+        boolean actual = authenticationInterceptor.preHandle(request, response, handler);
+
+        // then
+        assertFalse(actual);
+        verify(response).setStatus(401);
+    }
+
+    @Test
     void preHandleReturnsTrueIfEricIdentityAndIdentityTypeAreBothSet() throws Exception {
         // given
         when(request.getHeader("ERIC-Identity")).thenReturn("user");

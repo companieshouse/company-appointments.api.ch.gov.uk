@@ -49,9 +49,6 @@ public class CompanyAppointmentControllerITest {
         mongoTemplate.insert(Document.parse(IOUtils.resourceToString("/appointment-data.json", StandardCharsets.UTF_8)), "appointments");
     }
 
-    //TODO:
-    // HTTP 401 if user not authenticated (seperate story)
-
     @Test
     void testReturn200OKIfOfficerIsFound() throws Exception {
         //when
