@@ -1,8 +1,8 @@
 package uk.gov.companieshouse.company_appointments;
 
-import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.Matchers.contains;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -13,7 +13,6 @@ import java.nio.charset.StandardCharsets;
 import org.apache.commons.io.IOUtils;
 import org.bson.Document;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -50,14 +49,8 @@ public class CompanyAppointmentControllerITest {
         mongoTemplate.insert(Document.parse(IOUtils.resourceToString("/appointment-data.json", StandardCharsets.UTF_8)), "appointments");
     }
 
-    @BeforeEach
-    void before() {
-        mongoDBContainer.getDockerClient().unpauseContainerCmd(mongoDBContainer.getContainerId());
-    }
-
     //TODO:
     // HTTP 401 if user not authenticated (seperate story)
-    // HTTP 500 if database unavailable (untestable?)
 
     @Test
     void testReturn200OKIfOfficerIsFound() throws Exception {
@@ -88,6 +81,18 @@ public class CompanyAppointmentControllerITest {
 
         // then
         result.andExpect(status().isNotFound());
+    }
+    
+    @Test
+    void testReturn401IfUserNotAuthenticated() throws Exception {
+        // when
+        ResultActions result = mockMvc
+                .perform(get("/company/{company_number}/appointments/{appointment_id}", "12345678",
+                        "7IjxamNGLlqtIingmTZJJ42Hw9Q")
+                        .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON));
+
+        // then
+        result.andExpect(status().isUnauthorized());
     }
 
 }
