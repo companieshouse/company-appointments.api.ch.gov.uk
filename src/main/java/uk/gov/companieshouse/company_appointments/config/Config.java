@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import uk.gov.companieshouse.company_appointments.CompanyAppointmentsApplication;
+import uk.gov.companieshouse.company_appointments.interceptor.AuthenticationInterceptor;
 import uk.gov.companieshouse.company_appointments.interceptor.RequestLoggingInterceptor;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.logging.LoggerFactory;
@@ -16,7 +17,10 @@ import uk.gov.companieshouse.logging.LoggerFactory;
 public class Config implements WebMvcConfigurer {
 
     @Autowired
-    private RequestLoggingInterceptor interceptor;
+    private RequestLoggingInterceptor loggingInterceptor;
+
+    @Autowired
+    private AuthenticationInterceptor authenticationInterceptor;
 
     @Bean
     @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
@@ -26,7 +30,8 @@ public class Config implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(interceptor);
+        registry.addInterceptor(loggingInterceptor);
+        registry.addInterceptor(authenticationInterceptor);
     }
 
 }
