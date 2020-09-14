@@ -41,6 +41,10 @@ build:
 	mvn package -Dmaven.test.skip=true
 	cp ./target/$(artifact_name)-$(version).jar ./$(artifact_name).jar
 
+.PHONY: build-container
+build-container: build
+	docker build .
+
 .PHONY: dist
 dist: clean build package
 
