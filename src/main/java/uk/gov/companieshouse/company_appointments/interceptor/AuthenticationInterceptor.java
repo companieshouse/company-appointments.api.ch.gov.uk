@@ -4,10 +4,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
+
+import uk.gov.companieshouse.logging.Logger;
+
+import java.util.HashMap;
 
 @Component
 public class AuthenticationInterceptor extends HandlerInterceptorAdapter {
@@ -25,11 +28,11 @@ public class AuthenticationInterceptor extends HandlerInterceptorAdapter {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
         if (StringUtils.isEmpty(request.getHeader(ERIC_IDENTITY)) ||
                 (StringUtils.isEmpty(request.getHeader(ERIC_IDENTITY_TYPE)) || isInvalidIdentityType(request))) {
-            logger.info("User not authenticated");
+            logger.infoRequest(request, "User not authenticated", new HashMap<>());
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return false;
         }
-        logger.info("User authenticated");
+        logger.debugRequest(request, "User authenticated", new HashMap<>());
         return true;
     }
 
