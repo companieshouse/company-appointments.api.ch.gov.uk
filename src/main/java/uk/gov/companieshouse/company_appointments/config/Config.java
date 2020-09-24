@@ -1,7 +1,5 @@
 package uk.gov.companieshouse.company_appointments.config;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Bean;
@@ -11,9 +9,15 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import uk.gov.companieshouse.company_appointments.CompanyAppointmentsApplication;
 import uk.gov.companieshouse.company_appointments.interceptor.AuthenticationInterceptor;
+import uk.gov.companieshouse.company_appointments.interceptor.RequestLoggingInterceptor;
+import uk.gov.companieshouse.logging.Logger;
+import uk.gov.companieshouse.logging.LoggerFactory;
 
 @Configuration
 public class Config implements WebMvcConfigurer {
+
+    @Autowired
+    private RequestLoggingInterceptor loggingInterceptor;
 
     @Autowired
     private AuthenticationInterceptor authenticationInterceptor;
@@ -26,6 +30,7 @@ public class Config implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(loggingInterceptor);
         registry.addInterceptor(authenticationInterceptor);
     }
 

@@ -1,7 +1,5 @@
 package uk.gov.companieshouse.company_appointments;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -10,6 +8,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentView;
+import uk.gov.companieshouse.logging.Logger;
+import uk.gov.companieshouse.logging.LoggerFactory;
 
 @Controller
 @RequestMapping(path = "/company/{company_number}/appointments/{appointment_id}", produces = "application/json")
