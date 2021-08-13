@@ -27,6 +27,9 @@ public class CompanyAppointmentServiceTest {
     private CompanyAppointmentRepository companyAppointmentRepository;
 
     @Mock
+    private CompanyAppointmentDeltaRepository companyAppointmentDeltaRepository;
+
+    @Mock
     private CompanyAppointmentMapper companyAppointmentMapper;
 
     @Mock
@@ -42,7 +45,7 @@ public class CompanyAppointmentServiceTest {
     @BeforeEach
     void setUp() {
         companyAppointmentService = new CompanyAppointmentService(companyAppointmentRepository,
-                companyAppointmentMapper);
+                companyAppointmentDeltaRepository, companyAppointmentMapper);
     }
 
     @Test
