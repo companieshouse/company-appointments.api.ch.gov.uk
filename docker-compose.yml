@@ -8,7 +8,7 @@ services:
       - ./appointment-data.js:/docker-entrypoint-initdb.d/appointment-data.js
     environment:
       - MONGO_INITDB_DATABASE=delta_appointments
-  company-appointments-api:
+  company-appointments-api-ch-gov-uk:
     image: company-appointments.api.ch.gov.uk:latest
     ports:
       - "18576:18576"
