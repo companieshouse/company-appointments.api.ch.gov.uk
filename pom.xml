@@ -23,6 +23,8 @@
         <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
         <maven-failsafe-plugin.version>2.22.2</maven-failsafe-plugin.version>
         <structured-logging.version>1.9.4</structured-logging.version>
+        <sdk-manager-java.version>1.5.1</sdk-manager-java.version>
+        <private-api-sdk-java.version>unversioned</private-api-sdk-java.version>
     </properties>
 
     <dependencyManagement>
@@ -100,6 +102,18 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-web</artifactId>
             <version>5.2.0.RELEASE</version>
+        </dependency>
+
+        <!-- SDKs -->
+        <dependency>
+            <groupId>uk.gov.companieshouse</groupId>
+            <artifactId>private-api-sdk-java</artifactId>
+            <version>${private-api-sdk-java.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>uk.gov.companieshouse</groupId>
+            <artifactId>sdk-manager-java</artifactId>
+            <version>${sdk-manager-java.version}</version>
         </dependency>
     </dependencies>
 
