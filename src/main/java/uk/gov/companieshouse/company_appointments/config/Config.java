@@ -5,6 +5,8 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
+import org.springframework.data.mapping.model.SnakeCaseFieldNamingStrategy;
+import org.springframework.data.mongodb.core.mapping.MongoMappingContext;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import uk.gov.companieshouse.company_appointments.CompanyAppointmentsApplication;
@@ -15,12 +17,16 @@ import uk.gov.companieshouse.logging.LoggerFactory;
 
 @Configuration
 public class Config implements WebMvcConfigurer {
-
     @Autowired
     private RequestLoggingInterceptor loggingInterceptor;
 
     @Autowired
     private AuthenticationInterceptor authenticationInterceptor;
+
+    @Autowired
+    private void setNamingStrategy(MongoMappingContext mappingContext) {
+        mappingContext.setFieldNamingStrategy(new JSONNamingStrategy());
+    }
 
     @Bean
     @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
