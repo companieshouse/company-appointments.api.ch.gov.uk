@@ -1,16 +1,13 @@
 package uk.gov.companieshouse.company_appointments;
 
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import uk.gov.companieshouse.api.model.delta.officers.OfficerAPI;
+import uk.gov.companieshouse.api.model.delta.officers.AppointmentAPI;
 import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentData;
-import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentDeltaData;
 import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentView;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.logging.LoggerFactory;
-
-import java.util.Optional;
 
 @Service
 public class CompanyAppointmentService {
@@ -37,7 +34,7 @@ public class CompanyAppointmentService {
         return companyAppointmentMapper.map(appointmentData.orElseThrow(() -> new NotFoundException(String.format("Appointment [%s] for company [%s] not found", appointmentID, companyNumber))));
     }
 
-    public void putOfficerData(final OfficerAPI companyAppointmentData) {
+    public void putAppointmentData(final AppointmentAPI companyAppointmentData) {
         companyAppointmentDeltaRepository.insert(companyAppointmentData);
     }
 

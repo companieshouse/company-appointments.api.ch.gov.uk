@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import uk.gov.companieshouse.api.model.delta.officers.OfficerAPI;
+import uk.gov.companieshouse.api.model.delta.officers.AppointmentAPI;
 import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentView;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.logging.LoggerFactory;
@@ -37,10 +37,10 @@ public class CompanyAppointmentV2Controller {
     }
 
     @PutMapping(consumes = "application/json")
-    public ResponseEntity submitOfficerData(@RequestBody final OfficerAPI companyAppointmentData) {
+    public ResponseEntity submitOfficerData(@RequestBody final AppointmentAPI companyAppointmentData) {
 
         try {
-            companyAppointmentService.putOfficerData(companyAppointmentData);
+            companyAppointmentService.putAppointmentData(companyAppointmentData);
         } catch (Exception e) {
             throw e;
         }
