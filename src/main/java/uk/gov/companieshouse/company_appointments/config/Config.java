@@ -25,7 +25,7 @@ public class Config implements WebMvcConfigurer {
 
     @Autowired
     private void setNamingStrategy(MongoMappingContext mappingContext) {
-        mappingContext.setFieldNamingStrategy(new JSONNamingStrategy());
+        mappingContext.setFieldNamingStrategy(new JsonNamingStrategy());
     }
 
     @Bean
