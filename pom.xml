@@ -24,7 +24,7 @@
         <maven-failsafe-plugin.version>2.22.2</maven-failsafe-plugin.version>
         <structured-logging.version>1.9.4</structured-logging.version>
         <sdk-manager-java.version>1.5.1</sdk-manager-java.version>
-        <private-api-sdk-java.version>unversioned</private-api-sdk-java.version>
+        <private-api-sdk-java.version>2.0.74</private-api-sdk-java.version>
     </properties>
 
     <dependencyManagement>
