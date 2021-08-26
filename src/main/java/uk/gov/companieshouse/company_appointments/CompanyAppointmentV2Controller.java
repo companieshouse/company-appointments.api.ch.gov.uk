@@ -39,11 +39,7 @@ public class CompanyAppointmentV2Controller {
     @PutMapping(consumes = "application/json")
     public ResponseEntity submitOfficerData(@RequestBody final AppointmentAPI companyAppointmentData) {
 
-        try {
-            companyAppointmentService.putAppointmentData(companyAppointmentData);
-        } catch (Exception e) {
-            throw e;
-        }
+        companyAppointmentService.putAppointmentData(companyAppointmentData);
         return ResponseEntity.ok().build();
     }
 
