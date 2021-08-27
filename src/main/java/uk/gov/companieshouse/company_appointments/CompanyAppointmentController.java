@@ -5,18 +5,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-
-import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentData;
-import uk.gov.companieshouse.company_appointments.model.data.OfficerData;
 import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentView;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.logging.LoggerFactory;
-
-import javax.validation.Valid;
 
 @Controller
 @RequestMapping(path = "/company/{company_number}/appointments/{appointment_id}", produces = "application/json")
