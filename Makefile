@@ -17,6 +17,10 @@ test-unit: clean
 test-integration: clean
 	mvn verify -Dskip.unit.tests=true
 
+.PHONY: coverage
+coverage:
+	mvn verify
+
 .PHONY: verify
 verify: test-unit test-integration
 
@@ -46,7 +50,7 @@ build-container: build
 	docker build .
 
 .PHONY: dist
-dist: clean build package
+dist: clean build package coverage
 
 .PHONY: sonar
 sonar:

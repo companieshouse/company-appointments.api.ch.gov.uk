@@ -5,21 +5,24 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import uk.gov.companieshouse.api.model.delta.officers.AppointmentAPI;
 import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentView;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.logging.LoggerFactory;
 
 @Controller
-@RequestMapping(path = "/company/{company_number}/appointments/{appointment_id}", produces = "application/json")
-public class CompanyAppointmentController {
+@RequestMapping(path = "/appointments/v2/company/{company_number}/appointments/{appointment_id}", produces = "application/json")
+public class CompanyAppointmentV2Controller {
 
     private CompanyAppointmentService companyAppointmentService;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CompanyAppointmentsApplication.APPLICATION_NAMESPACE);
 
     @Autowired
-    public CompanyAppointmentController(CompanyAppointmentService companyAppointmentService) {
+    public CompanyAppointmentV2Controller(CompanyAppointmentService companyAppointmentService) {
         this.companyAppointmentService = companyAppointmentService;
     }
 
@@ -31,6 +34,13 @@ public class CompanyAppointmentController {
             LOGGER.info(e.getMessage());
             return ResponseEntity.notFound().build();
         }
+    }
+
+    @PutMapping(consumes = "application/json")
+    public ResponseEntity submitOfficerData(@RequestBody final AppointmentAPI companyAppointmentData) {
+
+        companyAppointmentService.putAppointmentData(companyAppointmentData);
+        return ResponseEntity.ok().build();
     }
 
 }

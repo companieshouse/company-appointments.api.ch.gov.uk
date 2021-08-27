@@ -15,6 +15,7 @@ import org.junit.jupiter.api.function.Executable;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import uk.gov.companieshouse.api.model.delta.officers.AppointmentAPI;
 import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentData;
 import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentView;
 
@@ -27,6 +28,9 @@ public class CompanyAppointmentServiceTest {
     private CompanyAppointmentRepository companyAppointmentRepository;
 
     @Mock
+    private CompanyAppointmentDeltaRepository companyAppointmentDeltaRepository;
+
+    @Mock
     private CompanyAppointmentMapper companyAppointmentMapper;
 
     @Mock
@@ -35,6 +39,9 @@ public class CompanyAppointmentServiceTest {
     @Mock
     private CompanyAppointmentView companyAppointmentView;
 
+    @Mock
+    private AppointmentAPI appointment;
+
     private final static String COMPANY_NUMBER = "123456";
 
     private final static String APPOINTMENT_ID = "345678";
@@ -42,7 +49,7 @@ public class CompanyAppointmentServiceTest {
     @BeforeEach
     void setUp() {
         companyAppointmentService = new CompanyAppointmentService(companyAppointmentRepository,
-                companyAppointmentMapper);
+                companyAppointmentDeltaRepository, companyAppointmentMapper);
     }
 
     @Test
@@ -70,5 +77,14 @@ public class CompanyAppointmentServiceTest {
         Executable result = () -> companyAppointmentService.fetchAppointment(COMPANY_NUMBER, APPOINTMENT_ID);
 
         assertThrows(NotFoundException.class, result);
+    }
+
+    @Test
+    void testPutAppointmentData() {
+        // when
+        companyAppointmentService.putAppointmentData(appointment);
+
+        // then
+        verify(companyAppointmentDeltaRepository).insert(appointment);
     }
 }
