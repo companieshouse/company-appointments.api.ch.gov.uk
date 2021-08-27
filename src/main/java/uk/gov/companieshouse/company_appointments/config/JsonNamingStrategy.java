@@ -2,8 +2,6 @@ package uk.gov.companieshouse.company_appointments.config;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.mongodb.lang.NonNull;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mapping.PersistentProperty;
@@ -25,7 +23,6 @@ public class JsonNamingStrategy extends SnakeCaseFieldNamingStrategy {
                 Objects.requireNonNull(property.findAnnotation(JsonProperty.class));
             return jsonProperty.value();
         } catch (Throwable e) {
-            Map<String, Object> info = new HashMap<>();
             return super.getFieldName(property);
         }
     }
