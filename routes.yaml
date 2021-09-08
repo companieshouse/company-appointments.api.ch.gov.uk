@@ -3,3 +3,4 @@ group: api
 weight: 900
 routes:
   1: ^/company/.*?/appointments/.*?$
+  2: ^/appointments/v2/company/.*?/appointments/.*?$
