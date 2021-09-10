@@ -28,7 +28,7 @@
 
         <structured-logging.version>1.9.4</structured-logging.version>
         <sdk-manager-java.version>1.5.1</sdk-manager-java.version>
-        <private-api-sdk-java.version>2.0.77</private-api-sdk-java.version>
+        <private-api-sdk-java.version>unversioned</private-api-sdk-java.version>
 
         <!--sonar configuration-->
         <sonar.coverage.jacoco.xmlReportPaths>${project.basedir}/target/site/jacoco/jacoco.xml,
