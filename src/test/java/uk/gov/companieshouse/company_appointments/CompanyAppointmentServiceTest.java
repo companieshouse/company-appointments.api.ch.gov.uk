@@ -7,20 +7,19 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Optional;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.function.Executable;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
 import uk.gov.companieshouse.api.model.delta.officers.AppointmentAPI;
+import uk.gov.companieshouse.api.model.delta.officers.OfficerAPI;
 import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentData;
 import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentView;
 
 @ExtendWith(MockitoExtension.class)
-public class CompanyAppointmentServiceTest {
+class CompanyAppointmentServiceTest {
 
     private CompanyAppointmentService companyAppointmentService;
 
@@ -28,7 +27,7 @@ public class CompanyAppointmentServiceTest {
     private CompanyAppointmentRepository companyAppointmentRepository;
 
     @Mock
-    private CompanyAppointmentDeltaRepository companyAppointmentDeltaRepository;
+    private AppointmentApiRepository appointmentApiRepository;
 
     @Mock
     private CompanyAppointmentMapper companyAppointmentMapper;
@@ -39,7 +38,6 @@ public class CompanyAppointmentServiceTest {
     @Mock
     private CompanyAppointmentView companyAppointmentView;
 
-    @Mock
     private AppointmentAPI appointment;
 
     private final static String COMPANY_NUMBER = "123456";
@@ -49,7 +47,7 @@ public class CompanyAppointmentServiceTest {
     @BeforeEach
     void setUp() {
         companyAppointmentService = new CompanyAppointmentService(companyAppointmentRepository,
-                companyAppointmentDeltaRepository, companyAppointmentMapper);
+            appointmentApiRepository, companyAppointmentMapper);
     }
 
     @Test
@@ -82,9 +80,10 @@ public class CompanyAppointmentServiceTest {
     @Test
     void testPutAppointmentData() {
         // when
+        appointment = new AppointmentAPI("id", new OfficerAPI(), "internalId", "appointmentId", "officerId", "previousOfficerId", "deltaAt");
         companyAppointmentService.putAppointmentData(appointment);
 
         // then
-        verify(companyAppointmentDeltaRepository).insert(appointment);
+        verify(appointmentApiRepository).insertOrUpdate(appointment);
     }
 }
