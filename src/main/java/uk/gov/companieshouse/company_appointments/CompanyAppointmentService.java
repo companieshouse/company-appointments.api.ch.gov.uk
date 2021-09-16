@@ -15,15 +15,15 @@ public class CompanyAppointmentService {
     private static final Logger LOGGER = LoggerFactory.getLogger(CompanyAppointmentsApplication.APPLICATION_NAMESPACE);
 
     private CompanyAppointmentRepository companyAppointmentRepository;
-    private CompanyAppointmentDeltaRepository companyAppointmentDeltaRepository;
+    private AppointmentApiRepository appointmentApiRepository;
     private CompanyAppointmentMapper companyAppointmentMapper;
 
     @Autowired
     public CompanyAppointmentService(CompanyAppointmentRepository companyAppointmentRepository,
-                                     CompanyAppointmentDeltaRepository companyAppointmentDeltaRepository,
+                                     AppointmentApiRepository appointmentApiRepository,
                                      CompanyAppointmentMapper companyAppointmentMapper) {
         this.companyAppointmentRepository = companyAppointmentRepository;
-        this.companyAppointmentDeltaRepository = companyAppointmentDeltaRepository;
+        this.appointmentApiRepository = appointmentApiRepository;
         this.companyAppointmentMapper = companyAppointmentMapper;
     }
 
@@ -34,8 +34,8 @@ public class CompanyAppointmentService {
         return companyAppointmentMapper.map(appointmentData.orElseThrow(() -> new NotFoundException(String.format("Appointment [%s] for company [%s] not found", appointmentID, companyNumber))));
     }
 
-    public void putAppointmentData(final AppointmentAPI companyAppointmentData) {
-        companyAppointmentDeltaRepository.insert(companyAppointmentData);
+    public AppointmentAPI putAppointmentData(final AppointmentAPI appointmentApi) {
+        return appointmentApiRepository.insertOrUpdate(appointmentApi);
     }
 
 }

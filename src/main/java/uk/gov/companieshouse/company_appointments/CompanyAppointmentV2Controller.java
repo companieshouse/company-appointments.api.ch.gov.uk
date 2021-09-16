@@ -37,7 +37,7 @@ public class CompanyAppointmentV2Controller {
     }
 
     @PutMapping(consumes = "application/json")
-    public ResponseEntity submitOfficerData(@RequestBody final AppointmentAPI companyAppointmentData) {
+    public ResponseEntity<Void> submitOfficerData(@RequestBody final AppointmentAPI companyAppointmentData) {
 
         companyAppointmentService.putAppointmentData(companyAppointmentData);
         return ResponseEntity.ok().build();
