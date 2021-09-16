@@ -68,7 +68,7 @@ class CompanyAppointmentV2ControllerTest {
     @Test
     void testControllerReturns200WhenDataSubmitted() {
         // given
-        doNothing().when(companyAppointmentService).putAppointmentData(appointment);
+        when(companyAppointmentService.putAppointmentData(appointment)).thenReturn(appointment);
 
         // when
         ResponseEntity<CompanyAppointmentView> response = companyAppointmentV2Controller.submitOfficerData(appointment);
