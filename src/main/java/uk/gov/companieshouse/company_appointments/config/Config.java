@@ -22,11 +22,6 @@ public class Config implements WebMvcConfigurer {
     @Autowired
     private AuthenticationInterceptor authenticationInterceptor;
 
-    @Autowired
-    private void setNamingStrategy(MongoMappingContext mappingContext) {
-        mappingContext.setFieldNamingStrategy(new JsonNamingStrategy());
-    }
-
     @Bean
     @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
     Logger logger() {
