@@ -1,8 +1,7 @@
 package uk.gov.companieshouse.company_appointments;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -71,7 +70,7 @@ class CompanyAppointmentV2ControllerTest {
         when(companyAppointmentService.putAppointmentData(appointment)).thenReturn(appointment);
 
         // when
-        ResponseEntity<CompanyAppointmentView> response = companyAppointmentV2Controller.submitOfficerData(appointment);
+        ResponseEntity<Void> response = companyAppointmentV2Controller.submitOfficerData(appointment);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
     }
