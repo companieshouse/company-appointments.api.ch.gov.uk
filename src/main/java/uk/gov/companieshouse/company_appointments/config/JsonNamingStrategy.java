@@ -13,6 +13,7 @@ public class JsonNamingStrategy extends SnakeCaseFieldNamingStrategy {
 
     @Autowired
     public JsonNamingStrategy() {
+        // blank no-arg constructor
     }
 
     @Override
@@ -22,7 +23,7 @@ public class JsonNamingStrategy extends SnakeCaseFieldNamingStrategy {
             JsonProperty jsonProperty =
                 Objects.requireNonNull(property.findAnnotation(JsonProperty.class));
             return jsonProperty.value();
-        } catch (Throwable e) {
+        } catch (Exception e) {
             return super.getFieldName(property);
         }
     }
