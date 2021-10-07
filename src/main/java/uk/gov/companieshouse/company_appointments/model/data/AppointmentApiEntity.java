@@ -12,4 +12,7 @@ public class AppointmentApiEntity extends AppointmentAPI {
             appointmentAPI.getPreviousOfficerId(), appointmentAPI.getDeltaAt());
     }
 
+    // No arg constructor needed for Spring data
+    public AppointmentApiEntity() {
+    }
 }
