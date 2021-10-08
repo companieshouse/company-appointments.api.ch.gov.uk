@@ -38,8 +38,8 @@ public class CompanyAppointmentV2Controller {
 
     @PutMapping(consumes = "application/json")
     public ResponseEntity<Void> submitOfficerData(@RequestBody final AppointmentAPI companyAppointmentData) {
+        companyAppointmentService.insertAppointmentDelta(companyAppointmentData);
 
-        companyAppointmentService.putAppointmentData(companyAppointmentData);
         return ResponseEntity.ok().build();
     }
 

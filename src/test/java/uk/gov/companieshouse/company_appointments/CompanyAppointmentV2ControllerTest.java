@@ -2,6 +2,7 @@ package uk.gov.companieshouse.company_appointments;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -67,12 +68,10 @@ class CompanyAppointmentV2ControllerTest {
     @Test
     void testControllerReturns200WhenDataSubmitted() {
         // given
-        when(companyAppointmentService.putAppointmentData(appointment)).thenReturn(appointment);
 
         // when
         ResponseEntity<Void> response = companyAppointmentV2Controller.submitOfficerData(appointment);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
     }
-
 }
