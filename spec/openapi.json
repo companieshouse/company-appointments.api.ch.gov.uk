@@ -1,0 +1,264 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "Company Appointments API",
+    "license": {
+      "name": "Companies House"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8083"
+    }
+  ],
+  "paths": {
+    "/company/{company_number}/appointments/{appointment_id}": {
+      "get": {
+        "summary": "Get details of an individual company officer appointment",
+        "operationId": "getAppointment",
+        "tags": [
+          "company appointment"
+        ],
+        "parameters": [
+          {
+            "name": "company_number",
+            "in": "path",
+            "required": true,
+            "description": "The id of the company",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "appointment_id",
+            "in": "path",
+            "required": true,
+            "description": "The id of the appointment",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Expected response to a valid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Appointment"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorised",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Appointment": {
+        "description": "Appointment",
+        "required": [
+          "service_address",
+          "appointed_on",
+          "links",
+          "name",
+          "officer_role"
+        ],
+        "properties": {
+          "service_address": {
+            "$ref": "#/components/schemas/Address"
+          },
+          "usual_residence_address": {
+            "$ref": "#/components/schemas/Address"
+          },
+          "appointed_on": {
+            "type": "string"
+          },
+          "country_of_residence": {
+            "type": "string"
+          },
+          "date_of_birth": {
+            "$ref": "#/components/schemas/DOB"
+          },
+          "former_names": {
+            "$ref": "#/components/schemas/FormerNames"
+          },
+          "identification": {
+            "$ref": "#/components/schemas/Identification"
+          },
+          "links": {
+            "$ref": "#/components/schemas/Links"
+          },
+          "name": {
+            "type": "string"
+          },
+          "nationality": {
+            "type": "string"
+          },
+          "occupation": {
+            "type": "string"
+          },
+          "officer_role": {
+            "type": "string"
+          },
+          "resigned_on": {
+            "type": "string"
+          }
+        }
+      },
+      "Address": {
+        "description": "Address",
+        "required": [
+          "address_line_1",
+          "locality"
+        ],
+        "properties": {
+          "address_line_1": {
+            "type": "string"
+          },
+          "address_line_2": {
+            "type": "string"
+          },
+          "care_of": {
+            "type": "string"
+          },
+          "country": {
+            "type": "string"
+          },
+          "locality": {
+            "type": "string"
+          },
+          "po_box": {
+            "type": "string"
+          },
+          "postal_code": {
+            "type": "string"
+          },
+          "premises": {
+            "type": "string"
+          },
+          "region": {
+            "type": "string"
+          }
+        }
+      },
+      "DOB": {
+        "description": "Date of Birth",
+        "title": "Date of Birth",
+        "required": [
+          "month",
+          "year"
+        ],
+        "properties": {
+          "day": {
+            "type": "integer"
+          },
+          "month": {
+            "type": "integer"
+          },
+          "year": {
+            "type": "integer"
+          }
+        }
+      },
+      "FormerNames": {
+        "description": "Former Names",
+        "title": "Former Names",
+        "properties": {
+          "forenames": {
+            "type": "string"
+          },
+          "surname": {
+            "type": "string"
+          }
+        }
+      },
+      "Identification": {
+        "description": "Identification",
+        "title": "Identification",
+        "properties": {
+          "identification_type": {
+            "type": "string"
+          },
+          "legal_authority": {
+            "type": "string"
+          },
+          "legal_form": {
+            "type": "string"
+          },
+          "place_registered": {
+            "type": "string"
+          },
+          "registration_number": {
+            "type": "string"
+          }
+        }
+      },
+      "Links": {
+        "description": "Links",
+        "title": "Links",
+        "required": [
+          "officer",
+          "self"
+        ],
+        "properties": {
+          "officer": {
+            "$ref": "#/components/schemas/Officer"
+          },
+          "self": {
+            "type": "string"
+          }
+        }
+      },
+      "Officer": {
+        "description": "Officer",
+        "title": "Officer",
+        "required": [
+          "appointments"
+        ],
+        "properties": {
+          "appointments": {
+            "type": "string"
+          }
+        }
+      },
+      "Response": {
+        "required": [
+          "code",
+          "message"
+        ],
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "description": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
