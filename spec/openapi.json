@@ -18,7 +18,7 @@
         "summary": "Get details of an individual company officer appointment",
         "operationId": "getAppointment",
         "tags": [
-          "company appointment"
+          "company officer appointment"
         ],
         "parameters": [
           {
