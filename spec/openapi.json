@@ -16,7 +16,7 @@
     "/company/{company_number}/appointments/{appointment_id}": {
       "get": {
         "summary": "Get details of an individual company officer appointment",
-        "operationId": "getAppointment",
+        "operationId": "showPetById",
         "tags": [
           "company officer appointment"
         ],
@@ -121,6 +121,29 @@
             "type": "string"
           },
           "officer_role": {
+            "enum": [
+              "cic-manager",
+              "corporate-director",
+              "corporate-llp-designated-member",
+              "corporate-llp-member",
+              "corporate-member-of-a-management",
+              "corporate-member-of-a-supervisory-organ",
+              "corporate-member-of-an-administrative-organ",
+              "corporate-nominee-director",
+              "corporate-nominee-secretary",
+              "corporate-secretary",
+              "director",
+              "judicial-factor",
+              "llp-designated-member",
+              "llp-member",
+              "member-of-a-management",
+              "member-of-a-supervisory-organ",
+              "member-of-an-administrative-organ",
+              "nominee-director",
+              "nominee-secretary",
+              "receiver-and-manager",
+              "secretary"
+            ],
             "type": "string"
           },
           "resigned_on": {
@@ -173,10 +196,14 @@
         ],
         "properties": {
           "day": {
-            "type": "integer"
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 31
           },
           "month": {
-            "type": "integer"
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 12
           },
           "year": {
             "type": "integer"
@@ -200,6 +227,12 @@
         "title": "Identification",
         "properties": {
           "identification_type": {
+            "enum": [
+              "EEA",
+              "non-eea",
+              "other-corporate-body-or-firm",
+              "uk-limited-company"
+            ],
             "type": "string"
           },
           "legal_authority": {
@@ -217,7 +250,7 @@
         }
       },
       "Links": {
-        "description": "Links",
+        "description": "Links to other resources associated with this officer list item.",
         "title": "Links",
         "required": [
           "officer",
@@ -228,7 +261,8 @@
             "$ref": "#/components/schemas/Officer"
           },
           "self": {
-            "type": "string"
+            "type": "string",
+            "description": "Link to this individual company officer appointment resource."
           }
         }
       },
