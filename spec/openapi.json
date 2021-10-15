@@ -28,7 +28,6 @@
             "description": "The id of the company",
             "schema": {
               "type": "string"
-              "pattern": "^\d{8}$"
             }
           },
           {
@@ -212,7 +211,7 @@
         }
       },
       "FormerNames": {
-        "description": "Former names for the officer, if there are any."
+        "description": "Former names for the officer, if there are any.",
         "title": "Former Names",
         "properties": {
           "forenames": {
