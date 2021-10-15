@@ -28,6 +28,7 @@
             "description": "The id of the company",
             "schema": {
               "type": "string"
+              "pattern": "^\d{8}$"
             }
           },
           {
@@ -188,7 +189,7 @@
         }
       },
       "DOB": {
-        "description": "Date of Birth",
+        "description": "The officers date of birth",
         "title": "Date of Birth",
         "required": [
           "month",
@@ -211,7 +212,7 @@
         }
       },
       "FormerNames": {
-        "description": "Former Names",
+        "description": "Former names for the officer, if there are any."
         "title": "Former Names",
         "properties": {
           "forenames": {
