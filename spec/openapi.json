@@ -166,7 +166,7 @@
         }
       },
       "DOB": {
-        "description": "Date of Birth",
+        "description": "The officers date of birth",
         "title": "Date of Birth",
         "required": [
           "month",
