@@ -185,7 +185,7 @@
         }
       },
       "FormerNames": {
-        "description": "Former Names",
+        "description": "Former names for the officer, if there are any."
         "title": "Former Names",
         "properties": {
           "forenames": {
