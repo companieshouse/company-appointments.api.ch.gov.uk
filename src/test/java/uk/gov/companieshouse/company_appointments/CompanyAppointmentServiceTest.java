@@ -5,10 +5,12 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.function.Executable;
@@ -18,11 +20,18 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.verification.VerificationMode;
+import uk.gov.companieshouse.api.model.delta.officers.AddressAPI;
 import uk.gov.companieshouse.api.model.delta.officers.AppointmentAPI;
+import uk.gov.companieshouse.api.model.delta.officers.FormerNamesAPI;
+import uk.gov.companieshouse.api.model.delta.officers.IdentificationAPI;
+import uk.gov.companieshouse.api.model.delta.officers.LinksAPI;
 import uk.gov.companieshouse.api.model.delta.officers.OfficerAPI;
+import uk.gov.companieshouse.api.model.delta.officers.OfficerLinksAPI;
 import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentData;
 import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentView;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -142,5 +151,54 @@ class CompanyAppointmentServiceTest {
         // then
         final VerificationMode verificationMode = shouldBeStale ? never() : atLeastOnce();
         verify(appointmentApiRepository, verificationMode).insertOrUpdate(appointment);
+    }
+
+
+    @Test
+    @DisplayName("Tests if the additionalProperties field is set to null to prevent being stored")
+    void additionalPropertiesRemoved() {
+        // given
+        final OfficerAPI officer = spy(OfficerAPI.class);
+
+        final AddressAPI serviceAddress = spy(AddressAPI.class);
+        when(officer.getServiceAddress()).thenReturn(serviceAddress);
+
+        final AddressAPI ura = spy(AddressAPI.class);
+        when(officer.getUsualResidentialAddress()).thenReturn(ura);
+
+        final FormerNamesAPI formerName = spy(FormerNamesAPI.class);
+        final List<FormerNamesAPI> formerNames = new ArrayList<>();
+        formerNames.add(formerName);
+        when(officer.getFormerNameData()).thenReturn(formerNames);
+
+        final IdentificationAPI identificationAPI = spy(IdentificationAPI.class);
+        when(officer.getIdentificationData()).thenReturn(identificationAPI);
+
+        final LinksAPI linksAPI = spy(LinksAPI.class);
+        when(officer.getLinksData()).thenReturn(linksAPI);
+
+        final OfficerLinksAPI officerLinksAPI = spy(OfficerLinksAPI.class);
+        when(linksAPI.getOfficerLinksData()).thenReturn(officerLinksAPI);
+
+        appointment = spy(new AppointmentAPI(
+                "id",
+                officer,
+                "internalId",
+                "appointmentId",
+                "officerId",
+                "previousOfficerId",
+                "deltaAt"));
+
+        // When
+        companyAppointmentService.insertAppointmentDelta(appointment);
+
+        // then
+        verify(officer).setAdditionalProperties(null);
+        verify(serviceAddress).setAdditionalProperties(null);
+        verify(ura).setAdditionalProperties(null);
+        verify(formerName).setAdditionalProperties(null);
+        verify(identificationAPI).setAdditionalProperties(null);
+        verify(linksAPI).setAdditionalProperties(null);
+        verify(officerLinksAPI).setAdditionalProperties(null);
     }
 }
