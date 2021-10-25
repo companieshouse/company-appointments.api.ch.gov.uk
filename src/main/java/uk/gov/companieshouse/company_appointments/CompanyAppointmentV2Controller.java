@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import uk.gov.companieshouse.api.model.delta.officers.AppointmentAPI;
-import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentView;
+import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentV2View;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.logging.LoggerFactory;
 
@@ -17,19 +17,19 @@ import uk.gov.companieshouse.logging.LoggerFactory;
 @RequestMapping(path = "/appointments/v2/company/{company_number}/appointments/{appointment_id}", produces = "application/json")
 public class CompanyAppointmentV2Controller {
 
-    private CompanyAppointmentService companyAppointmentService;
+    private CompanyAppointmentV2Service companyAppointmentService;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CompanyAppointmentsApplication.APPLICATION_NAMESPACE);
 
     @Autowired
-    public CompanyAppointmentV2Controller(CompanyAppointmentService companyAppointmentService) {
+    public CompanyAppointmentV2Controller(CompanyAppointmentV2Service companyAppointmentService) {
         this.companyAppointmentService = companyAppointmentService;
     }
 
     @GetMapping
-    public ResponseEntity<CompanyAppointmentView> fetchAppointment(@PathVariable("company_number") String companyNumber, @PathVariable("appointment_id") String appointmentID) {
+    public ResponseEntity<CompanyAppointmentV2View> getAppointment(@PathVariable("company_number") String companyNumber, @PathVariable("appointment_id") String appointmentID) {
         try {
-            return ResponseEntity.ok(companyAppointmentService.fetchAppointment(companyNumber, appointmentID));
+            return ResponseEntity.ok(companyAppointmentService.getAppointment(companyNumber, appointmentID));
         } catch (NotFoundException e) {
             LOGGER.info(e.getMessage());
             return ResponseEntity.notFound().build();
