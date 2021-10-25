@@ -8,7 +8,7 @@ import uk.gov.companieshouse.company_appointments.model.data.AppointmentApiEntit
 import java.util.Optional;
 
 @Repository
-public interface CompanyAppointmentV2Repository extends MongoRepository<AppointmentApiEntity, String> {
+public interface CompanyAppointmentFullRecordRepository extends MongoRepository<AppointmentApiEntity, String> {
 
     @Query("{'company_number' : '?0', '_id' : '?1'}")
     Optional<AppointmentApiEntity> findByCompanyNumberAndAppointmentID(String companyNumber, String appointmentId);

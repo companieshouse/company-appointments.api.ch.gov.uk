@@ -108,11 +108,6 @@
             <artifactId>mongodb</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-web</artifactId>
-            <version>5.2.0.RELEASE</version>
-        </dependency>
 
         <!-- SDKs -->
         <dependency>

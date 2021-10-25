@@ -2,5 +2,5 @@ app_name: company-appointments.api.ch.gov.uk
 group: api
 weight: 900
 routes:
-  1: ^/company/.*?/appointments/.*?$
-  2: ^/appointments/v2/company/.*?/appointments/.*?$
+  1: ^/company/.*?/appointments/(?!.*?\/full_record)$
+  2: ^/company/.*?/appointments/(?=.*?\/full_record)$

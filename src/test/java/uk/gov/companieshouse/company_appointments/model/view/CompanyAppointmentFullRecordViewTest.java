@@ -1,5 +1,8 @@
 package uk.gov.companieshouse.company_appointments.model.view;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,11 +17,8 @@ import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.*;
-import static org.hamcrest.Matchers.is;
-
 @ExtendWith(MockitoExtension.class)
-class CompanyAppointmentV2ViewTest {
+class CompanyAppointmentFullRecordViewTest {
 
     private static final Instant INSTANT_DOB = Instant.parse("1989-01-12T00:00:00.000Z");
     private static final Instant INSTANT_ONE = Instant.parse("2009-01-12T00:00:00.000Z");
@@ -33,7 +33,7 @@ class CompanyAppointmentV2ViewTest {
         new LinksAPI("/officers/abcde123456789","/officers/abcde123456789/appointments","/company/01777777/appointments/123456789abcde");
     private DateOfBirth dob = new DateOfBirth(12,1,1989);
 
-    private CompanyAppointmentV2View testView;
+    private CompanyAppointmentFullRecordView testView;
 
     @BeforeEach
     void setUp() {
@@ -55,7 +55,7 @@ class CompanyAppointmentV2ViewTest {
         officerData.setOfficerRole("director");
         officerData.setResignedOn(INSTANT_TWO);
 
-        testView = CompanyAppointmentV2View.CompanyAppointmentV2ViewBuilder.view(officerData).build();
+        testView = CompanyAppointmentFullRecordView.Builder.view(officerData).build();
     }
 
     @Test
