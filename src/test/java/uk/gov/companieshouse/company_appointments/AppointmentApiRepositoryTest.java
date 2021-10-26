@@ -36,6 +36,7 @@ class AppointmentApiRepositoryTest {
                 "appointmentId",
                 "officerId",
                 "previousOfficerId",
+                "companyNumber",
                 "deltaAt");
         final AppointmentApiEntity expected = new AppointmentApiEntity(appointment);
         testRepository.insertOrUpdate(appointment);

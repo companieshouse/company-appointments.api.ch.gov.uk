@@ -74,21 +74,16 @@ class CompanyAppointmentFullRecordServiceTest {
     @Test
     void testFetchAppointmentReturnsMappedAppointmentData() throws NotFoundException {
         // given
-        appointmentEntity = new AppointmentApiEntity(new AppointmentAPI(
-            "id",
-            new OfficerAPI(),
-            "internalId",
-            "appointmentId",
-            "officerId",
-            "previousOfficerId",
-            "deltaAt"));
+        appointmentEntity = new AppointmentApiEntity(
+                new AppointmentAPI("id", new OfficerAPI(), "internalId", "appointmentId", "officerId",
+                        "previousOfficerId", "companyNumber", "deltaAt"));
 
-        when(companyAppointmentRepository.findByCompanyNumberAndAppointmentID(COMPANY_NUMBER, APPOINTMENT_ID))
-                .thenReturn(Optional.of(appointmentEntity));
+        when(companyAppointmentRepository.findByCompanyNumberAndAppointmentID(COMPANY_NUMBER,
+                APPOINTMENT_ID)).thenReturn(Optional.of(appointmentEntity));
 
         // when
-        CompanyAppointmentFullRecordView
-                result = companyAppointmentService.getAppointment(COMPANY_NUMBER, APPOINTMENT_ID);
+        CompanyAppointmentFullRecordView result =
+                companyAppointmentService.getAppointment(COMPANY_NUMBER, APPOINTMENT_ID);
 
         // then
         assertThat(result, isA(CompanyAppointmentFullRecordView.class));
@@ -108,14 +103,9 @@ class CompanyAppointmentFullRecordServiceTest {
     @Test
     void testPutAppointmentData() {
         // given
-        appointmentEntity = new AppointmentApiEntity(new AppointmentAPI(
-                "id",
-                new OfficerAPI(),
-                "internalId",
-                "appointmentId",
-                "officerId",
-                "previousOfficerId",
-                "deltaAt"));
+        appointmentEntity = new AppointmentApiEntity(
+                new AppointmentAPI("id", new OfficerAPI(), "internalId", "appointmentId", "officerId",
+                        "previousOfficerId", "companyNumber", "deltaAt"));
 
         // When
         companyAppointmentService.insertAppointmentDelta(appointmentEntity);
@@ -132,14 +122,9 @@ class CompanyAppointmentFullRecordServiceTest {
             boolean shouldBeStale) {
 
         // given
-        appointmentEntity = new AppointmentApiEntity(new AppointmentAPI(
-                "id",
-                new OfficerAPI(),
-                "internalId",
-                "appointmentId",
-                "officerId",
-                "previousOfficerId",
-                incomingDeltaAt));
+        appointmentEntity = new AppointmentApiEntity(
+                new AppointmentAPI("id", new OfficerAPI(), "internalId", "appointmentId", "officerId",
+                        "previousOfficerId", "companyNumber", incomingDeltaAt));
 
         when(appointmentApiRepository.existsByIdAndDeltaAtGreaterThanEqual("id",
                 appointmentEntity.getDeltaAt())).thenReturn(
@@ -181,7 +166,7 @@ class CompanyAppointmentFullRecordServiceTest {
 
         appointmentEntity = spy(new AppointmentApiEntity(
                 new AppointmentAPI("id", officer, "internalId", "appointmentId", "officerId", "previousOfficerId",
-                        "deltaAt")));
+                        "companyNumber", "deltaAt")));
 
         // When
         companyAppointmentService.insertAppointmentDelta(appointmentEntity);
@@ -204,7 +189,7 @@ class CompanyAppointmentFullRecordServiceTest {
 
         appointmentEntity = spy(new AppointmentApiEntity(
                 new AppointmentAPI("id", officer, "internalId", "appointmentId", "officerId", "previousOfficerId",
-                        "deltaAt")));
+                        "companyNumber", "deltaAt")));
 
         // When
         companyAppointmentService.insertAppointmentDelta(appointmentEntity);

@@ -121,6 +121,7 @@ public class CompanyAppointmentFullRecordView {
     public static class Builder {
 
         public static final ZoneId UTC_ZONE = ZoneId.of("UTC");
+        private static final String FULL_RECORD = "/full_record";
         private final List<Consumer<CompanyAppointmentFullRecordView>> buildSteps;
 
         private Builder() {
@@ -144,6 +145,16 @@ public class CompanyAppointmentFullRecordView {
                 .withOccupation(data.getOccupation())
                 .withOfficerRole(data.getOfficerRole())
                 .withResignedOn(data.getResignedOn());
+        }
+
+        private static void appendSelfLinkFullRecord(CompanyAppointmentFullRecordView view) {
+            if (view != null && view.getLinks() != null) {
+                final String selfLink = view.getLinks().getSelfLink();
+
+                if (selfLink != null && !selfLink.endsWith(FULL_RECORD)) {
+                    view.getLinks().setSelfLink(selfLink.concat(FULL_RECORD));
+                }
+            }
         }
 
         public Builder withServiceAddress(AddressAPI address) {
@@ -202,6 +213,7 @@ public class CompanyAppointmentFullRecordView {
             }
 
             buildSteps.add(view -> view.links = links);
+            buildSteps.add(Builder::appendSelfLinkFullRecord);
 
             return this;
         }
