@@ -36,6 +36,7 @@ class AppointmentApiV2RepositoryTest {
                 "appointmentId",
                 "officerId",
                 "previousOfficerId",
+                "companyNumber",
                 "deltaAt");
 
         final AppointmentApiEntity expected = new AppointmentApiEntity(appointment);

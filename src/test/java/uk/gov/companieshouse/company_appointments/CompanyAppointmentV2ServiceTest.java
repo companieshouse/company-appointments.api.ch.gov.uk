@@ -72,6 +72,7 @@ class CompanyAppointmentV2ServiceTest {
             "appointmentId",
             "officerId",
             "previousOfficerId",
+            "companyNumber",
             "deltaAt"));
 
         when(companyAppointmentRepository.findByCompanyNumberAndAppointmentID(COMPANY_NUMBER, APPOINTMENT_ID))
@@ -105,6 +106,7 @@ class CompanyAppointmentV2ServiceTest {
                 "appointmentId",
                 "officerId",
                 "previousOfficerId",
+                "companyNumber",
                 "deltaAt"));
 
         // When
@@ -129,6 +131,7 @@ class CompanyAppointmentV2ServiceTest {
                 "appointmentId",
                 "officerId",
                 "previousOfficerId",
+                "companyNumber",
                 incomingDeltaAt));
 
         when(appointmentApiRepository.existsByIdAndDeltaAtGreaterThanEqual("id", appointmentEntity.getDeltaAt()))
