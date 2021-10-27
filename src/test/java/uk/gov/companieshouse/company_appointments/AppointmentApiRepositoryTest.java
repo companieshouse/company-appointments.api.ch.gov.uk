@@ -36,10 +36,10 @@ class AppointmentApiRepositoryTest {
                 "appointmentId",
                 "officerId",
                 "previousOfficerId",
+                "companyNumber",
                 "deltaAt");
         final AppointmentApiEntity expected = new AppointmentApiEntity(appointment);
-
-        final AppointmentAPI result = testRepository.insertOrUpdate(appointment);
+        testRepository.insertOrUpdate(appointment);
 
         verify(testRepository).save(captor.capture());
         assertThat(captor.getValue(), is(equalTo(expected)));

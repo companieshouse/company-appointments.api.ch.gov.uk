@@ -28,7 +28,7 @@
 
         <structured-logging.version>1.9.4</structured-logging.version>
         <sdk-manager-java.version>1.5.1</sdk-manager-java.version>
-        <private-api-sdk-java.version>2.0.96</private-api-sdk-java.version>
+        <private-api-sdk-java.version>2.0.98</private-api-sdk-java.version>
 
         <!--sonar configuration-->
         <sonar.coverage.jacoco.xmlReportPaths>${project.basedir}/target/site/jacoco/jacoco.xml,
@@ -107,11 +107,6 @@
             <groupId>org.testcontainers</groupId>
             <artifactId>mongodb</artifactId>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-web</artifactId>
-            <version>5.2.0.RELEASE</version>
         </dependency>
 
         <!-- SDKs -->
