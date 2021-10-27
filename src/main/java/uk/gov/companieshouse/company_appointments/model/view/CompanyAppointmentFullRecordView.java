@@ -21,9 +21,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class CompanyAppointmentV2View {
+public class CompanyAppointmentFullRecordView {
 
-    private static final String REGEX = "^(?i)(?=m)(?:mrs?|miss|ms|master)$";
+    private static final String TITLE_REGEX = "^(?i)(?=m)(?:mrs?|miss|ms|master)$";
 
     @JsonProperty("service_address")
     private AddressAPI serviceAddress;
@@ -118,18 +118,19 @@ public class CompanyAppointmentV2View {
         return officerRole;
     }
 
-    public static class CompanyAppointmentV2ViewBuilder {
+    public static class Builder {
 
         public static final ZoneId UTC_ZONE = ZoneId.of("UTC");
-        private List<Consumer<CompanyAppointmentV2View>> buildSteps;
+        private static final String FULL_RECORD = "/full_record";
+        private final List<Consumer<CompanyAppointmentFullRecordView>> buildSteps;
 
-        private CompanyAppointmentV2ViewBuilder() {
+        private Builder() {
             buildSteps = new ArrayList<>();
         }
 
-        public static CompanyAppointmentV2ViewBuilder view(OfficerAPI data) {
+        public static Builder view(OfficerAPI data) {
 
-            CompanyAppointmentV2ViewBuilder builder = new CompanyAppointmentV2ViewBuilder();
+            Builder builder = new Builder();
 
             return builder.withServiceAddress(data.getServiceAddress())
                 .withUsualResidentialAddress(data.getUsualResidentialAddress())
@@ -146,104 +147,115 @@ public class CompanyAppointmentV2View {
                 .withResignedOn(data.getResignedOn());
         }
 
-        public CompanyAppointmentV2ViewBuilder withServiceAddress(AddressAPI address) {
+        private static void appendSelfLinkFullRecord(CompanyAppointmentFullRecordView view) {
+            if (view != null && view.getLinks() != null) {
+                final String selfLink = view.getLinks().getSelfLink();
+
+                if (selfLink != null && !selfLink.endsWith(FULL_RECORD)) {
+                    view.getLinks().setSelfLink(selfLink.concat(FULL_RECORD));
+                }
+            }
+        }
+
+        public Builder withServiceAddress(AddressAPI address) {
 
             buildSteps.add(view -> view.serviceAddress = address);
 
             return this;
         }
 
-        public CompanyAppointmentV2ViewBuilder withUsualResidentialAddress(AddressAPI address) {
+        public Builder withUsualResidentialAddress(AddressAPI address) {
 
             buildSteps.add(view -> view.usualResidentialAddress = address);
 
             return this;
         }
 
-        public CompanyAppointmentV2ViewBuilder withAppointedOn(Instant appointedOn) {
+        public Builder withAppointedOn(Instant appointedOn) {
 
             buildSteps.add(view -> view.appointedOn = appointedOn);
 
             return this;
         }
 
-        public CompanyAppointmentV2ViewBuilder withCountryOfResidence(String countryOfResidence) {
+        public Builder withCountryOfResidence(String countryOfResidence) {
 
             buildSteps.add(view -> view.countryOfResidence = countryOfResidence);
 
             return this;
         }
 
-        public CompanyAppointmentV2ViewBuilder withDateOfBirth(DateOfBirth dateOfBirth) {
+        public Builder withDateOfBirth(DateOfBirth dateOfBirth) {
 
             buildSteps.add(view -> view.dateOfBirth = dateOfBirth);
 
             return this;
         }
 
-        public CompanyAppointmentV2ViewBuilder withFormerNames(List<FormerNamesAPI> formerNames) {
+        public Builder withFormerNames(List<FormerNamesAPI> formerNames) {
 
             buildSteps.add(view -> view.formerNames = formerNames);
 
             return this;
         }
 
-        public CompanyAppointmentV2ViewBuilder withIdentification(IdentificationAPI identification) {
+        public Builder withIdentification(IdentificationAPI identification) {
 
             buildSteps.add(view -> view.identification = identification);
 
             return this;
         }
 
-        public CompanyAppointmentV2ViewBuilder withLinks(LinksAPI links) {
+        public Builder withLinks(LinksAPI links) {
 
             if (links != null && links.getOfficerLinksData() != null) {
                 links.getOfficerLinksData().setSelfLink(null);
             }
 
             buildSteps.add(view -> view.links = links);
+            buildSteps.add(Builder::appendSelfLinkFullRecord);
 
             return this;
         }
 
-        public CompanyAppointmentV2ViewBuilder withName(String name) {
+        public Builder withName(String name) {
 
             buildSteps.add(view -> view.name = name);
 
             return this;
         }
 
-        public CompanyAppointmentV2ViewBuilder withNationality(String nationality) {
+        public Builder withNationality(String nationality) {
 
             buildSteps.add(view -> view.nationality = nationality);
 
             return this;
         }
 
-        public CompanyAppointmentV2ViewBuilder withOccupation(String occupation) {
+        public Builder withOccupation(String occupation) {
 
             buildSteps.add(view -> view.occupation = occupation);
 
             return this;
         }
 
-        public CompanyAppointmentV2ViewBuilder withOfficerRole(String officerRole) {
+        public Builder withOfficerRole(String officerRole) {
 
             buildSteps.add(view -> view.officerRole = officerRole);
 
             return this;
         }
 
-        public CompanyAppointmentV2ViewBuilder withResignedOn(Instant resignedOn) {
+        public Builder withResignedOn(Instant resignedOn) {
 
             buildSteps.add(view -> view.resignedOn = resignedOn);
 
             return this;
         }
 
-        public CompanyAppointmentV2View build() {
+        public CompanyAppointmentFullRecordView build() {
 
-            CompanyAppointmentV2View view = new CompanyAppointmentV2View();
+            CompanyAppointmentFullRecordView view = new CompanyAppointmentFullRecordView();
             buildSteps.forEach(step -> step.accept(view));
 
             return view;
@@ -256,7 +268,7 @@ public class CompanyAppointmentV2View {
                     .filter(Objects::nonNull)
                     .collect(Collectors.joining(" ")));
             }
-            if (officerData.getTitle() != null && !officerData.getTitle().matches(REGEX)) {
+            if (officerData.getTitle() != null && !officerData.getTitle().matches(TITLE_REGEX)) {
                 result = String.join(", ", result, officerData.getTitle());
             }
             return result;

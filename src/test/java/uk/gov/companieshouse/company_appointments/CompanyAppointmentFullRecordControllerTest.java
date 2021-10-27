@@ -13,27 +13,27 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import uk.gov.companieshouse.company_appointments.model.data.AppointmentApiEntity;
-import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentV2View;
+import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentFullRecordView;
 
 @ExtendWith(MockitoExtension.class)
-class CompanyAppointmentV2ControllerTest {
-    private CompanyAppointmentV2Controller companyAppointmentV2Controller;
+class CompanyAppointmentFullRecordControllerTest {
+    private CompanyAppointmentFullRecordController companyAppointmentFullRecordController;
 
     @Mock
-    private CompanyAppointmentV2Service companyAppointmentService;
+    private CompanyAppointmentFullRecordService companyAppointmentService;
 
     @Mock
     private AppointmentApiEntity appointment;
 
     @Mock
-    private CompanyAppointmentV2View appointmentView;
+    private CompanyAppointmentFullRecordView appointmentView;
 
     private final static String COMPANY_NUMBER = "123456";
     private final static String APPOINTMENT_ID = "345678";
 
     @BeforeEach
     void setUp() {
-        companyAppointmentV2Controller = new CompanyAppointmentV2Controller(companyAppointmentService);
+        companyAppointmentFullRecordController = new CompanyAppointmentFullRecordController(companyAppointmentService);
     }
 
     @Test
@@ -42,7 +42,7 @@ class CompanyAppointmentV2ControllerTest {
         when(companyAppointmentService.getAppointment(COMPANY_NUMBER, APPOINTMENT_ID)).thenReturn(appointmentView);
 
         // when
-        ResponseEntity<CompanyAppointmentV2View> response = companyAppointmentV2Controller.getAppointment(COMPANY_NUMBER,
+        ResponseEntity<CompanyAppointmentFullRecordView> response = companyAppointmentFullRecordController.getAppointment(COMPANY_NUMBER,
             APPOINTMENT_ID);
 
         // then
@@ -57,7 +57,7 @@ class CompanyAppointmentV2ControllerTest {
         when(companyAppointmentService.getAppointment(any(), any())).thenThrow(NotFoundException.class);
 
         // when
-        ResponseEntity<CompanyAppointmentV2View> response = companyAppointmentV2Controller.getAppointment(COMPANY_NUMBER,
+        ResponseEntity<CompanyAppointmentFullRecordView> response = companyAppointmentFullRecordController.getAppointment(COMPANY_NUMBER,
             APPOINTMENT_ID);
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
@@ -69,7 +69,7 @@ class CompanyAppointmentV2ControllerTest {
         // given
 
         // when
-        ResponseEntity<Void> response = companyAppointmentV2Controller.submitOfficerData(appointment);
+        ResponseEntity<Void> response = companyAppointmentFullRecordController.submitOfficerData(appointment);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
     }

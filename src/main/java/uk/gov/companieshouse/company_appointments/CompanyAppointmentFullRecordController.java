@@ -9,25 +9,25 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import uk.gov.companieshouse.api.model.delta.officers.AppointmentAPI;
-import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentV2View;
+import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentFullRecordView;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.logging.LoggerFactory;
 
 @Controller
-@RequestMapping(path = "/appointments/v2/company/{company_number}/appointments/{appointment_id}", produces = "application/json")
-public class CompanyAppointmentV2Controller {
+@RequestMapping(path = "/company/{company_number}/appointments/{appointment_id}/full_record", produces = "application/json")
+public class CompanyAppointmentFullRecordController {
 
-    private CompanyAppointmentV2Service companyAppointmentService;
+    private CompanyAppointmentFullRecordService companyAppointmentService;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CompanyAppointmentsApplication.APPLICATION_NAMESPACE);
 
     @Autowired
-    public CompanyAppointmentV2Controller(CompanyAppointmentV2Service companyAppointmentService) {
+    public CompanyAppointmentFullRecordController(CompanyAppointmentFullRecordService companyAppointmentService) {
         this.companyAppointmentService = companyAppointmentService;
     }
 
     @GetMapping
-    public ResponseEntity<CompanyAppointmentV2View> getAppointment(@PathVariable("company_number") String companyNumber, @PathVariable("appointment_id") String appointmentID) {
+    public ResponseEntity<CompanyAppointmentFullRecordView> getAppointment(@PathVariable("company_number") String companyNumber, @PathVariable("appointment_id") String appointmentID) {
         try {
             return ResponseEntity.ok(companyAppointmentService.getAppointment(companyNumber, appointmentID));
         } catch (NotFoundException e) {
