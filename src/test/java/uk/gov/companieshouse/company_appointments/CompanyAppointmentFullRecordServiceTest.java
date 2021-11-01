@@ -31,6 +31,7 @@ import uk.gov.companieshouse.api.model.delta.officers.OfficerLinksAPI;
 import uk.gov.companieshouse.company_appointments.model.data.AppointmentApiEntity;
 import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentFullRecordView;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -52,6 +53,8 @@ class CompanyAppointmentFullRecordServiceTest {
     private final static String COMPANY_NUMBER = "123456";
 
     private final static String APPOINTMENT_ID = "345678";
+
+    private final static Instant CREATED_AT = Instant.parse("2021-08-01T00:00:00.000Z");
 
     private static Stream<Arguments> deltaAtTestCases() {
         return Stream.of(
@@ -76,7 +79,7 @@ class CompanyAppointmentFullRecordServiceTest {
         // given
         appointmentEntity = new AppointmentApiEntity(
                 new AppointmentAPI("id", new OfficerAPI(), "internalId", "appointmentId", "officerId",
-                        "previousOfficerId", "companyNumber", "deltaAt"));
+                        "previousOfficerId", "companyNumber", CREATED_AT, "deltaAt"));
 
         when(companyAppointmentRepository.findByCompanyNumberAndAppointmentID(COMPANY_NUMBER,
                 APPOINTMENT_ID)).thenReturn(Optional.of(appointmentEntity));
@@ -105,7 +108,7 @@ class CompanyAppointmentFullRecordServiceTest {
         // given
         appointmentEntity = new AppointmentApiEntity(
                 new AppointmentAPI("id", new OfficerAPI(), "internalId", "appointmentId", "officerId",
-                        "previousOfficerId", "companyNumber", "deltaAt"));
+                        "previousOfficerId", "companyNumber", CREATED_AT, "deltaAt"));
 
         // When
         companyAppointmentService.insertAppointmentDelta(appointmentEntity);
@@ -124,7 +127,7 @@ class CompanyAppointmentFullRecordServiceTest {
         // given
         appointmentEntity = new AppointmentApiEntity(
                 new AppointmentAPI("id", new OfficerAPI(), "internalId", "appointmentId", "officerId",
-                        "previousOfficerId", "companyNumber", incomingDeltaAt));
+                        "previousOfficerId", "companyNumber", CREATED_AT, incomingDeltaAt));
 
         when(appointmentApiRepository.existsByIdAndDeltaAtGreaterThanEqual("id",
                 appointmentEntity.getDeltaAt())).thenReturn(
@@ -166,7 +169,7 @@ class CompanyAppointmentFullRecordServiceTest {
 
         appointmentEntity = spy(new AppointmentApiEntity(
                 new AppointmentAPI("id", officer, "internalId", "appointmentId", "officerId", "previousOfficerId",
-                        "companyNumber", "deltaAt")));
+                        "companyNumber", CREATED_AT, "deltaAt")));
 
         // When
         companyAppointmentService.insertAppointmentDelta(appointmentEntity);
@@ -189,7 +192,7 @@ class CompanyAppointmentFullRecordServiceTest {
 
         appointmentEntity = spy(new AppointmentApiEntity(
                 new AppointmentAPI("id", officer, "internalId", "appointmentId", "officerId", "previousOfficerId",
-                        "companyNumber", "deltaAt")));
+                        "companyNumber", CREATED_AT, "deltaAt")));
 
         // When
         companyAppointmentService.insertAppointmentDelta(appointmentEntity);

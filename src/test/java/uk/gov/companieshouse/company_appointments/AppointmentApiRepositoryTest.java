@@ -16,6 +16,8 @@ import uk.gov.companieshouse.api.model.delta.officers.AppointmentAPI;
 import uk.gov.companieshouse.api.model.delta.officers.OfficerAPI;
 import uk.gov.companieshouse.company_appointments.model.data.AppointmentApiEntity;
 
+import java.time.Instant;
+
 @ExtendWith(MockitoExtension.class)
 class AppointmentApiRepositoryTest {
     @Spy
@@ -23,6 +25,8 @@ class AppointmentApiRepositoryTest {
 
     @Captor
     private ArgumentCaptor<AppointmentApiEntity> captor;
+
+    private final static Instant CREATED_AT = Instant.parse("2021-08-01T00:00:00.000Z");
 
     @BeforeEach
     void setUp() {
@@ -37,6 +41,7 @@ class AppointmentApiRepositoryTest {
                 "officerId",
                 "previousOfficerId",
                 "companyNumber",
+                CREATED_AT,
                 "deltaAt");
         final AppointmentApiEntity expected = new AppointmentApiEntity(appointment);
         testRepository.insertOrUpdate(appointment);

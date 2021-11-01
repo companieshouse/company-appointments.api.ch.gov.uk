@@ -14,6 +14,7 @@ import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentF
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.logging.LoggerFactory;
 
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,6 +49,7 @@ public class CompanyAppointmentFullRecordService {
     public void insertAppointmentDelta(final AppointmentAPI appointmentApi) {
         if (isMostRecentDelta(appointmentApi)) {
             removeAdditionalProperties(appointmentApi);
+            addCreatedAt(appointmentApi);
             appointmentApiRepository.insertOrUpdate(appointmentApi);
         } else {
             logStaleIncomingDelta(appointmentApi);
@@ -118,4 +120,8 @@ public class CompanyAppointmentFullRecordService {
         }
     }
 
+    private static void addCreatedAt(final AppointmentAPI appointment) {
+
+        appointment.setCreatedAt(Instant.now());
+    }
 }
