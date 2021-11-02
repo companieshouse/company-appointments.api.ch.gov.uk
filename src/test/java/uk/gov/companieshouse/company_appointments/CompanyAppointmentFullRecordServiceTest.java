@@ -5,9 +5,10 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.isA;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.atMostOnce;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -69,13 +70,14 @@ class CompanyAppointmentFullRecordServiceTest {
 
     private static Stream<Arguments> deltaAtTestCases() {
         return Stream.of(
-                // exitingDelta, incomingDelta, shouldBeStale
-                Arguments.of("1", "2", false), // 1 < 2 so delta should not be stale
-                Arguments.of("11", "1", true), // shorter string is considered less than
-                Arguments.of("2", "1", true), // 2 < 1 so delta should be stale
-                Arguments.of("1", "1", true), // 1 == 1 so delta should be stale
-                Arguments.of("20140925171003950844", "20140925171003950845", false), // Newer timestamp not stale
-                Arguments.of("20140925171003950844", "20140925171003950843", true) // Older timestamp stale
+                // exitingDelta, incomingDelta, deltaExists, shouldBeStale
+                Arguments.of("1", "2", false, false), // delta does not exist
+                Arguments.of("1", "2", true, false), // 1 < 2 so delta should not be stale
+                Arguments.of("11", "1", true, true), // shorter string is considered less than
+                Arguments.of("2", "1", true, true), // 2 < 1 so delta should be stale
+                Arguments.of("1", "1", true, true), // 1 == 1 so delta should be stale
+                Arguments.of("20140925171003950844", "20140925171003950845", true, false), // Newer timestamp not stale
+                Arguments.of("20140925171003950844", "20140925171003950843", true, true) // Older timestamp stale
         );
     }
 
@@ -136,23 +138,26 @@ class CompanyAppointmentFullRecordServiceTest {
     void testRejectStaleDelta(
             final String existingDeltaAt,
             final String incomingDeltaAt,
+            boolean deltaExists,
             boolean shouldBeStale) {
 
         // given
         appointmentEntity = new AppointmentApiEntity(
                 new AppointmentAPI("id", new OfficerAPI(), "internalId", "appointmentId", "officerId",
                         "previousOfficerId", "companyNumber", instantAPI, incomingDeltaAt));
-
-        when(companyAppointmentRepository.existsByIdAndDeltaAtGreaterThanEqual("id",
-                appointmentEntity.getDeltaAt())).thenReturn(
-                existingDeltaAt.compareTo(appointmentEntity.getDeltaAt()) >= 0);
+        when(companyAppointmentRepository.existsByIdAndCompanyNumber(
+            appointmentEntity.getId(), appointmentEntity.getCompanyNumber())).thenReturn(deltaExists);
+        if (deltaExists) {
+            when(companyAppointmentRepository.existsByIdAndDeltaAtGreaterThanEqual(
+                appointmentEntity.getId(), incomingDeltaAt)).thenReturn(incomingDeltaAt.compareTo(existingDeltaAt) <= 0);
+        }
 
         // When
         companyAppointmentService.insertAppointmentDelta(appointmentEntity);
 
         // then
-        final VerificationMode verificationMode = shouldBeStale ? never() : atLeastOnce();
-        verify(companyAppointmentRepository, verificationMode).insertOrUpdate(appointmentEntity);
+        VerificationMode expectedTimes = (deltaExists && shouldBeStale) ? never() : times(1);
+        verify(companyAppointmentRepository, expectedTimes).insertOrUpdate(appointmentEntity);
     }
 
     @Test

@@ -49,14 +49,20 @@ public class CompanyAppointmentFullRecordService {
     }
 
     public void insertAppointmentDelta(final AppointmentAPI appointmentApi) {
-        if (isMostRecentDelta(appointmentApi)) {
-            removeAdditionalProperties(appointmentApi);
-            if (!deltaExists(appointmentApi)) {
-                addCreatedAt(appointmentApi);
+
+        InstantAPI instant = new InstantAPI(Instant.now(clock));
+
+        removeAdditionalProperties(appointmentApi);
+
+        if (deltaExists(appointmentApi)) {
+            if (isMostRecentDelta(appointmentApi)) {
+                companyAppointmentRepository.insertOrUpdate(appointmentApi);
+            } else {
+                logStaleIncomingDelta(appointmentApi);
             }
-            companyAppointmentRepository.insertOrUpdate(appointmentApi);
         } else {
-            logStaleIncomingDelta(appointmentApi);
+            appointmentApi.setCreated(instant);
+            companyAppointmentRepository.insertOrUpdate(appointmentApi);
         }
     }
 
@@ -132,8 +138,5 @@ public class CompanyAppointmentFullRecordService {
         }
     }
 
-    private void addCreatedAt(final AppointmentAPI appointment) {
-
-        appointment.setCreated(new InstantAPI(Instant.now(clock)));
-    }
 }
+
