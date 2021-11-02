@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.company_appointments;
 
+import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.isA;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -18,6 +19,9 @@ import org.junit.jupiter.api.function.Executable;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.verification.VerificationMode;
@@ -25,13 +29,16 @@ import uk.gov.companieshouse.api.model.delta.officers.AddressAPI;
 import uk.gov.companieshouse.api.model.delta.officers.AppointmentAPI;
 import uk.gov.companieshouse.api.model.delta.officers.FormerNamesAPI;
 import uk.gov.companieshouse.api.model.delta.officers.IdentificationAPI;
+import uk.gov.companieshouse.api.model.delta.officers.InstantAPI;
 import uk.gov.companieshouse.api.model.delta.officers.LinksAPI;
 import uk.gov.companieshouse.api.model.delta.officers.OfficerAPI;
 import uk.gov.companieshouse.api.model.delta.officers.OfficerLinksAPI;
 import uk.gov.companieshouse.company_appointments.model.data.AppointmentApiEntity;
 import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentFullRecordView;
 
+import java.time.Clock;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -45,8 +52,8 @@ class CompanyAppointmentFullRecordServiceTest {
     @Mock
     private CompanyAppointmentFullRecordRepository companyAppointmentRepository;
 
-    @Mock
-    private AppointmentApiRepository appointmentApiRepository;
+    @Captor
+    private ArgumentCaptor<AppointmentApiEntity> captor;
 
     private AppointmentApiEntity appointmentEntity;
 
@@ -55,6 +62,10 @@ class CompanyAppointmentFullRecordServiceTest {
     private final static String APPOINTMENT_ID = "345678";
 
     private final static Instant CREATED_AT = Instant.parse("2021-08-01T00:00:00.000Z");
+
+    private final static InstantAPI instantAPI = new InstantAPI(CREATED_AT);
+
+    private final static Clock CLOCK = Clock.fixed(CREATED_AT, ZoneId.of("UTC"));
 
     private static Stream<Arguments> deltaAtTestCases() {
         return Stream.of(
@@ -71,7 +82,7 @@ class CompanyAppointmentFullRecordServiceTest {
     @BeforeEach
     void setUp() {
         companyAppointmentService =
-                new CompanyAppointmentFullRecordService(companyAppointmentRepository, appointmentApiRepository);
+                new CompanyAppointmentFullRecordService(companyAppointmentRepository, CLOCK);
     }
 
     @Test
@@ -79,7 +90,7 @@ class CompanyAppointmentFullRecordServiceTest {
         // given
         appointmentEntity = new AppointmentApiEntity(
                 new AppointmentAPI("id", new OfficerAPI(), "internalId", "appointmentId", "officerId",
-                        "previousOfficerId", "companyNumber", CREATED_AT, "deltaAt"));
+                        "previousOfficerId", "companyNumber", instantAPI, "deltaAt"));
 
         when(companyAppointmentRepository.findByCompanyNumberAndAppointmentID(COMPANY_NUMBER,
                 APPOINTMENT_ID)).thenReturn(Optional.of(appointmentEntity));
@@ -103,18 +114,21 @@ class CompanyAppointmentFullRecordServiceTest {
         assertThrows(NotFoundException.class, result);
     }
 
-    @Test
-    void testPutAppointmentData() {
+    @ParameterizedTest
+    @ValueSource(booleans={true, false})
+    void testPutAppointmentData(boolean deltaExists) {
         // given
         appointmentEntity = new AppointmentApiEntity(
                 new AppointmentAPI("id", new OfficerAPI(), "internalId", "appointmentId", "officerId",
-                        "previousOfficerId", "companyNumber", CREATED_AT, "deltaAt"));
+                        "previousOfficerId", "companyNumber", null, "deltaAt"));
+        when(companyAppointmentRepository.existsByIdAndCompanyNumber("id", "companyNumber")).thenReturn(deltaExists);
 
         // When
         companyAppointmentService.insertAppointmentDelta(appointmentEntity);
 
         // then
-        verify(appointmentApiRepository).insertOrUpdate(appointmentEntity);
+        verify(companyAppointmentRepository).insertOrUpdate(captor.capture());
+        assertThat(captor.getValue().getCreated(), is(deltaExists ? nullValue() : equalTo(instantAPI)));
     }
 
     @ParameterizedTest
@@ -127,9 +141,9 @@ class CompanyAppointmentFullRecordServiceTest {
         // given
         appointmentEntity = new AppointmentApiEntity(
                 new AppointmentAPI("id", new OfficerAPI(), "internalId", "appointmentId", "officerId",
-                        "previousOfficerId", "companyNumber", CREATED_AT, incomingDeltaAt));
+                        "previousOfficerId", "companyNumber", instantAPI, incomingDeltaAt));
 
-        when(appointmentApiRepository.existsByIdAndDeltaAtGreaterThanEqual("id",
+        when(companyAppointmentRepository.existsByIdAndDeltaAtGreaterThanEqual("id",
                 appointmentEntity.getDeltaAt())).thenReturn(
                 existingDeltaAt.compareTo(appointmentEntity.getDeltaAt()) >= 0);
 
@@ -138,7 +152,7 @@ class CompanyAppointmentFullRecordServiceTest {
 
         // then
         final VerificationMode verificationMode = shouldBeStale ? never() : atLeastOnce();
-        verify(appointmentApiRepository, verificationMode).insertOrUpdate(appointmentEntity);
+        verify(companyAppointmentRepository, verificationMode).insertOrUpdate(appointmentEntity);
     }
 
     @Test
@@ -169,7 +183,7 @@ class CompanyAppointmentFullRecordServiceTest {
 
         appointmentEntity = spy(new AppointmentApiEntity(
                 new AppointmentAPI("id", officer, "internalId", "appointmentId", "officerId", "previousOfficerId",
-                        "companyNumber", CREATED_AT, "deltaAt")));
+                        "companyNumber", instantAPI, "deltaAt")));
 
         // When
         companyAppointmentService.insertAppointmentDelta(appointmentEntity);
@@ -192,13 +206,13 @@ class CompanyAppointmentFullRecordServiceTest {
 
         appointmentEntity = spy(new AppointmentApiEntity(
                 new AppointmentAPI("id", officer, "internalId", "appointmentId", "officerId", "previousOfficerId",
-                        "companyNumber", CREATED_AT, "deltaAt")));
+                        "companyNumber", instantAPI, "deltaAt")));
 
         // When
         companyAppointmentService.insertAppointmentDelta(appointmentEntity);
 
         // then
-        verify(appointmentApiRepository).insertOrUpdate(appointmentEntity);
+        verify(companyAppointmentRepository).insertOrUpdate(appointmentEntity);
     }
 
 }

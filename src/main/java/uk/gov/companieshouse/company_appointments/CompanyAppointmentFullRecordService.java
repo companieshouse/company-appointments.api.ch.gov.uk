@@ -6,6 +6,7 @@ import uk.gov.companieshouse.api.model.delta.officers.AddressAPI;
 import uk.gov.companieshouse.api.model.delta.officers.AppointmentAPI;
 import uk.gov.companieshouse.api.model.delta.officers.FormerNamesAPI;
 import uk.gov.companieshouse.api.model.delta.officers.IdentificationAPI;
+import uk.gov.companieshouse.api.model.delta.officers.InstantAPI;
 import uk.gov.companieshouse.api.model.delta.officers.LinksAPI;
 import uk.gov.companieshouse.api.model.delta.officers.OfficerAPI;
 import uk.gov.companieshouse.api.model.delta.officers.OfficerLinksAPI;
@@ -14,6 +15,7 @@ import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentF
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.logging.LoggerFactory;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
@@ -26,13 +28,13 @@ public class CompanyAppointmentFullRecordService {
     private static final Logger LOGGER = LoggerFactory.getLogger(CompanyAppointmentsApplication.APPLICATION_NAMESPACE);
 
     private CompanyAppointmentFullRecordRepository companyAppointmentRepository;
-    private AppointmentApiRepository appointmentApiRepository;
+
+    private Clock clock;
 
     @Autowired
-    public CompanyAppointmentFullRecordService(CompanyAppointmentFullRecordRepository companyAppointmentRepository,
-            AppointmentApiRepository appointmentApiRepository) {
+    public CompanyAppointmentFullRecordService(CompanyAppointmentFullRecordRepository companyAppointmentRepository, Clock clock) {
         this.companyAppointmentRepository = companyAppointmentRepository;
-        this.appointmentApiRepository = appointmentApiRepository;
+        this.clock = clock;
     }
 
     public CompanyAppointmentFullRecordView getAppointment(String companyNumber, String appointmentID) throws NotFoundException {
@@ -49,8 +51,10 @@ public class CompanyAppointmentFullRecordService {
     public void insertAppointmentDelta(final AppointmentAPI appointmentApi) {
         if (isMostRecentDelta(appointmentApi)) {
             removeAdditionalProperties(appointmentApi);
-            addCreatedAt(appointmentApi);
-            appointmentApiRepository.insertOrUpdate(appointmentApi);
+            if (!deltaExists(appointmentApi)) {
+                addCreatedAt(appointmentApi);
+            }
+            companyAppointmentRepository.insertOrUpdate(appointmentApi);
         } else {
             logStaleIncomingDelta(appointmentApi);
         }
@@ -61,13 +65,21 @@ public class CompanyAppointmentFullRecordService {
         final String id = incomingAppointment.getId();
         final String deltaAt = incomingAppointment.getDeltaAt();
 
-        final boolean isNotMostRecent = appointmentApiRepository.existsByIdAndDeltaAtGreaterThanEqual(id, deltaAt);
+        final boolean isNotMostRecent = companyAppointmentRepository.existsByIdAndDeltaAtGreaterThanEqual(id, deltaAt);
 
         return !isNotMostRecent;
     }
 
+    private boolean deltaExists(final AppointmentAPI incomingAppointment) {
+
+        final String id = incomingAppointment.getId();
+        final String companyNumber = incomingAppointment.getCompanyNumber();
+
+        return companyAppointmentRepository.existsByIdAndCompanyNumber(id, companyNumber);
+    }
+
     private void logStaleIncomingDelta(final AppointmentAPI appointmentApi) {
-        final Optional<String> existingAppointmentDelta = appointmentApiRepository.findById(appointmentApi.getId())
+        final Optional<String> existingAppointmentDelta = companyAppointmentRepository.findById(appointmentApi.getId())
                 .map(AppointmentApiEntity::getDeltaAt);
 
         Map<String, Object> logInfo = new HashMap<>();
@@ -120,8 +132,8 @@ public class CompanyAppointmentFullRecordService {
         }
     }
 
-    private static void addCreatedAt(final AppointmentAPI appointment) {
+    private void addCreatedAt(final AppointmentAPI appointment) {
 
-        appointment.setCreatedAt(Instant.now());
+        appointment.setCreated(new InstantAPI(Instant.now(clock)));
     }
 }
