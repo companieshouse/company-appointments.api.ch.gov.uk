@@ -35,6 +35,10 @@ public class CompanyAppointmentFullRecordView {
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "UTC")
     private Instant appointedOn;
 
+    @JsonProperty("appointed_before")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "UTC")
+    private Instant appointedBefore;
+
     @JsonProperty("resigned_on")
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "UTC")
     private Instant resignedOn;
@@ -76,6 +80,10 @@ public class CompanyAppointmentFullRecordView {
 
     public Instant getAppointedOn() {
         return appointedOn;
+    }
+
+    public Instant getAppointedBefore() {
+        return appointedBefore;
     }
 
     public Instant getResignedOn() {
@@ -135,6 +143,7 @@ public class CompanyAppointmentFullRecordView {
             return builder.withServiceAddress(data.getServiceAddress())
                 .withUsualResidentialAddress(data.getUsualResidentialAddress())
                 .withAppointedOn(data.getAppointedOn())
+                .withAppointedBefore(data.getAppointedBefore())
                 .withCountryOfResidence(data.getCountryOfResidence())
                 .withDateOfBirth(builder.mapDateOfBirth(data.getDateOfBirth()))
                 .withFormerNames(data.getFormerNameData())
@@ -174,6 +183,13 @@ public class CompanyAppointmentFullRecordView {
         public Builder withAppointedOn(Instant appointedOn) {
 
             buildSteps.add(view -> view.appointedOn = appointedOn);
+
+            return this;
+        }
+
+        public Builder withAppointedBefore(Instant appointedBefore) {
+
+            buildSteps.add(view -> view.appointedBefore = appointedBefore);
 
             return this;
         }
