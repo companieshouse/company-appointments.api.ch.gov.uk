@@ -23,6 +23,7 @@ class CompanyAppointmentFullRecordViewTest {
     private static final Instant INSTANT_DOB = Instant.parse("1989-01-12T00:00:00.000Z");
     private static final Instant INSTANT_ONE = Instant.parse("2009-01-12T00:00:00.000Z");
     private static final Instant INSTANT_TWO = Instant.parse("2019-01-12T00:00:00.000Z");
+    private static final Instant INSTANT_THREE = Instant.parse("1991-01-12T00:00:00.000Z");
 
 
     private List<FormerNamesAPI> formerNames
@@ -42,6 +43,7 @@ class CompanyAppointmentFullRecordViewTest {
         officerData.setServiceAddress(createAddress("service"));
         officerData.setUsualResidentialAddress(createAddress("usualResidential"));
         officerData.setAppointedOn(INSTANT_ONE);
+        officerData.setAppointedBefore(INSTANT_THREE);
         officerData.setCountryOfResidence("countryOfResidence");
         officerData.setDateOfBirth(INSTANT_DOB);
         officerData.setFormerNameData(formerNames);
@@ -87,6 +89,12 @@ class CompanyAppointmentFullRecordViewTest {
     void appointedOn() {
 
         assertThat(testView.getAppointedOn(), is(INSTANT_ONE));
+    }
+
+    @Test
+    void appointedBefore() {
+
+        assertThat(testView.getAppointedBefore(), is(INSTANT_THREE));
     }
 
     @Test
