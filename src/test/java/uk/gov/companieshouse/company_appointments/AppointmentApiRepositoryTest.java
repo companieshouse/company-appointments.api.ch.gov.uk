@@ -43,6 +43,7 @@ class AppointmentApiRepositoryTest {
                 "previousOfficerId",
                 "companyNumber",
                 new InstantAPI(CREATED_AT),
+                new InstantAPI(CREATED_AT),
                 "deltaAt");
         final AppointmentApiEntity expected = new AppointmentApiEntity(appointment);
         testRepository.insertOrUpdate(appointment);
