@@ -28,6 +28,7 @@ class AppointmentApiRepositoryTest {
     private ArgumentCaptor<AppointmentApiEntity> captor;
 
     private final static Instant CREATED_AT = Instant.parse("2021-08-01T00:00:00.000Z");
+    private final static Instant UPDATED_AT = Instant.parse("2021-08-01T00:00:00.000Z");
 
     @BeforeEach
     void setUp() {
@@ -43,7 +44,7 @@ class AppointmentApiRepositoryTest {
                 "previousOfficerId",
                 "companyNumber",
                 new InstantAPI(CREATED_AT),
-                new InstantAPI(CREATED_AT),
+                new InstantAPI(UPDATED_AT),
                 "deltaAt");
         final AppointmentApiEntity expected = new AppointmentApiEntity(appointment);
         testRepository.insertOrUpdate(appointment);
