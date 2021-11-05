@@ -64,7 +64,7 @@ public class CompanyAppointmentFullRecordService {
         Optional<AppointmentApiEntity> existingAppointment = getExistingDelta(appointmentApi);
 
         if (existingAppointment.isPresent()) {
-            updateAppointment(appointmentApi, existingAppointment);
+            updateAppointment(appointmentApi, existingAppointment.get());
         } else {
             saveAppointment(appointmentApi, instant);
         }
@@ -75,11 +75,12 @@ public class CompanyAppointmentFullRecordService {
         companyAppointmentRepository.insertOrUpdate(appointmentApi);
     }
 
-    private void updateAppointment(AppointmentAPI appointmentApi, Optional<AppointmentApiEntity> existingAppointment) {
-        if (isDeltaStale(appointmentApi.getDeltaAt(), existingAppointment.get().getDeltaAt())) {
-            logStaleIncomingDelta(appointmentApi, existingAppointment.get().getDeltaAt());
+    private void updateAppointment(AppointmentAPI appointmentApi, AppointmentApiEntity existingAppointment) {
+
+        if (isDeltaStale(appointmentApi.getDeltaAt(), existingAppointment.getDeltaAt())) {
+            logStaleIncomingDelta(appointmentApi, existingAppointment.getDeltaAt());
         } else {
-            saveAppointment(appointmentApi, existingAppointment.get().getCreated());
+            saveAppointment(appointmentApi, existingAppointment.getCreated());
         }
     }
 
