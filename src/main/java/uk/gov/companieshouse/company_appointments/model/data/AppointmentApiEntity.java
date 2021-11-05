@@ -10,7 +10,7 @@ public class AppointmentApiEntity extends AppointmentAPI {
         super(appointmentAPI.getId(), appointmentAPI.getData(), appointmentAPI.getInternalId(),
             appointmentAPI.getAppointmentId(), appointmentAPI.getOfficerId(),
             appointmentAPI.getPreviousOfficerId(), appointmentAPI.getCompanyNumber(),
-            appointmentAPI.getCreated(), appointmentAPI.getDeltaAt());
+            appointmentAPI.getCreated(), appointmentAPI.getUpdated(), appointmentAPI.getDeltaAt());
     }
 
     // No arg constructor needed for Spring data

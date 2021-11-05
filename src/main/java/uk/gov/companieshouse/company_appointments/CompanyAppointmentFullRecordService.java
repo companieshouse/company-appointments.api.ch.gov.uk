@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.company_appointments;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.gov.companieshouse.api.model.delta.officers.AddressAPI;
@@ -39,7 +40,7 @@ public class CompanyAppointmentFullRecordService {
 
     public CompanyAppointmentFullRecordView getAppointment(String companyNumber, String appointmentID) throws NotFoundException {
         LOGGER.debug(String.format("Fetching appointment [%s] for company [%s]", appointmentID, companyNumber));
-        Optional<AppointmentApiEntity> appointmentData = companyAppointmentRepository.findByCompanyNumberAndAppointmentID(companyNumber, appointmentID);
+        Optional<AppointmentApiEntity> appointmentData = companyAppointmentRepository.findById(appointmentID);
         appointmentData.ifPresent(appt -> LOGGER.debug(String.format("Found appointment [%s] for company [%s]", appointmentID, companyNumber)));
 
         return appointmentData.map(app -> CompanyAppointmentFullRecordView.Builder.view(app.getData())
@@ -51,57 +52,57 @@ public class CompanyAppointmentFullRecordService {
     public void insertAppointmentDelta(final AppointmentAPI appointmentApi) {
 
         InstantAPI instant = new InstantAPI(Instant.now(clock));
+        OfficerAPI officer = appointmentApi.getData();
 
-        removeAdditionalProperties(appointmentApi);
+        appointmentApi.setUpdated(instant);
 
-        if (deltaExists(appointmentApi)) {
-            if (isMostRecentDelta(appointmentApi)) {
-                companyAppointmentRepository.insertOrUpdate(appointmentApi);
-            } else {
-                logStaleIncomingDelta(appointmentApi);
-            }
+        if (officer != null) {
+            appointmentApi.getData().setUpdatedAt(instant.getAt());
+            removeAdditionalProperties(officer);
+        }
+
+        Optional<AppointmentApiEntity> existingAppointment = getExistingDelta(appointmentApi);
+
+        if (existingAppointment.isPresent()) {
+            updateAppointment(appointmentApi, existingAppointment.get());
         } else {
-            appointmentApi.setCreated(instant);
-            companyAppointmentRepository.insertOrUpdate(appointmentApi);
+            saveAppointment(appointmentApi, instant);
         }
     }
 
-    private boolean isMostRecentDelta(final AppointmentAPI incomingAppointment) {
-
-        final String id = incomingAppointment.getId();
-        final String deltaAt = incomingAppointment.getDeltaAt();
-
-        final boolean isNotMostRecent = companyAppointmentRepository.existsByIdAndDeltaAtGreaterThanEqual(id, deltaAt);
-
-        return !isNotMostRecent;
+    private void saveAppointment(AppointmentAPI appointmentApi, InstantAPI instant) {
+        appointmentApi.setCreated(instant);
+        companyAppointmentRepository.insertOrUpdate(appointmentApi);
     }
 
-    private boolean deltaExists(final AppointmentAPI incomingAppointment) {
+    private void updateAppointment(AppointmentAPI appointmentApi, AppointmentApiEntity existingAppointment) {
 
-        final String id = incomingAppointment.getId();
-        final String companyNumber = incomingAppointment.getCompanyNumber();
-
-        return companyAppointmentRepository.existsByIdAndCompanyNumber(id, companyNumber);
+        if (isDeltaStale(appointmentApi.getDeltaAt(), existingAppointment.getDeltaAt())) {
+            logStaleIncomingDelta(appointmentApi, existingAppointment.getDeltaAt());
+        } else {
+            saveAppointment(appointmentApi, existingAppointment.getCreated());
+        }
     }
 
-    private void logStaleIncomingDelta(final AppointmentAPI appointmentApi) {
-        final Optional<String> existingAppointmentDelta = companyAppointmentRepository.findById(appointmentApi.getId())
-                .map(AppointmentApiEntity::getDeltaAt);
+    private boolean isDeltaStale(final String incomingDelta, final String existingDelta) {
+
+        return StringUtils.compare(incomingDelta, existingDelta) <= 0;
+    }
+
+    private Optional<AppointmentApiEntity> getExistingDelta(final AppointmentAPI incomingAppointment) {
+
+        final String id = incomingAppointment.getId();
+
+        return companyAppointmentRepository.findById(id);
+    }
+
+    private void logStaleIncomingDelta(final AppointmentAPI appointmentAPI, final String existingDelta) {
 
         Map<String, Object> logInfo = new HashMap<>();
-        logInfo.put("incomingDeltaAt", appointmentApi.getDeltaAt());
-        logInfo.put("existingDeltaAt", existingAppointmentDelta.orElse("No existing delta"));
-        final String context = appointmentApi.getAppointmentId();
+        logInfo.put("incomingDeltaAt", appointmentAPI.getDeltaAt());
+        logInfo.put("existingDeltaAt", StringUtils.defaultString(existingDelta, "No existing delta"));
+        final String context = appointmentAPI.getAppointmentId();
         LOGGER.errorContext(context, "Received stale delta", null, logInfo);
-    }
-
-    private static void removeAdditionalProperties(final AppointmentAPI appointment) {
-        final OfficerAPI officer = appointment.getData();
-        if (officer == null) {
-            return;
-        }
-
-        removeAdditionalProperties(officer);
     }
 
     private static void removeAdditionalProperties(final Object object) {
@@ -137,6 +138,5 @@ public class CompanyAppointmentFullRecordService {
             l.forEach(CompanyAppointmentFullRecordService::removeAdditionalProperties);
         }
     }
-
 }
 
