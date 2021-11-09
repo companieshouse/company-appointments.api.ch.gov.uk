@@ -12,18 +12,16 @@ import javax.servlet.http.HttpServletRequest;
 public class AuthenticationHelperImpl implements AuthenticationHelper {
     public static final String OAUTH2_IDENTITY_TYPE = "oauth2";
     public static final String API_KEY_IDENTITY_TYPE = "key";
-    public static final String API_KEY_ELEVATED_ROLE = "*";
 
     public static final int USER_EMAIL_INDEX = 0;
     public static final int USER_FORENAME_INDEX = 1;
     public static final int USER_SURNAME_INDEX = 2;
-
+    public static final String INTERNAL_APP_PRIVILEGE = "internal-app";
     private static final String ERIC_IDENTITY = "ERIC-Identity";
     private static final String ERIC_IDENTITY_TYPE = "ERIC-Identity-Type";
     private static final String ERIC_AUTHORISED_USER = "ERIC-Authorised-User";
     private static final String ERIC_AUTHORISED_SCOPE = "ERIC-Authorised-Scope";
     private static final String ERIC_AUTHORISED_ROLES = "ERIC-Authorised-Roles";
-    private static final String ERIC_AUTHORISED_KEY_ROLES = "ERIC-Authorised-Key-Roles";
 
     @Override
     public String getAuthorisedIdentity(HttpServletRequest request) {
@@ -56,8 +54,7 @@ public class AuthenticationHelperImpl implements AuthenticationHelper {
 
         if (authorisedUser == null || authorisedUser.trim().length() == 0) {
             return null;
-        }
-        else {
+        } else {
             final String[] details = authorisedUser.split(";");
 
             return indexExists(details, USER_EMAIL_INDEX) ? details[USER_EMAIL_INDEX].trim() : null;
@@ -109,14 +106,14 @@ public class AuthenticationHelperImpl implements AuthenticationHelper {
         return ArrayUtils.contains(roles, role);
     }
 
-    @Override
-    public String getAuthorisedKeyRoles(HttpServletRequest request) {
-        return getRequestHeader(request, ERIC_AUTHORISED_KEY_ROLES);
+    public String[] getApiKeyPrivileges(HttpServletRequest request) {
+        return request.getHeader("ERIC-Authorised-Key-Privileges")
+                .split(",");
     }
 
     @Override
     public boolean isKeyElevatedPrivilegesAuthorised(HttpServletRequest request) {
-        return API_KEY_ELEVATED_ROLE.equals(getAuthorisedKeyRoles(request));
+        return ArrayUtils.contains(getApiKeyPrivileges(request), INTERNAL_APP_PRIVILEGE);
     }
 
     private String getRequestHeader(HttpServletRequest request, String header) {
@@ -128,8 +125,7 @@ public class AuthenticationHelperImpl implements AuthenticationHelper {
 
         if (authorisedUser == null || authorisedUser.trim().length() == 0) {
             return null;
-        }
-        else {
+        } else {
             final String[] details = authorisedUser.split(";");
 
             return indexExists(details, userAttributeIndex) ? getValue(details[userAttributeIndex].trim()) : null;
