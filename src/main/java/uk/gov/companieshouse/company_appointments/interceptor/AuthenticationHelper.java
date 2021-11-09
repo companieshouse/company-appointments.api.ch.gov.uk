@@ -99,18 +99,18 @@ public interface AuthenticationHelper {
      * Checks whether the specified role has authorisation
      *
      * @param request the {@link HttpServletRequest}
-     * @param role the role to be checked
+     * @param role    the role to be checked
      * @return true if the role is authorised
      */
     boolean isRoleAuthorised(HttpServletRequest request, String role);
 
     /**
-     * Returns the authorised key role
+     * Returns the privileges granted to the API key
      *
      * @param request the {@link HttpServletRequest}
-     * @return the key role
+     * @return the privileges of the API key
      */
-    String getAuthorisedKeyRoles(HttpServletRequest request);
+    String[] getApiKeyPrivileges(HttpServletRequest request);
 
     /**
      * Checks whether the key has elevated privileges
