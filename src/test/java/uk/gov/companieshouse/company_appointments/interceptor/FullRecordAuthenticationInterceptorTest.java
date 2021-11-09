@@ -15,6 +15,7 @@ import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.gov.companieshouse.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -32,9 +33,12 @@ class FullRecordAuthenticationInterceptorTest {
     @Mock
     private AuthenticationHelper authHelper;
 
+    @Mock
+    private Logger logger;
+
     @BeforeEach
     void setUp() {
-        authenticationInterceptor = new FullRecordAuthenticationInterceptor(authHelper);
+        authenticationInterceptor = new FullRecordAuthenticationInterceptor(authHelper, logger);
     }
 
     @Test
