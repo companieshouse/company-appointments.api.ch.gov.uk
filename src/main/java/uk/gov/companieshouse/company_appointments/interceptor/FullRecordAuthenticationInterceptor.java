@@ -4,30 +4,48 @@ import org.apache.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
+import uk.gov.companieshouse.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.HashMap;
+import java.util.Map;
 
 @Component
 public class FullRecordAuthenticationInterceptor implements HandlerInterceptor {
     private AuthenticationHelper authHelper;
+    private Logger logger;
 
     @Autowired
-    public FullRecordAuthenticationInterceptor(AuthenticationHelper authHelper) {
+    public FullRecordAuthenticationInterceptor(AuthenticationHelper authHelper, Logger logger) {
         this.authHelper = authHelper;
+        this.logger = logger;
     }
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
         final String identityType = authHelper.getAuthorisedIdentityType(request);
-        boolean shouldAllow = true;
 
-        if (!(authHelper.isApiKeyIdentityType(identityType) && authHelper.isKeyElevatedPrivilegesAuthorised(request))) {
-            shouldAllow = false;
+        Map<String, Object> logMap = new HashMap<>();
+        if (!authHelper.isApiKeyIdentityType(identityType)) {
+            logMap.put("identityType", identityType);
+            logger.infoRequest(request, "User not authorised. Identity type not correct", logMap);
+
             response.setStatus(HttpStatus.SC_UNAUTHORIZED);
+            return false;
         }
 
-        return shouldAllow;
+        if (!authHelper.isKeyElevatedPrivilegesAuthorised(request)) {
+            logMap.put("privileges", authHelper.getAuthorisedKeyRoles(request));
+            logger.infoRequest(request,
+                    "User not authorised. API key does not have sufficient privileges.",
+                    logMap);
+
+            response.setStatus(HttpStatus.SC_UNAUTHORIZED);
+            return false;
+        }
+
+        return true;
     }
 
 }
