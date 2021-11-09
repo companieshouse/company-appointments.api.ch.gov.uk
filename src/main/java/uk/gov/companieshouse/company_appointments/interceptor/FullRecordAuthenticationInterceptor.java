@@ -25,7 +25,6 @@ public class FullRecordAuthenticationInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
         final String identityType = authHelper.getAuthorisedIdentityType(request);
-        boolean shouldAllow = true;
 
         Map<String, Object> logMap = new HashMap<>();
         if (!authHelper.isApiKeyIdentityType(identityType)) {
@@ -36,7 +35,7 @@ public class FullRecordAuthenticationInterceptor implements HandlerInterceptor {
             return false;
         }
 
-        if (authHelper.isKeyElevatedPrivilegesAuthorised(request)) {
+        if (!authHelper.isKeyElevatedPrivilegesAuthorised(request)) {
             logMap.put("privileges", authHelper.getAuthorisedKeyRoles(request));
             logger.infoRequest(request,
                     "User not authorised. API key does not have sufficient privileges.",
