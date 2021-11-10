@@ -6,14 +6,14 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
+import org.springframework.web.servlet.HandlerInterceptor;
 
 import uk.gov.companieshouse.logging.Logger;
 
 import java.util.HashMap;
 
 @Component
-public class AuthenticationInterceptor extends HandlerInterceptorAdapter {
+public class AuthenticationInterceptor implements HandlerInterceptor {
 
     public static final String ERIC_IDENTITY = "ERIC-Identity";
     public static final String ERIC_IDENTITY_TYPE = "ERIC-Identity-Type";

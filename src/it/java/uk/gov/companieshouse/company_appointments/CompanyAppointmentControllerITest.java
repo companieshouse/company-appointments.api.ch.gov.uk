@@ -37,7 +37,7 @@ public class CompanyAppointmentControllerITest {
     private MockMvc mockMvc;
 
     @Container
-    private static MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:3.6");
+    private static MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:4.2");
 
     private static MongoTemplate mongoTemplate;
 
