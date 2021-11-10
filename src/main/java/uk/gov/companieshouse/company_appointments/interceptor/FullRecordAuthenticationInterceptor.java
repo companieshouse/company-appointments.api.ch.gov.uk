@@ -8,13 +8,14 @@ import uk.gov.companieshouse.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
 @Component
 public class FullRecordAuthenticationInterceptor implements HandlerInterceptor {
-    private AuthenticationHelper authHelper;
-    private Logger logger;
+    private final AuthenticationHelper authHelper;
+    private final Logger logger;
 
     @Autowired
     public FullRecordAuthenticationInterceptor(AuthenticationHelper authHelper, Logger logger) {
@@ -36,7 +37,7 @@ public class FullRecordAuthenticationInterceptor implements HandlerInterceptor {
         }
 
         if (!authHelper.isKeyElevatedPrivilegesAuthorised(request)) {
-            logMap.put("privileges", authHelper.getAuthorisedKeyRoles(request));
+            logMap.put("privileges", Arrays.asList(authHelper.getApiKeyPrivileges(request)));
             logger.infoRequest(request,
                     "User not authorised. API key does not have sufficient privileges.",
                     logMap);

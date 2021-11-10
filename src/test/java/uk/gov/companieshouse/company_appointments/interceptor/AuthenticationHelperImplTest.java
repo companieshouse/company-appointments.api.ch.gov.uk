@@ -13,6 +13,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import javax.servlet.http.HttpServletRequest;
 import java.text.MessageFormat;
+import java.util.HashMap;
+import java.util.Map;
 
 @ExtendWith(MockitoExtension.class)
 class AuthenticationHelperImplTest {
@@ -259,25 +261,29 @@ class AuthenticationHelperImplTest {
     }
 
     @Test
-    void getAuthorisedKeyRoles() {
-        String expected = "authorised-key-roles";
+    void getKeyPrivileges() {
+        Map<String, String[]> testValues = new HashMap<>();
+        testValues.put("role-1", new String[]{"role-1"});
+        testValues.put("role-1,role-2", new String[]{"role-1", "role-2"});
 
-        when(request.getHeader("ERIC-Authorised-Key-Roles")).thenReturn(expected);
+        testValues.forEach((headerValue, expectedPrivileges) -> {
+            when(request.getHeader("ERIC-Authorised-Key-Privileges")).thenReturn(headerValue);
 
-        assertThat(testHelper.getAuthorisedKeyRoles(request), is(expected));
-
+            assertThat(testHelper.getApiKeyPrivileges(request), is(expectedPrivileges));
+        });
     }
 
     @Test
     void isKeyElevatedPrivilegesAuthorisedWhenItIs() {
-        when(request.getHeader("ERIC-Authorised-Key-Roles")).thenReturn("*");
+        when(request.getHeader("ERIC-Authorised-Key-Privileges"))
+                .thenReturn("other-role,internal-app");
 
         assertThat(testHelper.isKeyElevatedPrivilegesAuthorised(request), is(true));
     }
 
     @Test
     void isKeyElevatedPrivilegesAuthorisedWhenItIsNot() {
-        when(request.getHeader("ERIC-Authorised-Key-Roles")).thenReturn("role-1 role-2");
+        when(request.getHeader("ERIC-Authorised-Key-Privileges")).thenReturn("role-1,role-2");
 
         assertThat(testHelper.isKeyElevatedPrivilegesAuthorised(request), is(false));
     }
