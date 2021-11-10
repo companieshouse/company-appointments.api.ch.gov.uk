@@ -110,13 +110,13 @@ public class AuthenticationHelperImpl implements AuthenticationHelper {
 
     @Override
     public String[] getApiKeyPrivileges(HttpServletRequest request) {
-        final String headerValue = request.getHeader(ERIC_AUTHORISED_KEY_PRIVILEGES_HEADER);
-        if (headerValue == null) {
-            return new String[]{};
-        }
+        // Could be null if header is not present
+        final String commaSeparatedPrivilegeString = request
+                .getHeader(ERIC_AUTHORISED_KEY_PRIVILEGES_HEADER);
 
-
-        return headerValue.split(",");
+        return Optional.ofNullable(commaSeparatedPrivilegeString)
+                .map(v -> v.split(","))
+                .orElse(new String[]{});
     }
 
     @Override
