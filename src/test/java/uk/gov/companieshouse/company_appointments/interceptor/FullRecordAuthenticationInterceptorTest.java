@@ -59,6 +59,7 @@ class FullRecordAuthenticationInterceptorTest {
         when(authHelper.getAuthorisedIdentityType(request)).thenReturn(AuthenticationHelperImpl.API_KEY_IDENTITY_TYPE);
         when(authHelper.isApiKeyIdentityType(AuthenticationHelperImpl.API_KEY_IDENTITY_TYPE)).thenReturn(true);
         when(authHelper.isKeyElevatedPrivilegesAuthorised(request)).thenReturn(false);
+        when(authHelper.getApiKeyPrivileges(request)).thenReturn(new String[]{});
 
         // when
         boolean actual = authenticationInterceptor.preHandle(request, response, handler);
