@@ -22,6 +22,7 @@ public class AuthenticationHelperImpl implements AuthenticationHelper {
     private static final String ERIC_AUTHORISED_USER = "ERIC-Authorised-User";
     private static final String ERIC_AUTHORISED_SCOPE = "ERIC-Authorised-Scope";
     private static final String ERIC_AUTHORISED_ROLES = "ERIC-Authorised-Roles";
+    public static final String ERIC_AUTHORISED_KEY_PRIVILEGES_HEADER = "ERIC-Authorised-Key-Privileges";
 
     @Override
     public String getAuthorisedIdentity(HttpServletRequest request) {
@@ -108,7 +109,7 @@ public class AuthenticationHelperImpl implements AuthenticationHelper {
 
     @Override
     public String[] getApiKeyPrivileges(HttpServletRequest request) {
-        return request.getHeader("ERIC-Authorised-Key-Privileges")
+        return request.getHeader(ERIC_AUTHORISED_KEY_PRIVILEGES_HEADER)
                 .split(",");
     }
 
