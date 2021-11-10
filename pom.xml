@@ -23,7 +23,7 @@
         <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
         <maven-failsafe-plugin.version>2.22.2</maven-failsafe-plugin.version>
         <jacoco-maven-plugin.version>0.8.5</jacoco-maven-plugin.version>
-        <skip.integration.tests>false</skip.integration.tests>
+        <skip.integration.tests>true</skip.integration.tests>
         <skip.unit.tests>false</skip.unit.tests>
 
         <structured-logging.version>1.9.4</structured-logging.version>
