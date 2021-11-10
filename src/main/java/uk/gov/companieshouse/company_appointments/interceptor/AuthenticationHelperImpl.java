@@ -106,6 +106,7 @@ public class AuthenticationHelperImpl implements AuthenticationHelper {
         return ArrayUtils.contains(roles, role);
     }
 
+    @Override
     public String[] getApiKeyPrivileges(HttpServletRequest request) {
         return request.getHeader("ERIC-Authorised-Key-Privileges")
                 .split(",");
