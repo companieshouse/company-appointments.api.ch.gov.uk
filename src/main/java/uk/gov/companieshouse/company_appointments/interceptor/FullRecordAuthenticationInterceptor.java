@@ -14,8 +14,8 @@ import java.util.Map;
 
 @Component
 public class FullRecordAuthenticationInterceptor implements HandlerInterceptor {
-    private AuthenticationHelper authHelper;
-    private Logger logger;
+    private final AuthenticationHelper authHelper;
+    private final Logger logger;
 
     @Autowired
     public FullRecordAuthenticationInterceptor(AuthenticationHelper authHelper, Logger logger) {

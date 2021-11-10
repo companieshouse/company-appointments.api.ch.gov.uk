@@ -17,13 +17,14 @@ public class AuthenticationHelperImpl implements AuthenticationHelper {
     public static final int USER_EMAIL_INDEX = 0;
     public static final int USER_FORENAME_INDEX = 1;
     public static final int USER_SURNAME_INDEX = 2;
-    public static final String INTERNAL_APP_PRIVILEGE = "internal-app";
+    private static final String INTERNAL_APP_PRIVILEGE = "internal-app";
+    private static final String ERIC_AUTHORISED_KEY_PRIVILEGES_HEADER
+            = "ERIC-Authorised-Key-Privileges";
     private static final String ERIC_IDENTITY = "ERIC-Identity";
     private static final String ERIC_IDENTITY_TYPE = "ERIC-Identity-Type";
     private static final String ERIC_AUTHORISED_USER = "ERIC-Authorised-User";
     private static final String ERIC_AUTHORISED_SCOPE = "ERIC-Authorised-Scope";
     private static final String ERIC_AUTHORISED_ROLES = "ERIC-Authorised-Roles";
-    public static final String ERIC_AUTHORISED_KEY_PRIVILEGES_HEADER = "ERIC-Authorised-Key-Privileges";
 
     @Override
     public String getAuthorisedIdentity(HttpServletRequest request) {
