@@ -4,6 +4,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Optional;
 
 /**
  * Helper class for user authentication
@@ -109,8 +110,13 @@ public class AuthenticationHelperImpl implements AuthenticationHelper {
 
     @Override
     public String[] getApiKeyPrivileges(HttpServletRequest request) {
-        return request.getHeader(ERIC_AUTHORISED_KEY_PRIVILEGES_HEADER)
-                .split(",");
+        final String headerValue = request.getHeader(ERIC_AUTHORISED_KEY_PRIVILEGES_HEADER);
+        if (headerValue == null) {
+            return new String[]{};
+        }
+
+
+        return headerValue.split(",");
     }
 
     @Override
