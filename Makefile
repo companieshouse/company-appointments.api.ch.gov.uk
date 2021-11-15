@@ -15,7 +15,7 @@ test-unit: clean
 
 .PHONY: test-integration
 test-integration: clean
-	mvn verify -Dskip.unit.tests=true
+	mvn verify -Dskip.unit.tests=true -Dskip.integration.tests=false
 
 .PHONY: coverage
 coverage:

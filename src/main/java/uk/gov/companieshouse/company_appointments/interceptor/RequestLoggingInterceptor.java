@@ -1,15 +1,15 @@
 package uk.gov.companieshouse.company_appointments.interceptor;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.logging.util.RequestLogger;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-public class RequestLoggingInterceptor extends HandlerInterceptorAdapter implements RequestLogger {
+public class RequestLoggingInterceptor implements HandlerInterceptor, RequestLogger {
 
     private Logger logger;
 

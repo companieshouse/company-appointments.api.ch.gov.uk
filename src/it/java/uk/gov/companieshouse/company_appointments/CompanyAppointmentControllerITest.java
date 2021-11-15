@@ -18,7 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.SimpleMongoClientDbFactory;
+import org.springframework.data.mongodb.core.SimpleMongoClientDatabaseFactory;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
@@ -37,14 +37,14 @@ public class CompanyAppointmentControllerITest {
     private MockMvc mockMvc;
 
     @Container
-    private static MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:3.6");
+    private static MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:4.2");
 
     private static MongoTemplate mongoTemplate;
 
     @BeforeAll
     static void start() throws IOException {
         System.setProperty("spring.data.mongodb.uri", mongoDBContainer.getReplicaSetUrl());
-        mongoTemplate = new MongoTemplate(new SimpleMongoClientDbFactory(mongoDBContainer.getReplicaSetUrl()));
+        mongoTemplate = new MongoTemplate(new SimpleMongoClientDatabaseFactory(mongoDBContainer.getReplicaSetUrl()));
         mongoTemplate.createCollection("appointments");
         mongoTemplate.insert(Document.parse(IOUtils.resourceToString("/appointment-data.json", StandardCharsets.UTF_8)), "appointments");
     }

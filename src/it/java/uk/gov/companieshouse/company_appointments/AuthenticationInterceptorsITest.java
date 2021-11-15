@@ -24,7 +24,7 @@ import uk.gov.companieshouse.logging.Logger;
 
 @WebMvcTest(controllers = {CompanyAppointmentController.class, CompanyAppointmentFullRecordController.class})
 @Import({LoggingConfig.class, AuthenticationHelperImpl.class})
-class AuthenticationInterceptorsIT {
+class AuthenticationInterceptorsITest {
     private static final String APP_ID = "N-YqKNwdT_HvetusfTJ0H0jAQbA";
     private static final String COMPANY_NUMBER = "09876543";
     private static final String AUTH_EMAIL = "user@somewhere.com";
@@ -131,7 +131,9 @@ class AuthenticationInterceptorsIT {
         httpHeaders.add("ERIC-Identity-Type", "key");
         httpHeaders.add("ERIC-Identity", "user");
         httpHeaders.add("ERIC-Authorised-User", AUTH_EMAIL);
-        httpHeaders.add("ERIC-Authorised-Key-Roles", isPrivileged ? "*" : "none");
+        if(isPrivileged) {
+            httpHeaders.add("ERIC-Authorised-Key-Privileges", "internal-app");
+        }
     }
 
 }
