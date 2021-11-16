@@ -13,10 +13,69 @@
     }
   ],
   "paths": {
-    "/company/{company_number}/appointments/{appointment_id}": {
+    "/company/{company_number}/appointments/{appointment_id}/full_record": {
       "get": {
-        "summary": "Get details of an individual company officer appointment",
-        "operationId": "showPetById",
+        "summary": "Get details of an individual company officer appointment - returns AppointmentView object",
+        "operationId": "findByAppointmentIdAndCompanyNumber",
+        "tags": [
+          "company officer appointment"
+        ],
+        "parameters": [
+          {
+            "name": "company_number",
+            "in": "path",
+            "required": true,
+            "description": "The id of the company",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "appointment_id",
+            "in": "path",
+            "required": true,
+            "description": "The id of the appointment",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Expected response to a valid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FullRecordView"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorised",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Put an appointment into the database collection",
+        "operationId": "submitOfficerData",
         "tags": [
           "company officer appointment"
         ],
@@ -77,8 +136,8 @@
   },
   "components": {
     "schemas": {
-      "Appointment": {
-        "description": "Appointment",
+      "FullRecordView": {
+        "description": "Appointment View",
         "required": [
           "service_address",
           "appointed_on",
@@ -94,7 +153,8 @@
             "$ref": "#/components/schemas/Address"
           },
           "appointed_on": {
-            "type": "string"
+            "type": "string",
+            "format": "date-time"
           },
           "country_of_residence": {
             "type": "string"
@@ -109,7 +169,7 @@
             "$ref": "#/components/schemas/Identification"
           },
           "links": {
-            "$ref": "#/components/schemas/Links"
+            "$ref": "#/components/schemas/LinksView"
           },
           "name": {
             "type": "string"
@@ -147,7 +207,131 @@
             "type": "string"
           },
           "resigned_on": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "Appointment": {
+        "description": "Appointment",
+        "required": [
+          "officer_data",
+          "internal_id",
+          "appointment_id",
+          "officer_id",
+          "company_number",
+          "created_at",
+          "updated_at",
+          "delta_at"
+        ],
+        "properties": {
+          "officer_data": {
+            "$ref": "#/components/schemas/OfficerData"
+          },
+          "internal_id": {
             "type": "string"
+          },
+          "appointment_id": {
+            "type": "string"
+          },
+          "officer_id": {
+            "type": "string"
+          },
+          "previous_officer_id": {
+            "type": "string"
+          },
+          "company_number": {
+            "type": "string"
+          },
+          "created_at": {
+            "$ref": "#/components/schemas/InstantApi"
+          },
+          "updated_at": {
+            "$ref": "#/components/schemas/InstantApi"
+          },
+          "delta_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "OfficerData": {
+        "description": "Information regarding an individual officer.",
+        "title": "Officer Data",
+        "required": [
+          "appointed_on",
+          "service_address",
+          "updated_at"
+        ],
+        "properties": {
+          "service_address": {
+            "$ref": "#/components/schemas/Address"
+          },
+          "usual_residential_address": {
+            "$ref": "#/components/schemas/Address"
+          },
+          "service_addres_is_same_as_registered_office_address": {
+            "type": "boolean"
+          },
+          "appointed_on": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "is_pre_1992_appointment": {
+            "type": "boolean"
+          },
+          "resigned_on": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "country_of_residence": {
+            "type": "string"
+          },
+          "links": {
+            "$ref": "#/components/schemas/Links"
+          },
+          "nationality": {
+            "type": "string"
+          },
+          "occupation": {
+            "type": "string"
+          },
+          "officer_role": {
+            "type": "string"
+          },
+          "is_secure_officer": {
+            "type": "boolean"
+          },
+          "date_of_birth": {
+            "type": "string"
+          },
+          "identification": {
+            "$ref": "#/components/schemas/Identification"
+          },
+          "former_names": {
+            "$ref": "#/components/schemas/FormerNames"
+          },
+          "surname": {
+            "type": "string"
+          },
+          "forename": {
+            "type": "string"
+          },
+          "other_forenames": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "honours": {
+            "type": "string"
+          },
+          "company_number": {
+            "type": "string"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       },
@@ -249,6 +433,34 @@
           }
         }
       },
+      "LinksView": {
+        "description": "Links to other resources associated with this officer list item.",
+        "title": "Links View",
+        "required": [
+          "officer",
+          "self"
+        ],
+        "properties": {
+          "officer": {
+            "$ref": "#/components/schemas/OfficerLinksView"
+          },
+          "self": {
+            "type": "string"
+          }
+        }
+      },
+      "OfficerLinksView": {
+        "description": "Link to this individual company officer appointment resource.",
+        "title": "Officer Links View",
+        "required": [
+          "appointments"
+        ],
+        "properties": {
+          "appointments": {
+            "type": "string"
+          }
+        }
+      },
       "Links": {
         "description": "Links to other resources associated with this officer list item.",
         "title": "Links",
@@ -258,7 +470,7 @@
         ],
         "properties": {
           "officer": {
-            "$ref": "#/components/schemas/Officer"
+            "$ref": "#/components/schemas/OfficerLinks"
           },
           "self": {
             "type": "string",
@@ -266,15 +478,32 @@
           }
         }
       },
-      "Officer": {
-        "description": "Officer",
-        "title": "Officer",
+      "OfficerLinks": {
+        "description": "Link to this individual company officer appointment resource.",
+        "title": "Officer Links",
         "required": [
+          "self",
           "appointments"
         ],
         "properties": {
+          "self": {
+            "type": "string"
+          },
           "appointments": {
             "type": "string"
+          }
+        }
+      },
+      "InstantApi": {
+        "description": "Instant timestamp value",
+        "title": "Instant Api",
+        "required": [
+          "at"
+        ],
+        "properties": {
+          "at": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       },
