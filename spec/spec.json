@@ -157,7 +157,8 @@
             "format": "date-time"
           },
           "country_of_residence": {
-            "type": "string"
+            "type": "string",
+            "example": "United Kingdom"
           },
           "date_of_birth": {
             "$ref": "#/components/schemas/DOB"
@@ -172,13 +173,16 @@
             "$ref": "#/components/schemas/LinksView"
           },
           "name": {
-            "type": "string"
+            "type": "string",
+            "example": "Hope, Bob"
           },
           "nationality": {
-            "type": "string"
+            "type": "string",
+            "example": "Welsh"
           },
           "occupation": {
-            "type": "string"
+            "type": "string",
+            "example": "Software Developer"
           },
           "officer_role": {
             "enum": [
@@ -204,7 +208,8 @@
               "receiver-and-manager",
               "secretary"
             ],
-            "type": "string"
+            "type": "string",
+            "example": "director"
           },
           "resigned_on": {
             "type": "string",
@@ -229,19 +234,24 @@
             "$ref": "#/components/schemas/OfficerData"
           },
           "internal_id": {
-            "type": "string"
+            "type": "string",
+            "example": 7949991125
           },
           "appointment_id": {
-            "type": "string"
+            "type": "string",
+            "example": "AB-CDzhrjsdXMuUqhH0WBGjplHM"
           },
           "officer_id": {
-            "type": "string"
+            "type": "string",
+            "example": "c4Aw2-D3appznoESN24MtsLovof"
           },
           "previous_officer_id": {
-            "type": "string"
+            "type": "string",
+            "example": "BCjiRt-4VRbokE2Z5BRvnyIRcvM"
           },
           "company_number": {
-            "type": "string"
+            "type": "string",
+            "example": 44712371
           },
           "created_at": {
             "$ref": "#/components/schemas/InstantApi"
@@ -285,25 +295,30 @@
             "format": "date-time"
           },
           "country_of_residence": {
-            "type": "string"
+            "type": "string",
+            "example": "United Kingdom"
           },
           "links": {
             "$ref": "#/components/schemas/Links"
           },
           "nationality": {
-            "type": "string"
+            "type": "string",
+            "example": "Welsh"
           },
           "occupation": {
-            "type": "string"
+            "type": "string",
+            "example": "Software Developer"
           },
           "officer_role": {
-            "type": "string"
+            "type": "string",
+            "example": "director"
           },
           "is_secure_officer": {
             "type": "boolean"
           },
           "date_of_birth": {
-            "type": "string"
+            "type": "string",
+            "example": "23/11/1974"
           },
           "identification": {
             "$ref": "#/components/schemas/Identification"
@@ -312,22 +327,28 @@
             "$ref": "#/components/schemas/FormerNames"
           },
           "surname": {
-            "type": "string"
+            "type": "string",
+            "example": "Jones"
           },
           "forename": {
-            "type": "string"
+            "type": "string",
+            "example": "David"
           },
           "other_forenames": {
-            "type": "string"
+            "type": "string",
+            "example": "Rhys"
           },
           "title": {
-            "type": "string"
+            "type": "string",
+            "example": "Mr"
           },
           "honours": {
-            "type": "string"
+            "type": "string",
+            "example": "SIR"
           },
           "company_number": {
-            "type": "string"
+            "type": "string",
+            "example": 44712371
           },
           "updated_at": {
             "type": "string",
@@ -343,31 +364,40 @@
         ],
         "properties": {
           "address_line_1": {
-            "type": "string"
+            "type": "string",
+            "example": "101 Example Street"
           },
           "address_line_2": {
-            "type": "string"
+            "type": "string",
+            "example": "Exampletown"
           },
           "care_of": {
-            "type": "string"
+            "type": "string",
+            "example": "careOf"
           },
           "country": {
-            "type": "string"
+            "type": "string",
+            "example": "Wales"
           },
           "locality": {
-            "type": "string"
+            "type": "string",
+            "example": "Cardiff"
           },
           "po_box": {
-            "type": "string"
+            "type": "string",
+            "example": "poBox"
           },
           "postal_code": {
-            "type": "string"
+            "type": "string",
+            "example": "CF1 1TT"
           },
           "premises": {
-            "type": "string"
+            "type": "string",
+            "example": "101-103"
           },
           "region": {
-            "type": "string"
+            "type": "string",
+            "example": "region"
           }
         }
       },
@@ -382,15 +412,18 @@
           "day": {
             "type": "integer",
             "minimum": 1,
-            "maximum": 31
+            "maximum": 31,
+            "example": 23
           },
           "month": {
             "type": "integer",
             "minimum": 1,
-            "maximum": 12
+            "maximum": 12,
+            "example": 11
           },
           "year": {
-            "type": "integer"
+            "type": "integer",
+            "example": 1974
           }
         }
       },
@@ -399,10 +432,12 @@
         "title": "Former Names",
         "properties": {
           "forenames": {
-            "type": "string"
+            "type": "string",
+            "example": "David"
           },
           "surname": {
-            "type": "string"
+            "type": "string",
+            "example": "Jones"
           }
         }
       },
@@ -420,16 +455,20 @@
             "type": "string"
           },
           "legal_authority": {
-            "type": "string"
+            "type": "string",
+            "example": "Chapter 32"
           },
           "legal_form": {
-            "type": "string"
+            "type": "string",
+            "example": "Hong Kong"
           },
           "place_registered": {
-            "type": "string"
+            "type": "string",
+            "example": "United Kingdom"
           },
           "registration_number": {
-            "type": "string"
+            "type": "string",
+            "example": 32985
           }
         }
       },
@@ -445,7 +484,8 @@
             "$ref": "#/components/schemas/OfficerLinksView"
           },
           "self": {
-            "type": "string"
+            "type": "string",
+            "example": "/company/44712371/appointments/AB-CDzhrjsdXMuUqhH0WBGjplHM"
           }
         }
       },
@@ -457,7 +497,8 @@
         ],
         "properties": {
           "appointments": {
-            "type": "string"
+            "type": "string",
+            "example": "/officers/c4Aw2-D3appznoESN24MtsLovof/appointments"
           }
         }
       },
@@ -474,6 +515,7 @@
           },
           "self": {
             "type": "string",
+            "example": "/company/44712371/appointments/AB-CDzhrjsdXMuUqhH0WBGjplHM",
             "description": "Link to this individual company officer appointment resource."
           }
         }
@@ -487,10 +529,12 @@
         ],
         "properties": {
           "self": {
-            "type": "string"
+            "type": "string",
+            "example": "/officers/RE-SDzhrjsdXMuUqhH0WBGjplQP"
           },
           "appointments": {
-            "type": "string"
+            "type": "string",
+            "example": "/officers/c4Aw2-D3appznoESN24MtsLovof/appointments"
           }
         }
       },
