@@ -26,9 +26,10 @@
         <skip.integration.tests>true</skip.integration.tests>
         <skip.unit.tests>false</skip.unit.tests>
 
-        <structured-logging.version>1.9.4</structured-logging.version>
+        <structured-logging.version>1.9.11</structured-logging.version>
         <sdk-manager-java.version>1.5.1</sdk-manager-java.version>
         <private-api-sdk-java.version>2.0.101</private-api-sdk-java.version>
+        <log4j.version>2.16.0</log4j.version>
 
         <!--sonar configuration-->
         <sonar.coverage.jacoco.xmlReportPaths>${project.basedir}/target/site/jacoco/jacoco.xml,
@@ -39,6 +40,13 @@
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-bom</artifactId>
+                <version>${log4j.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
