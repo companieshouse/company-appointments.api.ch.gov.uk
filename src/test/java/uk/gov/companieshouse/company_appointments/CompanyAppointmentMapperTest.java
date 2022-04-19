@@ -1,24 +1,25 @@
 package uk.gov.companieshouse.company_appointments;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import java.time.LocalDateTime;
+import java.util.Collections;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentData;
+import uk.gov.companieshouse.company_appointments.model.data.ContactDetailsData;
 import uk.gov.companieshouse.company_appointments.model.data.FormerNamesData;
 import uk.gov.companieshouse.company_appointments.model.data.IdentificationData;
 import uk.gov.companieshouse.company_appointments.model.data.LinksData;
 import uk.gov.companieshouse.company_appointments.model.data.OfficerData;
 import uk.gov.companieshouse.company_appointments.model.data.ServiceAddressData;
 import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentView;
+import uk.gov.companieshouse.company_appointments.model.view.ContactDetailsView;
 import uk.gov.companieshouse.company_appointments.model.view.DateOfBirth;
 import uk.gov.companieshouse.company_appointments.model.view.FormerNamesView;
 import uk.gov.companieshouse.company_appointments.model.view.IdentificationView;
 import uk.gov.companieshouse.company_appointments.model.view.LinksView;
 import uk.gov.companieshouse.company_appointments.model.view.ServiceAddressView;
-
-import java.time.LocalDateTime;
-import java.util.Collections;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class CompanyAppointmentMapperTest {
 
@@ -148,7 +149,32 @@ public class CompanyAppointmentMapperTest {
         });
     }
 
+    @Test
+    void testCompanyAppointmentMapperWithResponsibilities() {
+        //when
+        CompanyAppointmentView actual = companyAppointmentMapper.map(companyAppointmentData(personalAppointmentDataWithResponsibilities()));
 
+        //then
+        assertEquals(personalAppointmentViewResponsibilities(), actual);
+    }
+
+    @Test
+    void testCompanyAppointmentMapperWithPrincipalOfficeAddress() {
+        //when
+        CompanyAppointmentView actual = companyAppointmentMapper.map(companyAppointmentData(personalAppointmentDataWithPrincipalOfficeAddress()));
+
+        //then
+        assertEquals(personalAppointmentViewPrincipalOfficeAddress(), actual);
+    }
+
+    @Test
+    void testCompanyAppointmentMapperContactDetails() {
+        //when
+        CompanyAppointmentView actual = companyAppointmentMapper.map(companyAppointmentData(personalAppointmentDataWithContactDetails()));
+
+        //then
+        assertEquals(personalAppointmentViewWithContactDetails(), actual);
+    }
 
     private CompanyAppointmentData companyAppointmentData(OfficerData officerData) {
         return new CompanyAppointmentData("123", officerData);
@@ -174,6 +200,32 @@ public class CompanyAppointmentMapperTest {
                         .withPoBox("PO Box")
                         .withPremises("Premises")
                         .withRegion("Region")
+                        .build())
+                .withResponsibilities("responsibilities")
+                .withPrincipalOfficeAddress(ServiceAddressData.builder()
+                        .withAddressLine1("Address 1")
+                        .withAddressLine2("Address 2")
+                        .withCareOf("Care of")
+                        .withCountry("Country")
+                        .withLocality("Locality")
+                        .withPostcode("AB01 9XY")
+                        .withPoBox("PO Box")
+                        .withPremises("Premises")
+                        .withRegion("Region")
+                        .build())
+                .withContactDetails(ContactDetailsData.builder()
+                        .withAddressLine1("Address 1")
+                        .withAddressLine2("Address 2")
+                        .withCareOf("Care of")
+                        .withCountry("Country")
+                        .withLocality("Locality")
+                        .withPostcode("AB01 9XY")
+                        .withPoBox("PO Box")
+                        .withPremises("Premises")
+                        .withRegion("Region")
+                        .withForename("Forename")
+                        .withOtherForenames("Other forenames")
+                        .withSurname("SURNAME")
                         .build());
     }
 
@@ -277,6 +329,47 @@ public class CompanyAppointmentMapperTest {
                 .build();
     }
 
+    private OfficerData personalAppointmentDataWithResponsibilities() {
+        return officerData()
+                .withResponsibilities("responsibilities")
+                .build();
+    }
+
+    private OfficerData personalAppointmentDataWithPrincipalOfficeAddress() {
+        return officerData()
+                .withPrincipalOfficeAddress(ServiceAddressData.builder()
+                        .withAddressLine1("Address 1")
+                        .withAddressLine2("Address 2")
+                        .withCareOf("Care of")
+                        .withCountry("Country")
+                        .withLocality("Locality")
+                        .withPostcode("AB01 9XY")
+                        .withPoBox("PO Box")
+                        .withPremises("Premises")
+                        .withRegion("Region")
+                        .build())
+                .build();
+    }
+
+    private OfficerData personalAppointmentDataWithContactDetails() {
+        return officerData()
+                .withContactDetails(ContactDetailsData.builder()
+                        .withAddressLine1("Address 1")
+                        .withAddressLine2("Address 2")
+                        .withCareOf("Care of")
+                        .withCountry("Country")
+                        .withLocality("Locality")
+                        .withPostcode("AB01 9XY")
+                        .withPoBox("PO Box")
+                        .withPremises("Premises")
+                        .withRegion("Region")
+                        .withForename("John")
+                        .withOtherForenames("Earl")
+                        .withSurname("JONES")
+                        .build())
+                .build();
+    }
+
     private CompanyAppointmentView.Builder expectedCompanyAppointment() {
         return CompanyAppointmentView.builder()
                 .withAppointedOn(LocalDateTime.of(2020, 8, 26, 12, 0))
@@ -297,6 +390,30 @@ public class CompanyAppointmentMapperTest {
                         .withPoBox("PO Box")
                         .withPremises("Premises")
                         .withRegion("Region")
+                        .build())
+                .withResponsibilities("responsibilities")
+                .withPrincipalOfficeAddress(ServiceAddressView.builder()
+                        .withAddressLine1("Address 1")
+                        .withAddressLine2("Address 2")
+                        .withCareOf("Care of")
+                        .withCountry("Country")
+                        .withLocality("Locality")
+                        .withPostcode("AB01 9XY")
+                        .withPoBox("PO Box")
+                        .withPremises("Premises")
+                        .withRegion("Region")
+                        .build())
+                .withContactDetails(ContactDetailsView.builder()
+                        .withAddressLine1("Address 1")
+                        .withAddressLine2("Address 2")
+                        .withCareOf("Care of")
+                        .withCountry("Country")
+                        .withLocality("Locality")
+                        .withPostcode("AB01 9XY")
+                        .withPoBox("PO Box")
+                        .withPremises("Premises")
+                        .withRegion("Region")
+                        .withName("SURNAME, Forename Other forenames")
                         .build());
     }
 
@@ -389,6 +506,45 @@ public class CompanyAppointmentMapperTest {
                 .withOfficerRole(secretary.getRole())
                 .withCountryOfResidence(null)
                 .withDateOfBirth(null)
+                .build();
+    }
+
+    private CompanyAppointmentView personalAppointmentViewResponsibilities() {
+        return expectedCompanyAppointment()
+                .withResponsibilities("responsibilities")
+                .build();
+    }
+
+    private CompanyAppointmentView personalAppointmentViewPrincipalOfficeAddress() {
+        return expectedCompanyAppointment()
+                .withServiceAddress(ServiceAddressView.builder()
+                        .withAddressLine1("Address 1")
+                        .withAddressLine2("Address 2")
+                        .withCareOf("Care of")
+                        .withCountry("Country")
+                        .withLocality("Locality")
+                        .withPostcode("AB01 9XY")
+                        .withPoBox("PO Box")
+                        .withPremises("Premises")
+                        .withRegion("Region")
+                        .build())
+                .build();
+    }
+
+    private CompanyAppointmentView personalAppointmentViewWithContactDetails() {
+        return expectedCompanyAppointment()
+                .withContactDetails(ContactDetailsView.builder()
+                        .withAddressLine1("Address 1")
+                        .withAddressLine2("Address 2")
+                        .withCareOf("Care of")
+                        .withCountry("Country")
+                        .withLocality("Locality")
+                        .withPostcode("AB01 9XY")
+                        .withPoBox("PO Box")
+                        .withPremises("Premises")
+                        .withRegion("Region")
+                        .withName("JONES, John Earl")
+                        .build())
                 .build();
     }
 }
