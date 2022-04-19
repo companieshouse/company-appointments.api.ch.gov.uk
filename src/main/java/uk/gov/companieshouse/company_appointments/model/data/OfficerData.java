@@ -3,7 +3,6 @@ package uk.gov.companieshouse.company_appointments.model.data;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
-
 import org.springframework.data.mongodb.core.mapping.Field;
 
 public class OfficerData {
@@ -51,10 +50,23 @@ public class OfficerData {
     @Field("company_name")
     private String companyName;
 
-    public OfficerData(ServiceAddressData serviceAddress, LocalDateTime appointedOn, LocalDateTime resignedOn,
-            String countryOfResidence, LinksData linksData, String nationality, String occupation, String officerRole,
-            LocalDateTime dateOfBirth, IdentificationData identificationData, List<FormerNamesData> formerNameData,
-            String surname, String forename, String otherForenames, String title, String companyName) {
+    private String responsibilities;
+
+    @Field("principal_office_address")
+    private ServiceAddressData principalOfficeAddress;
+
+    @Field("contact_details")
+    private ContactDetailsData contactDetails;
+
+    public OfficerData(
+            ServiceAddressData serviceAddress, LocalDateTime appointedOn,
+            LocalDateTime resignedOn, String countryOfResidence,
+            LinksData linksData, String nationality, String occupation, String officerRole,
+            LocalDateTime dateOfBirth,
+            IdentificationData identificationData,
+            List<FormerNamesData> formerNameData, String surname, String forename,
+            String otherForenames, String title, String companyName, String responsibilities,
+            ServiceAddressData principalOfficeAddress, ContactDetailsData contactDetails) {
         this.serviceAddress = serviceAddress;
         this.appointedOn = appointedOn;
         this.resignedOn = resignedOn;
@@ -71,6 +83,9 @@ public class OfficerData {
         this.otherForenames = otherForenames;
         this.title = title;
         this.companyName = companyName;
+        this.responsibilities = responsibilities;
+        this.principalOfficeAddress = principalOfficeAddress;
+        this.contactDetails = contactDetails;
     }
 
     public ServiceAddressData getServiceAddress() {
@@ -201,6 +216,30 @@ public class OfficerData {
         this.companyName = companyName;
     }
 
+    public String getResponsibilities() {
+        return responsibilities;
+    }
+
+    public void setResponsibilities(String responsibilities) {
+        this.responsibilities = responsibilities;
+    }
+
+    public ServiceAddressData getPrincipalOfficeAddress() {
+        return principalOfficeAddress;
+    }
+
+    public void setPrincipalOfficeAddress(ServiceAddressData principalOfficeAddress) {
+        this.principalOfficeAddress = principalOfficeAddress;
+    }
+
+    public ContactDetailsData getContactDetails() {
+        return contactDetails;
+    }
+
+    public void setContactDetails(ContactDetailsData contactDetails) {
+        this.contactDetails = contactDetails;
+    }
+
     public static Builder builder() {
         return new Builder();
     }
@@ -222,6 +261,9 @@ public class OfficerData {
         private String otherForenames;
         private String title;
         private String companyName;
+        private String responsibilities;
+        private ServiceAddressData principalOfficeAddress;
+        private ContactDetailsData contactDetailsData;
 
         public Builder withServiceAddress(ServiceAddressData serviceAddress) {
             this.serviceAddress = serviceAddress;
@@ -303,16 +345,34 @@ public class OfficerData {
             return this;
         }
 
+        public Builder withResponsibilities(String responsibilities) {
+            this.responsibilities = responsibilities;
+            return this;
+        }
+
+        public Builder withPrincipalOfficeAddress(ServiceAddressData principalOfficeAddress) {
+            this.principalOfficeAddress = principalOfficeAddress;
+            return this;
+        }
+
+        public Builder withContactDetails(ContactDetailsData contactDetailsData) {
+            this.contactDetailsData = contactDetailsData;
+            return this;
+        }
+
         public OfficerData build() {
             return new OfficerData(serviceAddress, appointedOn, resignedOn, countryOfResidence, linksData, nationality,
                     occupation, officerRole, dateOfBirth, identificationData, formerNameData, surname, forename,
-                    otherForenames, title, companyName);
+                    otherForenames, title, companyName, responsibilities, principalOfficeAddress,
+                    contactDetailsData);
         }
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
+        if (this == o) {
+            return true;
+        }
         if (!(o instanceof OfficerData)) return false;
         OfficerData that = (OfficerData) o;
         return Objects.equals(getServiceAddress(), that.getServiceAddress()) &&
@@ -330,14 +390,22 @@ public class OfficerData {
                 Objects.equals(getForename(), that.getForename()) &&
                 Objects.equals(getOtherForenames(), that.getOtherForenames()) &&
                 Objects.equals(getTitle(), that.getTitle()) &&
-                Objects.equals(getCompanyName(), that.getCompanyName());
+                Objects.equals(getCompanyName(), that.getCompanyName()) &&
+                Objects.equals(getResponsibilities(), that.getResponsibilities()) &&
+                Objects.equals(getPrincipalOfficeAddress(), that.getPrincipalOfficeAddress())
+                &&
+                Objects.equals(getContactDetails(), that.getContactDetails());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getServiceAddress(), getAppointedOn(), getResignedOn(), getCountryOfResidence(),
-                getLinksData(), getNationality(), getOccupation(), getOfficerRole(), getDateOfBirth(),
-                getIdentificationData(), getFormerNameData(), getSurname(), getForename(), getOtherForenames(),
-                getTitle(), getCompanyName());
+        return Objects
+                .hash(getServiceAddress(), getAppointedOn(), getResignedOn(),
+                        getCountryOfResidence(),
+                        getLinksData(), getNationality(), getOccupation(), getOfficerRole(),
+                        getDateOfBirth(), getIdentificationData(), getFormerNameData(),
+                        getSurname(),
+                        getForename(), getOtherForenames(), getTitle(), getCompanyName(),
+                        getResponsibilities(), getPrincipalOfficeAddress(), getContactDetails());
     }
 }

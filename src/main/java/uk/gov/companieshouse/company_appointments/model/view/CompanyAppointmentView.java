@@ -1,12 +1,11 @@
 package uk.gov.companieshouse.company_appointments.model.view;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Objects;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Objects;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class CompanyAppointmentView {
@@ -44,10 +43,24 @@ public class CompanyAppointmentView {
     @JsonProperty("officer_role")
     private String officerRole;
 
-    public CompanyAppointmentView(ServiceAddressView serviceAddress, LocalDateTime appointedOn,
-            LocalDateTime resignedOn, String countryOfResidence, DateOfBirth dateOfBirth,
-            List<FormerNamesView> formerNames, IdentificationView identification, LinksView links, String name,
-            String nationality, String occupation, String officerRole) {
+    private String responsibilities;
+
+    @JsonProperty("principal_office_address")
+    private ServiceAddressView principalOfficeAddress;
+
+    @JsonProperty("contact_details")
+    private ContactDetailsView contactDetails;
+
+    public CompanyAppointmentView(
+            ServiceAddressView serviceAddress, LocalDateTime appointedOn,
+            LocalDateTime resignedOn, String countryOfResidence,
+            DateOfBirth dateOfBirth,
+            List<FormerNamesView> formerNames,
+            IdentificationView identification,
+            LinksView links, String name, String nationality, String occupation,
+            String officerRole, String responsibilities,
+            ServiceAddressView principalOfficeAddress,
+            ContactDetailsView contactDetails) {
         this.serviceAddress = serviceAddress;
         this.appointedOn = appointedOn;
         this.resignedOn = resignedOn;
@@ -60,7 +73,9 @@ public class CompanyAppointmentView {
         this.nationality = nationality;
         this.occupation = occupation;
         this.officerRole = officerRole;
-        this.resignedOn = resignedOn;
+        this.responsibilities = responsibilities;
+        this.principalOfficeAddress = principalOfficeAddress;
+        this.contactDetails = contactDetails;
     }
 
     public ServiceAddressView getServiceAddress() {
@@ -159,6 +174,32 @@ public class CompanyAppointmentView {
         this.officerRole = officerRole;
     }
 
+    public String getResponsibilities() {
+        return responsibilities;
+    }
+
+    public void setResponsibilities(String responsibilities) {
+        this.responsibilities = responsibilities;
+    }
+
+    public ServiceAddressView getPrincipalOfficeAddress() {
+        return principalOfficeAddress;
+    }
+
+    public void setPrincipalOfficeAddress(
+            ServiceAddressView principalOfficeAddress) {
+        this.principalOfficeAddress = principalOfficeAddress;
+    }
+
+    public ContactDetailsView getContactDetails() {
+        return contactDetails;
+    }
+
+    public void setContactDetails(
+            ContactDetailsView contactDetails) {
+        this.contactDetails = contactDetails;
+    }
+
     public static Builder builder() {
         return new Builder();
     }
@@ -177,6 +218,9 @@ public class CompanyAppointmentView {
         private String nationality;
         private String occupation;
         private String officerRole;
+        private String responsibilities;
+        private ServiceAddressView principalOfficeAddress;
+        private ContactDetailsView contactDetails;
 
         public Builder withServiceAddress(ServiceAddressView serviceAddress) {
             this.serviceAddress = serviceAddress;
@@ -238,9 +282,25 @@ public class CompanyAppointmentView {
             return this;
         }
 
+        public Builder withResponsibilities(String responsibilities) {
+            this.responsibilities = responsibilities;
+            return this;
+        }
+
+        public Builder withPrincipalOfficeAddress(ServiceAddressView principalOfficeAddress) {
+            this.principalOfficeAddress = principalOfficeAddress;
+            return this;
+        }
+
+        public Builder withContactDetails(ContactDetailsView contactDetails) {
+            this.contactDetails = contactDetails;
+            return this;
+        }
+
         public CompanyAppointmentView build() {
             return new CompanyAppointmentView(serviceAddress, appointedOn, resignedOn, countryOfResidence, dateOfBirth,
-                    formerNames, identification, links, name, nationality, occupation, officerRole);
+                    formerNames, identification, links, name, nationality, occupation, officerRole, responsibilities,
+                    principalOfficeAddress, contactDetails);
         }
     }
 
@@ -260,14 +320,18 @@ public class CompanyAppointmentView {
                 Objects.equals(getName(), that.getName()) &&
                 Objects.equals(getNationality(), that.getNationality()) &&
                 Objects.equals(getOccupation(), that.getOccupation()) &&
-                Objects.equals(getOfficerRole(), that.getOfficerRole());
+                Objects.equals(getOfficerRole(), that.getOfficerRole()) &&
+                Objects.equals(getResponsibilities(), that.getResponsibilities()) &&
+                Objects.equals(getPrincipalOfficeAddress(), that.getPrincipalOfficeAddress()) &&
+                Objects.equals(getContactDetails(), that.getContactDetails());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getServiceAddress(), getAppointedOn(), getResignedOn(), getCountryOfResidence(),
-                getDateOfBirth(), getFormerNames(), getIdentification(), getLinks(), getName(), getNationality(),
-                getOccupation(), getOfficerRole());
+        return Objects
+                .hash(getServiceAddress(), getAppointedOn(), getResignedOn(),
+                        getCountryOfResidence(), getDateOfBirth(), getFormerNames(), getIdentification(),
+                        getLinks(), getName(), getNationality(), getOccupation(), getOfficerRole(),
+                        getResponsibilities(), getPrincipalOfficeAddress(), getContactDetails());
     }
-
 }

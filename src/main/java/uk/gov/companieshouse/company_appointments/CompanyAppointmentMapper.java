@@ -5,11 +5,12 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentData;
+import uk.gov.companieshouse.company_appointments.model.data.ContactDetailsData;
 import uk.gov.companieshouse.company_appointments.model.data.OfficerLinksData;
 import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentView;
+import uk.gov.companieshouse.company_appointments.model.view.ContactDetailsView;
 import uk.gov.companieshouse.company_appointments.model.view.DateOfBirth;
 import uk.gov.companieshouse.company_appointments.model.view.FormerNamesView;
 import uk.gov.companieshouse.company_appointments.model.view.IdentificationView;
@@ -42,6 +43,9 @@ public class CompanyAppointmentMapper {
                 .withIdentification(mapCorporateInfo(companyAppointmentData))
                 .withFormerNames(mapFormerNames(companyAppointmentData))
                 .withName(mapOfficerName(companyAppointmentData))
+                .withResponsibilities(companyAppointmentData.getData().getResponsibilities())
+                .withPrincipalOfficeAddress(mapPrincipalOfficeAddress(companyAppointmentData))
+                .withContactDetails(mapContactDetails(companyAppointmentData))
                 .build();
         LOGGER.debug("Mapped data for appointment: " + companyAppointmentData.getId());
         return result;
@@ -81,6 +85,37 @@ public class CompanyAppointmentMapper {
                         .build()).orElse(null);
     }
 
+    private ServiceAddressView mapPrincipalOfficeAddress(CompanyAppointmentData companyAppointmentData) {
+        return Optional.ofNullable(companyAppointmentData.getData().getPrincipalOfficeAddress())
+                .map(address -> ServiceAddressView.builder()
+                        .withAddressLine1(address.getAddressLine1())
+                        .withAddressLine2(address.getAddressLine2())
+                        .withCareOf(address.getCareOf())
+                        .withCountry(address.getCountry())
+                        .withLocality(address.getLocality())
+                        .withPostcode(address.getPostcode())
+                        .withPoBox(address.getPoBox())
+                        .withPremises(address.getPremises())
+                        .withRegion(address.getRegion())
+                        .build()).orElse(null);
+    }
+
+    private ContactDetailsView mapContactDetails(CompanyAppointmentData companyAppointmentData) {
+        return Optional.ofNullable(companyAppointmentData.getData().getContactDetails())
+                .map(contactDetails -> ContactDetailsView.builder()
+                        .withAddressLine1(contactDetails.getAddressLine1())
+                        .withAddressLine2(contactDetails.getAddressLine2())
+                        .withCareOf(contactDetails.getCareOf())
+                        .withCountry(contactDetails.getCountry())
+                        .withLocality(contactDetails.getLocality())
+                        .withPostcode(contactDetails.getPostcode())
+                        .withPoBox(contactDetails.getPoBox())
+                        .withPremises(contactDetails.getPremises())
+                        .withRegion(contactDetails.getRegion())
+                        .withName(mapManagingOfficerName(contactDetails))
+                        .build()).orElse(null);
+    }
+
     private LinksView mapLinks(CompanyAppointmentData companyAppointmentData) {
         return Optional.ofNullable(companyAppointmentData.getData().getLinksData())
                 .map(links -> new LinksView(links.getSelfLink(),
@@ -111,6 +146,16 @@ public class CompanyAppointmentMapper {
         }
         if (companyAppointmentData.getData().getTitle() != null && !companyAppointmentData.getData().getTitle().matches(REGEX)) {
             result = String.join(", ", result, companyAppointmentData.getData().getTitle());
+        }
+        return result;
+    }
+
+    private String mapManagingOfficerName(ContactDetailsData contactDetailsData) {
+        String result = contactDetailsData.getSurname();
+        if (contactDetailsData.getForename() != null || contactDetailsData.getOtherForenames() != null) {
+            result = String.join(", ", contactDetailsData.getSurname(), Stream.of(contactDetailsData.getForename(), contactDetailsData.getOtherForenames())
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.joining(" ")));
         }
         return result;
     }
