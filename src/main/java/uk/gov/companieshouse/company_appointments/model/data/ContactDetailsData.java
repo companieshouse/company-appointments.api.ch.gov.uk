@@ -29,16 +29,11 @@ public class ContactDetailsData {
 
     private String region;
 
-    private String forename;
-
-    @Field("other_forenames")
-    private String otherForenames;
-
-    private String surname;
+    private String name;
 
     public ContactDetailsData(String addressLine1, String addressLine2, String careOf,
             String country, String locality, String poBox, String postcode, String premises,
-            String region, String forename, String otherForenames, String surname) {
+            String region, String name) {
         this.addressLine1 = addressLine1;
         this.addressLine2 = addressLine2;
         this.careOf = careOf;
@@ -48,9 +43,7 @@ public class ContactDetailsData {
         this.postcode = postcode;
         this.premises = premises;
         this.region = region;
-        this.forename = forename;
-        this.otherForenames = otherForenames;
-        this.surname = surname;
+        this.name = name;
     }
 
     public String getAddressLine1() {
@@ -125,28 +118,12 @@ public class ContactDetailsData {
         this.region = region;
     }
 
-    public String getSurname() {
-        return surname;
+    public String getName() {
+        return name;
     }
 
-    public void setSurname(String surname) {
-        this.surname = surname;
-    }
-
-    public String getForename() {
-        return forename;
-    }
-
-    public void setForename(String forename) {
-        this.forename = forename;
-    }
-
-    public String getOtherForenames() {
-        return otherForenames;
-    }
-
-    public void setOtherForenames(String otherForenames) {
-        this.otherForenames = otherForenames;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public static Builder builder() {
@@ -163,9 +140,7 @@ public class ContactDetailsData {
         private String postcode;
         private String premises;
         private String region;
-        private String forename;
-        private String otherForenames;
-        private String surname;
+        private String name;
 
         public Builder withAddressLine1(String addressLine1) {
             this.addressLine1 = addressLine1;
@@ -212,24 +187,14 @@ public class ContactDetailsData {
             return this;
         }
 
-        public Builder withForename(String forename) {
-            this.forename = forename;
-            return this;
-        }
-
-        public Builder withOtherForenames(String otherForenames) {
-            this.otherForenames = otherForenames;
-            return this;
-        }
-
-        public Builder withSurname(String surname) {
-            this.surname = surname;
+        public Builder withName(String name) {
+            this.name = name;
             return this;
         }
 
         public ContactDetailsData build() {
             return new ContactDetailsData(addressLine1, addressLine2, careOf, country, locality, poBox,
-                    postcode, premises, region, forename, otherForenames, surname);
+                    postcode, premises, region, name);
         }
     }
 
@@ -251,15 +216,13 @@ public class ContactDetailsData {
                 Objects.equals(postcode, that.postcode) &&
                 Objects.equals(premises, that.premises) &&
                 Objects.equals(region, that.region) &&
-                Objects.equals(forename, that.forename) &&
-                Objects.equals(otherForenames, that.otherForenames) &&
-                Objects.equals(surname, that.surname);
+                Objects.equals(name, that.name);
     }
 
     @Override
     public int hashCode() {
         return Objects
                 .hash(addressLine1, addressLine2, careOf, country, locality, poBox, postcode,
-                        premises, region, forename, otherForenames, surname);
+                        premises, region, name);
     }
 }
