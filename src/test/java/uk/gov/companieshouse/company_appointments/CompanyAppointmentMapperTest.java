@@ -223,9 +223,7 @@ public class CompanyAppointmentMapperTest {
                         .withPoBox("PO Box")
                         .withPremises("Premises")
                         .withRegion("Region")
-                        .withForename("Forename")
-                        .withOtherForenames("Other forenames")
-                        .withSurname("SURNAME")
+                        .withName("Name")
                         .build());
     }
 
@@ -363,9 +361,7 @@ public class CompanyAppointmentMapperTest {
                         .withPoBox("PO Box")
                         .withPremises("Premises")
                         .withRegion("Region")
-                        .withForename("John")
-                        .withOtherForenames("Earl")
-                        .withSurname("JONES")
+                        .withName("John")
                         .build())
                 .build();
     }
