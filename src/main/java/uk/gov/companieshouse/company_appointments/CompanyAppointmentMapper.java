@@ -159,5 +159,4 @@ public class CompanyAppointmentMapper {
         }
         return result;
     }
-
 }
