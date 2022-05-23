@@ -151,9 +151,9 @@ public class CompanyAppointmentMapper {
     }
 
     private String mapManagingOfficerName(ContactDetailsData contactDetailsData) {
-        String result = contactDetailsData.getSurname();
-        if (contactDetailsData.getForename() != null || contactDetailsData.getOtherForenames() != null) {
-            result = String.join(", ", contactDetailsData.getSurname(), Stream.of(contactDetailsData.getForename(), contactDetailsData.getOtherForenames())
+        String result = contactDetailsData.getName();
+        if (contactDetailsData.getName() != null) {
+            result = String.join(", ", Stream.of(contactDetailsData.getName())
                     .filter(Objects::nonNull)
                     .collect(Collectors.joining(" ")));
         }
