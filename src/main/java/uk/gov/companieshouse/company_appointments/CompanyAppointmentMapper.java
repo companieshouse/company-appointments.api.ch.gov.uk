@@ -112,7 +112,7 @@ public class CompanyAppointmentMapper {
                         .withPoBox(contactDetails.getPoBox())
                         .withPremises(contactDetails.getPremises())
                         .withRegion(contactDetails.getRegion())
-                        .withName(mapManagingOfficerName(contactDetails))
+                        .withName(contactDetails.getName())
                         .build()).orElse(null);
     }
 
@@ -146,16 +146,6 @@ public class CompanyAppointmentMapper {
         }
         if (companyAppointmentData.getData().getTitle() != null && !companyAppointmentData.getData().getTitle().matches(REGEX)) {
             result = String.join(", ", result, companyAppointmentData.getData().getTitle());
-        }
-        return result;
-    }
-
-    private String mapManagingOfficerName(ContactDetailsData contactDetailsData) {
-        String result = contactDetailsData.getName();
-        if (contactDetailsData.getName() != null) {
-            result = String.join(", ", Stream.of(contactDetailsData.getName())
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.joining(" ")));
         }
         return result;
     }
