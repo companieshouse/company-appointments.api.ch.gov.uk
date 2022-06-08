@@ -103,16 +103,7 @@ public class CompanyAppointmentMapper {
     private ContactDetailsView mapContactDetails(CompanyAppointmentData companyAppointmentData) {
         return Optional.ofNullable(companyAppointmentData.getData().getContactDetails())
                 .map(contactDetails -> ContactDetailsView.builder()
-                        .withAddressLine1(contactDetails.getAddressLine1())
-                        .withAddressLine2(contactDetails.getAddressLine2())
-                        .withCareOf(contactDetails.getCareOf())
-                        .withCountry(contactDetails.getCountry())
-                        .withLocality(contactDetails.getLocality())
-                        .withPostcode(contactDetails.getPostcode())
-                        .withPoBox(contactDetails.getPoBox())
-                        .withPremises(contactDetails.getPremises())
-                        .withRegion(contactDetails.getRegion())
-                        .withName(contactDetails.getName())
+                        .withContactName(contactDetails.getContactName())
                         .build()).orElse(null);
     }
 

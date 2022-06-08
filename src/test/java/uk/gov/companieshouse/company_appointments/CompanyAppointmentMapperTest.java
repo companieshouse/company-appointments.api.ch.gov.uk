@@ -214,16 +214,7 @@ public class CompanyAppointmentMapperTest {
                         .withRegion("Region")
                         .build())
                 .withContactDetails(ContactDetailsData.builder()
-                        .withAddressLine1("Address 1")
-                        .withAddressLine2("Address 2")
-                        .withCareOf("Care of")
-                        .withCountry("Country")
-                        .withLocality("Locality")
-                        .withPostcode("AB01 9XY")
-                        .withPoBox("PO Box")
-                        .withPremises("Premises")
-                        .withRegion("Region")
-                        .withName("Name")
+                        .withContactName("Name")
                         .build());
     }
 
@@ -352,16 +343,7 @@ public class CompanyAppointmentMapperTest {
     private OfficerData personalAppointmentDataWithContactDetails() {
         return officerData()
                 .withContactDetails(ContactDetailsData.builder()
-                        .withAddressLine1("Address 1")
-                        .withAddressLine2("Address 2")
-                        .withCareOf("Care of")
-                        .withCountry("Country")
-                        .withLocality("Locality")
-                        .withPostcode("AB01 9XY")
-                        .withPoBox("PO Box")
-                        .withPremises("Premises")
-                        .withRegion("Region")
-                        .withName("John")
+                        .withContactName("John")
                         .build())
                 .build();
     }
@@ -400,16 +382,7 @@ public class CompanyAppointmentMapperTest {
                         .withRegion("Region")
                         .build())
                 .withContactDetails(ContactDetailsView.builder()
-                        .withAddressLine1("Address 1")
-                        .withAddressLine2("Address 2")
-                        .withCareOf("Care of")
-                        .withCountry("Country")
-                        .withLocality("Locality")
-                        .withPostcode("AB01 9XY")
-                        .withPoBox("PO Box")
-                        .withPremises("Premises")
-                        .withRegion("Region")
-                        .withName("Name")
+                        .withContactName("Name")
                         .build());
     }
 
@@ -530,16 +503,7 @@ public class CompanyAppointmentMapperTest {
     private CompanyAppointmentView personalAppointmentViewWithContactDetails() {
         return expectedCompanyAppointment()
                 .withContactDetails(ContactDetailsView.builder()
-                        .withAddressLine1("Address 1")
-                        .withAddressLine2("Address 2")
-                        .withCareOf("Care of")
-                        .withCountry("Country")
-                        .withLocality("Locality")
-                        .withPostcode("AB01 9XY")
-                        .withPoBox("PO Box")
-                        .withPremises("Premises")
-                        .withRegion("Region")
-                        .withName("John")
+                        .withContactName("John")
                         .build())
                 .build();
     }
