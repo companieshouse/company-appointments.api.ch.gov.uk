@@ -3,6 +3,7 @@ package uk.gov.companieshouse.company_appointments;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.gov.companieshouse.GenerateEtagUtil;
 import uk.gov.companieshouse.api.model.delta.officers.AddressAPI;
 import uk.gov.companieshouse.api.model.delta.officers.AppointmentAPI;
 import uk.gov.companieshouse.api.model.delta.officers.FormerNamesAPI;
@@ -59,6 +60,7 @@ public class CompanyAppointmentFullRecordService {
         if (officer != null) {
             appointmentApi.getData().setUpdatedAt(instant.getAt());
             removeAdditionalProperties(officer);
+            officer.setEtag(GenerateEtagUtil.generateEtag());
         }
 
         Optional<AppointmentApiEntity> existingAppointment = getExistingDelta(appointmentApi);

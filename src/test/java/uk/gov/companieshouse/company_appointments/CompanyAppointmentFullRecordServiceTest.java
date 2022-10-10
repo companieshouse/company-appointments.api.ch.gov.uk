@@ -2,6 +2,7 @@ package uk.gov.companieshouse.company_appointments;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.isA;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
@@ -128,6 +129,7 @@ class CompanyAppointmentFullRecordServiceTest {
 
         // then
         verify(companyAppointmentRepository).insertOrUpdate(captor.capture());
+        assertNotNull(captor.getValue().getData().getEtag());
     }
 
     @ParameterizedTest
