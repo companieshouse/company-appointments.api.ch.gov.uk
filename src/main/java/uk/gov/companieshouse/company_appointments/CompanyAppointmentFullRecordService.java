@@ -15,6 +15,7 @@ import uk.gov.companieshouse.company_appointments.model.data.AppointmentApiEntit
 import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentFullRecordView;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.logging.LoggerFactory;
+import uk.gov.companieshouse.GenerateEtagUtil;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -54,6 +55,7 @@ public class CompanyAppointmentFullRecordService {
         InstantAPI instant = new InstantAPI(Instant.now(clock));
         OfficerAPI officer = appointmentApi.getData();
 
+        officer.setEtag(GenerateEtagUtil.generateEtag());
         appointmentApi.setUpdated(instant);
 
         if (officer != null) {
