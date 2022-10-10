@@ -3,19 +3,12 @@ package uk.gov.companieshouse.company_appointments;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.gov.companieshouse.api.model.delta.officers.AddressAPI;
-import uk.gov.companieshouse.api.model.delta.officers.AppointmentAPI;
-import uk.gov.companieshouse.api.model.delta.officers.FormerNamesAPI;
-import uk.gov.companieshouse.api.model.delta.officers.IdentificationAPI;
-import uk.gov.companieshouse.api.model.delta.officers.InstantAPI;
-import uk.gov.companieshouse.api.model.delta.officers.LinksAPI;
-import uk.gov.companieshouse.api.model.delta.officers.OfficerAPI;
-import uk.gov.companieshouse.api.model.delta.officers.OfficerLinksAPI;
+import uk.gov.companieshouse.GenerateEtagUtil;
+import uk.gov.companieshouse.api.model.delta.officers.*;
 import uk.gov.companieshouse.company_appointments.model.data.AppointmentApiEntity;
 import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentFullRecordView;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.logging.LoggerFactory;
-import uk.gov.companieshouse.GenerateEtagUtil;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -55,12 +48,12 @@ public class CompanyAppointmentFullRecordService {
         InstantAPI instant = new InstantAPI(Instant.now(clock));
         OfficerAPI officer = appointmentApi.getData();
 
-        officer.setEtag(GenerateEtagUtil.generateEtag());
         appointmentApi.setUpdated(instant);
 
         if (officer != null) {
             appointmentApi.getData().setUpdatedAt(instant.getAt());
             removeAdditionalProperties(officer);
+            officer.setEtag(GenerateEtagUtil.generateEtag());
         }
 
         Optional<AppointmentApiEntity> existingAppointment = getExistingDelta(appointmentApi);
