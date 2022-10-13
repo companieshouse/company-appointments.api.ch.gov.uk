@@ -1,6 +1,8 @@
 package uk.gov.companieshouse.company_appointments.interceptor;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Helper class for authenticating users
@@ -119,4 +121,20 @@ public interface AuthenticationHelper {
      * @return true if the key has elevated privileges
      */
     boolean isKeyElevatedPrivilegesAuthorised(HttpServletRequest request);
+
+    /**
+     * Returns the permissions granted to the OAuth2 Token
+     *
+     * @param request the {@link HttpServletRequest}
+     * @return the privileges of the OAuth2 Token
+     */
+    Map<String, List<String>> getTokenPermissions(HttpServletRequest request);
+
+    /**
+     * Checks whether the token has required permissions
+     *
+     * @param request the {@link HttpServletRequest}
+     * @return true if the token has required permissions
+     */
+    boolean isTokenProtectedAndCompanyAuthorised(HttpServletRequest request, String companyNumber);
 }
