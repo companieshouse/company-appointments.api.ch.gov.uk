@@ -31,7 +31,7 @@ public class AuthenticationHelperImpl implements AuthenticationHelper {
     private static final String ERIC_AUTHORISED_USER = "ERIC-Authorised-User";
     private static final String ERIC_AUTHORISED_SCOPE = "ERIC-Authorised-Scope";
     private static final String ERIC_AUTHORISED_ROLES = "ERIC-Authorised-Roles";
-    private static final String COMPANY_OFFICER_PERMISSION = "company_officer";
+    private static final String COMPANY_OFFICER_PERMISSION = "company_officers";
     private static final String READ_PROTECTED = "read-protected";
     private static final String COMPANY_NUMBER_PERMISSION = "company_number";
 
