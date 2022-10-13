@@ -60,7 +60,7 @@ class AuthenticationInterceptorsITest {
 
     @Test
     void fetchAppointmentWhenOauth2AuthThenAllowed() throws Exception {
-        addOauth2Headers();
+        addOauth2Headers(false);
         when(companyAppointmentService.fetchAppointment(COMPANY_NUMBER, APP_ID)).thenReturn(companyAppointmentView);
         mockMvc.perform(get(URL_TEMPLATE, COMPANY_NUMBER, APP_ID).headers(httpHeaders))
                 .andDo(print())
@@ -107,8 +107,7 @@ class AuthenticationInterceptorsITest {
     }
 
     @Test
-    void getAppointmentWhenPrivilegedKeyMissingThenDenied() throws Exception {
-        addOauth2Headers();
+    void getAppointmentWhenAuthenticationMissingThenDenied() throws Exception {
         mockMvc.perform(get(URL_TEMPLATE_FULL_RECORD, COMPANY_NUMBER, APP_ID).headers(httpHeaders))
                 .andDo(print())
                 .andExpect(status().isUnauthorized());
@@ -122,10 +121,33 @@ class AuthenticationInterceptorsITest {
                 .andExpect(status().isUnauthorized());
     }
 
-    private void addOauth2Headers() {
+    @Test
+    void getAppointmentWhenPermissedOAuth2ThenAllowed() throws Exception {
+        addOauth2Headers(true);
+        when(companyAppointmentFullRecordService.getAppointment(COMPANY_NUMBER, APP_ID)).thenReturn(
+                companyAppointmentFullRecordView);
+        mockMvc.perform(get(URL_TEMPLATE_FULL_RECORD, COMPANY_NUMBER, APP_ID).headers(httpHeaders))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value(NAME));
+    }
+
+    @Test
+    void getAppointmentWhenNotPermissedOAuth2ThenDenied() throws Exception {
+        addOauth2Headers(false);
+        mockMvc.perform(get(URL_TEMPLATE_FULL_RECORD, COMPANY_NUMBER, APP_ID).headers(httpHeaders))
+                .andDo(print())
+                .andExpect(status().isUnauthorized());
+    }
+
+    private void addOauth2Headers(final boolean isFullRecordPermissed) {
         httpHeaders.add("ERIC-Identity-Type", "oauth2");
         httpHeaders.add("ERIC-Identity", "user");
         httpHeaders.add("ERIC-Authorised-User", AUTH_EMAIL);
+        if (isFullRecordPermissed) {
+            String permissions = String.format("company_number=%s company_officers=read-protected", COMPANY_NUMBER);
+            httpHeaders.add("ERIC-Authorised-Token-Permissions", permissions);
+        }
     }
 
     private void addApiKeyHeaders(final boolean isPrivileged) {

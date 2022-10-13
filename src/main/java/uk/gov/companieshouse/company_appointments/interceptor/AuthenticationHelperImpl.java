@@ -140,9 +140,11 @@ public class AuthenticationHelperImpl implements AuthenticationHelper {
 
         Map<String, List<String>> permissions = new HashMap<>();
 
-        for (String pair : tokenPermissionsHeader.split(" ")) {
-            String[] parts = pair.split("=");
-            permissions.put(parts[0], Arrays.asList(parts[1].split(",")));
+        if (tokenPermissionsHeader != null) {
+            for (String pair : tokenPermissionsHeader.split(" ")) {
+                String[] parts = pair.split("=");
+                permissions.put(parts[0], Arrays.asList(parts[1].split(",")));
+            }
         }
 
         return permissions;
