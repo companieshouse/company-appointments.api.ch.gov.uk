@@ -15,6 +15,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.companieshouse.api.model.delta.officers.OfficerAPI;
+import uk.gov.companieshouse.api.model.delta.officers.SensitiveOfficerAPI;
 import uk.gov.companieshouse.company_appointments.config.LoggingConfig;
 import uk.gov.companieshouse.company_appointments.interceptor.AuthenticationHelperImpl;
 import uk.gov.companieshouse.company_appointments.interceptor.AuthenticationInterceptor;
@@ -53,7 +54,7 @@ class AuthenticationInterceptorsITest {
         companyAppointmentView = CompanyAppointmentView.builder().withName(NAME)
                 .build();
         companyAppointmentFullRecordView =
-                CompanyAppointmentFullRecordView.Builder.view(new OfficerAPI()).withName(NAME)
+                CompanyAppointmentFullRecordView.Builder.view(new OfficerAPI(), new SensitiveOfficerAPI()).withName(NAME)
                         .build();
     }
 

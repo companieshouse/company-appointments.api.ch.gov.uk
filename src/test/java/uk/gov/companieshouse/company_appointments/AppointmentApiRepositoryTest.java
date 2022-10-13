@@ -15,6 +15,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.companieshouse.api.model.delta.officers.AppointmentAPI;
 import uk.gov.companieshouse.api.model.delta.officers.InstantAPI;
 import uk.gov.companieshouse.api.model.delta.officers.OfficerAPI;
+import uk.gov.companieshouse.api.model.delta.officers.SensitiveOfficerAPI;
 import uk.gov.companieshouse.company_appointments.model.data.AppointmentApiEntity;
 
 import java.time.Instant;
@@ -38,6 +39,7 @@ class AppointmentApiRepositoryTest {
     void insertOrUpdate() {
         final AppointmentAPI appointment = new AppointmentAPI("id",
                 new OfficerAPI(),
+                new SensitiveOfficerAPI(),
                 "internalId",
                 "appointmentId",
                 "officerId",
