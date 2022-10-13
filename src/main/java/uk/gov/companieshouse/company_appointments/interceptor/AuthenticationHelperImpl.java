@@ -4,6 +4,10 @@ import org.apache.commons.lang.ArrayUtils;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -20,11 +24,16 @@ public class AuthenticationHelperImpl implements AuthenticationHelper {
     private static final String INTERNAL_APP_PRIVILEGE = "internal-app";
     private static final String ERIC_AUTHORISED_KEY_PRIVILEGES_HEADER
             = "ERIC-Authorised-Key-Privileges";
+    private static final String ERIC_AUTHORISED_TOKEN_PERMISSIONS_HEADER
+            = "ERIC-Authorised-Token-Permissions";
     private static final String ERIC_IDENTITY = "ERIC-Identity";
     private static final String ERIC_IDENTITY_TYPE = "ERIC-Identity-Type";
     private static final String ERIC_AUTHORISED_USER = "ERIC-Authorised-User";
     private static final String ERIC_AUTHORISED_SCOPE = "ERIC-Authorised-Scope";
     private static final String ERIC_AUTHORISED_ROLES = "ERIC-Authorised-Roles";
+    private static final String COMPANY_OFFICER_PERMISSION = "company_officer";
+    private static final String READ_PROTECTED = "read-protected";
+    private static final String COMPANY_NUMBER_PERMISSION = "company_number";
 
     @Override
     public String getAuthorisedIdentity(HttpServletRequest request) {
@@ -123,6 +132,30 @@ public class AuthenticationHelperImpl implements AuthenticationHelper {
     @Override
     public boolean isKeyElevatedPrivilegesAuthorised(HttpServletRequest request) {
         return ArrayUtils.contains(getApiKeyPrivileges(request), INTERNAL_APP_PRIVILEGE);
+    }
+
+    @Override
+    public Map<String, List<String>> getTokenPermissions(HttpServletRequest request) {
+        String tokenPermissionsHeader = request.getHeader(ERIC_AUTHORISED_TOKEN_PERMISSIONS_HEADER);
+
+        Map<String, List<String>> permissions = new HashMap<>();
+
+        for (String pair : tokenPermissionsHeader.split(" ")) {
+            String[] parts = pair.split("=");
+            permissions.put(parts[0], Arrays.asList(parts[1].split(",")));
+        }
+
+        return permissions;
+    }
+
+    @Override
+    public boolean isTokenProtectedAndCompanyAuthorised(HttpServletRequest request, String companyNumber) {
+        Map<String, List<String>> privileges = getTokenPermissions(request);
+
+        return privileges.containsKey(COMPANY_OFFICER_PERMISSION) &&
+                privileges.get(COMPANY_OFFICER_PERMISSION).contains(READ_PROTECTED) &&
+                privileges.containsKey(COMPANY_NUMBER_PERMISSION) &&
+                privileges.get(COMPANY_NUMBER_PERMISSION).contains(companyNumber);
     }
 
     private String getRequestHeader(HttpServletRequest request, String header) {

@@ -14,6 +14,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import javax.servlet.http.HttpServletRequest;
 import java.text.MessageFormat;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @ExtendWith(MockitoExtension.class)
@@ -286,6 +287,44 @@ class AuthenticationHelperImplTest {
         when(request.getHeader("ERIC-Authorised-Key-Privileges")).thenReturn("role-1,role-2");
 
         assertThat(testHelper.isKeyElevatedPrivilegesAuthorised(request), is(false));
+    }
+
+    @Test
+    void getTokenPrivileges() {
+        String tokenValue = "company_number=00006400 company_officer=read-protected,write";
+        when(request.getHeader("ERIC-Authorised-Token-Permissions")).thenReturn(tokenValue);
+
+        Map<String, List<String>> result = testHelper.getTokenPermissions(request);
+
+        assertThat(result.containsKey("company_number"), is(true));
+        assertThat(result.containsKey("company_officer"), is(true));
+        assertThat(result.get("company_number").get(0), is("00006400"));
+        assertThat(result.get("company_officer").get(0), is("read-protected"));;
+        assertThat(result.get("company_officer").get(1), is("write"));
+    }
+
+    @Test
+    void isTokenProtectedAndCompanyAuthorisedIsTrue() {
+        String tokenValue = "company_number=00006400 company_officer=read-protected,write";
+        when(request.getHeader("ERIC-Authorised-Token-Permissions")).thenReturn(tokenValue);
+
+        assertThat(testHelper.isTokenProtectedAndCompanyAuthorised(request, "00006400"), is(true));
+    }
+
+    @Test
+    void isTokenProtectedAndCompanyAuthorisedIsFalseWhenNotProtected() {
+        String tokenValue = "company_number=00006400 company_officer=read,write";
+        when(request.getHeader("ERIC-Authorised-Token-Permissions")).thenReturn(tokenValue);
+
+        assertThat(testHelper.isTokenProtectedAndCompanyAuthorised(request, "00006400"), is(false));
+    }
+
+    @Test
+    void isTokenProtectedAndCompanyAuthorisedIsFalseWhenIncorrectCompany() {
+        String tokenValue = "company_number=00006400 company_officer=read-protected,write";
+        when(request.getHeader("ERIC-Authorised-Token-Permissions")).thenReturn(tokenValue);
+
+        assertThat(testHelper.isTokenProtectedAndCompanyAuthorised(request, "00006401"), is(false));
     }
 
 }
