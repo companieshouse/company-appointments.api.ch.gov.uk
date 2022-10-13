@@ -34,7 +34,7 @@ public class FullRecordAuthenticationInterceptor implements HandlerInterceptor {
             if (authHelper.isTokenProtectedAndCompanyAuthorised(request, companyNumber)) {
                 return true;
             } else {
-                logger.infoRequest(request, "User not authorised. Token has insufficient privileges.", logMap);
+                logger.infoRequest(request, "User not authorised. Token has insufficient permissions.", logMap);
                 response.setStatus(HttpStatus.SC_UNAUTHORIZED);
                 return false;
             }
