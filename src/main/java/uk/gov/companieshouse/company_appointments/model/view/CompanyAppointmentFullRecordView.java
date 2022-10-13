@@ -8,6 +8,7 @@ import uk.gov.companieshouse.api.model.delta.officers.FormerNamesAPI;
 import uk.gov.companieshouse.api.model.delta.officers.IdentificationAPI;
 import uk.gov.companieshouse.api.model.delta.officers.LinksAPI;
 import uk.gov.companieshouse.api.model.delta.officers.OfficerAPI;
+import uk.gov.companieshouse.api.model.delta.officers.SensitiveOfficerAPI;
 
 import java.time.Instant;
 import java.time.ZoneId;
@@ -136,16 +137,16 @@ public class CompanyAppointmentFullRecordView {
             buildSteps = new ArrayList<>();
         }
 
-        public static Builder view(OfficerAPI data) {
+        public static Builder view(OfficerAPI data, SensitiveOfficerAPI sensitiveData) {
 
             Builder builder = new Builder();
 
             return builder.withServiceAddress(data.getServiceAddress())
-                .withUsualResidentialAddress(data.getUsualResidentialAddress())
+                .withUsualResidentialAddress(sensitiveData.getUsualResidentialAddress())
                 .withAppointedOn(data.getAppointedOn())
                 .withAppointedBefore(data.getAppointedBefore())
                 .withCountryOfResidence(data.getCountryOfResidence())
-                .withDateOfBirth(builder.mapDateOfBirth(data.getDateOfBirth()))
+                .withDateOfBirth(builder.mapDateOfBirth(sensitiveData.getDateOfBirth()))
                 .withFormerNames(data.getFormerNameData())
                 .withIdentification(data.getIdentificationData())
                 .withLinks(data.getLinksData())

@@ -7,8 +7,8 @@ import uk.gov.companieshouse.api.model.delta.officers.AppointmentAPI;
 public class AppointmentApiEntity extends AppointmentAPI {
 
     public AppointmentApiEntity(final AppointmentAPI appointmentAPI) {
-        super(appointmentAPI.getId(), appointmentAPI.getData(), appointmentAPI.getInternalId(),
-            appointmentAPI.getAppointmentId(), appointmentAPI.getOfficerId(),
+        super(appointmentAPI.getId(), appointmentAPI.getData(), appointmentAPI.getSensitiveData(),
+            appointmentAPI.getInternalId(), appointmentAPI.getAppointmentId(), appointmentAPI.getOfficerId(),
             appointmentAPI.getPreviousOfficerId(), appointmentAPI.getCompanyNumber(),
             appointmentAPI.getCreated(), appointmentAPI.getUpdated(), appointmentAPI.getDeltaAt());
     }

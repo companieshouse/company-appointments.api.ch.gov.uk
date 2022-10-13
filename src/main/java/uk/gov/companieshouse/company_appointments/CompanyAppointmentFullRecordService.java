@@ -44,7 +44,7 @@ public class CompanyAppointmentFullRecordService {
         Optional<AppointmentApiEntity> appointmentData = companyAppointmentRepository.findById(appointmentID);
         appointmentData.ifPresent(appt -> LOGGER.debug(String.format("Found appointment [%s] for company [%s]", appointmentID, companyNumber)));
 
-        return appointmentData.map(app -> CompanyAppointmentFullRecordView.Builder.view(app.getData())
+        return appointmentData.map(app -> CompanyAppointmentFullRecordView.Builder.view(app.getData(), app.getSensitiveData())
                         .build())
                 .orElseThrow(() -> new NotFoundException(
                         String.format("Appointment [%s] for company [%s] not found", appointmentID, companyNumber)));
@@ -113,7 +113,6 @@ public class CompanyAppointmentFullRecordService {
             officer.setAdditionalProperties(null);
 
             removeAdditionalProperties(officer.getServiceAddress());
-            removeAdditionalProperties(officer.getUsualResidentialAddress());
             removeAdditionalProperties(officer.getFormerNameData());
             removeAdditionalProperties(officer.getIdentificationData());
             removeAdditionalProperties(officer.getLinksData());

@@ -12,6 +12,7 @@ import uk.gov.companieshouse.api.model.delta.officers.FormerNamesAPI;
 import uk.gov.companieshouse.api.model.delta.officers.IdentificationAPI;
 import uk.gov.companieshouse.api.model.delta.officers.LinksAPI;
 import uk.gov.companieshouse.api.model.delta.officers.OfficerAPI;
+import uk.gov.companieshouse.api.model.delta.officers.SensitiveOfficerAPI;
 
 import java.time.Instant;
 import java.util.Collections;
@@ -40,12 +41,13 @@ class CompanyAppointmentFullRecordViewTest {
     void setUp() {
 
         OfficerAPI officerData = new OfficerAPI();
+        SensitiveOfficerAPI sensitiveOfficer = new SensitiveOfficerAPI();
         officerData.setServiceAddress(createAddress("service"));
-        officerData.setUsualResidentialAddress(createAddress("usualResidential"));
+        sensitiveOfficer.setUsualResidentialAddress(createAddress("usualResidential"));
         officerData.setAppointedOn(INSTANT_ONE);
         officerData.setAppointedBefore(INSTANT_THREE);
         officerData.setCountryOfResidence("countryOfResidence");
-        officerData.setDateOfBirth(INSTANT_DOB);
+        sensitiveOfficer.setDateOfBirth(INSTANT_DOB);
         officerData.setFormerNameData(formerNames);
         officerData.setIdentificationData(identification);
         officerData.setLinksData(links);
@@ -57,7 +59,7 @@ class CompanyAppointmentFullRecordViewTest {
         officerData.setOfficerRole("director");
         officerData.setResignedOn(INSTANT_TWO);
 
-        testView = CompanyAppointmentFullRecordView.Builder.view(officerData).build();
+        testView = CompanyAppointmentFullRecordView.Builder.view(officerData, sensitiveOfficer).build();
     }
 
     @Test

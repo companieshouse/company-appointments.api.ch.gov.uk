@@ -32,6 +32,7 @@ import uk.gov.companieshouse.api.model.delta.officers.InstantAPI;
 import uk.gov.companieshouse.api.model.delta.officers.LinksAPI;
 import uk.gov.companieshouse.api.model.delta.officers.OfficerAPI;
 import uk.gov.companieshouse.api.model.delta.officers.OfficerLinksAPI;
+import uk.gov.companieshouse.api.model.delta.officers.SensitiveOfficerAPI;
 import uk.gov.companieshouse.company_appointments.model.data.AppointmentApiEntity;
 import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentFullRecordView;
 
@@ -92,7 +93,7 @@ class CompanyAppointmentFullRecordServiceTest {
     void testFetchAppointmentReturnsMappedAppointmentData() throws NotFoundException {
         // given
         appointmentApi = new AppointmentApiEntity(
-                new AppointmentAPI("id", new OfficerAPI(), "internalId", "appointmentId", "officerId",
+                new AppointmentAPI("id", new OfficerAPI(), new SensitiveOfficerAPI(), "internalId", "appointmentId", "officerId",
                         "previousOfficerId", "companyNumber", instantAPI, instantAPI, "deltaAt"));
 
         when(companyAppointmentRepository.findById(APPOINTMENT_ID)).thenReturn(Optional.of(appointmentApi));
@@ -120,7 +121,7 @@ class CompanyAppointmentFullRecordServiceTest {
     void testPutAppointmentData() {
         // given
         appointmentApi = new AppointmentApiEntity(
-                new AppointmentAPI("id", new OfficerAPI(), "internalId", "appointmentId", "officerId",
+                new AppointmentAPI("id", new OfficerAPI(), new SensitiveOfficerAPI(), "internalId", "appointmentId", "officerId",
                         "previousOfficerId", "companyNumber", null, null, "deltaAt"));
         when(companyAppointmentRepository.findById("id")).thenReturn(Optional.of(appointmentApiEntity));
 
@@ -142,10 +143,10 @@ class CompanyAppointmentFullRecordServiceTest {
 
         // given
         appointmentApi = new AppointmentApiEntity(
-                new AppointmentAPI("id", new OfficerAPI(), "internalId", "appointmentId", "officerId",
+                new AppointmentAPI("id", new OfficerAPI(), new SensitiveOfficerAPI(), "internalId", "appointmentId", "officerId",
                         "previousOfficerId", "companyNumber", instantAPI, instantAPI, incomingDeltaAt));
 
-        AppointmentApiEntity appointmentEntity = new AppointmentApiEntity(new AppointmentAPI("id", new OfficerAPI(), "internalId", "appointmentId", "officerId", "previousOfficerId", "companyNumber", instantAPI, instantAPI, existingDeltaAt));
+        AppointmentApiEntity appointmentEntity = new AppointmentApiEntity(new AppointmentAPI("id", new OfficerAPI(), new SensitiveOfficerAPI(), "internalId", "appointmentId", "officerId", "previousOfficerId", "companyNumber", instantAPI, instantAPI, existingDeltaAt));
 
         when(companyAppointmentRepository.findById(
             appointmentApi.getId())).thenReturn(deltaExists ? Optional.of(appointmentEntity) : Optional.empty());
@@ -163,12 +164,10 @@ class CompanyAppointmentFullRecordServiceTest {
     void additionalPropertiesRemoved() {
         // given
         final OfficerAPI officer = spy(OfficerAPI.class);
+        final SensitiveOfficerAPI sensitiveOfficer = spy(SensitiveOfficerAPI.class);
 
         final AddressAPI serviceAddress = spy(AddressAPI.class);
         when(officer.getServiceAddress()).thenReturn(serviceAddress);
-
-        final AddressAPI ura = spy(AddressAPI.class);
-        when(officer.getUsualResidentialAddress()).thenReturn(ura);
 
         final FormerNamesAPI formerName = spy(FormerNamesAPI.class);
         final List<FormerNamesAPI> formerNames = new ArrayList<>();
@@ -185,7 +184,7 @@ class CompanyAppointmentFullRecordServiceTest {
         when(linksAPI.getOfficerLinksData()).thenReturn(officerLinksAPI);
 
         appointmentApi = spy(new AppointmentApiEntity(
-                new AppointmentAPI("id", officer, "internalId", "appointmentId", "officerId", "previousOfficerId",
+                new AppointmentAPI("id", officer, sensitiveOfficer, "internalId", "appointmentId", "officerId", "previousOfficerId",
                         "companyNumber", instantAPI, instantAPI, "deltaAt")));
 
         // When
@@ -194,7 +193,6 @@ class CompanyAppointmentFullRecordServiceTest {
         // then
         verify(officer).setAdditionalProperties(null);
         verify(serviceAddress).setAdditionalProperties(null);
-        verify(ura).setAdditionalProperties(null);
         verify(formerName).setAdditionalProperties(null);
         verify(identificationAPI).setAdditionalProperties(null);
         verify(linksAPI).setAdditionalProperties(null);
@@ -206,9 +204,10 @@ class CompanyAppointmentFullRecordServiceTest {
     void additionalPropertiesSkippedWhenOfficerNull() {
         // given
         final OfficerAPI officer = null;
+        final SensitiveOfficerAPI sensitiveOfficer = null;
 
         appointmentApi = spy(new AppointmentApiEntity(
-                new AppointmentAPI("id", officer, "internalId", "appointmentId", "officerId", "previousOfficerId",
+                new AppointmentAPI("id", officer, sensitiveOfficer, "internalId", "appointmentId", "officerId", "previousOfficerId",
                         "companyNumber", instantAPI, instantAPI, "deltaAt")));
 
         // When
