@@ -155,7 +155,7 @@ class AuthenticationInterceptorsITest {
         httpHeaders.add("ERIC-Identity", "user");
         httpHeaders.add("ERIC-Authorised-User", AUTH_EMAIL);
         if(isPrivileged) {
-            httpHeaders.add("ERIC-Authorised-Key-Privileges", "internal-app");
+            httpHeaders.add("ERIC-Authorised-Key-Privileges", "internal-app,sensitive-data");
         }
     }
 
