@@ -22,6 +22,7 @@ public class AuthenticationHelperImpl implements AuthenticationHelper {
     public static final int USER_FORENAME_INDEX = 1;
     public static final int USER_SURNAME_INDEX = 2;
     private static final String INTERNAL_APP_PRIVILEGE = "internal-app";
+    private static final String SENSITIVE_DATA_PRIVILEGE = "sensitive-data";
     private static final String ERIC_AUTHORISED_KEY_PRIVILEGES_HEADER
             = "ERIC-Authorised-Key-Privileges";
     private static final String ERIC_AUTHORISED_TOKEN_PERMISSIONS_HEADER
@@ -34,6 +35,8 @@ public class AuthenticationHelperImpl implements AuthenticationHelper {
     private static final String COMPANY_OFFICER_PERMISSION = "company_officers";
     private static final String READ_PROTECTED = "read-protected";
     private static final String COMPANY_NUMBER_PERMISSION = "company_number";
+
+    private static final String PUT_METHOD = "PUT";
 
     @Override
     public String getAuthorisedIdentity(HttpServletRequest request) {
@@ -131,7 +134,9 @@ public class AuthenticationHelperImpl implements AuthenticationHelper {
 
     @Override
     public boolean isKeyElevatedPrivilegesAuthorised(HttpServletRequest request) {
-        return ArrayUtils.contains(getApiKeyPrivileges(request), INTERNAL_APP_PRIVILEGE);
+        String[] privileges = getApiKeyPrivileges(request);
+        return request.getMethod().equals(PUT_METHOD) ? ArrayUtils.contains(privileges, INTERNAL_APP_PRIVILEGE) :
+                ArrayUtils.contains(privileges, SENSITIVE_DATA_PRIVILEGE);
     }
 
     @Override
