@@ -275,16 +275,39 @@ class AuthenticationHelperImplTest {
     }
 
     @Test
-    void isKeyElevatedPrivilegesAuthorisedWhenItIs() {
+    void isKeyElevatedPrivilegesAuthorisedWhenItIsPUT() {
         when(request.getHeader("ERIC-Authorised-Key-Privileges"))
                 .thenReturn("other-role,internal-app");
+        when(request.getMethod())
+                .thenReturn("PUT");
 
         assertThat(testHelper.isKeyElevatedPrivilegesAuthorised(request), is(true));
     }
 
     @Test
-    void isKeyElevatedPrivilegesAuthorisedWhenItIsNot() {
-        when(request.getHeader("ERIC-Authorised-Key-Privileges")).thenReturn("role-1,role-2");
+    void isKeyElevatedPrivilegesAuthorisedWhenItIsNotPUT() {
+        when(request.getHeader("ERIC-Authorised-Key-Privileges")).thenReturn("role-1,sensitive-data");
+        when(request.getMethod())
+                .thenReturn("PUT");
+
+        assertThat(testHelper.isKeyElevatedPrivilegesAuthorised(request), is(false));
+    }
+
+    @Test
+    void isKeyElevatedPrivilegesAuthorisedWhenItIsGET() {
+        when(request.getHeader("ERIC-Authorised-Key-Privileges"))
+                .thenReturn("other-role,sensitive-data");
+        when(request.getMethod())
+                .thenReturn("GET");
+
+        assertThat(testHelper.isKeyElevatedPrivilegesAuthorised(request), is(true));
+    }
+
+    @Test
+    void isKeyElevatedPrivilegesAuthorisedWhenItIsNotGET() {
+        when(request.getHeader("ERIC-Authorised-Key-Privileges")).thenReturn("role-1,internal-app");
+        when(request.getMethod())
+                .thenReturn("GET");
 
         assertThat(testHelper.isKeyElevatedPrivilegesAuthorised(request), is(false));
     }
