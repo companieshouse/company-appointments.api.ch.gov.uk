@@ -145,7 +145,7 @@ class AuthenticationInterceptorsITest {
         httpHeaders.add("ERIC-Identity", "user");
         httpHeaders.add("ERIC-Authorised-User", AUTH_EMAIL);
         if (isFullRecordPermissed) {
-            String permissions = String.format("company_number=%s company_officers=read-protected", COMPANY_NUMBER);
+            String permissions = String.format("company_number=%s company_officers=readprotected", COMPANY_NUMBER);
             httpHeaders.add("ERIC-Authorised-Token-Permissions", permissions);
         }
     }
