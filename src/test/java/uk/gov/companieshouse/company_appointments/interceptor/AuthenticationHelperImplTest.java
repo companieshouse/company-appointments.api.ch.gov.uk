@@ -314,7 +314,7 @@ class AuthenticationHelperImplTest {
 
     @Test
     void getTokenPrivileges() {
-        String tokenValue = "company_number=00006400 company_officers=read-protected,write";
+        String tokenValue = "company_number=00006400 company_officers=readprotected,write";
         when(request.getHeader("ERIC-Authorised-Token-Permissions")).thenReturn(tokenValue);
 
         Map<String, List<String>> result = testHelper.getTokenPermissions(request);
@@ -322,13 +322,13 @@ class AuthenticationHelperImplTest {
         assertThat(result.containsKey("company_number"), is(true));
         assertThat(result.containsKey("company_officers"), is(true));
         assertThat(result.get("company_number").get(0), is("00006400"));
-        assertThat(result.get("company_officers").get(0), is("read-protected"));;
+        assertThat(result.get("company_officers").get(0), is("readprotected"));;
         assertThat(result.get("company_officers").get(1), is("write"));
     }
 
     @Test
     void isTokenProtectedAndCompanyAuthorisedIsTrue() {
-        String tokenValue = "company_number=00006400 company_officers=read-protected,write";
+        String tokenValue = "company_number=00006400 company_officers=readprotected,write";
         when(request.getHeader("ERIC-Authorised-Token-Permissions")).thenReturn(tokenValue);
 
         assertThat(testHelper.isTokenProtectedAndCompanyAuthorised(request, "00006400"), is(true));
@@ -344,7 +344,7 @@ class AuthenticationHelperImplTest {
 
     @Test
     void isTokenProtectedAndCompanyAuthorisedIsFalseWhenIncorrectCompany() {
-        String tokenValue = "company_number=00006400 company_officers=read-protected,write";
+        String tokenValue = "company_number=00006400 company_officers=readprotected,write";
         when(request.getHeader("ERIC-Authorised-Token-Permissions")).thenReturn(tokenValue);
 
         assertThat(testHelper.isTokenProtectedAndCompanyAuthorised(request, "00006401"), is(false));
