@@ -96,7 +96,7 @@ class CompanyAppointmentFullRecordServiceTest {
                 new AppointmentAPI("id", new OfficerAPI(), new SensitiveOfficerAPI(), "internalId", "appointmentId", "officerId",
                         "previousOfficerId", "companyNumber", instantAPI, instantAPI, "deltaAt"));
 
-        when(companyAppointmentRepository.readByCompanyNumberAndAppointmentID(COMPANY_NUMBER, APPOINTMENT_ID)).thenReturn(Optional.of(appointmentApi));
+        when(companyAppointmentRepository.readByCompanyNumberAndID(COMPANY_NUMBER, APPOINTMENT_ID)).thenReturn(Optional.of(appointmentApi));
 
         // when
         CompanyAppointmentFullRecordView result =
@@ -104,12 +104,12 @@ class CompanyAppointmentFullRecordServiceTest {
 
         // then
         assertThat(result, isA(CompanyAppointmentFullRecordView.class));
-        verify(companyAppointmentRepository).readByCompanyNumberAndAppointmentID(COMPANY_NUMBER, APPOINTMENT_ID);
+        verify(companyAppointmentRepository).readByCompanyNumberAndID(COMPANY_NUMBER, APPOINTMENT_ID);
     }
 
     @Test
     void testFetchAppointmentThrowsNotFoundExceptionIfAppointmentDoesntExist() {
-        when(companyAppointmentRepository.readByCompanyNumberAndAppointmentID(any(), any()))
+        when(companyAppointmentRepository.readByCompanyNumberAndID(any(), any()))
                 .thenReturn(Optional.empty());
 
         Executable result = () -> companyAppointmentService.getAppointment(COMPANY_NUMBER, APPOINTMENT_ID);
@@ -123,7 +123,7 @@ class CompanyAppointmentFullRecordServiceTest {
         appointmentApi = new AppointmentApiEntity(
                 new AppointmentAPI("id", new OfficerAPI(), new SensitiveOfficerAPI(), "internalId", "appointmentId", "officerId",
                         "previousOfficerId", "companyNumber", null, null, "deltaAt"));
-        when(companyAppointmentRepository.readByCompanyNumberAndAppointmentID(appointmentApi.getCompanyNumber(),
+        when(companyAppointmentRepository.readByCompanyNumberAndID(appointmentApi.getCompanyNumber(),
                 appointmentApi.getId())).thenReturn(Optional.of(appointmentApiEntity));
 
         // When
@@ -149,7 +149,7 @@ class CompanyAppointmentFullRecordServiceTest {
 
         AppointmentApiEntity appointmentEntity = new AppointmentApiEntity(new AppointmentAPI("id", new OfficerAPI(), new SensitiveOfficerAPI(), "internalId", "appointmentId", "officerId", "previousOfficerId", "companyNumber", instantAPI, instantAPI, existingDeltaAt));
 
-        when(companyAppointmentRepository.readByCompanyNumberAndAppointmentID(appointmentApi.getCompanyNumber(),
+        when(companyAppointmentRepository.readByCompanyNumberAndID(appointmentApi.getCompanyNumber(),
                 appointmentApi.getId())).thenReturn(deltaExists ? Optional.of(appointmentEntity) : Optional.empty());
 
         // When
