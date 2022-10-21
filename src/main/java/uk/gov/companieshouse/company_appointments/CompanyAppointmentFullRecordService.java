@@ -94,8 +94,9 @@ public class CompanyAppointmentFullRecordService {
     private Optional<AppointmentApiEntity> getExistingDelta(final AppointmentAPI incomingAppointment) {
 
         final String id = incomingAppointment.getId();
+        final String companyNumber = incomingAppointment.getCompanyNumber();
 
-        return companyAppointmentRepository.findById(id);
+        return companyAppointmentRepository.readByCompanyNumberAndAppointmentID(companyNumber, id);
     }
 
     private void logStaleIncomingDelta(final AppointmentAPI appointmentAPI, final String existingDelta) {
