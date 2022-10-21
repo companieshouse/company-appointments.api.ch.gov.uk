@@ -41,7 +41,7 @@ public class CompanyAppointmentFullRecordService {
 
     public CompanyAppointmentFullRecordView getAppointment(String companyNumber, String appointmentID) throws NotFoundException {
         LOGGER.debug(String.format("Fetching appointment [%s] for company [%s]", appointmentID, companyNumber));
-        Optional<AppointmentApiEntity> appointmentData = companyAppointmentRepository.findById(appointmentID);
+        Optional<AppointmentApiEntity> appointmentData = companyAppointmentRepository.readByCompanyNumberAndID(companyNumber, appointmentID);
         appointmentData.ifPresent(appt -> LOGGER.debug(String.format("Found appointment [%s] for company [%s]", appointmentID, companyNumber)));
 
         return appointmentData.map(app -> CompanyAppointmentFullRecordView.Builder.view(app.getData(), app.getSensitiveData())
@@ -94,8 +94,9 @@ public class CompanyAppointmentFullRecordService {
     private Optional<AppointmentApiEntity> getExistingDelta(final AppointmentAPI incomingAppointment) {
 
         final String id = incomingAppointment.getId();
+        final String companyNumber = incomingAppointment.getCompanyNumber();
 
-        return companyAppointmentRepository.findById(id);
+        return companyAppointmentRepository.readByCompanyNumberAndID(companyNumber, id);
     }
 
     private void logStaleIncomingDelta(final AppointmentAPI appointmentAPI, final String existingDelta) {
