@@ -279,6 +279,10 @@ public class CompanyAppointmentFullRecordView {
         }
 
         private String individualOfficerName(OfficerAPI officerData) {
+            if (officerData.getCompanyName() != null) {
+                return officerData.getCompanyName();
+            }
+
             String result = officerData.getSurname();
             if (officerData.getForename() != null || officerData.getOtherForenames() != null) {
                 result = String.join(", ", officerData.getSurname(), Stream.of(officerData.getForename(), officerData.getOtherForenames())
@@ -288,6 +292,7 @@ public class CompanyAppointmentFullRecordView {
             if (officerData.getTitle() != null && !officerData.getTitle().matches(TITLE_REGEX)) {
                 result = String.join(", ", result, officerData.getTitle());
             }
+
             return result;
         }
 
