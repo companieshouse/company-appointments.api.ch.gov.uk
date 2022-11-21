@@ -2,6 +2,7 @@ package uk.gov.companieshouse.company_appointments;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -72,5 +73,22 @@ class CompanyAppointmentFullRecordControllerTest {
         ResponseEntity<Void> response = companyAppointmentFullRecordController.submitOfficerData(appointment);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
+    }
+
+    @Test
+    void testControllerReturns200WhenOfficerDeleted() {
+
+        ResponseEntity<Void> response = companyAppointmentFullRecordController.deleteOfficerData(COMPANY_NUMBER, APPOINTMENT_ID);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+    }
+
+    @Test
+    void testControllerReturns404WhenOfficerNotDeleted() throws Exception{
+        doThrow(NotFoundException.class).when(companyAppointmentService).deleteOfficer(any(), any());
+
+        ResponseEntity<Void> response = companyAppointmentFullRecordController.deleteOfficerData(COMPANY_NUMBER, APPOINTMENT_ID);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
 }

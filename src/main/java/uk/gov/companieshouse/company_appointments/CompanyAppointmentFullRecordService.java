@@ -72,6 +72,16 @@ public class CompanyAppointmentFullRecordService {
         }
     }
 
+    public void deleteOfficer(String companyNumber, String appointmentId) throws NotFoundException {
+        LOGGER.debug(String.format("Deleting appointment [%s] for company [%s]", appointmentId, companyNumber));
+
+        Optional<AppointmentApiEntity> deleted = companyAppointmentRepository.deleteByCompanyNumberAndID(companyNumber, appointmentId);
+
+        if (!deleted.isPresent()) {
+            throw new NotFoundException(String.format("Appointment [%s] for company [%s] not found", appointmentId, companyNumber));
+        }
+    }
+
     private void saveAppointment(AppointmentAPI appointmentApi, InstantAPI instant) {
         appointmentApi.setCreated(instant);
         companyAppointmentRepository.insertOrUpdate(appointmentApi);
