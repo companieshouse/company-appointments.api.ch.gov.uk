@@ -36,7 +36,7 @@ public class AuthenticationHelperImpl implements AuthenticationHelper {
     private static final String READ_PROTECTED = "readprotected";
     private static final String COMPANY_NUMBER_PERMISSION = "company_number";
 
-    private static final String PUT_METHOD = "PUT";
+    private static final String GET_METHOD = "GET";
 
     @Override
     public String getAuthorisedIdentity(HttpServletRequest request) {
@@ -135,8 +135,8 @@ public class AuthenticationHelperImpl implements AuthenticationHelper {
     @Override
     public boolean isKeyElevatedPrivilegesAuthorised(HttpServletRequest request) {
         String[] privileges = getApiKeyPrivileges(request);
-        return request.getMethod().equals(PUT_METHOD) ? ArrayUtils.contains(privileges, INTERNAL_APP_PRIVILEGE) :
-                ArrayUtils.contains(privileges, SENSITIVE_DATA_PRIVILEGE);
+        return request.getMethod().equals(GET_METHOD) ? ArrayUtils.contains(privileges, SENSITIVE_DATA_PRIVILEGE) :
+                ArrayUtils.contains(privileges, INTERNAL_APP_PRIVILEGE);
     }
 
     @Override

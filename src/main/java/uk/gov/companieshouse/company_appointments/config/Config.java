@@ -13,7 +13,7 @@ import java.time.Clock;
 
 @Configuration
 public class Config implements WebMvcConfigurer {
-    public static final String PATTERN_FULL_RECORD = "/**/full_record";
+    public static final String PATTERN_FULL_RECORD = "/**/full_record/**";
     @Autowired
     private RequestLoggingInterceptor loggingInterceptor;
 

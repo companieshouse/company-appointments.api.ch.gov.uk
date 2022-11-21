@@ -218,4 +218,24 @@ class CompanyAppointmentFullRecordServiceTest {
         verify(companyAppointmentRepository).insertOrUpdate(appointmentApi);
     }
 
+    @Test
+    void deleteOfficer() throws Exception {
+        when(companyAppointmentRepository.deleteByCompanyNumberAndID(COMPANY_NUMBER, APPOINTMENT_ID))
+                .thenReturn(Optional.of(appointmentApiEntity));
+
+        companyAppointmentService.deleteOfficer(COMPANY_NUMBER, APPOINTMENT_ID);
+
+        verify(companyAppointmentRepository).deleteByCompanyNumberAndID(COMPANY_NUMBER, APPOINTMENT_ID);
+    }
+
+    @Test
+    void deleteOfficerThrowsNotFound() {
+        when(companyAppointmentRepository.deleteByCompanyNumberAndID(COMPANY_NUMBER, APPOINTMENT_ID))
+                .thenReturn(Optional.empty());
+
+        Executable result = () -> companyAppointmentService.deleteOfficer(COMPANY_NUMBER, APPOINTMENT_ID);
+
+        assertThrows(NotFoundException.class, result);
+    }
+
 }

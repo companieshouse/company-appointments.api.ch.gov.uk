@@ -3,6 +3,7 @@ package uk.gov.companieshouse.company_appointments;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -41,6 +42,18 @@ public class CompanyAppointmentFullRecordController {
         companyAppointmentService.insertAppointmentDelta(companyAppointmentData);
 
         return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping(path = "/delete")
+    public ResponseEntity<Void> deleteOfficerData(@PathVariable("company_number") String companyNumber,
+                                                  @PathVariable("appointment_id") String appointmentId) {
+        try {
+            companyAppointmentService.deleteOfficer(companyNumber, appointmentId);
+            return ResponseEntity.ok().build();
+        } catch (NotFoundException e) {
+            LOGGER.info(e.getMessage());
+            return ResponseEntity.notFound().build();
+        }
     }
 
 }
