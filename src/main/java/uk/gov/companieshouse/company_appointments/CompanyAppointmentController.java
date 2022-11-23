@@ -10,8 +10,10 @@ import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentV
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.logging.LoggerFactory;
 
+import java.util.List;
+
 @Controller
-@RequestMapping(path = "/company/{company_number}/appointments/{appointment_id}", produces = "application/json")
+@RequestMapping(path = "/company/{company_number}/", produces = "application/json")
 public class CompanyAppointmentController {
 
     private CompanyAppointmentService companyAppointmentService;
@@ -23,11 +25,21 @@ public class CompanyAppointmentController {
         this.companyAppointmentService = companyAppointmentService;
     }
 
-    @GetMapping
+    @GetMapping(path = "appointment/{appointment_id}")
     public ResponseEntity<CompanyAppointmentView> fetchAppointment(@PathVariable("company_number") String companyNumber, @PathVariable("appointment_id") String appointmentID) {
         try {
             return ResponseEntity.ok(companyAppointmentService.fetchAppointment(companyNumber, appointmentID));
         } catch (NotFoundException e) {
+            LOGGER.info(e.getMessage());
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @GetMapping(path = "officers")
+    public ResponseEntity<List<CompanyAppointmentView>> fetchAppointmentsForCompany(@PathVariable("company_number") String companyNumber) {
+        try{
+            return ResponseEntity.ok(companyAppointmentService.fetchAppointmentsForCompany(companyNumber));
+        } catch(NotFoundException e) {
             LOGGER.info(e.getMessage());
             return ResponseEntity.notFound().build();
         }

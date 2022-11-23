@@ -7,7 +7,9 @@ import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentV
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.logging.LoggerFactory;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class CompanyAppointmentService {
@@ -31,4 +33,15 @@ public class CompanyAppointmentService {
         return companyAppointmentMapper.map(appointmentData.orElseThrow(() -> new NotFoundException(String.format("Appointment [%s] for company [%s] not found", appointmentID, companyNumber))));
     }
 
+
+    public List<CompanyAppointmentView> fetchAppointmentsForCompany(String companyNumber) throws NotFoundException {
+        LOGGER.debug(String.format("Fetching appointments for company [%s]", companyNumber));
+        Optional<List<CompanyAppointmentData>> allAppointmentData = companyAppointmentRepository.readAllByCompanyNumber(companyNumber);
+        if (!allAppointmentData.isPresent()) {
+            throw new NotFoundException(String.format("Appointments for company [%s] not found", companyNumber));
+        }
+        List<CompanyAppointmentView> companyAppointmentViews = allAppointmentData.get().stream().map(companyAppointmentMapper :: map ).collect(Collectors.toList());
+        companyAppointmentViews.sort(new CompanyAppointmentComparator());
+        return companyAppointmentViews;
+    }
 }

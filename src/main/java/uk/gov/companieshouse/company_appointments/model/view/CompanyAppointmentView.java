@@ -3,12 +3,14 @@ package uk.gov.companieshouse.company_appointments.model.view;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import uk.gov.companieshouse.company_appointments.CompanyAppointmentRepository;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class CompanyAppointmentView {
+public class CompanyAppointmentView{
 
     @JsonProperty("address")
     private ServiceAddressView serviceAddress;
@@ -203,7 +205,8 @@ public class CompanyAppointmentView {
     public static Builder builder() {
         return new Builder();
     }
-    
+
+
     public static class Builder {
 
         private ServiceAddressView serviceAddress;
