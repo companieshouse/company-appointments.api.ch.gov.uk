@@ -13,7 +13,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 @ExtendWith(MockitoExtension.class)
-public class CompanyAppointmentComparatorTest {
+class CompanyAppointmentComparatorTest {
 
     CompanyAppointmentView companyAppointmentView1;
 
