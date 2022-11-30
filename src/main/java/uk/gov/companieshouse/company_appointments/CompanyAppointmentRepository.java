@@ -9,8 +9,6 @@ import org.springframework.stereotype.Repository;
 
 import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentData;
 
-import javax.swing.text.html.Option;
-
 @Repository
 public interface CompanyAppointmentRepository extends MongoRepository<CompanyAppointmentData, String> {
 

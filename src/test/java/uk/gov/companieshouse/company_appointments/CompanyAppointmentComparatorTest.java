@@ -1,10 +1,9 @@
 package uk.gov.companieshouse.company_appointments;
 
-import org.junit.Before;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentView;
 
@@ -12,7 +11,6 @@ import java.time.LocalDateTime;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class CompanyAppointmentComparatorTest {
@@ -20,7 +18,6 @@ public class CompanyAppointmentComparatorTest {
     CompanyAppointmentView companyAppointmentView1;
 
     CompanyAppointmentView companyAppointmentView2;
-
 
     CompanyAppointmentComparator companyAppointmentComparator;
 
@@ -32,7 +29,7 @@ public class CompanyAppointmentComparatorTest {
     }
 
     @Test
-    public void testPositiveValueIsReturnedWhenFirstResigned(){
+    void testPositiveValueIsReturnedWhenFirstResigned(){
         companyAppointmentView1.setResignedOn(LocalDateTime.of(2020, 12, 22, 0, 0));
         companyAppointmentView2.setResignedOn(null);
 
@@ -41,7 +38,7 @@ public class CompanyAppointmentComparatorTest {
     }
 
     @Test
-    public void testNegativeValueIsReturnedWhenSecondResigned(){
+    void testNegativeValueIsReturnedWhenSecondResigned(){
         companyAppointmentView1.setResignedOn(null);
         companyAppointmentView2.setResignedOn(LocalDateTime.of(2020, 12, 22, 0, 0));
 
@@ -50,7 +47,7 @@ public class CompanyAppointmentComparatorTest {
     }
 
     @Test
-    public void testNegativeValueIsReturnedWhenFirstIsSecretary(){
+    void testNegativeValueIsReturnedWhenFirstIsSecretary(){
         companyAppointmentView1.setOfficerRole("secretary");
         companyAppointmentView2.setOfficerRole("director");
 
@@ -59,7 +56,7 @@ public class CompanyAppointmentComparatorTest {
     }
 
     @Test
-    public void testPositiveValueIsReturnedWhenSecondIsSecretary(){
+    void testPositiveValueIsReturnedWhenSecondIsSecretary(){
         companyAppointmentView1.setOfficerRole("director");
         companyAppointmentView2.setOfficerRole("secretary");
 
@@ -68,7 +65,7 @@ public class CompanyAppointmentComparatorTest {
     }
 
     @Test
-    public void testGetNameIsCalledZeroWhenTwoResignedAndSameName(){
+    void testGetNameIsCalledZeroWhenTwoResignedAndSameName(){
         companyAppointmentView1.setResignedOn(LocalDateTime.of(2020, 12, 22, 0, 0));
         companyAppointmentView2.setResignedOn(LocalDateTime.of(2020, 12, 22, 0, 0));
         companyAppointmentView1.setName("ABC");
@@ -79,7 +76,7 @@ public class CompanyAppointmentComparatorTest {
     }
 
     @Test
-    public void testGetNameIsCalledZeroWhenTwoSecretaryAndSameName(){
+    void testGetNameIsCalledZeroWhenTwoSecretaryAndSameName(){
         companyAppointmentView1.setOfficerRole("secretary");
         companyAppointmentView2.setOfficerRole("secretary");
         companyAppointmentView1.setName("ABC");
@@ -91,7 +88,7 @@ public class CompanyAppointmentComparatorTest {
 
 
     @Test
-    public void testGetNameIsCalledZeroWhenTwoSecretaryAndTwoResignedAndDifferentName(){
+    void testGetNameIsCalledZeroWhenTwoSecretaryAndTwoResignedAndDifferentName(){
         companyAppointmentView1.setResignedOn(LocalDateTime.of(2020, 12, 22, 0, 0));
         companyAppointmentView2.setResignedOn(LocalDateTime.of(2020, 12, 22, 0, 0));
         companyAppointmentView1.setOfficerRole("secretary");
@@ -102,6 +99,4 @@ public class CompanyAppointmentComparatorTest {
         int result = companyAppointmentComparator.compare(companyAppointmentView1, companyAppointmentView2);
         assertTrue(result<0);
     }
-
-
 }

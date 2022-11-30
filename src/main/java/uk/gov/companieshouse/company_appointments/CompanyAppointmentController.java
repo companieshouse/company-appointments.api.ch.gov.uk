@@ -12,8 +12,6 @@ import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentV
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.logging.LoggerFactory;
 
-import java.util.List;
-
 @Controller
 @RequestMapping(path = "/company/{company_number}/", produces = "application/json")
 public class CompanyAppointmentController {
@@ -46,7 +44,4 @@ public class CompanyAppointmentController {
             return ResponseEntity.notFound().build();
         }
     }
-
-
-
 }

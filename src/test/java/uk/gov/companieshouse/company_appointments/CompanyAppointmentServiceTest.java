@@ -3,7 +3,8 @@ package uk.gov.companieshouse.company_appointments;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,7 +12,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.function.Executable;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.companieshouse.company_appointments.model.data.*;
+import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentData;
+import uk.gov.companieshouse.company_appointments.model.data.ContactDetailsData;
+import uk.gov.companieshouse.company_appointments.model.data.LinksData;
+import uk.gov.companieshouse.company_appointments.model.data.OfficerData;
+import uk.gov.companieshouse.company_appointments.model.data.ServiceAddressData;
 import uk.gov.companieshouse.company_appointments.model.view.AllCompanyAppointmentsView;
 import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentView;
 
@@ -19,8 +24,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @ExtendWith(MockitoExtension.class)
 class CompanyAppointmentServiceTest {
@@ -30,21 +33,12 @@ class CompanyAppointmentServiceTest {
     @Mock
     private CompanyAppointmentRepository companyAppointmentRepository;
 
-
     private CompanyAppointmentMapper companyAppointmentMapper;
 
-    @Mock
-    private CompanyAppointmentData companyAppointmentData;
-
-    @Mock
-    private CompanyAppointmentView companyAppointmentView;
-
-
-
-
-
     private final static String COMPANY_NUMBER = "123456";
+
     private final static String APPOINTMENT_ID = "345678";
+
     private final static String filter = "active";
 
     @BeforeEach
@@ -97,8 +91,6 @@ class CompanyAppointmentServiceTest {
         assertEquals(AllCompanyAppointmentsView.class, result.getClass());
         verify(companyAppointmentRepository).readAllByCompanyNumberForNotResigned(COMPANY_NUMBER);
     }
-
-
 
     @Test
     void testFetchAppointmentForCompanyThrowsNotFoundExceptionIfAppointmentDoesntExist() {
@@ -166,5 +158,4 @@ class CompanyAppointmentServiceTest {
                         .withContactName("Name")
                         .build());
     }
-
 }

@@ -6,12 +6,9 @@ import java.util.Comparator;
 
 public class CompanyAppointmentComparator implements Comparator<CompanyAppointmentView> {
 
-
     private boolean isSecretary(CompanyAppointmentView companyAppointmentView) {
         return SecretarialRoles.stream().anyMatch(s -> s.getRole().equals(companyAppointmentView.getOfficerRole()));
     }
-
-
 
     @Override
     public int compare(CompanyAppointmentView o1, CompanyAppointmentView o2) {
@@ -28,7 +25,6 @@ public class CompanyAppointmentComparator implements Comparator<CompanyAppointme
             return o1.getName().compareTo(o2.getName());
         }
     }
-
 }
 
 
