@@ -9,6 +9,8 @@ import org.springframework.stereotype.Repository;
 
 import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentData;
 
+import javax.swing.text.html.Option;
+
 @Repository
 public interface CompanyAppointmentRepository extends MongoRepository<CompanyAppointmentData, String> {
 
@@ -16,6 +18,10 @@ public interface CompanyAppointmentRepository extends MongoRepository<CompanyApp
     Optional<CompanyAppointmentData> readByCompanyNumberAndAppointmentID(String companyNumber, String appointmentId);
 
     @Query("{'company_number' : '?0'}")
-    Optional<List<CompanyAppointmentData>> readAllByCompanyNumber(String companyNumber);
+    List<CompanyAppointmentData> readAllByCompanyNumber(String companyNumber);
+
+    @Query("{'company_number' : '?0', 'data.resigned_on' : {$exists : false}}")
+    List<CompanyAppointmentData> readAllByCompanyNumberForNotResigned(String companyNumber);
+
 
 }

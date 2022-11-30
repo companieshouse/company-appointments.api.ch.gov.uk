@@ -80,6 +80,8 @@ public class CompanyAppointmentView{
         this.contactDetails = contactDetails;
     }
 
+    public CompanyAppointmentView() {}
+
     public ServiceAddressView getServiceAddress() {
         return serviceAddress;
     }

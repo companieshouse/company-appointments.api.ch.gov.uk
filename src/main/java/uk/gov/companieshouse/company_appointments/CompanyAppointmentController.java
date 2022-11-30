@@ -6,6 +6,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import uk.gov.companieshouse.company_appointments.model.view.AllCompanyAppointmentsView;
 import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentView;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.logging.LoggerFactory;
@@ -25,7 +27,7 @@ public class CompanyAppointmentController {
         this.companyAppointmentService = companyAppointmentService;
     }
 
-    @GetMapping(path = "appointment/{appointment_id}")
+    @GetMapping(path = "appointments/{appointment_id}")
     public ResponseEntity<CompanyAppointmentView> fetchAppointment(@PathVariable("company_number") String companyNumber, @PathVariable("appointment_id") String appointmentID) {
         try {
             return ResponseEntity.ok(companyAppointmentService.fetchAppointment(companyNumber, appointmentID));
@@ -36,13 +38,15 @@ public class CompanyAppointmentController {
     }
 
     @GetMapping(path = "officers")
-    public ResponseEntity<List<CompanyAppointmentView>> fetchAppointmentsForCompany(@PathVariable("company_number") String companyNumber) {
+    public ResponseEntity<AllCompanyAppointmentsView> fetchAppointmentsForCompany(@PathVariable("company_number") String companyNumber, @RequestParam(required = false) String filter) {
         try{
-            return ResponseEntity.ok(companyAppointmentService.fetchAppointmentsForCompany(companyNumber));
+            return ResponseEntity.ok(companyAppointmentService.fetchAppointmentsForCompany(companyNumber, filter));
         } catch(NotFoundException e) {
             LOGGER.info(e.getMessage());
             return ResponseEntity.notFound().build();
         }
     }
+
+
 
 }

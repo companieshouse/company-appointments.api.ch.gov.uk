@@ -13,6 +13,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import uk.gov.companieshouse.company_appointments.model.view.AllCompanyAppointmentsView;
 import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentView;
 
 @ExtendWith(MockitoExtension.class)
@@ -25,6 +26,9 @@ public class CompanyAppointmentControllerTest {
 
     @Mock
     private CompanyAppointmentView companyAppointmentView;
+
+    @Mock
+    private AllCompanyAppointmentsView allCompanyAppointmentsView;
 
     private final static String COMPANY_NUMBER = "123456";
     private final static String APPOINTMENT_ID = "345678";
@@ -61,4 +65,33 @@ public class CompanyAppointmentControllerTest {
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         verify(companyAppointmentService).fetchAppointment(any(), any());
     }
+
+    @Test //check what the filter needs to be
+    void testControllerReturns200StatusAndAppointmentsForCompany() throws NotFoundException {
+        // given
+        when(companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER, "false")).thenReturn(allCompanyAppointmentsView);
+
+        // when
+        ResponseEntity<AllCompanyAppointmentsView> response = companyAppointmentController.fetchAppointmentsForCompany(COMPANY_NUMBER,
+                "false");
+
+        // then
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(allCompanyAppointmentsView, response.getBody());
+        verify(companyAppointmentService).fetchAppointmentsForCompany(COMPANY_NUMBER, "false");
+    }
+
+    @Test
+    void testControllerReturns404StatusIfAppointmentForCompanyNotFound() throws NotFoundException {
+        // given
+        when(companyAppointmentService.fetchAppointmentsForCompany(any(), any())).thenThrow(NotFoundException.class);
+
+        // when
+        ResponseEntity<AllCompanyAppointmentsView> response = companyAppointmentController.fetchAppointmentsForCompany(COMPANY_NUMBER,
+                "false");
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        verify(companyAppointmentService).fetchAppointmentsForCompany(any(), any());
+    }
+
 }
