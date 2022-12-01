@@ -66,7 +66,7 @@ public class CompanyAppointmentControllerTest {
         verify(companyAppointmentService).fetchAppointment(any(), any());
     }
 
-    @Test //check what the filter needs to be
+    @Test
     void testControllerReturns200StatusAndAppointmentsForCompany() throws NotFoundException {
         // given
         when(companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER, "false")).thenReturn(allCompanyAppointmentsView);

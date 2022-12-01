@@ -13,7 +13,7 @@ import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.logging.LoggerFactory;
 
 @Controller
-@RequestMapping(path = "/company/{company_number}/", produces = "application/json")
+@RequestMapping(path = "/company/{company_number}", produces = "application/json")
 public class CompanyAppointmentController {
 
     private CompanyAppointmentService companyAppointmentService;
@@ -25,7 +25,7 @@ public class CompanyAppointmentController {
         this.companyAppointmentService = companyAppointmentService;
     }
 
-    @GetMapping(path = "appointments/{appointment_id}")
+    @GetMapping(path = "/appointments/{appointment_id}")
     public ResponseEntity<CompanyAppointmentView> fetchAppointment(@PathVariable("company_number") String companyNumber, @PathVariable("appointment_id") String appointmentID) {
         try {
             return ResponseEntity.ok(companyAppointmentService.fetchAppointment(companyNumber, appointmentID));
@@ -35,9 +35,9 @@ public class CompanyAppointmentController {
         }
     }
 
-    @GetMapping(path = "officers")
+    @GetMapping(path = "/officers")
     public ResponseEntity<AllCompanyAppointmentsView> fetchAppointmentsForCompany(@PathVariable("company_number") String companyNumber, @RequestParam(required = false) String filter) {
-        try{
+        try {
             return ResponseEntity.ok(companyAppointmentService.fetchAppointmentsForCompany(companyNumber, filter));
         } catch(NotFoundException e) {
             LOGGER.info(e.getMessage());

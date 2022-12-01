@@ -88,7 +88,7 @@ class CompanyAppointmentComparatorTest {
 
 
     @Test
-    void testGetNameIsCalledZeroWhenTwoSecretaryAndTwoResignedAndDifferentName(){
+    void testGetNameIsCalledNegativeWhenTwoSecretaryAndTwoResignedAndDifferentName(){
         companyAppointmentView1.setResignedOn(LocalDateTime.of(2020, 12, 22, 0, 0));
         companyAppointmentView2.setResignedOn(LocalDateTime.of(2020, 12, 22, 0, 0));
         companyAppointmentView1.setOfficerRole("secretary");

@@ -19,7 +19,7 @@ public class CompanyAppointmentComparator implements Comparator<CompanyAppointme
             return 1;
         } else if (isSecretary(o1) && !isSecretary(o2)) {
             return -1;
-        } else if(!isSecretary(o1) && isSecretary(o2)) {
+        } else if (!isSecretary(o1) && isSecretary(o2)) {
             return 1;
         } else {
             return o1.getName().compareTo(o2.getName());

@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Objects;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class CompanyAppointmentView{
+public class CompanyAppointmentView {
 
     @JsonProperty("address")
     private ServiceAddressView serviceAddress;
@@ -206,7 +206,6 @@ public class CompanyAppointmentView{
     public static Builder builder() {
         return new Builder();
     }
-
 
     public static class Builder {
 
