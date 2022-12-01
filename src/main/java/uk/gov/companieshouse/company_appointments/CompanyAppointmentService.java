@@ -52,10 +52,10 @@ public class CompanyAppointmentService {
         List<CompanyAppointmentView> companyAppointmentViews = allAppointmentData.stream().map(companyAppointmentMapper :: map ).collect(Collectors.toList());
         companyAppointmentViews.sort(new CompanyAppointmentComparator());
         int activeCount = (int)companyAppointmentViews.stream().filter(officer -> officer.getResignedOn() == null).count();
-        int inactiveCount = 0;
+
         int resignedCount = (int)companyAppointmentViews.stream().filter(officer -> officer.getResignedOn() !=null && officer.getResignedOn().isBefore(LocalDate.now().atStartOfDay())).count();
 
-        return new AllCompanyAppointmentsView(companyAppointmentViews.size(), companyAppointmentViews, activeCount, inactiveCount, resignedCount);
+        return new AllCompanyAppointmentsView(companyAppointmentViews.size(), companyAppointmentViews, activeCount, 0, resignedCount);
 
     }
 }
