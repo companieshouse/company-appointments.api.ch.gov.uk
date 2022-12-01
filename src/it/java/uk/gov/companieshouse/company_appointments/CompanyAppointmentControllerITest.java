@@ -47,6 +47,7 @@ public class CompanyAppointmentControllerITest {
         mongoTemplate = new MongoTemplate(new SimpleMongoClientDatabaseFactory(mongoDBContainer.getReplicaSetUrl()));
         mongoTemplate.createCollection("appointments");
         mongoTemplate.insert(Document.parse(IOUtils.resourceToString("/appointment-data.json", StandardCharsets.UTF_8)), "appointments");
+        mongoTemplate.insert(Document.parse(IOUtils.resourceToString("/appointment-data2.json", StandardCharsets.UTF_8)), "appointments");
     }
 
     @Test
@@ -90,6 +91,52 @@ public class CompanyAppointmentControllerITest {
 
         // then
         result.andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void testReturn200OKIfAllOfficersAreFound() throws Exception {
+        //when
+        ResultActions result = mockMvc.perform(get("/company/{company_number}/officers", "12345678")
+                .header("ERIC-Identity", "123")
+                .header("ERIC-Identity-Type", "key")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON));
+
+        //then
+        result.andExpect(status().isOk())
+                .andExpect(jsonPath("$.items.[0].name", is("Doe, John Forename")))
+                .andExpect(jsonPath("$.items.[1].name", is("NOSURNAME, Noname1 Noname2")))
+                .andExpect(jsonPath("$.active_count", is(1)))
+                .andExpect(jsonPath("$.resigned_count", is(1)))
+                .andExpect(jsonPath("$.total_results", is(2)));
+    }
+    @Test
+    void testReturn404IfOfficersForCompanyIsNotFound() throws Exception {
+        // when
+        ResultActions result = mockMvc
+                .perform(get("/company/{company_number}/officers", "87654321")
+                        .header("ERIC-Identity", "123").header("ERIC-Identity-Type", "oauth2")
+                        .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON));
+
+        // then
+        result.andExpect(status().isNotFound());
+    }
+
+    @Test
+    void testReturn200OKIfAllOfficersAreFoundWithFilter() throws Exception {
+        //when
+        ResultActions result = mockMvc.perform(get("/company/{company_number}/officers?filter=active", "12345678")
+                .header("ERIC-Identity", "123")
+                .header("ERIC-Identity-Type", "key")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON));
+
+        //then
+        result.andExpect(status().isOk())
+                .andExpect(jsonPath("$.items.[0].name", is("Doe, John Forename")))
+                .andExpect(jsonPath("$.active_count", is(1)))
+                .andExpect(jsonPath("$.resigned_count", is(0)))
+                .andExpect(jsonPath("$.total_results", is(1)));
     }
 
 }

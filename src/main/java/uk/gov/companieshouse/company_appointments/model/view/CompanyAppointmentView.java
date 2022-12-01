@@ -3,6 +3,7 @@ package uk.gov.companieshouse.company_appointments.model.view;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -77,6 +78,8 @@ public class CompanyAppointmentView {
         this.principalOfficeAddress = principalOfficeAddress;
         this.contactDetails = contactDetails;
     }
+
+    public CompanyAppointmentView() {}
 
     public ServiceAddressView getServiceAddress() {
         return serviceAddress;
@@ -203,7 +206,7 @@ public class CompanyAppointmentView {
     public static Builder builder() {
         return new Builder();
     }
-    
+
     public static class Builder {
 
         private ServiceAddressView serviceAddress;

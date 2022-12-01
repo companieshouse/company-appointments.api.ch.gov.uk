@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.company_appointments;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
@@ -13,5 +14,12 @@ public interface CompanyAppointmentRepository extends MongoRepository<CompanyApp
 
     @Query("{'company_number' : '?0', '_id' : '?1'}")
     Optional<CompanyAppointmentData> readByCompanyNumberAndAppointmentID(String companyNumber, String appointmentId);
+
+    @Query("{'company_number' : '?0'}")
+    List<CompanyAppointmentData> readAllByCompanyNumber(String companyNumber);
+
+    @Query("{'company_number' : '?0', 'data.resigned_on' : {$exists : false}}")
+    List<CompanyAppointmentData> readAllByCompanyNumberForNotResigned(String companyNumber);
+
 
 }
