@@ -58,6 +58,8 @@ public class OfficerData {
     @Field("contact_details")
     private ContactDetailsData contactDetails;
 
+    private String etag;
+
     public OfficerData(
             ServiceAddressData serviceAddress, LocalDateTime appointedOn,
             LocalDateTime resignedOn, String countryOfResidence,
@@ -66,7 +68,7 @@ public class OfficerData {
             IdentificationData identificationData,
             List<FormerNamesData> formerNameData, String surname, String forename,
             String otherForenames, String title, String companyName, String responsibilities,
-            ServiceAddressData principalOfficeAddress, ContactDetailsData contactDetails) {
+            ServiceAddressData principalOfficeAddress, ContactDetailsData contactDetails, String etag) {
         this.serviceAddress = serviceAddress;
         this.appointedOn = appointedOn;
         this.resignedOn = resignedOn;
@@ -86,6 +88,7 @@ public class OfficerData {
         this.responsibilities = responsibilities;
         this.principalOfficeAddress = principalOfficeAddress;
         this.contactDetails = contactDetails;
+        this.etag = etag;
     }
 
     public ServiceAddressData getServiceAddress() {
@@ -240,6 +243,14 @@ public class OfficerData {
         this.contactDetails = contactDetails;
     }
 
+    public String getEtag() {
+        return etag;
+    }
+
+    public void setEtag(String etag) {
+        this.etag = etag;
+    }
+
     public static Builder builder() {
         return new Builder();
     }
@@ -264,6 +275,7 @@ public class OfficerData {
         private String responsibilities;
         private ServiceAddressData principalOfficeAddress;
         private ContactDetailsData contactDetailsData;
+        private String etag;
 
         public Builder withServiceAddress(ServiceAddressData serviceAddress) {
             this.serviceAddress = serviceAddress;
@@ -360,11 +372,16 @@ public class OfficerData {
             return this;
         }
 
+        public Builder withEtag(String etag) {
+            this.etag = etag;
+            return this;
+        }
+
         public OfficerData build() {
             return new OfficerData(serviceAddress, appointedOn, resignedOn, countryOfResidence, linksData, nationality,
                     occupation, officerRole, dateOfBirth, identificationData, formerNameData, surname, forename,
                     otherForenames, title, companyName, responsibilities, principalOfficeAddress,
-                    contactDetailsData);
+                    contactDetailsData, etag);
         }
     }
 
@@ -392,9 +409,9 @@ public class OfficerData {
                 Objects.equals(getTitle(), that.getTitle()) &&
                 Objects.equals(getCompanyName(), that.getCompanyName()) &&
                 Objects.equals(getResponsibilities(), that.getResponsibilities()) &&
-                Objects.equals(getPrincipalOfficeAddress(), that.getPrincipalOfficeAddress())
-                &&
-                Objects.equals(getContactDetails(), that.getContactDetails());
+                Objects.equals(getPrincipalOfficeAddress(), that.getPrincipalOfficeAddress()) &&
+                Objects.equals(getContactDetails(), that.getContactDetails()) &&
+                Objects.equals(getEtag(), that.getEtag());
     }
 
     @Override
@@ -406,6 +423,7 @@ public class OfficerData {
                         getDateOfBirth(), getIdentificationData(), getFormerNameData(),
                         getSurname(),
                         getForename(), getOtherForenames(), getTitle(), getCompanyName(),
-                        getResponsibilities(), getPrincipalOfficeAddress(), getContactDetails());
+                        getResponsibilities(), getPrincipalOfficeAddress(), getContactDetails(),
+                        getEtag());
     }
 }
