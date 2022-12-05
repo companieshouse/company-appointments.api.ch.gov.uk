@@ -52,6 +52,9 @@ public class CompanyAppointmentView {
     @JsonProperty("contact_details")
     private ContactDetailsView contactDetails;
 
+    @JsonProperty("etag")
+    private String etag;
+
     public CompanyAppointmentView(
             ServiceAddressView serviceAddress, LocalDateTime appointedOn,
             LocalDateTime resignedOn, String countryOfResidence,
@@ -61,7 +64,7 @@ public class CompanyAppointmentView {
             LinksView links, String name, String nationality, String occupation,
             String officerRole, String responsibilities,
             ServiceAddressView principalOfficeAddress,
-            ContactDetailsView contactDetails) {
+            ContactDetailsView contactDetails, String etag) {
         this.serviceAddress = serviceAddress;
         this.appointedOn = appointedOn;
         this.resignedOn = resignedOn;
@@ -77,6 +80,7 @@ public class CompanyAppointmentView {
         this.responsibilities = responsibilities;
         this.principalOfficeAddress = principalOfficeAddress;
         this.contactDetails = contactDetails;
+        this.etag = etag;
     }
 
     public CompanyAppointmentView() {}
@@ -203,6 +207,14 @@ public class CompanyAppointmentView {
         this.contactDetails = contactDetails;
     }
 
+    public String getEtag() {
+        return etag;
+    }
+
+    public void setEtag(String etag) {
+        this.etag = etag;
+    }
+
     public static Builder builder() {
         return new Builder();
     }
@@ -224,6 +236,8 @@ public class CompanyAppointmentView {
         private String responsibilities;
         private ServiceAddressView principalOfficeAddress;
         private ContactDetailsView contactDetails;
+
+        private String etag;
 
         public Builder withServiceAddress(ServiceAddressView serviceAddress) {
             this.serviceAddress = serviceAddress;
@@ -300,10 +314,15 @@ public class CompanyAppointmentView {
             return this;
         }
 
+        public Builder withEtag(String etag) {
+            this.etag = etag;
+            return this;
+        }
+
         public CompanyAppointmentView build() {
             return new CompanyAppointmentView(serviceAddress, appointedOn, resignedOn, countryOfResidence, dateOfBirth,
                     formerNames, identification, links, name, nationality, occupation, officerRole, responsibilities,
-                    principalOfficeAddress, contactDetails);
+                    principalOfficeAddress, contactDetails, etag);
         }
     }
 
@@ -326,7 +345,8 @@ public class CompanyAppointmentView {
                 Objects.equals(getOfficerRole(), that.getOfficerRole()) &&
                 Objects.equals(getResponsibilities(), that.getResponsibilities()) &&
                 Objects.equals(getPrincipalOfficeAddress(), that.getPrincipalOfficeAddress()) &&
-                Objects.equals(getContactDetails(), that.getContactDetails());
+                Objects.equals(getContactDetails(), that.getContactDetails()) &&
+                Objects.equals(getEtag(), that.getEtag());
     }
 
     @Override
@@ -335,6 +355,6 @@ public class CompanyAppointmentView {
                 .hash(getServiceAddress(), getAppointedOn(), getResignedOn(),
                         getCountryOfResidence(), getDateOfBirth(), getFormerNames(), getIdentification(),
                         getLinks(), getName(), getNationality(), getOccupation(), getOfficerRole(),
-                        getResponsibilities(), getPrincipalOfficeAddress(), getContactDetails());
+                        getResponsibilities(), getPrincipalOfficeAddress(), getContactDetails(), getEtag());
     }
 }

@@ -58,6 +58,7 @@ class CompanyAppointmentFullRecordViewTest {
         officerData.setOccupation("occupation");
         officerData.setOfficerRole("director");
         officerData.setResignedOn(INSTANT_TWO);
+        officerData.setEtag("etag");
 
         testView = CompanyAppointmentFullRecordView.Builder.view(officerData, sensitiveOfficer).build();
     }
@@ -157,6 +158,12 @@ class CompanyAppointmentFullRecordViewTest {
     void ResignedOn() {
 
         assertThat(testView.getResignedOn(), is(INSTANT_TWO));
+    }
+
+    @Test
+    void etag() {
+
+        assertThat(testView.getEtag(), is("etag"));
     }
 
     private AddressAPI createAddress(String prefix) {

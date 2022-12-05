@@ -71,6 +71,9 @@ public class CompanyAppointmentFullRecordView {
     @JsonProperty("officer_role")
     private String officerRole;
 
+    @JsonProperty("etag")
+    private String etag;
+
     public AddressAPI getServiceAddress() {
         return serviceAddress;
     }
@@ -127,6 +130,10 @@ public class CompanyAppointmentFullRecordView {
         return officerRole;
     }
 
+    public String getEtag() {
+        return etag;
+    }
+
     public static class Builder {
 
         public static final ZoneId UTC_ZONE = ZoneId.of("UTC");
@@ -154,7 +161,8 @@ public class CompanyAppointmentFullRecordView {
                 .withNationality(data.getNationality())
                 .withOccupation(data.getOccupation())
                 .withOfficerRole(data.getOfficerRole())
-                .withResignedOn(data.getResignedOn());
+                .withResignedOn(data.getResignedOn())
+                .withEtag(data.getEtag());
         }
 
         private static void appendSelfLinkFullRecord(CompanyAppointmentFullRecordView view) {
@@ -266,6 +274,13 @@ public class CompanyAppointmentFullRecordView {
         public Builder withResignedOn(Instant resignedOn) {
 
             buildSteps.add(view -> view.resignedOn = resignedOn);
+
+            return this;
+        }
+
+        public Builder withEtag(String etag) {
+
+            buildSteps.add(view -> view.etag = etag);
 
             return this;
         }
