@@ -47,7 +47,8 @@ class AppointmentApiRepositoryTest {
                 "companyNumber",
                 new InstantAPI(CREATED_AT),
                 new InstantAPI(UPDATED_AT),
-                "deltaAt");
+                "deltaAt",
+                22);
         final AppointmentApiEntity expected = new AppointmentApiEntity(appointment);
         testRepository.insertOrUpdate(appointment);
 
