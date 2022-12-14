@@ -94,7 +94,7 @@ class CompanyAppointmentFullRecordServiceTest {
         // given
         appointmentApi = new AppointmentApiEntity(
                 new AppointmentAPI("id", new OfficerAPI(), new SensitiveOfficerAPI(), "internalId", "appointmentId", "officerId",
-                        "previousOfficerId", "companyNumber", instantAPI, instantAPI, "deltaAt"));
+                        "previousOfficerId", "companyNumber", instantAPI, instantAPI, "deltaAt", 22));
 
         when(companyAppointmentRepository.readByCompanyNumberAndID(COMPANY_NUMBER, APPOINTMENT_ID)).thenReturn(Optional.of(appointmentApi));
 
@@ -122,7 +122,7 @@ class CompanyAppointmentFullRecordServiceTest {
         // given
         appointmentApi = new AppointmentApiEntity(
                 new AppointmentAPI("id", new OfficerAPI(), new SensitiveOfficerAPI(), "internalId", "appointmentId", "officerId",
-                        "previousOfficerId", "companyNumber", null, null, "deltaAt"));
+                        "previousOfficerId", "companyNumber", null, null, "deltaAt", 22));
         when(companyAppointmentRepository.readByCompanyNumberAndID(appointmentApi.getCompanyNumber(),
                 appointmentApi.getId())).thenReturn(Optional.of(appointmentApiEntity));
 
@@ -145,9 +145,9 @@ class CompanyAppointmentFullRecordServiceTest {
         // given
         appointmentApi = new AppointmentApiEntity(
                 new AppointmentAPI("id", new OfficerAPI(), new SensitiveOfficerAPI(), "internalId", "appointmentId", "officerId",
-                        "previousOfficerId", "companyNumber", instantAPI, instantAPI, incomingDeltaAt));
+                        "previousOfficerId", "companyNumber", instantAPI, instantAPI, incomingDeltaAt, 22));
 
-        AppointmentApiEntity appointmentEntity = new AppointmentApiEntity(new AppointmentAPI("id", new OfficerAPI(), new SensitiveOfficerAPI(), "internalId", "appointmentId", "officerId", "previousOfficerId", "companyNumber", instantAPI, instantAPI, existingDeltaAt));
+        AppointmentApiEntity appointmentEntity = new AppointmentApiEntity(new AppointmentAPI("id", new OfficerAPI(), new SensitiveOfficerAPI(), "internalId", "appointmentId", "officerId", "previousOfficerId", "companyNumber", instantAPI, instantAPI, existingDeltaAt, 22));
 
         when(companyAppointmentRepository.readByCompanyNumberAndID(appointmentApi.getCompanyNumber(),
                 appointmentApi.getId())).thenReturn(deltaExists ? Optional.of(appointmentEntity) : Optional.empty());
@@ -186,7 +186,7 @@ class CompanyAppointmentFullRecordServiceTest {
 
         appointmentApi = spy(new AppointmentApiEntity(
                 new AppointmentAPI("id", officer, sensitiveOfficer, "internalId", "appointmentId", "officerId", "previousOfficerId",
-                        "companyNumber", instantAPI, instantAPI, "deltaAt")));
+                        "companyNumber", instantAPI, instantAPI, "deltaAt", 22)));
 
         // When
         companyAppointmentService.insertAppointmentDelta(appointmentApi);
@@ -209,7 +209,7 @@ class CompanyAppointmentFullRecordServiceTest {
 
         appointmentApi = spy(new AppointmentApiEntity(
                 new AppointmentAPI("id", officer, sensitiveOfficer, "internalId", "appointmentId", "officerId", "previousOfficerId",
-                        "companyNumber", instantAPI, instantAPI, "deltaAt")));
+                        "companyNumber", instantAPI, instantAPI, "deltaAt", 22)));
 
         // When
         companyAppointmentService.insertAppointmentDelta(appointmentApi);
