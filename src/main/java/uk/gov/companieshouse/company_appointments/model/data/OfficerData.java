@@ -13,6 +13,9 @@ public class OfficerData {
     @Field("appointed_on")
     private LocalDateTime appointedOn;
 
+    @Field("appointed_before")
+    private String appointedBefore;
+
     @Field("resigned_on")
     private LocalDateTime resignedOn;
 
@@ -61,7 +64,7 @@ public class OfficerData {
     private String etag;
 
     public OfficerData(
-            ServiceAddressData serviceAddress, LocalDateTime appointedOn,
+            ServiceAddressData serviceAddress, LocalDateTime appointedOn, String appointedBefore,
             LocalDateTime resignedOn, String countryOfResidence,
             LinksData linksData, String nationality, String occupation, String officerRole,
             LocalDateTime dateOfBirth,
@@ -71,6 +74,7 @@ public class OfficerData {
             ServiceAddressData principalOfficeAddress, ContactDetailsData contactDetails, String etag) {
         this.serviceAddress = serviceAddress;
         this.appointedOn = appointedOn;
+        this.appointedBefore = appointedBefore;
         this.resignedOn = resignedOn;
         this.countryOfResidence = countryOfResidence;
         this.linksData = linksData;
@@ -105,6 +109,14 @@ public class OfficerData {
 
     public void setAppointedOn(LocalDateTime appointedOn) {
         this.appointedOn = appointedOn;
+    }
+
+    public String getAppointedBefore() {
+        return appointedBefore;
+    }
+
+    public void setAppointedBefore(String appointedBefore) {
+        this.appointedBefore = appointedBefore;
     }
 
     public LocalDateTime getResignedOn() {
@@ -258,6 +270,7 @@ public class OfficerData {
     public static class Builder {
         private ServiceAddressData serviceAddress;
         private LocalDateTime appointedOn;
+        private String appointedBefore;
         private LocalDateTime resignedOn;
         private String countryOfResidence;
         private LinksData linksData;
@@ -284,6 +297,11 @@ public class OfficerData {
 
         public Builder withAppointedOn(LocalDateTime appointedOn) {
             this.appointedOn = appointedOn;
+            return this;
+        }
+
+        public Builder withAppointedBefore(String appointedBefore) {
+            this.appointedBefore = appointedBefore;
             return this;
         }
 
@@ -378,7 +396,7 @@ public class OfficerData {
         }
 
         public OfficerData build() {
-            return new OfficerData(serviceAddress, appointedOn, resignedOn, countryOfResidence, linksData, nationality,
+            return new OfficerData(serviceAddress, appointedOn, appointedBefore, resignedOn, countryOfResidence, linksData, nationality,
                     occupation, officerRole, dateOfBirth, identificationData, formerNameData, surname, forename,
                     otherForenames, title, companyName, responsibilities, principalOfficeAddress,
                     contactDetailsData, etag);
@@ -394,6 +412,7 @@ public class OfficerData {
         OfficerData that = (OfficerData) o;
         return Objects.equals(getServiceAddress(), that.getServiceAddress()) &&
                 Objects.equals(getAppointedOn(), that.getAppointedOn()) &&
+                Objects.equals(getAppointedBefore(), that.getAppointedBefore()) &&
                 Objects.equals(getResignedOn(), that.getResignedOn()) &&
                 Objects.equals(getCountryOfResidence(), that.getCountryOfResidence()) &&
                 Objects.equals(getLinksData(), that.getLinksData()) &&
@@ -417,7 +436,7 @@ public class OfficerData {
     @Override
     public int hashCode() {
         return Objects
-                .hash(getServiceAddress(), getAppointedOn(), getResignedOn(),
+                .hash(getServiceAddress(), getAppointedOn(), getAppointedBefore(), getResignedOn(),
                         getCountryOfResidence(),
                         getLinksData(), getNationality(), getOccupation(), getOfficerRole(),
                         getDateOfBirth(), getIdentificationData(), getFormerNameData(),

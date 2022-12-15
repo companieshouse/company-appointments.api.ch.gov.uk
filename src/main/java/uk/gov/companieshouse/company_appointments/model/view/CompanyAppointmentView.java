@@ -18,6 +18,9 @@ public class CompanyAppointmentView {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDateTime appointedOn;
 
+    @JsonProperty("appointed_before")
+    private String appointedBefore;
+
     @JsonProperty("resigned_on")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDateTime resignedOn;
@@ -57,6 +60,7 @@ public class CompanyAppointmentView {
 
     public CompanyAppointmentView(
             ServiceAddressView serviceAddress, LocalDateTime appointedOn,
+            String appointedBefore,
             LocalDateTime resignedOn, String countryOfResidence,
             DateOfBirth dateOfBirth,
             List<FormerNamesView> formerNames,
@@ -67,6 +71,7 @@ public class CompanyAppointmentView {
             ContactDetailsView contactDetails, String etag) {
         this.serviceAddress = serviceAddress;
         this.appointedOn = appointedOn;
+        this.appointedBefore = appointedBefore;
         this.resignedOn = resignedOn;
         this.countryOfResidence = countryOfResidence;
         this.dateOfBirth = dateOfBirth;
@@ -99,6 +104,14 @@ public class CompanyAppointmentView {
 
     public void setAppointedOn(LocalDateTime appointedOn) {
         this.appointedOn = appointedOn;
+    }
+
+    public String getAppointedBefore() {
+        return appointedBefore;
+    }
+
+    public void setAppointedBefore(String appointedBefore) {
+        this.appointedBefore = appointedBefore;
     }
 
     public LocalDateTime getResignedOn() {
@@ -223,6 +236,7 @@ public class CompanyAppointmentView {
 
         private ServiceAddressView serviceAddress;
         private LocalDateTime appointedOn;
+        private String appointedBefore;
         private LocalDateTime resignedOn;
         private String countryOfResidence;
         private DateOfBirth dateOfBirth;
@@ -246,6 +260,11 @@ public class CompanyAppointmentView {
 
         public Builder withAppointedOn(LocalDateTime appointedOn) {
             this.appointedOn = appointedOn;
+            return this;
+        }
+
+        public Builder withAppointedBefore(String appointedBefore) {
+            this.appointedBefore = appointedBefore;
             return this;
         }
 
@@ -320,7 +339,7 @@ public class CompanyAppointmentView {
         }
 
         public CompanyAppointmentView build() {
-            return new CompanyAppointmentView(serviceAddress, appointedOn, resignedOn, countryOfResidence, dateOfBirth,
+            return new CompanyAppointmentView(serviceAddress, appointedOn, appointedBefore, resignedOn, countryOfResidence, dateOfBirth,
                     formerNames, identification, links, name, nationality, occupation, officerRole, responsibilities,
                     principalOfficeAddress, contactDetails, etag);
         }
@@ -333,6 +352,7 @@ public class CompanyAppointmentView {
         CompanyAppointmentView that = (CompanyAppointmentView) o;
         return Objects.equals(getServiceAddress(), that.getServiceAddress()) &&
                 Objects.equals(getAppointedOn(), that.getAppointedOn()) &&
+                Objects.equals(getAppointedBefore(), that.getAppointedBefore()) &&
                 Objects.equals(getResignedOn(), that.getResignedOn()) &&
                 Objects.equals(getCountryOfResidence(), that.getCountryOfResidence()) &&
                 Objects.equals(getDateOfBirth(), that.getDateOfBirth()) &&
@@ -352,7 +372,7 @@ public class CompanyAppointmentView {
     @Override
     public int hashCode() {
         return Objects
-                .hash(getServiceAddress(), getAppointedOn(), getResignedOn(),
+                .hash(getServiceAddress(), getAppointedOn(), getAppointedBefore(), getResignedOn(),
                         getCountryOfResidence(), getDateOfBirth(), getFormerNames(), getIdentification(),
                         getLinks(), getName(), getNationality(), getOccupation(), getOfficerRole(),
                         getResponsibilities(), getPrincipalOfficeAddress(), getContactDetails(), getEtag());
