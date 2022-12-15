@@ -143,11 +143,10 @@ class CompanyAppointmentServiceTest {
 
         AllCompanyAppointmentsView result = companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER, "filter", null);
 
-        Sort expected = 
-        Sort.by(Sort.Direction.ASC, "officer_role_sort_order")
-            .and(Sort.by(Sort.Direction.ASC, "data.surname", "data.company_name"))
-            .and(Sort.by(Sort.Direction.ASC, "data.forename"))
-            .and(Sort.by(Sort.Direction.DESC, "data.appointed_on", "data.appointed_before"));
+        Sort expected = Sort.by(Sort.Direction.ASC, "officer_role_sort_order")
+                        .and(Sort.by(Sort.Direction.ASC, "data.surname", "data.company_name"))
+                        .and(Sort.by(Sort.Direction.ASC, "data.forename"))
+                        .and(Sort.by(Sort.Direction.DESC, "data.appointed_on", "data.appointed_before"));
 
         assertEquals(expected, sortCaptor.getValue());
     }
@@ -164,8 +163,7 @@ class CompanyAppointmentServiceTest {
 
         AllCompanyAppointmentsView result = companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER, "filter", "appointed_on");
 
-        Sort expected = 
-        Sort.by(Sort.Direction.DESC, "data.appointed_on", "data.appointed_before");
+        Sort expected = Sort.by(Sort.Direction.DESC, "data.appointed_on", "data.appointed_before");
 
         assertEquals(expected, sortCaptor.getValue());
     }
@@ -182,10 +180,44 @@ class CompanyAppointmentServiceTest {
 
         AllCompanyAppointmentsView result = companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER, "filter", "surname");
 
-        Sort expected = 
-        Sort.by(Sort.Direction.ASC, "data.surname", "data.company_name");
+        Sort expected = Sort.by(Sort.Direction.ASC, "data.surname", "data.company_name");
 
         assertEquals(expected, sortCaptor.getValue());
+    }
+
+    @Test
+    void testOfficerRoleSortByResignedOn() throws Exception{
+        CompanyAppointmentData officerData = new CompanyAppointmentData("1", officerData().build());
+
+        List<CompanyAppointmentData> allAppointmentData = new ArrayList<>();
+        allAppointmentData.add(officerData);
+
+        when(companyAppointmentRepository.readAllByCompanyNumber(anyString(), sortCaptor.capture()))
+                .thenReturn(allAppointmentData);
+
+        AllCompanyAppointmentsView result = companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER, "filter", "resigned_on");
+
+        Sort expected = Sort.by(Sort.Direction.DESC, "data.resigned_on");
+
+        assertEquals(expected, sortCaptor.getValue());
+    }
+
+    @Test
+    void testOfficerRoleSortByThrowsBadRequestExceptionWhenInvalidParameter() throws Exception{
+        CompanyAppointmentData officerData = new CompanyAppointmentData("1", officerData().build());
+
+        List<CompanyAppointmentData> allAppointmentData = new ArrayList<>();
+        allAppointmentData.add(officerData);
+
+        when(companyAppointmentRepository.readAllByCompanyNumber(anyString(), sortCaptor.capture()))
+                .thenReturn(allAppointmentData);
+
+        AllCompanyAppointmentsView result = companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER, "filter", "wrongparameter");
+
+        Sort expected = Sort.by(Sort.Direction.DESC, "data.resigned_on");
+
+        assertEquals("Invalid order by parameter [%s]", sortCaptor.getValue());
+        
     }
 
     private OfficerData.Builder officerData() {
