@@ -21,12 +21,14 @@ public class CompanyAppointmentService {
 
     private CompanyAppointmentRepository companyAppointmentRepository;
     private CompanyAppointmentMapper companyAppointmentMapper;
+    private SortMapper sortMapper;
 
     @Autowired
     public CompanyAppointmentService(CompanyAppointmentRepository companyAppointmentRepository,
-            CompanyAppointmentMapper companyAppointmentMapper) {
+            CompanyAppointmentMapper companyAppointmentMapper, SortMapper sortMapper) {
         this.companyAppointmentRepository = companyAppointmentRepository;
         this.companyAppointmentMapper = companyAppointmentMapper;
+        this.sortMapper = sortMapper;
     }
 
     public CompanyAppointmentView fetchAppointment(String companyNumber, String appointmentID) throws NotFoundException {
@@ -37,11 +39,12 @@ public class CompanyAppointmentService {
     }
 
     public AllCompanyAppointmentsView fetchAppointmentsForCompany(String companyNumber, String filter, String orderBy) throws NotFoundException, BadRequestException {
-        LOGGER.debug(String.format("Fetching appointments for company [%s]", companyNumber));
+        LOGGER.debug(String.format("Fetching appointments for company [%s] with order by [%s]", companyNumber, orderBy));
         List<CompanyAppointmentData> allAppointmentData;
-        Sort sort = getSorting(orderBy);
+
+        Sort sort = sortMapper.getSort(orderBy);
                 
-        if(filter != null && filter.equals("active")){
+        if (filter != null && filter.equals("active")){
             allAppointmentData = companyAppointmentRepository.readAllByCompanyNumberForNotResigned(companyNumber, sort);
         } else {
             allAppointmentData = companyAppointmentRepository.readAllByCompanyNumber(companyNumber, sort);
@@ -51,29 +54,12 @@ public class CompanyAppointmentService {
             throw new NotFoundException(String.format("Appointments for company [%s] not found", companyNumber));
         }
 
-        List<CompanyAppointmentView> companyAppointmentViews = allAppointmentData.stream().map(companyAppointmentMapper :: map ).collect(Collectors.toList());
-        int activeCount = (int)companyAppointmentViews.stream().filter(officer -> officer.getResignedOn() == null).count();
+        List<CompanyAppointmentView> companyAppointmentViews = allAppointmentData.stream().map(companyAppointmentMapper::map).collect(Collectors.toList());
 
-        int resignedCount = (int)companyAppointmentViews.stream().filter(officer -> officer.getResignedOn() !=null && officer.getResignedOn().isBefore(LocalDate.now().atStartOfDay())).count();
+        int activeCount = (int) companyAppointmentViews.stream().filter(officer -> officer.getResignedOn() == null).count();
+
+        int resignedCount = (int) companyAppointmentViews.stream().filter(officer -> officer.getResignedOn() != null && officer.getResignedOn().isBefore(LocalDate.now().atStartOfDay())).count();
 
         return new AllCompanyAppointmentsView(companyAppointmentViews.size(), companyAppointmentViews, activeCount, 0, resignedCount);
-
-    }
-
-    private Sort getSorting(String orderBy) throws BadRequestException{
-        if(orderBy == null) {
-            return Sort.by(Sort.Direction.ASC, "officer_role_sort_order")
-            .and(Sort.by(Sort.Direction.ASC, "data.surname", "data.company_name"))
-            .and(Sort.by(Sort.Direction.ASC, "data.forename"))
-            .and(Sort.by(Sort.Direction.DESC, "data.appointed_on", "data.appointed_before"));
-        } else if(orderBy.equals("appointed_on")) {
-            return Sort.by(Sort.Direction.DESC, "data.appointed_on", "data.appointed_before");
-        } else if(orderBy.equals("surname")) {
-            return Sort.by(Sort.Direction.ASC, "data.surname", "data.company_name");
-        } else if(orderBy.equals("resigned_on")) {
-            return Sort.by(Sort.Direction.DESC, "data.resigned_on");
-        } else {
-            throw new BadRequestException(String.format("Invalid order by parameter [%s]", orderBy));
-        }
     }
 }

@@ -3,7 +3,6 @@ package uk.gov.companieshouse.company_appointments;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -40,11 +39,16 @@ class CompanyAppointmentServiceTest {
 
     private CompanyAppointmentMapper companyAppointmentMapper;
 
+    @Mock
+    private SortMapper sortMapper;
+
     private final static String COMPANY_NUMBER = "123456";
 
     private final static String APPOINTMENT_ID = "345678";
 
-    private final static String filter = "active";
+    private final static String FILTER = "active";
+
+    private final static String ORDER_BY = "surname";
 
     private final static Sort SORT = Sort.by("test");
 
@@ -52,9 +56,9 @@ class CompanyAppointmentServiceTest {
     private ArgumentCaptor<Sort> sortCaptor;
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws Exception {
         companyAppointmentMapper = new CompanyAppointmentMapper();
-        companyAppointmentService = new CompanyAppointmentService(companyAppointmentRepository, companyAppointmentMapper);
+        companyAppointmentService = new CompanyAppointmentService(companyAppointmentRepository, companyAppointmentMapper, sortMapper);
     }
 
     @Test
@@ -90,12 +94,12 @@ class CompanyAppointmentServiceTest {
         List<CompanyAppointmentData> allAppointmentData = new ArrayList<>();
         allAppointmentData.add(officerData);
 
-
+        when(sortMapper.getSort(ORDER_BY)).thenReturn(SORT);
         when(companyAppointmentRepository.readAllByCompanyNumberForNotResigned(COMPANY_NUMBER, SORT))
                 .thenReturn(allAppointmentData);
 
 
-        AllCompanyAppointmentsView result = companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER, filter, null);
+        AllCompanyAppointmentsView result = companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER, FILTER, ORDER_BY);
 
         assertEquals(1, result.getTotalResults());
         assertEquals(AllCompanyAppointmentsView.class, result.getClass());
@@ -107,7 +111,7 @@ class CompanyAppointmentServiceTest {
         when(companyAppointmentRepository.readAllByCompanyNumber(any(), any()))
                 .thenReturn(new ArrayList<>());
 
-        Executable result = () -> companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER, "filter", null);
+        Executable result = () -> companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER, "filter", ORDER_BY);
 
         assertThrows(NotFoundException.class, result);
     }
@@ -119,105 +123,16 @@ class CompanyAppointmentServiceTest {
         List<CompanyAppointmentData> allAppointmentData = new ArrayList<>();
         allAppointmentData.add(officerData);
 
-
+        when(sortMapper.getSort(ORDER_BY)).thenReturn(SORT);
         when(companyAppointmentRepository.readAllByCompanyNumber(COMPANY_NUMBER, SORT))
                 .thenReturn(allAppointmentData);
 
 
-        AllCompanyAppointmentsView result = companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER, "filter", null);
+        AllCompanyAppointmentsView result = companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER, "filter", ORDER_BY);
 
         assertEquals(1, result.getTotalResults());
         assertEquals(AllCompanyAppointmentsView.class, result.getClass());
         verify(companyAppointmentRepository).readAllByCompanyNumber(COMPANY_NUMBER, SORT);
-    }
-
-    @Test
-    void testOfficerRoleSortOrder() throws Exception{
-        CompanyAppointmentData officerData = new CompanyAppointmentData("1", officerData().build());
-
-        List<CompanyAppointmentData> allAppointmentData = new ArrayList<>();
-        allAppointmentData.add(officerData);
-
-        when(companyAppointmentRepository.readAllByCompanyNumber(anyString(), sortCaptor.capture()))
-                .thenReturn(allAppointmentData);
-
-        AllCompanyAppointmentsView result = companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER, "filter", null);
-
-        Sort expected = Sort.by(Sort.Direction.ASC, "officer_role_sort_order")
-                        .and(Sort.by(Sort.Direction.ASC, "data.surname", "data.company_name"))
-                        .and(Sort.by(Sort.Direction.ASC, "data.forename"))
-                        .and(Sort.by(Sort.Direction.DESC, "data.appointed_on", "data.appointed_before"));
-
-        assertEquals(expected, sortCaptor.getValue());
-    }
-
-    @Test
-    void testOfficerRoleSortByAppointedOn() throws Exception{
-        CompanyAppointmentData officerData = new CompanyAppointmentData("1", officerData().build());
-
-        List<CompanyAppointmentData> allAppointmentData = new ArrayList<>();
-        allAppointmentData.add(officerData);
-
-        when(companyAppointmentRepository.readAllByCompanyNumber(anyString(), sortCaptor.capture()))
-                .thenReturn(allAppointmentData);
-
-        AllCompanyAppointmentsView result = companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER, "filter", "appointed_on");
-
-        Sort expected = Sort.by(Sort.Direction.DESC, "data.appointed_on", "data.appointed_before");
-
-        assertEquals(expected, sortCaptor.getValue());
-    }
-
-    @Test
-    void testOfficerRoleSortBySurname() throws Exception{
-        CompanyAppointmentData officerData = new CompanyAppointmentData("1", officerData().build());
-
-        List<CompanyAppointmentData> allAppointmentData = new ArrayList<>();
-        allAppointmentData.add(officerData);
-
-        when(companyAppointmentRepository.readAllByCompanyNumber(anyString(), sortCaptor.capture()))
-                .thenReturn(allAppointmentData);
-
-        AllCompanyAppointmentsView result = companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER, "filter", "surname");
-
-        Sort expected = Sort.by(Sort.Direction.ASC, "data.surname", "data.company_name");
-
-        assertEquals(expected, sortCaptor.getValue());
-    }
-
-    @Test
-    void testOfficerRoleSortByResignedOn() throws Exception{
-        CompanyAppointmentData officerData = new CompanyAppointmentData("1", officerData().build());
-
-        List<CompanyAppointmentData> allAppointmentData = new ArrayList<>();
-        allAppointmentData.add(officerData);
-
-        when(companyAppointmentRepository.readAllByCompanyNumber(anyString(), sortCaptor.capture()))
-                .thenReturn(allAppointmentData);
-
-        AllCompanyAppointmentsView result = companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER, "filter", "resigned_on");
-
-        Sort expected = Sort.by(Sort.Direction.DESC, "data.resigned_on");
-
-        assertEquals(expected, sortCaptor.getValue());
-    }
-
-    @Test
-    void testOfficerRoleSortByThrowsBadRequestExceptionWhenInvalidParameter() throws Exception{
-        CompanyAppointmentData officerData = new CompanyAppointmentData("1", officerData().build());
-
-        List<CompanyAppointmentData> allAppointmentData = new ArrayList<>();
-        allAppointmentData.add(officerData);
-
-        when(companyAppointmentRepository.readAllByCompanyNumber(anyString(), sortCaptor.capture()))
-                .thenReturn(allAppointmentData);
-
-        AllCompanyAppointmentsView result = companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER, "filter", "wrongparameter");
-
-        Sort expected = Sort.by(Sort.Direction.DESC, "data.resigned_on");
-
-        assertEquals("Invalid order by parameter [%s]", sortCaptor.getValue());
-        
     }
 
     private OfficerData.Builder officerData() {
