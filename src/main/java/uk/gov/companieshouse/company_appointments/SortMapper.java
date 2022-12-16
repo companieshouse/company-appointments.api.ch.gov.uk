@@ -4,7 +4,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
 @Component
-public class SortMapper {
+class SortMapper {
 
     private static final String APPOINTED_ON = "appointed_on";
     private static final String SURNAME = "surname";
