@@ -1,0 +1,70 @@
+package uk.gov.companieshouse.company_appointments;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.data.domain.Sort;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+public class SortMapperTest {
+
+    private SortMapper sortMapper;
+
+    @BeforeEach
+    void setup() {
+        sortMapper = new SortMapper();
+    }
+
+    @Test
+    void testOfficerRoleSortOrder() throws Exception {
+
+        Sort expected = Sort.by(Sort.Direction.ASC, "officer_role_sort_order")
+                .and(Sort.by(Sort.Direction.ASC, "data.surname", "data.company_name"))
+                .and(Sort.by(Sort.Direction.ASC, "data.forename"))
+                .and(Sort.by(Sort.Direction.DESC, "data.appointed_on", "data.appointed_before"));
+
+
+        Sort actual = sortMapper.getSort(null);
+
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    void testOfficerRoleSortByAppointedOn() throws Exception {
+
+        Sort expected = Sort.by(Sort.Direction.DESC, "data.appointed_on", "data.appointed_before");
+
+        Sort actual = sortMapper.getSort("appointed_on");
+
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    void testOfficerRoleSortBySurname() throws Exception {
+
+        Sort expected = Sort.by(Sort.Direction.ASC, "data.surname", "data.company_name");
+
+        Sort actual = sortMapper.getSort("surname");
+
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    void testOfficerRoleSortByResignedOn() throws Exception {
+
+        Sort expected = Sort.by(Sort.Direction.DESC, "data.resigned_on");
+
+        Sort actual = sortMapper.getSort("resigned_on");
+
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    void testOfficerRoleSortByThrowsBadRequestExceptionWhenInvalidParameter() throws Exception {
+
+        BadRequestException thrown = assertThrows(BadRequestException.class, () -> sortMapper.getSort("invalid"));
+
+        assertEquals("Invalid order by parameter [invalid]", thrown.getMessage());
+    }
+}

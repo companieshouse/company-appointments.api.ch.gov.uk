@@ -7,7 +7,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentData;
-import uk.gov.companieshouse.company_appointments.model.data.ContactDetailsData;
 import uk.gov.companieshouse.company_appointments.model.data.OfficerLinksData;
 import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentView;
 import uk.gov.companieshouse.company_appointments.model.view.ContactDetailsView;
@@ -32,6 +31,7 @@ public class CompanyAppointmentMapper {
 
         CompanyAppointmentView result = CompanyAppointmentView.builder()
                 .withAppointedOn(companyAppointmentData.getData().getAppointedOn())
+                .withAppointedBefore(companyAppointmentData.getData().getAppointedBefore())
                 .withResignedOn(companyAppointmentData.getData().getResignedOn())
                 .withCountryOfResidence(isSecretary ? null : companyAppointmentData.getData().getCountryOfResidence())
                 .withDateOfBirth(isSecretary ? null : mapDateOfBirth(companyAppointmentData))

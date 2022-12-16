@@ -3,6 +3,7 @@ package uk.gov.companieshouse.company_appointments;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -16,10 +17,10 @@ public interface CompanyAppointmentRepository extends MongoRepository<CompanyApp
     Optional<CompanyAppointmentData> readByCompanyNumberAndAppointmentID(String companyNumber, String appointmentId);
 
     @Query("{'company_number' : '?0'}")
-    List<CompanyAppointmentData> readAllByCompanyNumber(String companyNumber);
+    List<CompanyAppointmentData> readAllByCompanyNumber(String companyNumber, Sort sort);
 
     @Query("{'company_number' : '?0', 'data.resigned_on' : {$exists : false}}")
-    List<CompanyAppointmentData> readAllByCompanyNumberForNotResigned(String companyNumber);
+    List<CompanyAppointmentData> readAllByCompanyNumberForNotResigned(String companyNumber, Sort sort);
 
 
 }
