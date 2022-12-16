@@ -139,4 +139,40 @@ public class CompanyAppointmentControllerITest {
                 .andExpect(jsonPath("$.total_results", is(1)));
     }
 
+    @Test
+    void testReturn200OkWithOfficersOrderedByAppointedOn() throws Exception {
+        ResultActions result = mockMvc.perform(get("/company/{company_number}/officers?order_by=appointed_on", "12345678")
+                .header("ERIC-Identity", "123")
+                .header("ERIC-Identity-Type", "key")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON));
+
+        result.andExpect(status().isOk())
+                .andExpect(jsonPath("$.items.[0].name", is("NOSURNAME, Noname1 Noname2")))
+                .andExpect(jsonPath("$.items.[1].name", is("Doe, John Forename")));
+    }
+
+    @Test
+    void testReturn200OkWithOfficersOrderedBySurname() throws Exception {
+        ResultActions result = mockMvc.perform(get("/company/{company_number}/officers?order_by=surname", "12345678")
+                .header("ERIC-Identity", "123")
+                .header("ERIC-Identity-Type", "key")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON));
+
+        result.andExpect(status().isOk())
+                .andExpect(jsonPath("$.items.[0].name", is("Doe, John Forename")))
+                .andExpect(jsonPath("$.items.[1].name", is("NOSURNAME, Noname1 Noname2")));
+    }
+
+    @Test
+    void testReturn400BadRequestWithIncorrectOrderBy() throws Exception {
+        ResultActions result = mockMvc.perform(get("/company/{company_number}/officers?order_by=invalid", "12345678")
+                .header("ERIC-Identity", "123")
+                .header("ERIC-Identity-Type", "key")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON));
+
+        result.andExpect(status().isBadRequest());
+    }
 }
