@@ -39,10 +39,12 @@ public class CompanyAppointmentController {
     public ResponseEntity<AllCompanyAppointmentsView> fetchAppointmentsForCompany(
             @PathVariable("company_number") String companyNumber,
             @RequestParam(required = false) String filter,
-            @RequestParam(name = "order_by", required = false) String orderBy) {
+            @RequestParam(name = "order_by", required = false) String orderBy,
+            @RequestParam(required = false, name = "start_index") Integer startIndex,
+            @RequestParam(required = false, name = "items_per_page") Integer itemsPerPage) {
 
         try {
-            return ResponseEntity.ok(companyAppointmentService.fetchAppointmentsForCompany(companyNumber, filter, orderBy));
+            return ResponseEntity.ok(companyAppointmentService.fetchAppointmentsForCompany(companyNumber, filter, orderBy, startIndex, itemsPerPage));
         } catch(NotFoundException e) {
             LOGGER.info(e.getMessage());
             return ResponseEntity.notFound().build();
