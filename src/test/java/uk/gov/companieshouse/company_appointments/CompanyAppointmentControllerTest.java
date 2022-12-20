@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.company_appointments;
 
+import static com.mongodb.internal.connection.tlschannel.util.Util.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
@@ -69,29 +70,42 @@ public class CompanyAppointmentControllerTest {
     @Test
     void testControllerReturns200StatusAndAppointmentsForCompany() throws NotFoundException {
         // given
-        when(companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER, "false")).thenReturn(allCompanyAppointmentsView);
+        when(companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER, "false", null, null)).thenReturn(allCompanyAppointmentsView);
 
         // when
         ResponseEntity<AllCompanyAppointmentsView> response = companyAppointmentController.fetchAppointmentsForCompany(COMPANY_NUMBER,
-                "false");
+                "false", null,null);
 
         // then
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(allCompanyAppointmentsView, response.getBody());
-        verify(companyAppointmentService).fetchAppointmentsForCompany(COMPANY_NUMBER, "false");
+        verify(companyAppointmentService).fetchAppointmentsForCompany(COMPANY_NUMBER, "false", null, null);
     }
 
     @Test
     void testControllerReturns404StatusIfAppointmentForCompanyNotFound() throws NotFoundException {
         // given
-        when(companyAppointmentService.fetchAppointmentsForCompany(any(), any())).thenThrow(NotFoundException.class);
+        when(companyAppointmentService.fetchAppointmentsForCompany(any(), any(), any(), any())).thenThrow(NotFoundException.class);
 
         // when
         ResponseEntity<AllCompanyAppointmentsView> response = companyAppointmentController.fetchAppointmentsForCompany(COMPANY_NUMBER,
-                "false");
+                "false", null, null);
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        verify(companyAppointmentService).fetchAppointmentsForCompany(any(), any());
+        verify(companyAppointmentService).fetchAppointmentsForCompany(any(), any(), any(), any());
+    }
+
+    @Test
+    void testFetchAppointmentForCompanyWithIndexAndItemsReturns200Status() throws NotFoundException {
+
+        when(companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER, "false", 20, 50)).thenReturn(allCompanyAppointmentsView);
+
+        // when
+        ResponseEntity<AllCompanyAppointmentsView> response = companyAppointmentController.fetchAppointmentsForCompany(COMPANY_NUMBER,
+                "false", 20, 50);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        verify(companyAppointmentService).fetchAppointmentsForCompany(COMPANY_NUMBER, "false", 20, 50);
     }
 
 }

@@ -1,22 +1,12 @@
 package uk.gov.companieshouse.company_appointments;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.function.Executable;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentData;
-import uk.gov.companieshouse.company_appointments.model.data.ContactDetailsData;
-import uk.gov.companieshouse.company_appointments.model.data.LinksData;
-import uk.gov.companieshouse.company_appointments.model.data.OfficerData;
-import uk.gov.companieshouse.company_appointments.model.data.ServiceAddressData;
+import uk.gov.companieshouse.company_appointments.model.data.*;
 import uk.gov.companieshouse.company_appointments.model.view.AllCompanyAppointmentsView;
 import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentView;
 
@@ -24,6 +14,12 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class CompanyAppointmentServiceTest {
@@ -85,7 +81,8 @@ class CompanyAppointmentServiceTest {
                 .thenReturn(allAppointmentData);
 
 
-        AllCompanyAppointmentsView result = companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER, filter);
+        AllCompanyAppointmentsView result = companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER,
+                filter, null, null);
 
         assertEquals(1, result.getTotalResults());
         assertEquals(AllCompanyAppointmentsView.class, result.getClass());
@@ -97,7 +94,8 @@ class CompanyAppointmentServiceTest {
         when(companyAppointmentRepository.readAllByCompanyNumber(any()))
                 .thenReturn(new ArrayList<>());
 
-        Executable result = () -> companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER, "filter");
+        Executable result = () -> companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER,
+                "filter", null, null);
 
         assertThrows(NotFoundException.class, result);
     }
@@ -114,11 +112,149 @@ class CompanyAppointmentServiceTest {
                 .thenReturn(allAppointmentData);
 
 
-        AllCompanyAppointmentsView result = companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER, "filter");
+        AllCompanyAppointmentsView result = companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER,
+                "filter", null, null);
 
         assertEquals(1, result.getTotalResults());
         assertEquals(AllCompanyAppointmentsView.class, result.getClass());
         verify(companyAppointmentRepository).readAllByCompanyNumber(COMPANY_NUMBER);
+    }
+
+    @Test
+    void testFetchAppointmentForCompanyWhenNoParametersThenReturnsFirstThirtyFiveOfficers() throws NotFoundException {
+        CompanyAppointmentData officerData = new CompanyAppointmentData("1", officerData().build());
+
+        List<CompanyAppointmentData> allAppointmentData = new ArrayList<>();
+        for (int i = 0; i < 200; i++){
+            allAppointmentData.add(officerData);
+        }
+
+        when(companyAppointmentRepository.readAllByCompanyNumber(COMPANY_NUMBER))
+                .thenReturn(allAppointmentData);
+
+        AllCompanyAppointmentsView result = companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER,
+                "false", null, null);
+
+        assertEquals(35, result.getTotalResults());
+    }
+
+    @Test
+    void testFetchAppointmentForCompanyWhenItemsPerPageIsLargerThanOneHundredThenReturnsOneHundredBack() throws NotFoundException {
+        CompanyAppointmentData officerData = new CompanyAppointmentData("1", officerData().build());
+
+        List<CompanyAppointmentData> allAppointmentData = new ArrayList<>();
+        for (int i = 0; i < 200; i++){
+            allAppointmentData.add(officerData);
+        }
+
+        when(companyAppointmentRepository.readAllByCompanyNumber(COMPANY_NUMBER))
+                .thenReturn(allAppointmentData);
+
+        AllCompanyAppointmentsView result = companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER,
+                "false", null, 150);
+
+        assertEquals(100, result.getTotalResults());
+    }
+
+    @Test
+    void testFetchAppointmentForCompanyWhenItemsPerPageIsFiveThenReturnsFirstFiveOfficers() throws NotFoundException {
+        List<CompanyAppointmentData> allAppointmentData = new ArrayList<>();
+        for (int i = 0; i < 200; i++){
+            CompanyAppointmentData officerData = new CompanyAppointmentData("1", officerData().build());
+            officerData.getData().setOccupation(String.valueOf(i));
+            allAppointmentData.add(officerData);
+        }
+
+        when(companyAppointmentRepository.readAllByCompanyNumber(COMPANY_NUMBER))
+                .thenReturn(allAppointmentData);
+
+        AllCompanyAppointmentsView result = companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER,
+                "false", null, 5);
+
+        assertEquals(5, result.getTotalResults());
+        assertEquals(String.valueOf(0), result.getItems().get(0).getOccupation());
+    }
+
+    @Test
+    void testFetchAppointmentForCompanyWhenStartIndexIsFiveThenReturnsThirtyFiveOfficersStartingFromIndexFive() throws NotFoundException {
+
+        List<CompanyAppointmentData> allAppointmentData = new ArrayList<>();
+        for (int i = 0; i < 200; i++) {
+            CompanyAppointmentData officerData = new CompanyAppointmentData("1", officerData().build());
+            officerData.getData().setOccupation(String.valueOf(i));
+            allAppointmentData.add(officerData);
+        }
+
+        when(companyAppointmentRepository.readAllByCompanyNumber(COMPANY_NUMBER))
+                .thenReturn(allAppointmentData);
+
+        AllCompanyAppointmentsView result = companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER,
+                "false", 5, null);
+
+
+        assertEquals(String.valueOf(5), result.getItems().get(0).getOccupation());
+        assertEquals(35, result.getTotalResults());
+    }
+
+    @Test
+    void testFetchAppointmentForCompanyWhenStartIndexAndItemsPerPagePresentThenReturnsItemsPerPageStartingFromStartIndex() throws NotFoundException {
+
+        List<CompanyAppointmentData> allAppointmentData = new ArrayList<>();
+        for (int i = 0; i < 200; i++) {
+            CompanyAppointmentData officerData = new CompanyAppointmentData("1", officerData().build());
+            officerData.getData().setOccupation(String.valueOf(i));
+            allAppointmentData.add(officerData);
+        }
+
+        when(companyAppointmentRepository.readAllByCompanyNumber(COMPANY_NUMBER))
+                .thenReturn(allAppointmentData);
+
+        AllCompanyAppointmentsView result = companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER,
+                "false", 56, 15);
+
+
+        assertEquals(String.valueOf(56), result.getItems().get(0).getOccupation());
+        assertEquals(15, result.getTotalResults());
+    }
+
+    @Test
+    void testFetchAppointmentForCompanyWhenStartIndexPlusItemsPerPageIsLargerThanSizeOfListThenReturnsItemsFromStartIndexToEndOfList() throws NotFoundException {
+
+        List<CompanyAppointmentData> allAppointmentData = new ArrayList<>();
+        for (int i = 0; i < 200; i++) {
+            CompanyAppointmentData officerData = new CompanyAppointmentData("1", officerData().build());
+            officerData.getData().setOccupation(String.valueOf(i));
+            allAppointmentData.add(officerData);
+        }
+
+        when(companyAppointmentRepository.readAllByCompanyNumber(COMPANY_NUMBER))
+                .thenReturn(allAppointmentData);
+
+        AllCompanyAppointmentsView result = companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER,
+                "false", 195, 50);
+
+
+        assertEquals(String.valueOf(195), result.getItems().get(0).getOccupation());
+        assertEquals(5, result.getTotalResults());
+    }
+
+    @Test
+    void testFetchAppointmentForCompanyWhenStartIndexIsLargerThanSizeOfListThrowsNotFoundException() throws NotFoundException {
+
+        List<CompanyAppointmentData> allAppointmentData = new ArrayList<>();
+        for (int i = 0; i < 200; i++) {
+            CompanyAppointmentData officerData = new CompanyAppointmentData("1", officerData().build());
+            allAppointmentData.add(officerData);
+        }
+
+        when(companyAppointmentRepository.readAllByCompanyNumber(COMPANY_NUMBER))
+                .thenReturn(allAppointmentData);
+
+        assertThrows(NotFoundException.class,
+                () -> {
+                    AllCompanyAppointmentsView result = companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER,
+                            "false", 300, null);
+                });
     }
 
     private OfficerData.Builder officerData() {
@@ -131,6 +267,8 @@ class CompanyAppointmentServiceTest {
                 .withNationality("Nationality")
                 .withOccupation("Occupation")
                 .withOfficerRole("Role")
+                .withForename("John")
+                .withSurname("Doe")
                 .withServiceAddress(ServiceAddressData.builder()
                         .withAddressLine1("Address 1")
                         .withAddressLine2("Address 2")

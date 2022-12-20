@@ -35,11 +35,11 @@ public class CompanyAppointmentService {
         return companyAppointmentMapper.map(appointmentData.orElseThrow(() -> new NotFoundException(String.format("Appointment [%s] for company [%s] not found", appointmentID, companyNumber))));
     }
 
-    public AllCompanyAppointmentsView fetchAppointmentsForCompany(String companyNumber, String filter) throws NotFoundException {
+    public AllCompanyAppointmentsView fetchAppointmentsForCompany(String companyNumber, String filter, Integer startIndex, Integer itemsPerPage) throws NotFoundException {
         LOGGER.debug(String.format("Fetching appointments for company [%s]", companyNumber));
         List<CompanyAppointmentData> allAppointmentData;
 
-        if(filter != null && filter.equals("active")){
+        if (filter != null && filter.equals("active")) {
             allAppointmentData = companyAppointmentRepository.readAllByCompanyNumberForNotResigned(companyNumber);
         } else {
             allAppointmentData = companyAppointmentRepository.readAllByCompanyNumber(companyNumber);
@@ -49,11 +49,36 @@ public class CompanyAppointmentService {
             throw new NotFoundException(String.format("Appointments for company [%s] not found", companyNumber));
         }
 
-        List<CompanyAppointmentView> companyAppointmentViews = allAppointmentData.stream().map(companyAppointmentMapper :: map ).collect(Collectors.toList());
+        List<CompanyAppointmentView> companyAppointmentViews = allAppointmentData.stream().map(companyAppointmentMapper::map).collect(Collectors.toList());
         companyAppointmentViews.sort(new CompanyAppointmentComparator());
-        int activeCount = (int)companyAppointmentViews.stream().filter(officer -> officer.getResignedOn() == null).count();
+        int activeCount = (int) companyAppointmentViews.stream().filter(officer -> officer.getResignedOn() == null).count();
 
-        int resignedCount = (int)companyAppointmentViews.stream().filter(officer -> officer.getResignedOn() !=null && officer.getResignedOn().isBefore(LocalDate.now().atStartOfDay())).count();
+        int resignedCount = (int) companyAppointmentViews.stream().filter(officer -> officer.getResignedOn() != null && officer.getResignedOn().isBefore(LocalDate.now().atStartOfDay())).count();
+
+        int firstItem = 0;
+        int lastItem = 35;
+
+        if (startIndex != null) {
+            if (startIndex <= companyAppointmentViews.size()){
+                firstItem = startIndex;
+            } else {
+                throw new NotFoundException("Index too high");
+            }
+        }
+
+        if (itemsPerPage != null) {
+            if (itemsPerPage <= 100) {
+                lastItem = itemsPerPage;
+            } else {
+                lastItem = 100;
+            }
+        }
+
+        if (firstItem + lastItem <= companyAppointmentViews.size()) {
+            companyAppointmentViews = companyAppointmentViews.subList(firstItem, firstItem + lastItem);
+        } else {
+            companyAppointmentViews = companyAppointmentViews.subList(firstItem, companyAppointmentViews.size());
+        }
 
         return new AllCompanyAppointmentsView(companyAppointmentViews.size(), companyAppointmentViews, activeCount, 0, resignedCount);
 

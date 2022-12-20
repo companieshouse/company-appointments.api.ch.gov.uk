@@ -36,9 +36,9 @@ public class CompanyAppointmentController {
     }
 
     @GetMapping(path = "/officers")
-    public ResponseEntity<AllCompanyAppointmentsView> fetchAppointmentsForCompany(@PathVariable("company_number") String companyNumber, @RequestParam(required = false) String filter) {
+    public ResponseEntity<AllCompanyAppointmentsView> fetchAppointmentsForCompany(@PathVariable("company_number") String companyNumber, @RequestParam(required = false) String filter, @RequestParam(required = false, name = "start_index") Integer startIndex, @RequestParam(required = false, name = "items_per_page") Integer itemsPerPage) {
         try {
-            return ResponseEntity.ok(companyAppointmentService.fetchAppointmentsForCompany(companyNumber, filter));
+            return ResponseEntity.ok(companyAppointmentService.fetchAppointmentsForCompany(companyNumber, filter, startIndex, itemsPerPage));
         } catch(NotFoundException e) {
             LOGGER.info(e.getMessage());
             return ResponseEntity.notFound().build();
