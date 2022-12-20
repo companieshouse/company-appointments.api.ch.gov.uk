@@ -20,7 +20,7 @@ public class SortMapperTest {
     void testOfficerRoleSortOrder() throws Exception {
 
         Sort expected = Sort.by(Sort.Direction.ASC, "officer_role_sort_order")
-                .and(Sort.by(Sort.Direction.ASC,  "data.company_name", "data.surname"))
+                .and(Sort.by(Sort.Direction.ASC, "data.company_name", "data.surname"))
                 .and(Sort.by(Sort.Direction.ASC, "data.forename"))
                 .and(Sort.by(Sort.Direction.DESC, "data.appointed_on", "data.appointed_before"));
 
@@ -43,7 +43,7 @@ public class SortMapperTest {
     @Test
     void testOfficerRoleSortBySurname() throws Exception {
 
-        Sort expected = Sort.by(Sort.Direction.ASC,  "data.company_name", "data.surname");
+        Sort expected = Sort.by(Sort.Direction.ASC, "data.company_name", "data.surname");
 
         Sort actual = sortMapper.getSort("surname");
 
