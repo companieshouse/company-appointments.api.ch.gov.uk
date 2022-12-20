@@ -136,7 +136,7 @@ class CompanyAppointmentServiceTest {
     }
 
     @Test
-    void testFetchAppointmentForCompanyWhenNoParametersThenReturnsFirstThirtyFiveOfficers() throws NotFoundException {
+    void testFetchAppointmentForCompanyWhenNoParametersThenReturnsFirstThirtyFiveOfficers() throws Exception {
         CompanyAppointmentData officerData = new CompanyAppointmentData("1", officerData().build());
 
         List<CompanyAppointmentData> allAppointmentData = new ArrayList<>();
@@ -144,7 +144,8 @@ class CompanyAppointmentServiceTest {
             allAppointmentData.add(officerData);
         }
 
-        when(companyAppointmentRepository.readAllByCompanyNumber(COMPANY_NUMBER))
+        when(sortMapper.getSort(ORDER_BY)).thenReturn(SORT);
+        when(companyAppointmentRepository.readAllByCompanyNumber(COMPANY_NUMBER, SORT))
                 .thenReturn(allAppointmentData);
 
         AllCompanyAppointmentsView result = companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER,
@@ -154,7 +155,7 @@ class CompanyAppointmentServiceTest {
     }
 
     @Test
-    void testFetchAppointmentForCompanyWhenItemsPerPageIsLargerThanOneHundredThenReturnsOneHundredBack() throws NotFoundException {
+    void testFetchAppointmentForCompanyWhenItemsPerPageIsLargerThanOneHundredThenReturnsOneHundredBack() throws Exception {
         CompanyAppointmentData officerData = new CompanyAppointmentData("1", officerData().build());
 
         List<CompanyAppointmentData> allAppointmentData = new ArrayList<>();
@@ -162,7 +163,8 @@ class CompanyAppointmentServiceTest {
             allAppointmentData.add(officerData);
         }
 
-        when(companyAppointmentRepository.readAllByCompanyNumber(COMPANY_NUMBER))
+        when(sortMapper.getSort(ORDER_BY)).thenReturn(SORT);
+        when(companyAppointmentRepository.readAllByCompanyNumber(COMPANY_NUMBER, SORT))
                 .thenReturn(allAppointmentData);
 
         AllCompanyAppointmentsView result = companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER,
@@ -172,7 +174,7 @@ class CompanyAppointmentServiceTest {
     }
 
     @Test
-    void testFetchAppointmentForCompanyWhenItemsPerPageIsFiveThenReturnsFirstFiveOfficers() throws NotFoundException {
+    void testFetchAppointmentForCompanyWhenItemsPerPageIsFiveThenReturnsFirstFiveOfficers() throws Exception {
         List<CompanyAppointmentData> allAppointmentData = new ArrayList<>();
         for (int i = 0; i < 200; i++){
             CompanyAppointmentData officerData = new CompanyAppointmentData("1", officerData().build());
@@ -180,7 +182,8 @@ class CompanyAppointmentServiceTest {
             allAppointmentData.add(officerData);
         }
 
-        when(companyAppointmentRepository.readAllByCompanyNumber(COMPANY_NUMBER))
+        when(sortMapper.getSort(ORDER_BY)).thenReturn(SORT);
+        when(companyAppointmentRepository.readAllByCompanyNumber(COMPANY_NUMBER, SORT))
                 .thenReturn(allAppointmentData);
 
         AllCompanyAppointmentsView result = companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER,
@@ -191,7 +194,7 @@ class CompanyAppointmentServiceTest {
     }
 
     @Test
-    void testFetchAppointmentForCompanyWhenStartIndexIsFiveThenReturnsThirtyFiveOfficersStartingFromIndexFive() throws NotFoundException {
+    void testFetchAppointmentForCompanyWhenStartIndexIsFiveThenReturnsThirtyFiveOfficersStartingFromIndexFive() throws Exception {
 
         List<CompanyAppointmentData> allAppointmentData = new ArrayList<>();
         for (int i = 0; i < 200; i++) {
@@ -200,7 +203,8 @@ class CompanyAppointmentServiceTest {
             allAppointmentData.add(officerData);
         }
 
-        when(companyAppointmentRepository.readAllByCompanyNumber(COMPANY_NUMBER))
+        when(sortMapper.getSort(ORDER_BY)).thenReturn(SORT);
+        when(companyAppointmentRepository.readAllByCompanyNumber(COMPANY_NUMBER, SORT))
                 .thenReturn(allAppointmentData);
 
         AllCompanyAppointmentsView result = companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER,
@@ -212,7 +216,7 @@ class CompanyAppointmentServiceTest {
     }
 
     @Test
-    void testFetchAppointmentForCompanyWhenStartIndexAndItemsPerPagePresentThenReturnsItemsPerPageStartingFromStartIndex() throws NotFoundException {
+    void testFetchAppointmentForCompanyWhenStartIndexAndItemsPerPagePresentThenReturnsItemsPerPageStartingFromStartIndex() throws Exception {
 
         List<CompanyAppointmentData> allAppointmentData = new ArrayList<>();
         for (int i = 0; i < 200; i++) {
@@ -221,7 +225,8 @@ class CompanyAppointmentServiceTest {
             allAppointmentData.add(officerData);
         }
 
-        when(companyAppointmentRepository.readAllByCompanyNumber(COMPANY_NUMBER))
+        when(sortMapper.getSort(ORDER_BY)).thenReturn(SORT);
+        when(companyAppointmentRepository.readAllByCompanyNumber(COMPANY_NUMBER, SORT))
                 .thenReturn(allAppointmentData);
 
         AllCompanyAppointmentsView result = companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER,
@@ -233,7 +238,7 @@ class CompanyAppointmentServiceTest {
     }
 
     @Test
-    void testFetchAppointmentForCompanyWhenStartIndexPlusItemsPerPageIsLargerThanSizeOfListThenReturnsItemsFromStartIndexToEndOfList() throws NotFoundException {
+    void testFetchAppointmentForCompanyWhenStartIndexPlusItemsPerPageIsLargerThanSizeOfListThenReturnsItemsFromStartIndexToEndOfList() throws Exception {
 
         List<CompanyAppointmentData> allAppointmentData = new ArrayList<>();
         for (int i = 0; i < 200; i++) {
@@ -242,7 +247,8 @@ class CompanyAppointmentServiceTest {
             allAppointmentData.add(officerData);
         }
 
-        when(companyAppointmentRepository.readAllByCompanyNumber(COMPANY_NUMBER))
+        when(sortMapper.getSort(ORDER_BY)).thenReturn(SORT);
+        when(companyAppointmentRepository.readAllByCompanyNumber(COMPANY_NUMBER, SORT))
                 .thenReturn(allAppointmentData);
 
         AllCompanyAppointmentsView result = companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER,
@@ -254,7 +260,7 @@ class CompanyAppointmentServiceTest {
     }
 
     @Test
-    void testFetchAppointmentForCompanyWhenStartIndexIsLargerThanSizeOfListThrowsNotFoundException() throws NotFoundException {
+    void testFetchAppointmentForCompanyWhenStartIndexIsLargerThanSizeOfListThrowsNotFoundException() throws Exception {
 
         List<CompanyAppointmentData> allAppointmentData = new ArrayList<>();
         for (int i = 0; i < 200; i++) {
@@ -262,7 +268,8 @@ class CompanyAppointmentServiceTest {
             allAppointmentData.add(officerData);
         }
 
-        when(companyAppointmentRepository.readAllByCompanyNumber(COMPANY_NUMBER))
+        when(sortMapper.getSort(ORDER_BY)).thenReturn(SORT);
+        when(companyAppointmentRepository.readAllByCompanyNumber(COMPANY_NUMBER, SORT))
                 .thenReturn(allAppointmentData);
 
         assertThrows(NotFoundException.class,

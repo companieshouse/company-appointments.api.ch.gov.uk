@@ -59,6 +59,12 @@ public class CompanyAppointmentService {
 
         int resignedCount = (int) companyAppointmentViews.stream().filter(officer -> officer.getResignedOn() != null && officer.getResignedOn().isBefore(LocalDate.now().atStartOfDay())).count();
 
+        companyAppointmentViews = addPagingAndStartIndex(companyAppointmentViews, startIndex, itemsPerPage);
+
+        return new AllCompanyAppointmentsView(companyAppointmentViews.size(), companyAppointmentViews, activeCount, 0, resignedCount);
+    }
+
+    public List<CompanyAppointmentView> addPagingAndStartIndex(List<CompanyAppointmentView> companyAppointmentViews, Integer startIndex, Integer itemsPerPage) throws NotFoundException {
         int firstItem = 0;
         int lastItem = 35;
 
@@ -84,6 +90,6 @@ public class CompanyAppointmentService {
             companyAppointmentViews = companyAppointmentViews.subList(firstItem, companyAppointmentViews.size());
         }
 
-        return new AllCompanyAppointmentsView(companyAppointmentViews.size(), companyAppointmentViews, activeCount, 0, resignedCount);
+        return companyAppointmentViews;
     }
 }

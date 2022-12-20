@@ -108,7 +108,7 @@ public class CompanyAppointmentControllerTest {
         verify(companyAppointmentService).fetchAppointmentsForCompany(COMPANY_NUMBER, "false", "invalid", null, null);
     }
     @Test
-    void testFetchAppointmentForCompanyWithIndexAndItemsReturns200Status() throws NotFoundException {
+    void testFetchAppointmentForCompanyWithIndexAndItemsReturns200Status() throws Exception {
 
         when(companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER, "false", null, 20, 50)).thenReturn(allCompanyAppointmentsView);
 
