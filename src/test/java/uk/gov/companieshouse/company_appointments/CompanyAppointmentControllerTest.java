@@ -68,44 +68,56 @@ public class CompanyAppointmentControllerTest {
     }
 
     @Test
-    void testControllerReturns200StatusAndAppointmentsForCompany() throws NotFoundException {
+    void testControllerReturns200StatusAndAppointmentsForCompany() throws Exception {
         // given
-        when(companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER, "false", null, null)).thenReturn(allCompanyAppointmentsView);
+        when(companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER, "false", null, null, null)).thenReturn(allCompanyAppointmentsView);
 
         // when
         ResponseEntity<AllCompanyAppointmentsView> response = companyAppointmentController.fetchAppointmentsForCompany(COMPANY_NUMBER,
-                "false", null,null);
+                "false", null, null, null);
 
         // then
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(allCompanyAppointmentsView, response.getBody());
-        verify(companyAppointmentService).fetchAppointmentsForCompany(COMPANY_NUMBER, "false", null, null);
+        verify(companyAppointmentService).fetchAppointmentsForCompany(COMPANY_NUMBER, "false", null, null, null);
     }
 
     @Test
-    void testControllerReturns404StatusIfAppointmentForCompanyNotFound() throws NotFoundException {
+    void testControllerReturns404StatusIfAppointmentForCompanyNotFound() throws Exception {
         // given
-        when(companyAppointmentService.fetchAppointmentsForCompany(any(), any(), any(), any())).thenThrow(NotFoundException.class);
+        when(companyAppointmentService.fetchAppointmentsForCompany(any(), any(), any(), any(), any())).thenThrow(NotFoundException.class);
 
         // when
         ResponseEntity<AllCompanyAppointmentsView> response = companyAppointmentController.fetchAppointmentsForCompany(COMPANY_NUMBER,
-                "false", null, null);
+                "false", null, null, null);
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        verify(companyAppointmentService).fetchAppointmentsForCompany(any(), any(), any(), any());
+        verify(companyAppointmentService).fetchAppointmentsForCompany(any(), any(), any(), any(), any());
     }
 
+    @Test
+    void testControllerReturns400StatusIfOrderByParameterIsIncorrect() throws Exception {
+        // given
+        when(companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER, "false", "invalid", null, null)).thenThrow(BadRequestException.class);
+
+        // when
+        ResponseEntity<AllCompanyAppointmentsView> response = companyAppointmentController.fetchAppointmentsForCompany(COMPANY_NUMBER,
+                "false", "invalid", null, null);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        verify(companyAppointmentService).fetchAppointmentsForCompany(COMPANY_NUMBER, "false", "invalid", null, null);
+    }
     @Test
     void testFetchAppointmentForCompanyWithIndexAndItemsReturns200Status() throws NotFoundException {
 
-        when(companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER, "false", 20, 50)).thenReturn(allCompanyAppointmentsView);
+        when(companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER, "false", null, 20, 50)).thenReturn(allCompanyAppointmentsView);
 
         // when
         ResponseEntity<AllCompanyAppointmentsView> response = companyAppointmentController.fetchAppointmentsForCompany(COMPANY_NUMBER,
-                "false", 20, 50);
+                "false", null, 20, 50);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        verify(companyAppointmentService).fetchAppointmentsForCompany(COMPANY_NUMBER, "false", 20, 50);
+        verify(companyAppointmentService).fetchAppointmentsForCompany(COMPANY_NUMBER, "false", null, 20, 50);
     }
 
 }

@@ -4,9 +4,17 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.function.Executable;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.companieshouse.company_appointments.model.data.*;
+import org.springframework.data.domain.Sort;
+
+import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentData;
+import uk.gov.companieshouse.company_appointments.model.data.ContactDetailsData;
+import uk.gov.companieshouse.company_appointments.model.data.LinksData;
+import uk.gov.companieshouse.company_appointments.model.data.OfficerData;
+import uk.gov.companieshouse.company_appointments.model.data.ServiceAddressData;
 import uk.gov.companieshouse.company_appointments.model.view.AllCompanyAppointmentsView;
 import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentView;
 
@@ -31,16 +39,26 @@ class CompanyAppointmentServiceTest {
 
     private CompanyAppointmentMapper companyAppointmentMapper;
 
+    @Mock
+    private SortMapper sortMapper;
+
     private final static String COMPANY_NUMBER = "123456";
 
     private final static String APPOINTMENT_ID = "345678";
 
-    private final static String filter = "active";
+    private final static String FILTER = "active";
+
+    private final static String ORDER_BY = "surname";
+
+    private final static Sort SORT = Sort.by("test");
+
+    @Captor
+    private ArgumentCaptor<Sort> sortCaptor;
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws Exception {
         companyAppointmentMapper = new CompanyAppointmentMapper();
-        companyAppointmentService = new CompanyAppointmentService(companyAppointmentRepository, companyAppointmentMapper);
+        companyAppointmentService = new CompanyAppointmentService(companyAppointmentRepository, companyAppointmentMapper, sortMapper);
     }
 
     @Test
@@ -70,54 +88,51 @@ class CompanyAppointmentServiceTest {
     }
 
     @Test
-    void testFetchAppointmentForCompanyNumberForNotResignedReturnsMappedAppointmentData() throws NotFoundException{
+    void testFetchAppointmentForCompanyNumberForNotResignedReturnsMappedAppointmentData() throws Exception{
         CompanyAppointmentData officerData = new CompanyAppointmentData("1", officerData().build());
 
         List<CompanyAppointmentData> allAppointmentData = new ArrayList<>();
         allAppointmentData.add(officerData);
 
-
-        when(companyAppointmentRepository.readAllByCompanyNumberForNotResigned(COMPANY_NUMBER))
+        when(sortMapper.getSort(ORDER_BY)).thenReturn(SORT);
+        when(companyAppointmentRepository.readAllByCompanyNumberForNotResigned(COMPANY_NUMBER, SORT))
                 .thenReturn(allAppointmentData);
 
 
-        AllCompanyAppointmentsView result = companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER,
-                filter, null, null);
+        AllCompanyAppointmentsView result = companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER, FILTER, ORDER_BY, null, null);
 
         assertEquals(1, result.getTotalResults());
         assertEquals(AllCompanyAppointmentsView.class, result.getClass());
-        verify(companyAppointmentRepository).readAllByCompanyNumberForNotResigned(COMPANY_NUMBER);
+        verify(companyAppointmentRepository).readAllByCompanyNumberForNotResigned(COMPANY_NUMBER, SORT);
     }
 
     @Test
     void testFetchAppointmentForCompanyThrowsNotFoundExceptionIfAppointmentDoesntExist() {
-        when(companyAppointmentRepository.readAllByCompanyNumber(any()))
+        when(companyAppointmentRepository.readAllByCompanyNumber(any(), any()))
                 .thenReturn(new ArrayList<>());
 
-        Executable result = () -> companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER,
-                "filter", null, null);
+        Executable result = () -> companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER, "filter", ORDER_BY, null, null);
 
         assertThrows(NotFoundException.class, result);
     }
 
     @Test
-    void testFetchAppointmentForCompanyNumberReturnsMappedAppointmentData() throws NotFoundException{
+    void testFetchAppointmentForCompanyNumberReturnsMappedAppointmentData() throws Exception{
         CompanyAppointmentData officerData = new CompanyAppointmentData("1", officerData().build());
 
         List<CompanyAppointmentData> allAppointmentData = new ArrayList<>();
         allAppointmentData.add(officerData);
 
-
-        when(companyAppointmentRepository.readAllByCompanyNumber(COMPANY_NUMBER))
+        when(sortMapper.getSort(ORDER_BY)).thenReturn(SORT);
+        when(companyAppointmentRepository.readAllByCompanyNumber(COMPANY_NUMBER, SORT))
                 .thenReturn(allAppointmentData);
 
 
-        AllCompanyAppointmentsView result = companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER,
-                "filter", null, null);
+        AllCompanyAppointmentsView result = companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER, "filter", ORDER_BY, null, null);
 
         assertEquals(1, result.getTotalResults());
         assertEquals(AllCompanyAppointmentsView.class, result.getClass());
-        verify(companyAppointmentRepository).readAllByCompanyNumber(COMPANY_NUMBER);
+        verify(companyAppointmentRepository).readAllByCompanyNumber(COMPANY_NUMBER, SORT);
     }
 
     @Test
@@ -133,7 +148,7 @@ class CompanyAppointmentServiceTest {
                 .thenReturn(allAppointmentData);
 
         AllCompanyAppointmentsView result = companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER,
-                "false", null, null);
+                "false", ORDER_BY, null, null);
 
         assertEquals(35, result.getTotalResults());
     }
@@ -151,7 +166,7 @@ class CompanyAppointmentServiceTest {
                 .thenReturn(allAppointmentData);
 
         AllCompanyAppointmentsView result = companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER,
-                "false", null, 150);
+                "false", ORDER_BY, null, 150);
 
         assertEquals(100, result.getTotalResults());
     }
@@ -169,7 +184,7 @@ class CompanyAppointmentServiceTest {
                 .thenReturn(allAppointmentData);
 
         AllCompanyAppointmentsView result = companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER,
-                "false", null, 5);
+                "false", ORDER_BY, null, 5);
 
         assertEquals(5, result.getTotalResults());
         assertEquals(String.valueOf(0), result.getItems().get(0).getOccupation());
@@ -189,7 +204,7 @@ class CompanyAppointmentServiceTest {
                 .thenReturn(allAppointmentData);
 
         AllCompanyAppointmentsView result = companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER,
-                "false", 5, null);
+                "false", ORDER_BY, 5, null);
 
 
         assertEquals(String.valueOf(5), result.getItems().get(0).getOccupation());
@@ -210,7 +225,7 @@ class CompanyAppointmentServiceTest {
                 .thenReturn(allAppointmentData);
 
         AllCompanyAppointmentsView result = companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER,
-                "false", 56, 15);
+                "false", ORDER_BY, 56, 15);
 
 
         assertEquals(String.valueOf(56), result.getItems().get(0).getOccupation());
@@ -231,7 +246,7 @@ class CompanyAppointmentServiceTest {
                 .thenReturn(allAppointmentData);
 
         AllCompanyAppointmentsView result = companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER,
-                "false", 195, 50);
+                "false", ORDER_BY, 195, 50);
 
 
         assertEquals(String.valueOf(195), result.getItems().get(0).getOccupation());
@@ -253,7 +268,7 @@ class CompanyAppointmentServiceTest {
         assertThrows(NotFoundException.class,
                 () -> {
                     AllCompanyAppointmentsView result = companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER,
-                            "false", 300, null);
+                            "false", ORDER_BY, 300, null);
                 });
     }
 

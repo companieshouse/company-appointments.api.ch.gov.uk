@@ -1,6 +1,7 @@
 package uk.gov.companieshouse.company_appointments;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentData;
 import uk.gov.companieshouse.company_appointments.model.view.AllCompanyAppointmentsView;
@@ -20,12 +21,14 @@ public class CompanyAppointmentService {
 
     private CompanyAppointmentRepository companyAppointmentRepository;
     private CompanyAppointmentMapper companyAppointmentMapper;
+    private SortMapper sortMapper;
 
     @Autowired
     public CompanyAppointmentService(CompanyAppointmentRepository companyAppointmentRepository,
-            CompanyAppointmentMapper companyAppointmentMapper) {
+            CompanyAppointmentMapper companyAppointmentMapper, SortMapper sortMapper) {
         this.companyAppointmentRepository = companyAppointmentRepository;
         this.companyAppointmentMapper = companyAppointmentMapper;
+        this.sortMapper = sortMapper;
     }
 
     public CompanyAppointmentView fetchAppointment(String companyNumber, String appointmentID) throws NotFoundException {
@@ -35,14 +38,16 @@ public class CompanyAppointmentService {
         return companyAppointmentMapper.map(appointmentData.orElseThrow(() -> new NotFoundException(String.format("Appointment [%s] for company [%s] not found", appointmentID, companyNumber))));
     }
 
-    public AllCompanyAppointmentsView fetchAppointmentsForCompany(String companyNumber, String filter, Integer startIndex, Integer itemsPerPage) throws NotFoundException {
-        LOGGER.debug(String.format("Fetching appointments for company [%s]", companyNumber));
+    public AllCompanyAppointmentsView fetchAppointmentsForCompany(String companyNumber, String filter, String orderBy, Integer startIndex, Integer itemsPerPage) throws NotFoundException, BadRequestException {
+        LOGGER.debug(String.format("Fetching appointments for company [%s] with order by [%s]", companyNumber, orderBy));
         List<CompanyAppointmentData> allAppointmentData;
 
-        if (filter != null && filter.equals("active")) {
-            allAppointmentData = companyAppointmentRepository.readAllByCompanyNumberForNotResigned(companyNumber);
+        Sort sort = sortMapper.getSort(orderBy);
+                
+        if (filter != null && filter.equals("active")){
+            allAppointmentData = companyAppointmentRepository.readAllByCompanyNumberForNotResigned(companyNumber, sort);
         } else {
-            allAppointmentData = companyAppointmentRepository.readAllByCompanyNumber(companyNumber);
+            allAppointmentData = companyAppointmentRepository.readAllByCompanyNumber(companyNumber, sort);
         }
 
         if (allAppointmentData.isEmpty()) {
@@ -50,7 +55,6 @@ public class CompanyAppointmentService {
         }
 
         List<CompanyAppointmentView> companyAppointmentViews = allAppointmentData.stream().map(companyAppointmentMapper::map).collect(Collectors.toList());
-        companyAppointmentViews.sort(new CompanyAppointmentComparator());
         int activeCount = (int) companyAppointmentViews.stream().filter(officer -> officer.getResignedOn() == null).count();
 
         int resignedCount = (int) companyAppointmentViews.stream().filter(officer -> officer.getResignedOn() != null && officer.getResignedOn().isBefore(LocalDate.now().atStartOfDay())).count();
@@ -81,6 +85,5 @@ public class CompanyAppointmentService {
         }
 
         return new AllCompanyAppointmentsView(companyAppointmentViews.size(), companyAppointmentViews, activeCount, 0, resignedCount);
-
     }
 }
