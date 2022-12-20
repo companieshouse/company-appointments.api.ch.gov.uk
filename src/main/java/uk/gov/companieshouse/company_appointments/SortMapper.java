@@ -11,11 +11,11 @@ class SortMapper {
     private static final String RESIGNED_ON = "resigned_on";
 
     private static final Sort DEFAULT_SORT = Sort.by(Sort.Direction.ASC, "officer_role_sort_order")
-            .and(Sort.by(Sort.Direction.ASC, "data.surname", "data.company_name"))
+            .and(Sort.by(Sort.Direction.ASC, "data.company_name", "data.surname"))
             .and(Sort.by(Sort.Direction.ASC, "data.forename"))
             .and(Sort.by(Sort.Direction.DESC, "data.appointed_on", "data.appointed_before"));
     private static final Sort APPOINTED_ON_SORT = Sort.by(Sort.Direction.DESC, "data.appointed_on", "data.appointed_before");
-    private static final Sort SURNAME_SORT =  Sort.by(Sort.Direction.ASC, "data.surname", "data.company_name");
+    private static final Sort SURNAME_SORT =  Sort.by(Sort.Direction.ASC, "data.company_name", "data.surname");
     private static final Sort RESIGNED_ON_SORT =  Sort.by(Sort.Direction.DESC, "data.resigned_on");
 
     public Sort getSort(String orderBy) throws BadRequestException {
