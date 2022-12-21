@@ -190,7 +190,7 @@ class CompanyAppointmentServiceTest {
                 "false", ORDER_BY, null, 5);
 
         assertEquals(5, result.getTotalResults());
-        assertEquals(String.valueOf(0), result.getItems().get(0).getOccupation());
+        assertEquals("0", result.getItems().get(0).getOccupation());
     }
 
     @Test
