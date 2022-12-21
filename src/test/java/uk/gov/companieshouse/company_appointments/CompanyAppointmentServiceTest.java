@@ -211,7 +211,7 @@ class CompanyAppointmentServiceTest {
                 "false", ORDER_BY, 5, null);
 
 
-        assertEquals(String.valueOf(5), result.getItems().get(0).getOccupation());
+        assertEquals("5", result.getItems().get(0).getOccupation());
         assertEquals(35, result.getTotalResults());
     }
 
@@ -233,7 +233,7 @@ class CompanyAppointmentServiceTest {
                 "false", ORDER_BY, 56, 15);
 
 
-        assertEquals(String.valueOf(56), result.getItems().get(0).getOccupation());
+        assertEquals("56", result.getItems().get(0).getOccupation());
         assertEquals(15, result.getTotalResults());
     }
 
@@ -255,7 +255,7 @@ class CompanyAppointmentServiceTest {
                 "false", ORDER_BY, 195, 50);
 
 
-        assertEquals(String.valueOf(195), result.getItems().get(0).getOccupation());
+        assertEquals("195", result.getItems().get(0).getOccupation());
         assertEquals(5, result.getTotalResults());
     }
 
