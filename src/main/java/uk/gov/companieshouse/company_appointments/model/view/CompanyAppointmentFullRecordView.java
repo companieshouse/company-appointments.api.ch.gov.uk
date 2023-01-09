@@ -170,7 +170,7 @@ public class CompanyAppointmentFullRecordView {
                 .withOfficerRole(data.getOfficerRole())
                 .withResignedOn(data.getResignedOn())
                 .withEtag(data.getEtag())
-                    .withPersonNumber(data.getPersonNumber());
+                .withPersonNumber(data.getPersonNumber());
         }
 
         private static void appendSelfLinkFullRecord(CompanyAppointmentFullRecordView view) {
