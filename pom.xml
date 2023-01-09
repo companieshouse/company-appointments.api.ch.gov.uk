@@ -28,7 +28,7 @@
 
         <structured-logging.version>1.9.11</structured-logging.version>
         <sdk-manager-java.version>1.5.1</sdk-manager-java.version>
-        <private-api-sdk-java.version>2.0.204</private-api-sdk-java.version>
+        <private-api-sdk-java.version>2.0.209</private-api-sdk-java.version>
         <api-helper-java-library.version>1.4.5</api-helper-java-library.version>
         <log4j.version>2.16.0</log4j.version>
 
