@@ -58,6 +58,9 @@ public class CompanyAppointmentView {
     @JsonProperty("etag")
     private String etag;
 
+    @JsonProperty("is_pre_1992_appointment")
+    private Boolean isPre1992Appointment;
+
     public CompanyAppointmentView(
             ServiceAddressView serviceAddress, LocalDateTime appointedOn,
             String appointedBefore,
@@ -68,7 +71,8 @@ public class CompanyAppointmentView {
             LinksView links, String name, String nationality, String occupation,
             String officerRole, String responsibilities,
             ServiceAddressView principalOfficeAddress,
-            ContactDetailsView contactDetails, String etag) {
+            ContactDetailsView contactDetails, String etag,
+            Boolean isPre1992Appointment) {
         this.serviceAddress = serviceAddress;
         this.appointedOn = appointedOn;
         this.appointedBefore = appointedBefore;
@@ -86,6 +90,7 @@ public class CompanyAppointmentView {
         this.principalOfficeAddress = principalOfficeAddress;
         this.contactDetails = contactDetails;
         this.etag = etag;
+        this.isPre1992Appointment = isPre1992Appointment;
     }
 
     public CompanyAppointmentView() {}
@@ -228,6 +233,14 @@ public class CompanyAppointmentView {
         this.etag = etag;
     }
 
+    public Boolean getIsPre1992Appointment() {
+        return isPre1992Appointment;
+    }
+
+    public void setIsPre1992Appointment(Boolean isPre1992Appointment) {
+        isPre1992Appointment = isPre1992Appointment;
+    }
+
     public static Builder builder() {
         return new Builder();
     }
@@ -250,8 +263,8 @@ public class CompanyAppointmentView {
         private String responsibilities;
         private ServiceAddressView principalOfficeAddress;
         private ContactDetailsView contactDetails;
-
         private String etag;
+        private Boolean isPre1992Appointment;
 
         public Builder withServiceAddress(ServiceAddressView serviceAddress) {
             this.serviceAddress = serviceAddress;
@@ -338,10 +351,15 @@ public class CompanyAppointmentView {
             return this;
         }
 
+        public Builder withIsPre1992Appointment(Boolean isPre1992Appointment) {
+            this.isPre1992Appointment = isPre1992Appointment;
+            return this;
+        }
+
         public CompanyAppointmentView build() {
             return new CompanyAppointmentView(serviceAddress, appointedOn, appointedBefore, resignedOn, countryOfResidence, dateOfBirth,
                     formerNames, identification, links, name, nationality, occupation, officerRole, responsibilities,
-                    principalOfficeAddress, contactDetails, etag);
+                    principalOfficeAddress, contactDetails, etag, isPre1992Appointment);
         }
     }
 
@@ -366,7 +384,8 @@ public class CompanyAppointmentView {
                 Objects.equals(getResponsibilities(), that.getResponsibilities()) &&
                 Objects.equals(getPrincipalOfficeAddress(), that.getPrincipalOfficeAddress()) &&
                 Objects.equals(getContactDetails(), that.getContactDetails()) &&
-                Objects.equals(getEtag(), that.getEtag());
+                Objects.equals(getEtag(), that.getEtag()) &&
+                Objects.equals(getIsPre1992Appointment(), that.getIsPre1992Appointment());
     }
 
     @Override
@@ -375,6 +394,7 @@ public class CompanyAppointmentView {
                 .hash(getServiceAddress(), getAppointedOn(), getAppointedBefore(), getResignedOn(),
                         getCountryOfResidence(), getDateOfBirth(), getFormerNames(), getIdentification(),
                         getLinks(), getName(), getNationality(), getOccupation(), getOfficerRole(),
-                        getResponsibilities(), getPrincipalOfficeAddress(), getContactDetails(), getEtag());
+                        getResponsibilities(), getPrincipalOfficeAddress(), getContactDetails(), getEtag(),
+                        getIsPre1992Appointment());
     }
 }

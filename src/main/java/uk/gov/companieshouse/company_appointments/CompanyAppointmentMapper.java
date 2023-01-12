@@ -47,8 +47,10 @@ public class CompanyAppointmentMapper {
                 .withPrincipalOfficeAddress(mapPrincipalOfficeAddress(companyAppointmentData))
                 .withContactDetails(mapContactDetails(companyAppointmentData))
                 .withEtag(companyAppointmentData.getData().getEtag())
+                .withIsPre1992Appointment(companyAppointmentData.getData().isPre1992Appointment())
                 .build();
         LOGGER.debug("Mapped data for appointment: " + companyAppointmentData.getId());
+        LOGGER.debug("IsPre1992Appointment " + companyAppointmentData.getData().isPre1992Appointment());
         return result;
     }
 
