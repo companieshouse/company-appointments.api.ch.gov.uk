@@ -268,7 +268,7 @@ public class OfficerData {
         this.etag = etag;
     }
 
-    public Boolean isPre1992Appointment() {
+    public Boolean getIsPre1992Appointment() {
         return isPre1992Appointment;
     }
 
@@ -450,7 +450,7 @@ public class OfficerData {
                 Objects.equals(getPrincipalOfficeAddress(), that.getPrincipalOfficeAddress()) &&
                 Objects.equals(getContactDetails(), that.getContactDetails()) &&
                 Objects.equals(getEtag(), that.getEtag()) &&
-                Objects.equals(isPre1992Appointment(), that.isPre1992Appointment());
+                Objects.equals(getIsPre1992Appointment(), that.getIsPre1992Appointment());
     }
 
     @Override
@@ -463,6 +463,6 @@ public class OfficerData {
                         getSurname(),
                         getForename(), getOtherForenames(), getTitle(), getCompanyName(),
                         getResponsibilities(), getPrincipalOfficeAddress(), getContactDetails(),
-                        getEtag(), isPre1992Appointment());
+                        getEtag(), getIsPre1992Appointment());
     }
 }
