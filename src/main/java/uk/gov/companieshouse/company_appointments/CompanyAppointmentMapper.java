@@ -50,7 +50,6 @@ public class CompanyAppointmentMapper {
                 .withIsPre1992Appointment(companyAppointmentData.getData().isPre1992Appointment())
                 .build();
         LOGGER.debug("Mapped data for appointment: " + companyAppointmentData.getId());
-        LOGGER.debug("IsPre1992Appointment " + companyAppointmentData.getData().isPre1992Appointment());
         return result;
     }
 
