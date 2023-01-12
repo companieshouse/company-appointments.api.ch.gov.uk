@@ -238,7 +238,7 @@ public class CompanyAppointmentView {
     }
 
     public void setIsPre1992Appointment(Boolean isPre1992Appointment) {
-        isPre1992Appointment = isPre1992Appointment;
+        this.isPre1992Appointment = isPre1992Appointment;
     }
 
     public static Builder builder() {
