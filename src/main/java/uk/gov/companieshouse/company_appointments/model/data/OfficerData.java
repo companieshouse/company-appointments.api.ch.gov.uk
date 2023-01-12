@@ -63,6 +63,9 @@ public class OfficerData {
 
     private String etag;
 
+    @Field("is_pre_1992_appointment")
+    private Boolean isPre1992Appointment;
+
     public OfficerData(
             ServiceAddressData serviceAddress, LocalDateTime appointedOn, String appointedBefore,
             LocalDateTime resignedOn, String countryOfResidence,
@@ -71,7 +74,8 @@ public class OfficerData {
             IdentificationData identificationData,
             List<FormerNamesData> formerNameData, String surname, String forename,
             String otherForenames, String title, String companyName, String responsibilities,
-            ServiceAddressData principalOfficeAddress, ContactDetailsData contactDetails, String etag) {
+            ServiceAddressData principalOfficeAddress, ContactDetailsData contactDetails, String etag,
+            Boolean isPre1992Appointment) {
         this.serviceAddress = serviceAddress;
         this.appointedOn = appointedOn;
         this.appointedBefore = appointedBefore;
@@ -93,6 +97,7 @@ public class OfficerData {
         this.principalOfficeAddress = principalOfficeAddress;
         this.contactDetails = contactDetails;
         this.etag = etag;
+        this.isPre1992Appointment = isPre1992Appointment;
     }
 
     public ServiceAddressData getServiceAddress() {
@@ -263,6 +268,14 @@ public class OfficerData {
         this.etag = etag;
     }
 
+    public Boolean getIsPre1992Appointment() {
+        return isPre1992Appointment;
+    }
+
+    public void setIsPre1992Appointment(Boolean isPre1992Appointment) {
+        this.isPre1992Appointment = isPre1992Appointment;
+    }
+
     public static Builder builder() {
         return new Builder();
     }
@@ -289,6 +302,7 @@ public class OfficerData {
         private ServiceAddressData principalOfficeAddress;
         private ContactDetailsData contactDetailsData;
         private String etag;
+        private Boolean isPre1992Appointment;
 
         public Builder withServiceAddress(ServiceAddressData serviceAddress) {
             this.serviceAddress = serviceAddress;
@@ -395,11 +409,16 @@ public class OfficerData {
             return this;
         }
 
+        public Builder withIsPre1992Appointment(Boolean isPre1992Appointment) {
+            this.isPre1992Appointment = isPre1992Appointment;
+            return this;
+        }
+
         public OfficerData build() {
             return new OfficerData(serviceAddress, appointedOn, appointedBefore, resignedOn, countryOfResidence, linksData, nationality,
                     occupation, officerRole, dateOfBirth, identificationData, formerNameData, surname, forename,
                     otherForenames, title, companyName, responsibilities, principalOfficeAddress,
-                    contactDetailsData, etag);
+                    contactDetailsData, etag, isPre1992Appointment);
         }
     }
 
@@ -430,7 +449,8 @@ public class OfficerData {
                 Objects.equals(getResponsibilities(), that.getResponsibilities()) &&
                 Objects.equals(getPrincipalOfficeAddress(), that.getPrincipalOfficeAddress()) &&
                 Objects.equals(getContactDetails(), that.getContactDetails()) &&
-                Objects.equals(getEtag(), that.getEtag());
+                Objects.equals(getEtag(), that.getEtag()) &&
+                Objects.equals(getIsPre1992Appointment(), that.getIsPre1992Appointment());
     }
 
     @Override
@@ -443,6 +463,6 @@ public class OfficerData {
                         getSurname(),
                         getForename(), getOtherForenames(), getTitle(), getCompanyName(),
                         getResponsibilities(), getPrincipalOfficeAddress(), getContactDetails(),
-                        getEtag());
+                        getEtag(), getIsPre1992Appointment());
     }
 }
