@@ -177,7 +177,7 @@ public class CompanyAppointmentMapperTest {
     }
 
     private CompanyAppointmentData companyAppointmentData(OfficerData officerData) {
-        return new CompanyAppointmentData("123", officerData);
+        return new CompanyAppointmentData("123", officerData, "active");
     }
 
     private OfficerData.Builder officerData() {

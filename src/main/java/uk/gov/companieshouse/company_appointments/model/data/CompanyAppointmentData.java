@@ -13,9 +13,12 @@ public class CompanyAppointmentData {
 
 	private OfficerData data;
 
-	public CompanyAppointmentData(String id, OfficerData data) {
+	private String company_status;
+
+	public CompanyAppointmentData(String id, OfficerData data, String company_status) {
 		this.id = id;
 		this.data = data;
+		this.company_status = company_status;
 	}
 
 	public String getId() {
@@ -33,6 +36,10 @@ public class CompanyAppointmentData {
 	public void setData(OfficerData data) {
 		this.data = data;
 	}
+
+	public String getCompany_status(){return company_status;}
+
+	public void setCompany_status(String company_status){this.company_status = company_status;}
 
 	@Override
 	public boolean equals(Object o) {

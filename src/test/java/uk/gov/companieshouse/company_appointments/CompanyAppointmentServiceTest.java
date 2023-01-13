@@ -63,7 +63,7 @@ class CompanyAppointmentServiceTest {
 
     @Test
     void testFetchAppointmentReturnsMappedAppointmentData() throws NotFoundException {
-        CompanyAppointmentData officerData = new CompanyAppointmentData("1", officerData().build());
+        CompanyAppointmentData officerData = new CompanyAppointmentData("1", officerData().build(), "active");
 
         // given
         when(companyAppointmentRepository.readByCompanyNumberAndAppointmentID(COMPANY_NUMBER, APPOINTMENT_ID))
@@ -89,7 +89,7 @@ class CompanyAppointmentServiceTest {
 
     @Test
     void testFetchAppointmentForCompanyNumberForNotResignedReturnsMappedAppointmentData() throws Exception{
-        CompanyAppointmentData officerData = new CompanyAppointmentData("1", officerData().build());
+        CompanyAppointmentData officerData = new CompanyAppointmentData("1", officerData().build(), "active");
 
         List<CompanyAppointmentData> allAppointmentData = new ArrayList<>();
         allAppointmentData.add(officerData);
@@ -118,7 +118,7 @@ class CompanyAppointmentServiceTest {
 
     @Test
     void testFetchAppointmentForCompanyNumberReturnsMappedAppointmentData() throws Exception{
-        CompanyAppointmentData officerData = new CompanyAppointmentData("1", officerData().build());
+        CompanyAppointmentData officerData = new CompanyAppointmentData("1", officerData().build(), "active");
 
         List<CompanyAppointmentData> allAppointmentData = new ArrayList<>();
         allAppointmentData.add(officerData);
@@ -137,7 +137,7 @@ class CompanyAppointmentServiceTest {
 
     @Test
     void testFetchAppointmentForCompanyWhenNoParametersThenReturnsFirstThirtyFiveOfficers() throws Exception {
-        CompanyAppointmentData officerData = new CompanyAppointmentData("1", officerData().build());
+        CompanyAppointmentData officerData = new CompanyAppointmentData("1", officerData().build(), "active");
 
         List<CompanyAppointmentData> allAppointmentData = new ArrayList<>();
         for (int i = 0; i < 200; i++){
@@ -156,7 +156,7 @@ class CompanyAppointmentServiceTest {
 
     @Test
     void testFetchAppointmentForCompanyWhenItemsPerPageIsLargerThanOneHundredThenReturnsOneHundredBack() throws Exception {
-        CompanyAppointmentData officerData = new CompanyAppointmentData("1", officerData().build());
+        CompanyAppointmentData officerData = new CompanyAppointmentData("1", officerData().build(), "active");
 
         List<CompanyAppointmentData> allAppointmentData = new ArrayList<>();
         for (int i = 0; i < 200; i++){
@@ -177,7 +177,7 @@ class CompanyAppointmentServiceTest {
     void testFetchAppointmentForCompanyWhenItemsPerPageIsFiveThenReturnsFirstFiveOfficers() throws Exception {
         List<CompanyAppointmentData> allAppointmentData = new ArrayList<>();
         for (int i = 0; i < 200; i++){
-            CompanyAppointmentData officerData = new CompanyAppointmentData("1", officerData().build());
+            CompanyAppointmentData officerData = new CompanyAppointmentData("1", officerData().build(), "active");
             officerData.getData().setOccupation(String.valueOf(i));
             allAppointmentData.add(officerData);
         }
@@ -198,7 +198,7 @@ class CompanyAppointmentServiceTest {
 
         List<CompanyAppointmentData> allAppointmentData = new ArrayList<>();
         for (int i = 0; i < 200; i++) {
-            CompanyAppointmentData officerData = new CompanyAppointmentData("1", officerData().build());
+            CompanyAppointmentData officerData = new CompanyAppointmentData("1", officerData().build(), "active");
             officerData.getData().setOccupation(String.valueOf(i));
             allAppointmentData.add(officerData);
         }
@@ -220,7 +220,7 @@ class CompanyAppointmentServiceTest {
 
         List<CompanyAppointmentData> allAppointmentData = new ArrayList<>();
         for (int i = 0; i < 200; i++) {
-            CompanyAppointmentData officerData = new CompanyAppointmentData("1", officerData().build());
+            CompanyAppointmentData officerData = new CompanyAppointmentData("1", officerData().build(), "active");
             officerData.getData().setOccupation(String.valueOf(i));
             allAppointmentData.add(officerData);
         }
@@ -242,7 +242,7 @@ class CompanyAppointmentServiceTest {
 
         List<CompanyAppointmentData> allAppointmentData = new ArrayList<>();
         for (int i = 0; i < 200; i++) {
-            CompanyAppointmentData officerData = new CompanyAppointmentData("1", officerData().build());
+            CompanyAppointmentData officerData = new CompanyAppointmentData("1", officerData().build(), "active");
             officerData.getData().setOccupation(String.valueOf(i));
             allAppointmentData.add(officerData);
         }
@@ -264,7 +264,7 @@ class CompanyAppointmentServiceTest {
 
         List<CompanyAppointmentData> allAppointmentData = new ArrayList<>();
         for (int i = 0; i < 200; i++) {
-            CompanyAppointmentData officerData = new CompanyAppointmentData("1", officerData().build());
+            CompanyAppointmentData officerData = new CompanyAppointmentData("1", officerData().build(), "active");
             allAppointmentData.add(officerData);
         }
 
