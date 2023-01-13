@@ -279,6 +279,46 @@ class CompanyAppointmentServiceTest {
                 });
     }
 
+    @Test
+    void testFetchAppointmentForCompanyReturnInactiveOrActiveCountInCompanyOfficersGETDependingOnCompanyStatusReturnsActive() throws Exception{
+        OfficerData officer = officerData().build();
+        officer.setResignedOn(null);
+        CompanyAppointmentData officerData = new CompanyAppointmentData("1", officer, "active");
+
+        List<CompanyAppointmentData> allAppointmentData = new ArrayList<>();
+        allAppointmentData.add(officerData);
+
+        when(sortMapper.getSort(ORDER_BY)).thenReturn(SORT);
+        when(companyAppointmentRepository.readAllByCompanyNumber(COMPANY_NUMBER, SORT))
+                .thenReturn(allAppointmentData);
+
+        AllCompanyAppointmentsView result = companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER, "filter", ORDER_BY, null, null);
+        System.out.println(officerData.getCompany_status());
+        assertEquals(1, result.getActiveCount());
+        assertEquals(0, result.getInactiveCount());
+
+    }
+
+    @Test
+    void testFetchAppointmentForCompanyReturnInactiveOrActiveCountInCompanyOfficersGETDependingOnCompanyStatusReturnsInactive() throws Exception{
+        OfficerData officer = officerData().build();
+        officer.setResignedOn(null);
+        CompanyAppointmentData officerData = new CompanyAppointmentData("1", officer, "removed");
+
+        List<CompanyAppointmentData> allAppointmentData = new ArrayList<>();
+        allAppointmentData.add(officerData);
+
+        when(sortMapper.getSort(ORDER_BY)).thenReturn(SORT);
+        when(companyAppointmentRepository.readAllByCompanyNumber(COMPANY_NUMBER, SORT))
+                .thenReturn(allAppointmentData);
+
+        AllCompanyAppointmentsView result = companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER, "filter", ORDER_BY, null, null);
+        System.out.println(officerData.getCompany_status());
+        assertEquals(1, result.getInactiveCount());
+        assertEquals(0, result.getActiveCount());
+
+    }
+
     private OfficerData.Builder officerData() {
         return OfficerData.builder()
                 .withAppointedOn(LocalDateTime.of(2020, 8, 26, 12, 0))
