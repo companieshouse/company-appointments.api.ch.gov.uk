@@ -55,14 +55,14 @@ public class CompanyAppointmentService {
         }
 
         List<CompanyAppointmentView> companyAppointmentViews = allAppointmentData.stream().map(companyAppointmentMapper::map).collect(Collectors.toList());
-
+        int count = (int) companyAppointmentViews.stream().filter(officer -> officer.getResignedOn() == null).count();
         int activeCount = 0;
         int inactiveCount = 0;
-
-        if (allAppointmentData.get(0).getCompany_status().equals("active")){
-            activeCount = (int) companyAppointmentViews.stream().filter(officer -> officer.getResignedOn() == null).count();
+        String appointmentStatus = allAppointmentData.get(0).getCompanyStatus();
+        if (appointmentStatus.equals("removed") || appointmentStatus.equals("dissolved") || appointmentStatus.equals("converted-closed")){
+            inactiveCount = count;
         } else {
-            inactiveCount = (int) companyAppointmentViews.stream().filter(officer -> officer.getResignedOn() == null).count();
+            activeCount = count;
         }
 
         int resignedCount = (int) companyAppointmentViews.stream().filter(officer -> officer.getResignedOn() != null && officer.getResignedOn().isBefore(LocalDate.now().atStartOfDay())).count();

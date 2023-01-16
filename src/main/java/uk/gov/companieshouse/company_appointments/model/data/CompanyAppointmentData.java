@@ -2,6 +2,7 @@ package uk.gov.companieshouse.company_appointments.model.data;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.util.Objects;
 
@@ -13,12 +14,13 @@ public class CompanyAppointmentData {
 
 	private OfficerData data;
 
-	private String company_status;
+	@Field("company_status")
+	private String companyStatus;
 
-	public CompanyAppointmentData(String id, OfficerData data, String company_status) {
+	public CompanyAppointmentData(String id, OfficerData data, String companyStatus) {
 		this.id = id;
 		this.data = data;
-		this.company_status = company_status;
+		this.companyStatus = companyStatus;
 	}
 
 	public String getId() {
@@ -37,9 +39,9 @@ public class CompanyAppointmentData {
 		this.data = data;
 	}
 
-	public String getCompany_status(){return company_status;}
+	public String getCompanyStatus(){return companyStatus;}
 
-	public void setCompany_status(String company_status){this.company_status = company_status;}
+	public void setCompanyStatus(String companyStatus){this.companyStatus = companyStatus;}
 
 	@Override
 	public boolean equals(Object o) {

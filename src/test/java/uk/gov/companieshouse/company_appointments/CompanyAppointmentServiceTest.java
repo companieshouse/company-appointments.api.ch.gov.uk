@@ -293,7 +293,7 @@ class CompanyAppointmentServiceTest {
                 .thenReturn(allAppointmentData);
 
         AllCompanyAppointmentsView result = companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER, "filter", ORDER_BY, null, null);
-        System.out.println(officerData.getCompany_status());
+
         assertEquals(1, result.getActiveCount());
         assertEquals(0, result.getInactiveCount());
 
@@ -313,7 +313,7 @@ class CompanyAppointmentServiceTest {
                 .thenReturn(allAppointmentData);
 
         AllCompanyAppointmentsView result = companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER, "filter", ORDER_BY, null, null);
-        System.out.println(officerData.getCompany_status());
+
         assertEquals(1, result.getInactiveCount());
         assertEquals(0, result.getActiveCount());
 
