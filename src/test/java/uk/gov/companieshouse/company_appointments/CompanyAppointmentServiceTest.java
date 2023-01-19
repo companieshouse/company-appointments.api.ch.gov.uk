@@ -26,6 +26,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -36,6 +37,9 @@ class CompanyAppointmentServiceTest {
 
     @Mock
     private CompanyAppointmentRepository companyAppointmentRepository;
+
+    @Mock
+    private CompanyRegisterService companyRegisterService;
 
     private CompanyAppointmentMapper companyAppointmentMapper;
 
@@ -52,13 +56,15 @@ class CompanyAppointmentServiceTest {
 
     private final static Sort SORT = Sort.by("test");
 
+    private final static String REGISTER_TYPE = "directors";
+
     @Captor
     private ArgumentCaptor<Sort> sortCaptor;
 
     @BeforeEach
     void setUp() throws Exception {
         companyAppointmentMapper = new CompanyAppointmentMapper();
-        companyAppointmentService = new CompanyAppointmentService(companyAppointmentRepository, companyAppointmentMapper, sortMapper);
+        companyAppointmentService = new CompanyAppointmentService(companyAppointmentRepository, companyAppointmentMapper, sortMapper, companyRegisterService);
     }
 
     @Test
@@ -99,7 +105,8 @@ class CompanyAppointmentServiceTest {
                 .thenReturn(allAppointmentData);
 
 
-        AllCompanyAppointmentsView result = companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER, FILTER, ORDER_BY, null, null);
+        AllCompanyAppointmentsView result = companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER, FILTER, ORDER_BY, null, null,
+                null, null);
 
         assertEquals(1, result.getTotalResults());
         assertEquals(AllCompanyAppointmentsView.class, result.getClass());
@@ -111,7 +118,8 @@ class CompanyAppointmentServiceTest {
         when(companyAppointmentRepository.readAllByCompanyNumber(any(), any()))
                 .thenReturn(new ArrayList<>());
 
-        Executable result = () -> companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER, "filter", ORDER_BY, null, null);
+        Executable result = () -> companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER, "filter", ORDER_BY, null, null,
+                null, null);
 
         assertThrows(NotFoundException.class, result);
     }
@@ -128,7 +136,8 @@ class CompanyAppointmentServiceTest {
                 .thenReturn(allAppointmentData);
 
 
-        AllCompanyAppointmentsView result = companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER, "filter", ORDER_BY, null, null);
+        AllCompanyAppointmentsView result = companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER, "filter", ORDER_BY, null, null,
+             null, null);
 
         assertEquals(1, result.getTotalResults());
         assertEquals(AllCompanyAppointmentsView.class, result.getClass());
@@ -149,7 +158,7 @@ class CompanyAppointmentServiceTest {
                 .thenReturn(allAppointmentData);
 
         AllCompanyAppointmentsView result = companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER,
-                "false", ORDER_BY, null, null);
+                "false", ORDER_BY, null, null, null, null);
 
         assertEquals(35, result.getTotalResults());
     }
@@ -168,7 +177,7 @@ class CompanyAppointmentServiceTest {
                 .thenReturn(allAppointmentData);
 
         AllCompanyAppointmentsView result = companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER,
-                "false", ORDER_BY, null, 150);
+                "false", ORDER_BY, null, 150, null, null);
 
         assertEquals(100, result.getTotalResults());
     }
@@ -187,7 +196,7 @@ class CompanyAppointmentServiceTest {
                 .thenReturn(allAppointmentData);
 
         AllCompanyAppointmentsView result = companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER,
-                "false", ORDER_BY, null, 5);
+                "false", ORDER_BY, null, 5, null, null);
 
         assertEquals(5, result.getTotalResults());
         assertEquals(String.valueOf(0), result.getItems().get(0).getOccupation());
@@ -208,7 +217,7 @@ class CompanyAppointmentServiceTest {
                 .thenReturn(allAppointmentData);
 
         AllCompanyAppointmentsView result = companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER,
-                "false", ORDER_BY, 5, null);
+                "false", ORDER_BY, 5, null, null, null);
 
 
         assertEquals(String.valueOf(5), result.getItems().get(0).getOccupation());
@@ -230,7 +239,7 @@ class CompanyAppointmentServiceTest {
                 .thenReturn(allAppointmentData);
 
         AllCompanyAppointmentsView result = companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER,
-                "false", ORDER_BY, 56, 15);
+                "false", ORDER_BY, 56, 15, null, null);
 
 
         assertEquals(String.valueOf(56), result.getItems().get(0).getOccupation());
@@ -252,7 +261,7 @@ class CompanyAppointmentServiceTest {
                 .thenReturn(allAppointmentData);
 
         AllCompanyAppointmentsView result = companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER,
-                "false", ORDER_BY, 195, 50);
+                "false", ORDER_BY, 195, 50, null, null);
 
 
         assertEquals(String.valueOf(195), result.getItems().get(0).getOccupation());
@@ -261,7 +270,6 @@ class CompanyAppointmentServiceTest {
 
     @Test
     void testFetchAppointmentForCompanyWhenStartIndexIsLargerThanSizeOfListThrowsNotFoundException() throws Exception {
-
         List<CompanyAppointmentData> allAppointmentData = new ArrayList<>();
         for (int i = 0; i < 200; i++) {
             CompanyAppointmentData officerData = new CompanyAppointmentData("1", officerData().build());
@@ -275,9 +283,91 @@ class CompanyAppointmentServiceTest {
         assertThrows(NotFoundException.class,
                 () -> {
                     AllCompanyAppointmentsView result = companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER,
-                            "false", ORDER_BY, 300, null);
+                            "false", ORDER_BY, 300, null, null, null);
                 });
     }
+
+    @Test
+    void testNoRegisterViewIsFalse() throws Exception {
+        CompanyAppointmentData officerData = new CompanyAppointmentData("1", officerData().build());
+
+        List<CompanyAppointmentData> allAppointmentData = new ArrayList<>();
+        allAppointmentData.add(officerData);
+
+        when(sortMapper.getSort(null)).thenReturn(SORT);
+        when(companyAppointmentRepository.readAllByCompanyNumber(COMPANY_NUMBER, SORT))
+                .thenReturn(allAppointmentData);
+
+        AllCompanyAppointmentsView result = companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER, null, null,
+                null, null, false, null);
+
+        verify(companyRegisterService, times(0)).isRegisterHeldInCompaniesHouse(any(), any());
+    }
+
+    @Test
+    void testNoRegisterViewIsNull() throws Exception {
+        CompanyAppointmentData officerData = new CompanyAppointmentData("1", officerData().build());
+
+        List<CompanyAppointmentData> allAppointmentData = new ArrayList<>();
+        allAppointmentData.add(officerData);
+
+        when(sortMapper.getSort(null)).thenReturn(SORT);
+        when(companyAppointmentRepository.readAllByCompanyNumber(COMPANY_NUMBER, SORT))
+                .thenReturn(allAppointmentData);
+
+        AllCompanyAppointmentsView result = companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER, null, null,
+                null, null, null, null);
+
+        verify(companyRegisterService, times(0)).isRegisterHeldInCompaniesHouse(any(), any());
+    }
+    @Test
+    void testFetchAppointmentsForCompanyThrowsNotFoundExceptionIfRegisterViewAndNotHeldInCompaniesHouse() throws Exception {
+        when(companyRegisterService.isRegisterHeldInCompaniesHouse(REGISTER_TYPE, COMPANY_NUMBER)).thenReturn(false);
+
+        assertThrows(NotFoundException.class,
+                () -> {
+                    AllCompanyAppointmentsView result = companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER, null, null,
+                            null, null, true, REGISTER_TYPE);
+        });
+    }
+
+    @Test
+    void testFetchAppointmentsForCompanyThrowsNotFoundExceptionIfNoAppointmentOfRegisterType() throws Exception {
+        CompanyAppointmentData officerData = new CompanyAppointmentData("1", officerData().build());
+
+        List<CompanyAppointmentData> allAppointmentData = new ArrayList<>();
+        allAppointmentData.add(officerData);
+
+        when(sortMapper.getSort(null)).thenReturn(SORT);
+        when(companyAppointmentRepository.readAllByCompanyNumberForNotResigned(COMPANY_NUMBER, SORT))
+                .thenReturn(allAppointmentData);
+        when(companyRegisterService.isRegisterHeldInCompaniesHouse("secretaries", COMPANY_NUMBER)).thenReturn(true);
+
+        assertThrows(NotFoundException.class,
+                () -> {
+                    AllCompanyAppointmentsView result = companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER, null, null,
+                            null, null, true, "secretaries");
+                });
+    }
+
+    @Test
+    void testFetchAppointmentsForCompanyReturnsAppointmentsIfRegisterTypeMatches() throws Exception {
+        CompanyAppointmentData officerData = new CompanyAppointmentData("1", officerData().build());
+
+        List<CompanyAppointmentData> allAppointmentData = new ArrayList<>();
+        allAppointmentData.add(officerData);
+
+        when(sortMapper.getSort(null)).thenReturn(SORT);
+        when(companyAppointmentRepository.readAllByCompanyNumberForNotResigned(COMPANY_NUMBER, SORT))
+                .thenReturn(allAppointmentData);
+        when(companyRegisterService.isRegisterHeldInCompaniesHouse(REGISTER_TYPE, COMPANY_NUMBER)).thenReturn(true);
+
+        AllCompanyAppointmentsView result = companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER, null, null,
+                null, null, true, REGISTER_TYPE);
+
+        assertEquals(1, result.getItems().size());
+    }
+
 
     private OfficerData.Builder officerData() {
         return OfficerData.builder()
@@ -288,7 +378,7 @@ class CompanyAppointmentServiceTest {
                 .withLinks(new LinksData("/company/12345678/appointment/123", "/officers/abc", "/officers/abc/appointments"))
                 .withNationality("Nationality")
                 .withOccupation("Occupation")
-                .withOfficerRole("Role")
+                .withOfficerRole("director")
                 .withForename("John")
                 .withSurname("Doe")
                 .withServiceAddress(ServiceAddressData.builder()
