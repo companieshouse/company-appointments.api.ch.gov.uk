@@ -14,7 +14,7 @@ import uk.gov.companieshouse.logging.Logger;
 
 @Service
 public class CompanyRegisterService {
-    private final static String PUBLIC_REGISTER = "public-register";
+    private static final String PUBLIC_REGISTER = "public-register";
     private final String metricsUrl;
     private final Logger logger;
 
