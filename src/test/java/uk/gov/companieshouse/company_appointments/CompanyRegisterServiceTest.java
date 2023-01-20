@@ -27,7 +27,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class CompanyRegisterServiceTest {
+class CompanyRegisterServiceTest {
 
     @Mock
     PrivateCompanyMetricsGet privateCompanyMetricsGet;
@@ -199,25 +199,25 @@ public class CompanyRegisterServiceTest {
     }
 
     @Test
-    void whenApiReturns200StatusWithExceptionThenThrowRuntimeException() throws Exception {
+    void whenApiReturns200StatusWithExceptionThenThrowServiceUnavailableException() throws Exception {
         HttpResponseException.Builder builder = new HttpResponseException.Builder(200,
                 "statusMessage", new HttpHeaders());
         ApiErrorResponseException apiErrorResponseException =
                 new ApiErrorResponseException(builder);
         when(privateCompanyMetricsGet.execute()).thenThrow(apiErrorResponseException);
 
-        assertThrows(RuntimeException.class,
+        assertThrows(ServiceUnavailableException.class,
                 () -> {
                     boolean result = companyRegisterService.isRegisterHeldInCompaniesHouse("directors", COMPANY_NUMBER);
                 });
     }
 
     @Test
-    void whenApiThrowsExceptionThenThrowRuntimeException() throws Exception {
+    void whenApiThrowsExceptionThenThrowServiceUnavailableException() throws Exception {
         URIValidationException uriValidationException = new URIValidationException("message");
         when(privateCompanyMetricsGet.execute()).thenThrow(uriValidationException);
 
-        assertThrows(RuntimeException.class,
+        assertThrows(ServiceUnavailableException.class,
                 () -> {
                     boolean result = companyRegisterService.isRegisterHeldInCompaniesHouse("directors", COMPANY_NUMBER);
                 });

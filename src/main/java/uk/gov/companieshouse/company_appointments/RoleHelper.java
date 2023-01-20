@@ -4,6 +4,7 @@ import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentD
 
 
 public class RoleHelper {
+    private RoleHelper(){}
     public static boolean isSecretary(CompanyAppointmentData companyAppointmentData){
         return SecretarialRoles.stream().anyMatch(s -> s.getRole().equals(companyAppointmentData.getData().getOfficerRole()));
     }

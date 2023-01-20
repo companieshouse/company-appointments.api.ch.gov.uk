@@ -14,12 +14,11 @@ import uk.gov.companieshouse.logging.Logger;
 
 @Service
 public class CompanyRegisterService {
+    private final static String PUBLIC_REGISTER = "public-register";
     private final String metricsUrl;
     private final Logger logger;
 
     private final ApiClientService apiClientService;
-
-    private final static String PUBLIC_REGISTER = "public-register";
 
     @Autowired
     public CompanyRegisterService(@Value("${company-metrics-api.endpoint}") String metricsUrl,
@@ -65,11 +64,11 @@ public class CompanyRegisterService {
                 throw new ServiceUnavailableException(exp.getMessage());
             } else {
                 logger.error("Error occurred while calling /company-metrics endpoint", exp);
-                throw new RuntimeException(exp);
+                throw new ServiceUnavailableException(exp.getMessage());
             }
         } catch (Exception e) {
             logger.error("Error occurred while calling /company-metrics endpoint", e);
-            throw new RuntimeException(e);
+            throw new ServiceUnavailableException(e.getMessage());
         }
     }
 }
