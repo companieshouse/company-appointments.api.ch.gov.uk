@@ -18,7 +18,7 @@ public class RoleHelperTest {
     void testIsDirectorTrue() {
         for(String role: DirectorRoles.stream().map(DirectorRoles::getRole).collect(Collectors.toList())){
             OfficerData officerData = OfficerData.builder().withOfficerRole(role).build();
-            CompanyAppointmentData companyAppointmentData = new CompanyAppointmentData("1", officerData);
+            CompanyAppointmentData companyAppointmentData = new CompanyAppointmentData("1", officerData, "active");
             boolean result = RoleHelper.isDirector(companyAppointmentData);
             assertTrue(result);
         }
@@ -28,7 +28,7 @@ public class RoleHelperTest {
     void testIsSecretariesTrue() {
         for(String role: SecretarialRoles.stream().map(SecretarialRoles::getRole).collect(Collectors.toList())){
             OfficerData officerData = OfficerData.builder().withOfficerRole(role).build();
-            CompanyAppointmentData companyAppointmentData = new CompanyAppointmentData("1", officerData);
+            CompanyAppointmentData companyAppointmentData = new CompanyAppointmentData("1", officerData, "active");
             boolean result = RoleHelper.isSecretary(companyAppointmentData);
             assertTrue(result);
         }
@@ -38,7 +38,7 @@ public class RoleHelperTest {
     void testIsLlpMemberTrue() {
         for(String role: LlpRoles.stream().map(LlpRoles::getRole).collect(Collectors.toList())){
             OfficerData officerData = OfficerData.builder().withOfficerRole(role).build();
-            CompanyAppointmentData companyAppointmentData = new CompanyAppointmentData("1", officerData);
+            CompanyAppointmentData companyAppointmentData = new CompanyAppointmentData("1", officerData, "active");
             boolean result = RoleHelper.isLlpMember(companyAppointmentData);
             assertTrue(result);
         }
@@ -47,7 +47,7 @@ public class RoleHelperTest {
     @Test
     void testIsDirectorFalse() {
         OfficerData officerData = OfficerData.builder().withOfficerRole("not director").build();
-        CompanyAppointmentData companyAppointmentData = new CompanyAppointmentData("1", officerData);
+        CompanyAppointmentData companyAppointmentData = new CompanyAppointmentData("1", officerData, "active");
         boolean result = RoleHelper.isDirector(companyAppointmentData);
         assertFalse(result);
     }
@@ -55,7 +55,7 @@ public class RoleHelperTest {
     @Test
     void testIsSecretaryFalse() {
         OfficerData officerData = OfficerData.builder().withOfficerRole("not secretary").build();
-        CompanyAppointmentData companyAppointmentData = new CompanyAppointmentData("1", officerData);
+        CompanyAppointmentData companyAppointmentData = new CompanyAppointmentData("1", officerData, "active");
         boolean result = RoleHelper.isSecretary(companyAppointmentData);
         assertFalse(result);
     }
@@ -63,7 +63,7 @@ public class RoleHelperTest {
     @Test
     void testIsLlpMemberFalse() {
         OfficerData officerData = OfficerData.builder().withOfficerRole("not llp member").build();
-        CompanyAppointmentData companyAppointmentData = new CompanyAppointmentData("1", officerData);
+        CompanyAppointmentData companyAppointmentData = new CompanyAppointmentData("1", officerData, "active");
         boolean result = RoleHelper.isLlpMember(companyAppointmentData);
         assertFalse(result);
     }
@@ -72,7 +72,7 @@ public class RoleHelperTest {
     void testIsRegisterTypeDirectorTrue() {
         for(String role: DirectorRoles.stream().map(DirectorRoles::getRole).collect(Collectors.toList())){
             OfficerData officerData = OfficerData.builder().withOfficerRole(role).build();
-            CompanyAppointmentData companyAppointmentData = new CompanyAppointmentData("1", officerData);
+            CompanyAppointmentData companyAppointmentData = new CompanyAppointmentData("1", officerData, "active");
             boolean result = RoleHelper.isRegisterType(companyAppointmentData, "directors");
             assertTrue(result);
         }
@@ -82,7 +82,7 @@ public class RoleHelperTest {
     void testIsRegisterTypeSecretariesTrue() {
         for(String role: SecretarialRoles.stream().map(SecretarialRoles::getRole).collect(Collectors.toList())){
             OfficerData officerData = OfficerData.builder().withOfficerRole(role).build();
-            CompanyAppointmentData companyAppointmentData = new CompanyAppointmentData("1", officerData);
+            CompanyAppointmentData companyAppointmentData = new CompanyAppointmentData("1", officerData, "active");
             boolean result = RoleHelper.isRegisterType(companyAppointmentData, "secretaries");
             assertTrue(result);
         }
@@ -92,7 +92,7 @@ public class RoleHelperTest {
     void testIsRegisterTypeLlpMemberTrue() {
         for(String role: LlpRoles.stream().map(LlpRoles::getRole).collect(Collectors.toList())){
             OfficerData officerData = OfficerData.builder().withOfficerRole(role).build();
-            CompanyAppointmentData companyAppointmentData = new CompanyAppointmentData("1", officerData);
+            CompanyAppointmentData companyAppointmentData = new CompanyAppointmentData("1", officerData, "active");
             boolean result = RoleHelper.isRegisterType(companyAppointmentData, "llp_members");
             assertTrue(result);
         }
@@ -101,7 +101,7 @@ public class RoleHelperTest {
     @Test
     void testIsRegisterTypeInvalidReturnsFalse() {
         OfficerData officerData = OfficerData.builder().withOfficerRole("director").build();
-        CompanyAppointmentData companyAppointmentData = new CompanyAppointmentData("1", officerData);
+        CompanyAppointmentData companyAppointmentData = new CompanyAppointmentData("1", officerData, "active");
         boolean result = RoleHelper.isRegisterType(companyAppointmentData, "invalid");
         assertFalse(result);
     }
