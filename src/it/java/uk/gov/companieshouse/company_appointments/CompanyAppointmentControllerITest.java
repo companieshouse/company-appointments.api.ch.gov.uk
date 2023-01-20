@@ -48,6 +48,7 @@ public class CompanyAppointmentControllerITest {
         mongoTemplate.createCollection("appointments");
         mongoTemplate.insert(Document.parse(IOUtils.resourceToString("/appointment-data.json", StandardCharsets.UTF_8)), "appointments");
         mongoTemplate.insert(Document.parse(IOUtils.resourceToString("/appointment-data2.json", StandardCharsets.UTF_8)), "appointments");
+        System.setProperty("company-metrics-api.endpoint", "localhost");
     }
 
     @Test

@@ -54,6 +54,7 @@ public class CompanyAppointmentFullRecordControllerITest {
         mongoTemplate.insert(Document.parse(
                 IOUtils.resourceToString("/delta-appointment-data.json", StandardCharsets.UTF_8)),
                 "delta_appointments");
+        System.setProperty("company-metrics-api.endpoint", "localhost");
     }
 
     @Test
