@@ -62,6 +62,15 @@ public class CompanyAppointmentFullRecordView {
     @JsonProperty("name")
     private String name;
 
+    @JsonProperty("forename")
+    private String forename;
+
+    @JsonProperty("surname")
+    private String surname;
+
+    @JsonProperty("other_forenames")
+    private String otherForenames;
+
     @JsonProperty("nationality")
     private String nationality;
 
@@ -76,6 +85,9 @@ public class CompanyAppointmentFullRecordView {
 
     @JsonProperty("person_number")
     private String personNumber;
+
+    @JsonProperty("is_pre_1992_appointment")
+    private Boolean isPre1992Appointment;
 
     public AddressAPI getServiceAddress() {
         return serviceAddress;
@@ -121,6 +133,18 @@ public class CompanyAppointmentFullRecordView {
         return name;
     }
 
+    public String getForename() {
+        return forename;
+    }
+
+    public String getSurname() {
+        return surname;
+    }
+
+    public String getOtherForenames() {
+        return otherForenames;
+    }
+
     public String getNationality() {
         return nationality;
     }
@@ -141,6 +165,10 @@ public class CompanyAppointmentFullRecordView {
         return personNumber;
     }
 
+    public Boolean getIsPre1992Appointment() {
+        return isPre1992Appointment;
+    }
+
     public static class Builder {
 
         public static final ZoneId UTC_ZONE = ZoneId.of("UTC");
@@ -156,21 +184,25 @@ public class CompanyAppointmentFullRecordView {
             Builder builder = new Builder();
 
             return builder.withServiceAddress(data.getServiceAddress())
-                .withUsualResidentialAddress(sensitiveData.getUsualResidentialAddress())
-                .withAppointedOn(data.getAppointedOn())
-                .withAppointedBefore(data.getAppointedBefore())
-                .withCountryOfResidence(data.getCountryOfResidence())
-                .withDateOfBirth(builder.mapDateOfBirth(sensitiveData.getDateOfBirth()))
-                .withFormerNames(data.getFormerNameData())
-                .withIdentification(data.getIdentificationData())
-                .withLinks(data.getLinksData())
-                .withName(builder.individualOfficerName(data))
-                .withNationality(data.getNationality())
-                .withOccupation(data.getOccupation())
-                .withOfficerRole(data.getOfficerRole())
-                .withResignedOn(data.getResignedOn())
-                .withEtag(data.getEtag())
-                .withPersonNumber(data.getPersonNumber());
+                    .withUsualResidentialAddress(sensitiveData.getUsualResidentialAddress())
+                    .withAppointedOn(data.getAppointedOn())
+                    .withAppointedBefore(data.getAppointedBefore())
+                    .withCountryOfResidence(data.getCountryOfResidence())
+                    .withDateOfBirth(builder.mapDateOfBirth(sensitiveData.getDateOfBirth()))
+                    .withFormerNames(data.getFormerNameData())
+                    .withIdentification(data.getIdentificationData())
+                    .withLinks(data.getLinksData())
+                    .withName(builder.individualOfficerName(data))
+                    .withForename(data.getForename())
+                    .withSurname(data.getSurname())
+                    .withOtherForenames(data.getOtherForenames())
+                    .withNationality(data.getNationality())
+                    .withOccupation(data.getOccupation())
+                    .withOfficerRole(data.getOfficerRole())
+                    .withResignedOn(data.getResignedOn())
+                    .withEtag(data.getEtag())
+                    .withPersonNumber(data.getPersonNumber())
+                    .withIsPre1992Appointment(data.isPre1992Appointment());
         }
 
         private static void appendSelfLinkFullRecord(CompanyAppointmentFullRecordView view) {
@@ -258,6 +290,27 @@ public class CompanyAppointmentFullRecordView {
             return this;
         }
 
+        public Builder withForename(String forename) {
+
+            buildSteps.add(view -> view.forename = forename);
+
+            return this;
+        }
+
+        public Builder withSurname(String surname) {
+
+            buildSteps.add(view -> view.surname = surname);
+
+            return this;
+        }
+
+        public Builder withOtherForenames(String otherForenames) {
+
+            buildSteps.add(view -> view.otherForenames = otherForenames);
+
+            return this;
+        }
+
         public Builder withNationality(String nationality) {
 
             buildSteps.add(view -> view.nationality = nationality);
@@ -296,6 +349,13 @@ public class CompanyAppointmentFullRecordView {
         public Builder withPersonNumber(String personNumber) {
 
             buildSteps.add(view -> view.personNumber = personNumber);
+
+            return this;
+        }
+
+        public Builder withIsPre1992Appointment(Boolean isPre1992Appointment) {
+
+            buildSteps.add(view -> view.isPre1992Appointment = isPre1992Appointment);
 
             return this;
         }

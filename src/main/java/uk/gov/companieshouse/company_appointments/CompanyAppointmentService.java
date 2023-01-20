@@ -71,13 +71,21 @@ public class CompanyAppointmentService {
         }
 
         List<CompanyAppointmentView> companyAppointmentViews = allAppointmentData.stream().map(companyAppointmentMapper::map).collect(Collectors.toList());
-        int activeCount = (int) companyAppointmentViews.stream().filter(officer -> officer.getResignedOn() == null).count();
+        int count = (int) companyAppointmentViews.stream().filter(officer -> officer.getResignedOn() == null).count();
+        int activeCount = 0;
+        int inactiveCount = 0;
+        String appointmentStatus = allAppointmentData.get(0).getCompanyStatus();
+        if (appointmentStatus.equals("removed") || appointmentStatus.equals("dissolved") || appointmentStatus.equals("converted-closed")){
+            inactiveCount = count;
+        } else {
+            activeCount = count;
+        }
 
         int resignedCount = (int) companyAppointmentViews.stream().filter(officer -> officer.getResignedOn() != null && officer.getResignedOn().isBefore(LocalDate.now().atStartOfDay())).count();
 
         companyAppointmentViews = addPagingAndStartIndex(companyAppointmentViews, startIndex, itemsPerPage);
 
-        return new AllCompanyAppointmentsView(companyAppointmentViews.size(), companyAppointmentViews, activeCount, 0, resignedCount);
+        return new AllCompanyAppointmentsView(companyAppointmentViews.size(), companyAppointmentViews, activeCount, inactiveCount, resignedCount);
     }
 
     private List<CompanyAppointmentView> addPagingAndStartIndex(List<CompanyAppointmentView> companyAppointmentViews, Integer startIndex, Integer itemsPerPage) throws NotFoundException {
