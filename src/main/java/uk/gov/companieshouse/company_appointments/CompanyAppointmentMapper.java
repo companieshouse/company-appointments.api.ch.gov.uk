@@ -27,7 +27,7 @@ public class CompanyAppointmentMapper {
 
     public CompanyAppointmentView map(CompanyAppointmentData companyAppointmentData) {
         LOGGER.debug("Mapping data for appointment: " + companyAppointmentData.getId());
-        boolean isSecretary = SecretarialRoles.stream().anyMatch(s -> s.getRole().equals(companyAppointmentData.getData().getOfficerRole()));
+        boolean isSecretary = RoleHelper.isSecretary(companyAppointmentData);
 
         CompanyAppointmentView result = CompanyAppointmentView.builder()
                 .withAppointedOn(companyAppointmentData.getData().getAppointedOn())

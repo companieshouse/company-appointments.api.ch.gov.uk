@@ -23,12 +23,15 @@ public class CompanyAppointmentService {
     private CompanyAppointmentMapper companyAppointmentMapper;
     private SortMapper sortMapper;
 
+    private CompanyRegisterService companyRegisterService;
+
     @Autowired
     public CompanyAppointmentService(CompanyAppointmentRepository companyAppointmentRepository,
-            CompanyAppointmentMapper companyAppointmentMapper, SortMapper sortMapper) {
+            CompanyAppointmentMapper companyAppointmentMapper, SortMapper sortMapper, CompanyRegisterService companyRegisterService) {
         this.companyAppointmentRepository = companyAppointmentRepository;
         this.companyAppointmentMapper = companyAppointmentMapper;
         this.sortMapper = sortMapper;
+        this.companyRegisterService = companyRegisterService;
     }
 
     public CompanyAppointmentView fetchAppointment(String companyNumber, String appointmentID) throws NotFoundException {
@@ -38,16 +41,29 @@ public class CompanyAppointmentService {
         return companyAppointmentMapper.map(appointmentData.orElseThrow(() -> new NotFoundException(String.format("Appointment [%s] for company [%s] not found", appointmentID, companyNumber))));
     }
 
-    public AllCompanyAppointmentsView fetchAppointmentsForCompany(String companyNumber, String filter, String orderBy, Integer startIndex, Integer itemsPerPage) throws NotFoundException, BadRequestException {
+    public AllCompanyAppointmentsView fetchAppointmentsForCompany(String companyNumber, String filter, String orderBy, Integer startIndex, Integer itemsPerPage,
+            Boolean registerView, String registerType) throws NotFoundException, BadRequestException, ServiceUnavailableException {
         LOGGER.debug(String.format("Fetching appointments for company [%s] with order by [%s]", companyNumber, orderBy));
+
+        if(registerView == null) {
+            registerView = false;
+        }
+        if (registerView && !companyRegisterService.isRegisterHeldInCompaniesHouse(registerType, companyNumber)) {
+            throw new NotFoundException("Register not held at Companies House");
+        }
+
         List<CompanyAppointmentData> allAppointmentData;
 
         Sort sort = sortMapper.getSort(orderBy);
                 
-        if (filter != null && filter.equals("active")){
+        if ((filter != null && filter.equals("active")) || registerView){
             allAppointmentData = companyAppointmentRepository.readAllByCompanyNumberForNotResigned(companyNumber, sort);
         } else {
             allAppointmentData = companyAppointmentRepository.readAllByCompanyNumber(companyNumber, sort);
+        }
+
+        if(registerView) {
+            allAppointmentData = allAppointmentData.stream().filter(d -> RoleHelper.isRegisterType(d, registerType)).collect(Collectors.toList());
         }
 
         if (allAppointmentData.isEmpty()) {
