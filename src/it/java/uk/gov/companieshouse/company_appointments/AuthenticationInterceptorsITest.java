@@ -19,6 +19,7 @@ import uk.gov.companieshouse.api.model.delta.officers.SensitiveOfficerAPI;
 import uk.gov.companieshouse.company_appointments.config.LoggingConfig;
 import uk.gov.companieshouse.company_appointments.interceptor.AuthenticationHelperImpl;
 import uk.gov.companieshouse.company_appointments.interceptor.AuthenticationInterceptor;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaAppointmentApi;
 import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentFullRecordView;
 import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentView;
 import uk.gov.companieshouse.logging.Logger;
@@ -54,7 +55,7 @@ class AuthenticationInterceptorsITest {
         companyAppointmentView = CompanyAppointmentView.builder().withName(NAME)
                 .build();
         companyAppointmentFullRecordView =
-                CompanyAppointmentFullRecordView.Builder.view(new OfficerAPI(), new SensitiveOfficerAPI()).withName(NAME)
+                CompanyAppointmentFullRecordView.Builder.view(new DeltaAppointmentApi()).withName(NAME)
                         .build();
     }
 

@@ -5,19 +5,21 @@ import java.util.Optional;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
-import uk.gov.companieshouse.api.model.delta.officers.AppointmentAPI;
+import uk.gov.companieshouse.api.appointment.FullRecordCompanyOfficerApi;
 import uk.gov.companieshouse.company_appointments.model.data.AppointmentApiEntity;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaAppointmentApi;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaAppointmentApiEntity;
 
 @Repository
-public interface CompanyAppointmentFullRecordRepository extends MongoRepository<AppointmentApiEntity, String> {
+public interface CompanyAppointmentFullRecordRepository extends MongoRepository<DeltaAppointmentApi, String> {
 
-    default AppointmentAPI insertOrUpdate(AppointmentAPI appointmentAPI) {
-        return save(new AppointmentApiEntity(appointmentAPI));
+    default DeltaAppointmentApi insertOrUpdate(DeltaAppointmentApi api) {
+        return save(new DeltaAppointmentApiEntity(api));
     }
 
     @Query("{'company_number' : '?0', '_id' : '?1'}")
-    Optional<AppointmentApiEntity> readByCompanyNumberAndID(String companyNumber, String appointmentId);
+    Optional<DeltaAppointmentApiEntity> readByCompanyNumberAndID(String companyNumber, String appointmentId);
 
     @Query(value="{'company_number' : '?0', '_id' : '?1'}", delete = true)
-    Optional<AppointmentApiEntity> deleteByCompanyNumberAndID(String companyNumber, String appointmentId);
+    Optional<DeltaAppointmentApiEntity> deleteByCompanyNumberAndID(String companyNumber, String appointmentId);
 }

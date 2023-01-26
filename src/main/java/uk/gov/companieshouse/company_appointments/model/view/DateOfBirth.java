@@ -21,6 +21,8 @@ public class DateOfBirth {
         this.year = year;
     }
 
+    public DateOfBirth() {}
+
     public Integer getDay() {
         return day;
     }

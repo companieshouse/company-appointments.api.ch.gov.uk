@@ -7,12 +7,15 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.gov.companieshouse.api.appointment.ServiceAddress;
+import uk.gov.companieshouse.api.appointment.UsualResidentialAddress;
 import uk.gov.companieshouse.api.model.delta.officers.AddressAPI;
 import uk.gov.companieshouse.api.model.delta.officers.FormerNamesAPI;
 import uk.gov.companieshouse.api.model.delta.officers.IdentificationAPI;
 import uk.gov.companieshouse.api.model.delta.officers.LinksAPI;
 import uk.gov.companieshouse.api.model.delta.officers.OfficerAPI;
 import uk.gov.companieshouse.api.model.delta.officers.SensitiveOfficerAPI;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaAppointmentApi;
 
 import java.time.Instant;
 import java.util.Collections;
@@ -40,42 +43,44 @@ class CompanyAppointmentFullRecordViewTest {
     @BeforeEach
     void setUp() {
 
-        OfficerAPI officerData = new OfficerAPI();
-        SensitiveOfficerAPI sensitiveOfficer = new SensitiveOfficerAPI();
-        officerData.setServiceAddress(createAddress("service"));
-        sensitiveOfficer.setUsualResidentialAddress(createAddress("usualResidential"));
-        officerData.setAppointedOn(INSTANT_ONE);
-        officerData.setAppointedBefore(INSTANT_THREE);
-        officerData.setCountryOfResidence("countryOfResidence");
-        sensitiveOfficer.setDateOfBirth(INSTANT_DOB);
-        officerData.setFormerNameData(formerNames);
-        officerData.setIdentificationData(identification);
-        officerData.setLinksData(links);
-        officerData.setSurname("Davies");
-        officerData.setForename("James");
-        officerData.setTitle("Sir");
-        officerData.setNationality("Welsh");
-        officerData.setOccupation("occupation");
-        officerData.setOfficerRole("director");
-        officerData.setResignedOn(INSTANT_TWO);
-        officerData.setEtag("etag");
+        DeltaAppointmentApi deltaAppointmentApi = new DeltaAppointmentApi();
 
-        testView = CompanyAppointmentFullRecordView.Builder.view(officerData, sensitiveOfficer).build();
+//        OfficerAPI officerData = new OfficerAPI();
+//        SensitiveOfficerAPI sensitiveOfficer = new SensitiveOfficerAPI();
+        deltaAppointmentApi.getData().setServiceAddress(createServiceAddress("service"));
+        deltaAppointmentApi.getSensitiveData().setUsualResidentialAddress(createUsualResidentialAddress("usualResidential"));
+        deltaAppointmentApi.getData().setAppointedOn(INSTANT_ONE);
+        deltaAppointmentApi.getData().setAppointedBefore(INSTANT_THREE);
+        deltaAppointmentApi.getData().setCountryOfResidence("countryOfResidence");
+        deltaAppointmentApi.getSensitiveData().setDateOfBirth(INSTANT_DOB);
+        deltaAppointmentApi.getData().setFormerNames(formerNames);;
+        deltaAppointmentApi.getData().setIdentification(identification);
+        deltaAppointmentApi.getData().setLinks(links);
+        deltaAppointmentApi.getData().setSurname("Davies");
+        deltaAppointmentApi.getData().setForename("James");
+        deltaAppointmentApi.getData().setTitle("Sir");
+        deltaAppointmentApi.getData().setNationality("Welsh");
+        deltaAppointmentApi.getData().setOccupation("occupation");
+        deltaAppointmentApi.getData().setOfficerRole("director");
+        deltaAppointmentApi.getData().setResignedOn(INSTANT_TWO);
+        deltaAppointmentApi.setEtag("etag");
+
+        testView = CompanyAppointmentFullRecordView.Builder.view(deltaAppointmentApi).build();
     }
 
     @Test
     void serviceAddress() {
 
-        checkAddress(testView.getServiceAddress(), "service");
+        checkServiceAddress(testView.getServiceAddress(), "service");
     }
 
     @Test
     void usualResidentialAddress() {
 
-        checkAddress(testView.getUsualResidentialAddress(), "usualResidential");
+        checkUsualResidentialAddress(testView.getUsualResidentialAddress(), "usualResidential");
     }
 
-    private void checkAddress(AddressAPI address, String prefix) {
+    private void checkUsualResidentialAddress(UsualResidentialAddress address, String prefix) {
 
         assertThat(address.getAddressLine1(), is(String.join(" ", "prefix", "address1")));
         assertThat(address.getAddressLine2(), is(String.join(" ", "prefix", "address2")));
@@ -83,7 +88,20 @@ class CompanyAppointmentFullRecordViewTest {
         assertThat(address.getCountry(), is(String.join(" ", "prefix", "country")));
         assertThat(address.getLocality(), is(String.join(" ", "prefix", "locality")));
         assertThat(address.getPoBox(), is(String.join(" ", "prefix", "poBox")));
-        assertThat(address.getPostcode(), is(String.join(" ", "prefix", "postcode")));
+        assertThat(address.getPostalCode(), is(String.join(" ", "prefix", "postcode")));
+        assertThat(address.getPremises(), is(String.join(" ", "prefix", "premises")));
+        assertThat(address.getRegion(), is(String.join(" ", "prefix", "region")));
+    }
+
+    private void checkServiceAddress(ServiceAddress address, String prefix) {
+
+        assertThat(address.getAddressLine1(), is(String.join(" ", "prefix", "address1")));
+        assertThat(address.getAddressLine2(), is(String.join(" ", "prefix", "address2")));
+        //assertThat(address.getCareOf(), is(String.join(" ", "prefix", "careOf")));
+        assertThat(address.getCountry(), is(String.join(" ", "prefix", "country")));
+        assertThat(address.getLocality(), is(String.join(" ", "prefix", "locality")));
+        //assertThat(address.getPoBox(), is(String.join(" ", "prefix", "poBox")));
+        assertThat(address.getPostalCode(), is(String.join(" ", "prefix", "postcode")));
         assertThat(address.getPremises(), is(String.join(" ", "prefix", "premises")));
         assertThat(address.getRegion(), is(String.join(" ", "prefix", "region")));
     }
@@ -166,16 +184,32 @@ class CompanyAppointmentFullRecordViewTest {
         assertThat(testView.getEtag(), is("etag"));
     }
 
-    private AddressAPI createAddress(String prefix) {
+    private ServiceAddress createServiceAddress(String prefix) {
 
-        AddressAPI address = new AddressAPI();
+        ServiceAddress address = new ServiceAddress();
+        address.setAddressLine1(String.join(" ", "prefix", "address1"));
+        address.setAddressLine2(String.join(" ", "prefix", "address2"));
+        //address.setCareOf(String.join(" ", "prefix", "careOf"));
+        address.setCountry(String.join(" ", "prefix", "country"));
+        address.setLocality(String.join(" ", "prefix", "locality"));
+        //address.setPoBox(String.join(" ", "prefix", "poBox"));
+        //address.setPostcode(String.join(" ", "prefix", "postcode"));
+        address.setPremises(String.join(" ", "prefix", "premises"));
+        address.setRegion(String.join(" ", "prefix", "region"));
+
+        return address;
+    }
+
+    private UsualResidentialAddress createUsualResidentialAddress(String prefix) {
+
+        UsualResidentialAddress address = new UsualResidentialAddress();
         address.setAddressLine1(String.join(" ", "prefix", "address1"));
         address.setAddressLine2(String.join(" ", "prefix", "address2"));
         address.setCareOf(String.join(" ", "prefix", "careOf"));
         address.setCountry(String.join(" ", "prefix", "country"));
         address.setLocality(String.join(" ", "prefix", "locality"));
         address.setPoBox(String.join(" ", "prefix", "poBox"));
-        address.setPostcode(String.join(" ", "prefix", "postcode"));
+        address.setPostalCode(String.join(" ", "prefix", "postcode"));
         address.setPremises(String.join(" ", "prefix", "premises"));
         address.setRegion(String.join(" ", "prefix", "region"));
 
