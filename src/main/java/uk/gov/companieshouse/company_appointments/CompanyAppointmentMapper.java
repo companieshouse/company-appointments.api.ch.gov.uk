@@ -120,7 +120,7 @@ public class CompanyAppointmentMapper {
     }
 
     private DateOfBirth mapDateOfBirth(CompanyAppointmentData companyAppointmentData) {
-        if (registerView == true) {
+        if (registerView) {
             return Optional.ofNullable(companyAppointmentData.getData().getDateOfBirth())
                     .map(dateOfBirth -> new DateOfBirth(
                            dateOfBirth.getDayOfMonth(),
