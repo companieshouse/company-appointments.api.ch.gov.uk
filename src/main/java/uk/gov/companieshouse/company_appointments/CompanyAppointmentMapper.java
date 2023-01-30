@@ -127,7 +127,7 @@ public class CompanyAppointmentMapper {
                            dateOfBirth.getMonthValue(),
                            dateOfBirth.getYear()))
                     .orElse(null);
-        }else{
+        } else {
             return Optional.ofNullable(companyAppointmentData.getData().getDateOfBirth())
                     .map(dateOfBirth -> new DateOfBirth(
                             dateOfBirth.getMonthValue(),
