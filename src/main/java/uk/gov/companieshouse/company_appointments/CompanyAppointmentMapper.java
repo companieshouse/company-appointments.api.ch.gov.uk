@@ -25,6 +25,8 @@ public class CompanyAppointmentMapper {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CompanyAppointmentsApplication.APPLICATION_NAMESPACE);
 
+    private boolean registerView = false;
+
     public CompanyAppointmentView map(CompanyAppointmentData companyAppointmentData) {
         LOGGER.debug("Mapping data for appointment: " + companyAppointmentData.getId());
         boolean isSecretary = RoleHelper.isSecretary(companyAppointmentData);
@@ -118,11 +120,20 @@ public class CompanyAppointmentMapper {
     }
 
     private DateOfBirth mapDateOfBirth(CompanyAppointmentData companyAppointmentData) {
-        return Optional.ofNullable(companyAppointmentData.getData().getDateOfBirth())
-                .map(dateOfBirth -> new DateOfBirth(
-                        dateOfBirth.getMonthValue(),
-                        dateOfBirth.getYear()))
-                .orElse(null);
+        if (registerView) {
+            return Optional.ofNullable(companyAppointmentData.getData().getDateOfBirth())
+                    .map(dateOfBirth -> new DateOfBirth(
+                           dateOfBirth.getDayOfMonth(),
+                           dateOfBirth.getMonthValue(),
+                           dateOfBirth.getYear()))
+                    .orElse(null);
+        } else {
+            return Optional.ofNullable(companyAppointmentData.getData().getDateOfBirth())
+                    .map(dateOfBirth -> new DateOfBirth(
+                            dateOfBirth.getMonthValue(),
+                            dateOfBirth.getYear()))
+                    .orElse(null);
+        }
     }
 
     private String mapOfficerName(CompanyAppointmentData companyAppointmentData) {
@@ -141,5 +152,9 @@ public class CompanyAppointmentMapper {
             result = String.join(", ", result, companyAppointmentData.getData().getTitle());
         }
         return result;
+    }
+
+    public void setRegisterView(boolean registerView) {
+        this.registerView = registerView;
     }
 }

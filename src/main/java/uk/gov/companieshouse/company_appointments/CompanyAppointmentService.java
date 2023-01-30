@@ -61,7 +61,7 @@ public class CompanyAppointmentService {
         } else {
             allAppointmentData = companyAppointmentRepository.readAllByCompanyNumber(companyNumber, sort);
         }
-
+        companyAppointmentMapper.setRegisterView(registerView);
         if(registerView) {
             allAppointmentData = allAppointmentData.stream().filter(d -> RoleHelper.isRegisterType(d, registerType)).collect(Collectors.toList());
         }
