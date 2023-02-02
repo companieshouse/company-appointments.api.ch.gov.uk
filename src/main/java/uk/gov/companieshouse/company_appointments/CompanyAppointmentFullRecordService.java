@@ -47,10 +47,15 @@ public class CompanyAppointmentFullRecordService {
                         String.format("Appointment [%s] for company [%s] not found", appointmentID, companyNumber)));
     }
 
-    public void insertAppointmentDelta(final FullRecordCompanyOfficerApi appointmentApi) {
+    public void insertAppointmentDelta(final FullRecordCompanyOfficerApi appointmentApi) throws ServiceUnavailableException {
 
         DeltaAppointmentTransformer deltaAppointmentTransformer = new DeltaAppointmentTransformer();
-        DeltaAppointmentApi deltaAppointmentApi = deltaAppointmentTransformer.transform(appointmentApi);
+        DeltaAppointmentApi deltaAppointmentApi;
+        try {
+            deltaAppointmentApi = deltaAppointmentTransformer.transform(appointmentApi);
+        } catch(RuntimeException e) {
+            throw new ServiceUnavailableException(String.format("Failed to transform payload: %s", e.getMessage()));
+        }
 
         InstantAPI instant = new InstantAPI(Instant.now(clock));
         Data officer = deltaAppointmentApi.getData();

@@ -39,9 +39,13 @@ public class CompanyAppointmentFullRecordController {
 
     @PutMapping(consumes = "application/json")
     public ResponseEntity<Void> submitOfficerData(@RequestBody final FullRecordCompanyOfficerApi companyAppointmentData) {
-        companyAppointmentService.insertAppointmentDelta(companyAppointmentData);
-
-        return ResponseEntity.ok().build();
+        try {
+            companyAppointmentService.insertAppointmentDelta(companyAppointmentData);
+            return ResponseEntity.ok().build();
+        } catch (ServiceUnavailableException e) {
+            LOGGER.info(e.getMessage());
+            return ResponseEntity.internalServerError().build();
+        }
     }
 
     @DeleteMapping(path = "/delete")

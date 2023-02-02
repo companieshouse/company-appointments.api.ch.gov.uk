@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.company_appointments.transformer;
 
+import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -46,6 +47,12 @@ class DeltaAppointmentTransformerTest {
         assertThat(result.getUpdatedAt(), is(expectedDeltaApi.getUpdatedAt()));
         assertThat(result.getUpdatedBy(), is(expectedDeltaApi.getUpdatedBy()));
     }
+
+    @Test
+    void testApiThrowsExceptionWhenTransformFails() {
+        Assert.assertThrows(RuntimeException.class, () -> deltaAppointmentTransformer.transform(new FullRecordCompanyOfficerApi()));
+    }
+
 
     private FullRecordCompanyOfficerApi buildFullRecordOfficer() {
         FullRecordCompanyOfficerApi output  = new FullRecordCompanyOfficerApi();

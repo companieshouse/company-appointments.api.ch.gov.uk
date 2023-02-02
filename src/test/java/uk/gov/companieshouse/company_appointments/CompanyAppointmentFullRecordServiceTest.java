@@ -10,6 +10,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import org.junit.Assert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -119,7 +120,7 @@ class CompanyAppointmentFullRecordServiceTest {
     }
 
     @Test
-    void testPutAppointmentData() {
+    void testPutAppointmentData() throws ServiceUnavailableException {
         // given
         Data data = new Data();
         data.setOfficerRole(Data.OfficerRoleEnum.DIRECTOR);
@@ -145,7 +146,7 @@ class CompanyAppointmentFullRecordServiceTest {
             final String existingDeltaAt,
             final OffsetDateTime incomingDeltaAt,
             boolean deltaExists,
-            boolean shouldBeStale) {
+            boolean shouldBeStale) throws ServiceUnavailableException {
 
         // given
         fullRecordCompanyOfficerApi.getInternalData().setDeltaAt(incomingDeltaAt);
@@ -178,6 +179,12 @@ class CompanyAppointmentFullRecordServiceTest {
         companyAppointmentService.deleteOfficer(COMPANY_NUMBER, APPOINTMENT_ID);
 
         verify(companyAppointmentRepository).deleteByCompanyNumberAndID(COMPANY_NUMBER, APPOINTMENT_ID);
+    }
+
+    @Test
+    void testServiceThrows500WhenTransformFails() {
+        Assert.assertThrows(ServiceUnavailableException.class, () ->
+                companyAppointmentService.insertAppointmentDelta(new FullRecordCompanyOfficerApi()));
     }
 
     @Test

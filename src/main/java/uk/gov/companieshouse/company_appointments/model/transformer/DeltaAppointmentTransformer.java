@@ -12,7 +12,7 @@ public class DeltaAppointmentTransformer implements Transformative<FullRecordCom
         return new DeltaAppointmentApi();
     }
 
-    public DeltaAppointmentApi transform(FullRecordCompanyOfficerApi api, DeltaAppointmentApi entity) {
+    public DeltaAppointmentApi transform(FullRecordCompanyOfficerApi api, DeltaAppointmentApi entity) throws RuntimeException {
 
         entity.setData(api.getExternalData().getData());
         entity.setSensitiveData(api.getExternalData().getSensitiveData());
