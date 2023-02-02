@@ -176,6 +176,15 @@ public class CompanyAppointmentMapperTest {
         assertEquals(personalAppointmentViewWithContactDetails(), actual);
     }
 
+    @Test
+    void testCompanyAppointmentMapperWithRegisterViewTrue(){
+        //when
+        companyAppointmentMapper.setRegisterView(true);
+        CompanyAppointmentView actual = companyAppointmentMapper.map(companyAppointmentData(personalAppointmentDataWithFullDateOfBirth()));
+        //then
+        assertEquals(personalAppointmentViewWithFullDateOfBirth(), actual);
+    }
+
     private CompanyAppointmentData companyAppointmentData(OfficerData officerData) {
         return new CompanyAppointmentData("123", officerData, "active");
     }
@@ -386,6 +395,19 @@ public class CompanyAppointmentMapperTest {
                 .withContactDetails(ContactDetailsView.builder()
                         .withContactName("Name")
                         .build());
+    }
+
+
+    private CompanyAppointmentView personalAppointmentViewWithFullDateOfBirth() {
+        return expectedCompanyAppointment()
+                .withDateOfBirth(new DateOfBirthView(1, 1, 1980))
+                .build();
+    }
+
+    private OfficerData personalAppointmentDataWithFullDateOfBirth() {
+        return officerData()
+                .withDateOfBirth(LocalDateTime.of(1980,1, 1, 0, 12))
+                .build();
     }
 
     private CompanyAppointmentView personalAppointmentViewWithOtherForenames() {
