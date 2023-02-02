@@ -10,7 +10,7 @@ import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentD
 import uk.gov.companieshouse.company_appointments.model.data.OfficerLinksData;
 import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentView;
 import uk.gov.companieshouse.company_appointments.model.view.ContactDetailsView;
-import uk.gov.companieshouse.company_appointments.model.view.DateOfBirth;
+import uk.gov.companieshouse.company_appointments.model.view.DateOfBirthView;
 import uk.gov.companieshouse.company_appointments.model.view.FormerNamesView;
 import uk.gov.companieshouse.company_appointments.model.view.IdentificationView;
 import uk.gov.companieshouse.company_appointments.model.view.LinksView;
@@ -117,9 +117,9 @@ public class CompanyAppointmentMapper {
                 .orElse(null);
     }
 
-    private DateOfBirth mapDateOfBirth(CompanyAppointmentData companyAppointmentData) {
+    private DateOfBirthView mapDateOfBirth(CompanyAppointmentData companyAppointmentData) {
         return Optional.ofNullable(companyAppointmentData.getData().getDateOfBirth())
-                .map(dateOfBirth -> new DateOfBirth(
+                .map(dateOfBirth -> new DateOfBirthView(
                         dateOfBirth.getMonthValue(),
                         dateOfBirth.getYear()))
                 .orElse(null);

@@ -6,9 +6,9 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class DeltaAppointmentApiEntity extends DeltaAppointmentApi {
 
     public DeltaAppointmentApiEntity(final DeltaAppointmentApi api){
-        super(api.getId(), api.getEtag(), api.getData(), api.getSensitiveData(), api.getInternalData(), api.getInternalId(),
-                api.getAppointmentId(), api.getOfficerId(), api.getPreviousOfficerId(), api.getCompanyNumber(), api.getUpdatedAt(), api.getCreated(),
-                api.getDeltaAt(), api.getOfficerRoleSortOrder());
+        super(api.getId(), api.getEtag(), api.getData(), api.getSensitiveData(), api.getInternalId(),
+                api.getAppointmentId(), api.getOfficerId(), api.getPreviousOfficerId(), api.getCompanyNumber(), api.getUpdatedAt(),
+                api.getUpdatedBy(), api.getCreated(), api.getDeltaAt(), api.getOfficerRoleSortOrder());
     }
 
     public DeltaAppointmentApiEntity(){}

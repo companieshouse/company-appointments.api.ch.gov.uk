@@ -45,14 +45,14 @@ class AppointmentApiRepositoryTest {
         final DeltaAppointmentApi appointment = new DeltaAppointmentApi("id", "etag",
                 new Data(),
                 new SensitiveData(),
-                new InternalData(),
                 "internalId",
                 "appointmentId",
                 "officerId",
                 "previousOfficerId",
                 "companyNumber",
-                new InstantAPI(CREATED_AT),
                 new InstantAPI(UPDATED_AT),
+                "updateBy",
+                new InstantAPI(CREATED_AT),
                 "deltaAt",
                 22);
         final DeltaAppointmentApiEntity expected = new DeltaAppointmentApiEntity(appointment);

@@ -6,13 +6,7 @@ import org.springframework.stereotype.Service;
 import uk.gov.companieshouse.GenerateEtagUtil;
 import uk.gov.companieshouse.api.appointment.Data;
 import uk.gov.companieshouse.api.appointment.FullRecordCompanyOfficerApi;
-import uk.gov.companieshouse.api.model.delta.officers.AddressAPI;
-import uk.gov.companieshouse.api.model.delta.officers.FormerNamesAPI;
-import uk.gov.companieshouse.api.model.delta.officers.IdentificationAPI;
 import uk.gov.companieshouse.api.model.delta.officers.InstantAPI;
-import uk.gov.companieshouse.api.model.delta.officers.LinksAPI;
-import uk.gov.companieshouse.api.model.delta.officers.OfficerAPI;
-import uk.gov.companieshouse.api.model.delta.officers.OfficerLinksAPI;
 import uk.gov.companieshouse.company_appointments.model.data.AppointmentApiEntity;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaAppointmentApi;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaAppointmentApiEntity;
@@ -23,10 +17,7 @@ import uk.gov.companieshouse.logging.LoggerFactory;
 
 import java.time.Clock;
 import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneOffset;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -64,12 +55,8 @@ public class CompanyAppointmentFullRecordService {
         InstantAPI instant = new InstantAPI(Instant.now(clock));
         Data officer = deltaAppointmentApi.getData();
 
-        deltaAppointmentApi.setUpdatedAt(instant);
-
         if (officer != null) {
-            //can i set language level to 9 to use ofInstant?
-            deltaAppointmentApi.getInternalData().setUpdatedAt(LocalDate.ofInstant(instant.getAt(), ZoneOffset.UTC));
-            removeAdditionalProperties(officer);
+            deltaAppointmentApi.setUpdatedAt(instant);
             deltaAppointmentApi.setEtag(GenerateEtagUtil.generateEtag());
         }
 
@@ -84,7 +71,6 @@ public class CompanyAppointmentFullRecordService {
 
     public void deleteOfficer(String companyNumber, String appointmentId) throws NotFoundException {
         LOGGER.debug(String.format("Deleting appointment [%s] for company [%s]", appointmentId, companyNumber));
-
         Optional<DeltaAppointmentApiEntity> deleted = companyAppointmentRepository.deleteByCompanyNumberAndID(companyNumber, appointmentId);
 
         if (!deleted.isPresent()) {
@@ -94,7 +80,8 @@ public class CompanyAppointmentFullRecordService {
 
     private void saveAppointment(DeltaAppointmentApi appointmentApi, InstantAPI instant) {
         appointmentApi.setCreated(instant);
-        companyAppointmentRepository.insertOrUpdate(appointmentApi);
+        DeltaAppointmentApiEntity saveRecord = new DeltaAppointmentApiEntity(appointmentApi);
+        companyAppointmentRepository.insertOrUpdate(saveRecord);
     }
 
     private void updateAppointment(DeltaAppointmentApi appointmentApi, DeltaAppointmentApiEntity existingAppointment) {
@@ -107,7 +94,6 @@ public class CompanyAppointmentFullRecordService {
     }
 
     private boolean isDeltaStale(final String incomingDelta, final String existingDelta) {
-
         return StringUtils.compare(incomingDelta, existingDelta) <= 0;
     }
 
@@ -126,40 +112,6 @@ public class CompanyAppointmentFullRecordService {
         logInfo.put("existingDeltaAt", StringUtils.defaultString(existingDelta, "No existing delta"));
         final String context = appointmentAPI.getAppointmentId();
         LOGGER.errorContext(context, "Received stale delta", null, logInfo);
-    }
-
-    //shouldn't be used anymore
-    private static void removeAdditionalProperties(final Object object) {
-        if (object instanceof OfficerAPI) {
-            final OfficerAPI officer = (OfficerAPI) object;
-            officer.setAdditionalProperties(null);
-
-            removeAdditionalProperties(officer.getServiceAddress());
-            removeAdditionalProperties(officer.getFormerNameData());
-            removeAdditionalProperties(officer.getIdentificationData());
-            removeAdditionalProperties(officer.getLinksData());
-        }
-        else if (object instanceof AddressAPI) {
-            ((AddressAPI) object).setAdditionalProperties(null);
-        }
-        else if (object instanceof FormerNamesAPI) {
-            ((FormerNamesAPI) object).setAdditionalProperties(null);
-        }
-        else if (object instanceof IdentificationAPI) {
-            ((IdentificationAPI) object).setAdditionalProperties(null);
-        }
-        else if (object instanceof LinksAPI) {
-            final LinksAPI links = (LinksAPI) object;
-            links.setAdditionalProperties(null);
-            removeAdditionalProperties(links.getOfficerLinksData());
-        }
-        else if (object instanceof OfficerLinksAPI) {
-            ((OfficerLinksAPI) object).setAdditionalProperties(null);
-        }
-        else if (object instanceof List) {
-            List<?> l = (List<?>) object;
-            l.forEach(CompanyAppointmentFullRecordService::removeAdditionalProperties);
-        }
     }
 }
 

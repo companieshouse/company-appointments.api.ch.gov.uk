@@ -33,13 +33,13 @@ public interface Transformative<S, T> {
      */
     T factory();
 
-    default T transform(S source) throws NonRetryableErrorException {
+    default T transform(S source) throws RuntimeException {
         return transform(source, factory());
     }
 
-    T transform(S source, T output) throws NonRetryableErrorException;
+    T transform(S source, T output) throws RuntimeException;
 
-    default List<T> transform(Collection<S> sources) throws NonRetryableErrorException {
+    default List<T> transform(Collection<S> sources) throws RuntimeException {
         List<T> list = new ArrayList<>();
         for (S source : sources) {
             T transform = transform(source);

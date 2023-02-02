@@ -9,6 +9,9 @@ clean:
 	rm -rf ./build-*
 	rm -rf ./build.log-*
 
+.PHONY: test
+test: test-integration test-unit
+
 .PHONY: test-unit
 test-unit: clean
 	mvn test

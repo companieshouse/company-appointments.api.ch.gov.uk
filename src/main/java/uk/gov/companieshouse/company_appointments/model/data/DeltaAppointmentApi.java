@@ -23,9 +23,6 @@ public class DeltaAppointmentApi {
     @JsonProperty("sensitive_data")
     private SensitiveData sensitiveData;
 
-    @JsonProperty("internal_data")
-    private InternalData internalData;
-
     @JsonProperty("internal_id")
     private String internalId;
 
@@ -44,11 +41,15 @@ public class DeltaAppointmentApi {
     @JsonProperty("updated_at")
     private InstantAPI updatedAt;
 
+    @JsonProperty("updated_by")
+    private String updatedBy;
+
     @JsonProperty("created")
     private InstantAPI created;
 
     @JsonProperty("delta_at")
     private String deltaAt;
+
     @JsonProperty("officer_role_sort_order")
     private int officerRoleSortOrder;
 
@@ -57,20 +58,20 @@ public class DeltaAppointmentApi {
 
     public DeltaAppointmentApi(final FullRecordCompanyOfficerApi api){super();}
 
-    public DeltaAppointmentApi(String id, String etag, Data data, SensitiveData sensitiveData, InternalData internalData, String internalId,
+    public DeltaAppointmentApi(String id, String etag, Data data, SensitiveData sensitiveData, String internalId,
                                String appointmentId, String officerId, String previousOfficerId, String companyNumber,
-                               InstantAPI updatedAt, InstantAPI created, String deltaAt, int officerRoleSortOrder) {
+                               InstantAPI updatedAt, String updatedBy, InstantAPI created, String deltaAt, int officerRoleSortOrder) {
         this.id = id;
         this.etag = etag;
         this.data = data;
         this.sensitiveData = sensitiveData;
-        this.internalData = internalData;
         this.internalId = internalId;
         this.appointmentId = appointmentId;
         this.officerId = officerId;
         this.previousOfficerId = previousOfficerId;
         this.companyNumber = companyNumber;
         this.updatedAt = updatedAt;
+        this.updatedBy = updatedBy;
         this.created = created;
         this.deltaAt = deltaAt;
         this.officerRoleSortOrder = officerRoleSortOrder;
@@ -106,14 +107,6 @@ public class DeltaAppointmentApi {
 
     public void setSensitiveData(SensitiveData sensitiveData) {
         this.sensitiveData = sensitiveData;
-    }
-
-    public InternalData getInternalData(){
-        return internalData;
-    }
-
-    public void setInternalData(InternalData internalData) {
-        this.internalData = internalData;
     }
 
     public String getInternalId() {
@@ -188,6 +181,14 @@ public class DeltaAppointmentApi {
         this.officerRoleSortOrder = officerRoleSortOrder;
     }
 
+    public String getUpdatedBy() {
+        return updatedBy;
+    }
+
+    public void setUpdatedBy(String updatedBy) {
+        this.updatedBy = updatedBy;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -196,7 +197,6 @@ public class DeltaAppointmentApi {
         return Objects.equals(getId(), that.getId()) && Objects.equals(getEtag(), that.getEtag())
                 && Objects.equals(getData(), that.getData())
                 && Objects.equals(getSensitiveData(), that.getSensitiveData())
-                && Objects.equals(getInternalData(), that.getInternalData())
                 && Objects.equals(getInternalId(), that.getInternalId())
                 && Objects.equals(getAppointmentId(), that.getAppointmentId())
                 && Objects.equals(getOfficerId(), that.getOfficerId())
@@ -205,13 +205,34 @@ public class DeltaAppointmentApi {
                 && Objects.equals(getUpdatedAt(), that.getUpdatedAt())
                 && Objects.equals(getDeltaAt(), that.getDeltaAt())
                 && Objects.equals(getCreated(), that.getCreated())
+                && Objects.equals(getUpdatedBy(), that.getUpdatedBy())
                 && Objects.equals(getOfficerRoleSortOrder(), that.getOfficerRoleSortOrder());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getId(), getEtag(), getData(), getSensitiveData(), getInternalData(), getInternalId(), getAppointmentId(),
+        return Objects.hash(getId(), getEtag(), getData(), getSensitiveData(), getInternalId(), getAppointmentId(),
                 getOfficerId(), getPreviousOfficerId(), getCompanyNumber(),
                 getUpdatedAt(), getCreated(), getDeltaAt(), getOfficerRoleSortOrder());
+    }
+
+    @Override
+    public String toString() {
+        return "DeltaAppointmentApi{" +
+                "id='" + id + '\'' +
+                ", etag='" + etag + '\'' +
+                ", data=" + data +
+                ", sensitiveData=" + sensitiveData +
+                ", internalId='" + internalId + '\'' +
+                ", appointmentId='" + appointmentId + '\'' +
+                ", officerId='" + officerId + '\'' +
+                ", previousOfficerId='" + previousOfficerId + '\'' +
+                ", companyNumber='" + companyNumber + '\'' +
+                ", updatedAt=" + updatedAt +
+                ", updatedBy='" + updatedBy + '\'' +
+                ", created=" + created +
+                ", deltaAt='" + deltaAt + '\'' +
+                ", officerRoleSortOrder=" + officerRoleSortOrder +
+                '}';
     }
 }

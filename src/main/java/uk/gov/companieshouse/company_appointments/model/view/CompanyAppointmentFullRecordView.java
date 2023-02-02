@@ -3,16 +3,16 @@ package uk.gov.companieshouse.company_appointments.model.view;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import uk.gov.companieshouse.api.appointment.*;
-import uk.gov.companieshouse.api.disqualification.Item;
-import uk.gov.companieshouse.api.model.delta.officers.*;
+import uk.gov.companieshouse.api.appointment.Data;
+import uk.gov.companieshouse.api.appointment.FormerNames;
+import uk.gov.companieshouse.api.appointment.Identification;
+import uk.gov.companieshouse.api.appointment.ItemLinkTypes;
+import uk.gov.companieshouse.api.appointment.SensitiveData;
+import uk.gov.companieshouse.api.appointment.ServiceAddress;
+import uk.gov.companieshouse.api.appointment.UsualResidentialAddress;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaAppointmentApi;
-import uk.gov.companieshouse.company_appointments.model.transformer.DateOfBirthTransformer;
-
-import java.time.Instant;
+import java.time.LocalDate;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.time.temporal.ChronoField;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -34,21 +34,21 @@ public class CompanyAppointmentFullRecordView {
 
     @JsonProperty("appointed_on")
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "UTC")
-    private Instant appointedOn;
+    private LocalDate appointedOn;
 
     @JsonProperty("appointed_before")
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "UTC")
-    private Instant appointedBefore;
+    private LocalDate appointedBefore;
 
     @JsonProperty("resigned_on")
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "UTC")
-    private Instant resignedOn;
+    private LocalDate resignedOn;
 
     @JsonProperty("country_of_residence")
     private String countryOfResidence;
 
     @JsonProperty("date_of_birth")
-    private DateOfBirth dateOfBirth;
+    private DateOfBirthView dateOfBirth;
 
     @JsonProperty("former_names")
     private List<FormerNames> formerNames;
@@ -97,15 +97,15 @@ public class CompanyAppointmentFullRecordView {
         return usualResidentialAddress;
     }
 
-    public Instant getAppointedOn() {
+    public LocalDate getAppointedOn() {
         return appointedOn;
     }
 
-    public Instant getAppointedBefore() {
+    public LocalDate getAppointedBefore() {
         return appointedBefore;
     }
 
-    public Instant getResignedOn() {
+    public LocalDate getResignedOn() {
         return resignedOn;
     }
 
@@ -113,7 +113,7 @@ public class CompanyAppointmentFullRecordView {
         return countryOfResidence;
     }
 
-    public DateOfBirth getDateOfBirth() {
+    public DateOfBirthView getDateOfBirth() {
         return dateOfBirth;
     }
 
@@ -185,10 +185,10 @@ public class CompanyAppointmentFullRecordView {
 
             return builder.withServiceAddress(api.getData().getServiceAddress())
                     .withUsualResidentialAddress(api.getSensitiveData().getUsualResidentialAddress())
-                    .withAppointedOn(api.getData().getAppointedOn().atStartOfDay(ZoneOffset.UTC).toInstant())
-                    .withAppointedBefore(api.getData().getAppointedBefore().atStartOfDay(ZoneOffset.UTC).toInstant())
+                    .withAppointedOn(api.getData().getAppointedOn())
+                    .withAppointedBefore(api.getData().getAppointedBefore())
                     .withCountryOfResidence(api.getData().getCountryOfResidence())
-                    .withDateOfBirth(builder.mapDateOfBirth(api.getSensitiveData().getDateOfBirth()))
+                    .withDateOfBirth(builder.mapDateOfBirth(api.getSensitiveData()))
                     .withFormerNames(api.getData().getFormerNames())
                     .withIdentification(api.getData().getIdentification())
                     .withLinks(api.getData().getLinks())
@@ -199,7 +199,7 @@ public class CompanyAppointmentFullRecordView {
                     .withNationality(api.getData().getNationality())
                     .withOccupation(api.getData().getOccupation())
                     .withOfficerRole(api.getData().getOfficerRole())
-                    .withResignedOn(api.getData().getResignedOn().atStartOfDay(ZoneOffset.UTC).toInstant())
+                    .withResignedOn(api.getData().getResignedOn())
                     .withEtag(api.getEtag())
                     .withPersonNumber(api.getData().getPersonNumber())
                     .withIsPre1992Appointment(api.getData().getIsPre1992Appointment());
@@ -229,14 +229,14 @@ public class CompanyAppointmentFullRecordView {
             return this;
         }
 
-        public Builder withAppointedOn(Instant appointedOn) {
+        public Builder withAppointedOn(LocalDate appointedOn) {
 
             buildSteps.add(view -> view.appointedOn = appointedOn);
 
             return this;
         }
 
-        public Builder withAppointedBefore(Instant appointedBefore) {
+        public Builder withAppointedBefore(LocalDate appointedBefore) {
 
             buildSteps.add(view -> view.appointedBefore = appointedBefore);
 
@@ -250,7 +250,7 @@ public class CompanyAppointmentFullRecordView {
             return this;
         }
 
-        public Builder withDateOfBirth(DateOfBirth dateOfBirth) {
+        public Builder withDateOfBirth(DateOfBirthView dateOfBirth) {
 
             buildSteps.add(view -> view.dateOfBirth = dateOfBirth);
 
@@ -277,7 +277,7 @@ public class CompanyAppointmentFullRecordView {
                 links.get(0).getOfficer().setSelf(null);
             }
 
-            //buildSteps.add(view -> view.links = links);
+            buildSteps.add(view -> view.links = links.get(0));
             buildSteps.add(Builder::appendSelfLinkFullRecord);
 
             return this;
@@ -304,9 +304,9 @@ public class CompanyAppointmentFullRecordView {
             return this;
         }
 
-        public Builder withOtherForenames(List<String> otherForenames) {
+        public Builder withOtherForenames(String otherForenames) {
 
-            buildSteps.add(view -> view.otherForenames = otherForenames.get(0));
+            buildSteps.add(view -> view.otherForenames = otherForenames);
 
             return this;
         }
@@ -334,7 +334,7 @@ public class CompanyAppointmentFullRecordView {
             return this;
         }
 
-        public Builder withResignedOn(Instant resignedOn) {
+        public Builder withResignedOn(LocalDate resignedOn) {
 
             buildSteps.add(view -> view.resignedOn = resignedOn);
 
@@ -377,7 +377,7 @@ public class CompanyAppointmentFullRecordView {
 
             String result = api.getData().getSurname();
             if (api.getData().getForename() != null || api.getData().getOtherForenames() != null) {
-                result = String.join(", ", api.getData().getSurname(), Stream.of(api.getData().getForename(), api.getData().getOtherForenames().get(0))
+                result = String.join(", ", api.getData().getSurname(), Stream.of(api.getData().getForename(), api.getData().getOtherForenames())
                     .filter(Objects::nonNull)
                     .collect(Collectors.joining(" ")));
             }
@@ -388,15 +388,13 @@ public class CompanyAppointmentFullRecordView {
             return result;
         }
 
-        private DateOfBirth mapDateOfBirth(uk.gov.companieshouse.api.appointment.DateOfBirth dateOfBirth) {
-
-            DateOfBirth newDateOfBirth = new DateOfBirth();
-
-            newDateOfBirth.setDay(dateOfBirth.getDay());
-            newDateOfBirth.setMonth(dateOfBirth.getMonth());
-            newDateOfBirth.setYear(dateOfBirth.getYear());
-
-            return newDateOfBirth;
+        private DateOfBirthView mapDateOfBirth(SensitiveData sensitiveData) {
+            return Optional.ofNullable(sensitiveData.getDateOfBirth()).
+                    map(dob -> new DateOfBirthView(
+                            dob.getDay(),
+                            dob.getMonth(),
+                            dob.getYear()))
+                    .orElse(null);
         }
     }
 }

@@ -5,13 +5,11 @@ import java.util.Optional;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
-import uk.gov.companieshouse.api.appointment.FullRecordCompanyOfficerApi;
-import uk.gov.companieshouse.company_appointments.model.data.AppointmentApiEntity;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaAppointmentApi;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaAppointmentApiEntity;
 
 @Repository
-public interface CompanyAppointmentFullRecordRepository extends MongoRepository<DeltaAppointmentApi, String> {
+public interface CompanyAppointmentFullRecordRepository extends MongoRepository<DeltaAppointmentApiEntity, String> {
 
     default DeltaAppointmentApi insertOrUpdate(DeltaAppointmentApi api) {
         return save(new DeltaAppointmentApiEntity(api));
