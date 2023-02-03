@@ -5,7 +5,7 @@ import java.util.Optional;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
-import uk.gov.companieshouse.company_appointments.model.data.DeltaAppointmentApi;
+import uk.gov.companieshouse.api.model.delta.officers.DeltaAppointmentApi;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaAppointmentApiEntity;
 
 @Repository

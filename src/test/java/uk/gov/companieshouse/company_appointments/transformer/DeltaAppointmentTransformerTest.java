@@ -10,7 +10,8 @@ import uk.gov.companieshouse.api.appointment.ExternalData;
 import uk.gov.companieshouse.api.appointment.FullRecordCompanyOfficerApi;
 import uk.gov.companieshouse.api.appointment.InternalData;
 import uk.gov.companieshouse.api.appointment.SensitiveData;
-import uk.gov.companieshouse.company_appointments.model.data.DeltaAppointmentApi;
+import uk.gov.companieshouse.api.model.delta.officers.DeltaAppointmentApi;
+import uk.gov.companieshouse.company_appointments.FailedToTransformException;
 import uk.gov.companieshouse.company_appointments.model.transformer.DeltaAppointmentTransformer;
 
 import java.time.OffsetDateTime;
@@ -25,7 +26,7 @@ class DeltaAppointmentTransformerTest {
     private FullRecordCompanyOfficerApi fullRecordCompanyOfficerApi;
 
     @Test
-    void testDeltaIsTransformedSuccessfully() {
+    void testDeltaIsTransformedSuccessfully() throws FailedToTransformException{
         // given
         Data data = new Data();
         data.setOfficerRole(Data.OfficerRoleEnum.DIRECTOR);
@@ -50,7 +51,12 @@ class DeltaAppointmentTransformerTest {
 
     @Test
     void testApiThrowsExceptionWhenTransformFails() {
-        Assert.assertThrows(RuntimeException.class, () -> deltaAppointmentTransformer.transform(new FullRecordCompanyOfficerApi()));
+        try {
+            deltaAppointmentTransformer.transform(new FullRecordCompanyOfficerApi());
+            Assert.fail("Expected a FailedToTransformException to be thrown");
+        } catch (FailedToTransformException e) {
+            assert(e.getMessage().contains("Failed to transform API payload:"));
+        }
     }
 
 

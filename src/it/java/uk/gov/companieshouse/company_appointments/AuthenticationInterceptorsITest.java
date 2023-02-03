@@ -17,16 +17,18 @@ import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.companieshouse.api.appointment.Data;
 import uk.gov.companieshouse.api.appointment.DateOfBirth;
 import uk.gov.companieshouse.api.appointment.ItemLinkTypes;
+import uk.gov.companieshouse.api.appointment.OfficerLinkTypes;
 import uk.gov.companieshouse.api.appointment.SensitiveData;
+import uk.gov.companieshouse.api.model.delta.officers.DeltaAppointmentApi;
 import uk.gov.companieshouse.company_appointments.config.LoggingConfig;
 import uk.gov.companieshouse.company_appointments.interceptor.AuthenticationHelperImpl;
 import uk.gov.companieshouse.company_appointments.interceptor.AuthenticationInterceptor;
-import uk.gov.companieshouse.company_appointments.model.data.DeltaAppointmentApi;
 import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentFullRecordView;
 import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentView;
 import uk.gov.companieshouse.logging.Logger;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @WebMvcTest(controllers = {CompanyAppointmentController.class, CompanyAppointmentFullRecordController.class})
 @Import({LoggingConfig.class, AuthenticationHelperImpl.class})
@@ -61,7 +63,10 @@ class AuthenticationInterceptorsITest {
         Data data = new Data();
         data.setOfficerRole(Data.OfficerRoleEnum.DIRECTOR);
         List<ItemLinkTypes> links = new ArrayList<>();
-        links.add(new ItemLinkTypes());
+        ItemLinkTypes linkItem = new ItemLinkTypes();
+        linkItem.setOfficer(new OfficerLinkTypes());
+        linkItem.setSelf("self");
+        links.add(linkItem);
         data.setLinks(links);
         SensitiveData sensitiveData = new SensitiveData();
         sensitiveData.setDateOfBirth(new DateOfBirth());

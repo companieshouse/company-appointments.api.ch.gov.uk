@@ -29,9 +29,10 @@ import uk.gov.companieshouse.api.appointment.DateOfBirth;
 import uk.gov.companieshouse.api.appointment.ExternalData;
 import uk.gov.companieshouse.api.appointment.InternalData;
 import uk.gov.companieshouse.api.appointment.ItemLinkTypes;
+import uk.gov.companieshouse.api.appointment.OfficerLinkTypes;
 import uk.gov.companieshouse.api.appointment.SensitiveData;
+import uk.gov.companieshouse.api.model.delta.officers.DeltaAppointmentApi;
 import uk.gov.companieshouse.api.model.delta.officers.InstantAPI;
-import uk.gov.companieshouse.company_appointments.model.data.DeltaAppointmentApi;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaAppointmentApiEntity;
 import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentFullRecordView;
 
@@ -39,7 +40,8 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
-import java.util.*;
+import java.util.Collections;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 @ExtendWith(MockitoExtension.class)
@@ -92,7 +94,10 @@ class CompanyAppointmentFullRecordServiceTest {
         // given
         Data data = new Data();
         data.setOfficerRole(Data.OfficerRoleEnum.DIRECTOR);
-        data.setLinks(Collections.singletonList(new ItemLinkTypes()));
+        ItemLinkTypes linkItem = new ItemLinkTypes();
+        linkItem.setOfficer(new OfficerLinkTypes());
+        linkItem.setSelf("self");
+        data.setLinks(Collections.singletonList(linkItem));
         deltaAppointmentApiEntity = new DeltaAppointmentApiEntity(
                 new DeltaAppointmentApi("id", "etag", data, new SensitiveData(), "internalId",
                         "appointmentId", "officerId", "previousOfficerId", "companyNumber",

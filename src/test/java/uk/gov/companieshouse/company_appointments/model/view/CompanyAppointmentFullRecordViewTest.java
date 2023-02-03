@@ -16,7 +16,7 @@ import uk.gov.companieshouse.api.appointment.OfficerLinkTypes;
 import uk.gov.companieshouse.api.appointment.SensitiveData;
 import uk.gov.companieshouse.api.appointment.ServiceAddress;
 import uk.gov.companieshouse.api.appointment.UsualResidentialAddress;
-import uk.gov.companieshouse.company_appointments.model.data.DeltaAppointmentApi;
+import uk.gov.companieshouse.api.model.delta.officers.DeltaAppointmentApi;
 
 import java.time.LocalDate;
 import java.util.Collections;

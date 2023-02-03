@@ -6,9 +6,8 @@ import org.springframework.stereotype.Service;
 import uk.gov.companieshouse.GenerateEtagUtil;
 import uk.gov.companieshouse.api.appointment.Data;
 import uk.gov.companieshouse.api.appointment.FullRecordCompanyOfficerApi;
+import uk.gov.companieshouse.api.model.delta.officers.DeltaAppointmentApi;
 import uk.gov.companieshouse.api.model.delta.officers.InstantAPI;
-import uk.gov.companieshouse.company_appointments.model.data.AppointmentApiEntity;
-import uk.gov.companieshouse.company_appointments.model.data.DeltaAppointmentApi;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaAppointmentApiEntity;
 import uk.gov.companieshouse.company_appointments.model.transformer.DeltaAppointmentTransformer;
 import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentFullRecordView;
@@ -53,7 +52,7 @@ public class CompanyAppointmentFullRecordService {
         DeltaAppointmentApi deltaAppointmentApi;
         try {
             deltaAppointmentApi = deltaAppointmentTransformer.transform(appointmentApi);
-        } catch(RuntimeException e) {
+        } catch(FailedToTransformException e) {
             throw new ServiceUnavailableException(String.format("Failed to transform payload: %s", e.getMessage()));
         }
 

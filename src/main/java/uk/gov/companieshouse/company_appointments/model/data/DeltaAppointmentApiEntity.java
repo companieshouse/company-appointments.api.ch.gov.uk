@@ -1,6 +1,7 @@
 package uk.gov.companieshouse.company_appointments.model.data;
 
 import org.springframework.data.mongodb.core.mapping.Document;
+import uk.gov.companieshouse.api.model.delta.officers.DeltaAppointmentApi;
 
 @Document(collection = "delta_appointments")
 public class DeltaAppointmentApiEntity extends DeltaAppointmentApi {

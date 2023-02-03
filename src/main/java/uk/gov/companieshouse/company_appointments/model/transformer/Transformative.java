@@ -1,5 +1,7 @@
 package uk.gov.companieshouse.company_appointments.model.transformer;
 
+import uk.gov.companieshouse.company_appointments.FailedToTransformException;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -33,13 +35,13 @@ public interface Transformative<S, T> {
      */
     T factory();
 
-    default T transform(S source) throws RuntimeException {
+    default T transform(S source) throws FailedToTransformException {
         return transform(source, factory());
     }
 
-    T transform(S source, T output) throws RuntimeException;
+    T transform(S source, T output) throws FailedToTransformException;
 
-    default List<T> transform(Collection<S> sources) throws RuntimeException {
+    default List<T> transform(Collection<S> sources) throws FailedToTransformException {
         List<T> list = new ArrayList<>();
         for (S source : sources) {
             T transform = transform(source);

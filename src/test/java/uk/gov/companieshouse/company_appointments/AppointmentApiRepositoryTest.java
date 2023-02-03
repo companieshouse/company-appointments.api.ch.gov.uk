@@ -13,14 +13,9 @@ import org.mockito.Captor;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.companieshouse.api.appointment.Data;
-import uk.gov.companieshouse.api.appointment.InternalData;
 import uk.gov.companieshouse.api.appointment.SensitiveData;
-import uk.gov.companieshouse.api.model.delta.officers.AppointmentAPI;
+import uk.gov.companieshouse.api.model.delta.officers.DeltaAppointmentApi;
 import uk.gov.companieshouse.api.model.delta.officers.InstantAPI;
-import uk.gov.companieshouse.api.model.delta.officers.OfficerAPI;
-import uk.gov.companieshouse.api.model.delta.officers.SensitiveOfficerAPI;
-import uk.gov.companieshouse.company_appointments.model.data.AppointmentApiEntity;
-import uk.gov.companieshouse.company_appointments.model.data.DeltaAppointmentApi;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaAppointmentApiEntity;
 
 import java.time.Instant;

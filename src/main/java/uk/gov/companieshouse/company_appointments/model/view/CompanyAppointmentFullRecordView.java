@@ -10,7 +10,7 @@ import uk.gov.companieshouse.api.appointment.ItemLinkTypes;
 import uk.gov.companieshouse.api.appointment.SensitiveData;
 import uk.gov.companieshouse.api.appointment.ServiceAddress;
 import uk.gov.companieshouse.api.appointment.UsualResidentialAddress;
-import uk.gov.companieshouse.company_appointments.model.data.DeltaAppointmentApi;
+import uk.gov.companieshouse.api.model.delta.officers.DeltaAppointmentApi;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -209,7 +209,7 @@ public class CompanyAppointmentFullRecordView {
             if (view != null && view.getLinks() != null) {
                 final String selfLink = view.getLinks().getSelf();
 
-                if (selfLink != null && !selfLink.endsWith(FULL_RECORD)) {
+                if (!selfLink.endsWith(FULL_RECORD)) {
                     view.getLinks().setSelf(selfLink.concat(FULL_RECORD));
                 }
             }
@@ -273,7 +273,7 @@ public class CompanyAppointmentFullRecordView {
 
         public Builder withLinks(List<ItemLinkTypes> links) {
 
-            if (links != null && links.get(0).getOfficer() != null) {
+            if (links != null && links.get(0) != null) {
                 links.get(0).getOfficer().setSelf(null);
             }
 
