@@ -29,7 +29,7 @@ public class CompanyAppointmentView {
     private String countryOfResidence;
 
     @JsonProperty("date_of_birth")
-    private DateOfBirth dateOfBirth;
+    private DateOfBirthView dateOfBirth;
 
     @JsonProperty("former_names")
     private List<FormerNamesView> formerNames;
@@ -65,7 +65,7 @@ public class CompanyAppointmentView {
             ServiceAddressView serviceAddress, LocalDateTime appointedOn,
             String appointedBefore,
             LocalDateTime resignedOn, String countryOfResidence,
-            DateOfBirth dateOfBirth,
+            DateOfBirthView dateOfBirth,
             List<FormerNamesView> formerNames,
             IdentificationView identification,
             LinksView links, String name, String nationality, String occupation,
@@ -135,11 +135,11 @@ public class CompanyAppointmentView {
         this.countryOfResidence = countryOfResidence;
     }
 
-    public DateOfBirth getDateOfBirth() {
+    public DateOfBirthView getDateOfBirth() {
         return dateOfBirth;
     }
 
-    public void setDateOfBirth(DateOfBirth dateOfBirth) {
+    public void setDateOfBirth(DateOfBirthView dateOfBirth) {
         this.dateOfBirth = dateOfBirth;
     }
 
@@ -252,7 +252,7 @@ public class CompanyAppointmentView {
         private String appointedBefore;
         private LocalDateTime resignedOn;
         private String countryOfResidence;
-        private DateOfBirth dateOfBirth;
+        private DateOfBirthView dateOfBirth;
         private List<FormerNamesView> formerNames;
         private IdentificationView identification;
         private LinksView links;
@@ -286,7 +286,7 @@ public class CompanyAppointmentView {
             return this;
         }
 
-        public Builder withDateOfBirth(DateOfBirth dateOfBirth) {
+        public Builder withDateOfBirth(DateOfBirthView dateOfBirth) {
             this.dateOfBirth = dateOfBirth;
             return this;
         }

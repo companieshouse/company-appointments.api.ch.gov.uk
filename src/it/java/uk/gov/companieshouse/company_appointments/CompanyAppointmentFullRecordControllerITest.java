@@ -17,7 +17,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import uk.gov.companieshouse.company_appointments.model.data.AppointmentApiEntity;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaAppointmentApiEntity;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -69,7 +69,7 @@ public class CompanyAppointmentFullRecordControllerITest {
 
         Query query = new Query();
         query.addCriteria(Criteria.where("_id").is("7IjxamNGLlqtIingmTZJJ42Hw9Q"));
-        List<AppointmentApiEntity> appointments = mongoTemplate.find(query, AppointmentApiEntity.class);
+        List<DeltaAppointmentApiEntity> appointments = mongoTemplate.find(query, DeltaAppointmentApiEntity.class);
         assertThat(appointments, is(empty()));
     }
 
@@ -85,7 +85,7 @@ public class CompanyAppointmentFullRecordControllerITest {
 
         Query query = new Query();
         query.addCriteria(Criteria.where("_id").is("7IjxamNGLlqtIingmTZJJ42Hw9Q"));
-        List<AppointmentApiEntity> appointments = mongoTemplate.find(query, AppointmentApiEntity.class);
+        List<DeltaAppointmentApiEntity> appointments = mongoTemplate.find(query, DeltaAppointmentApiEntity.class);
         assertThat(appointments.size(), is(1));
     }
 }

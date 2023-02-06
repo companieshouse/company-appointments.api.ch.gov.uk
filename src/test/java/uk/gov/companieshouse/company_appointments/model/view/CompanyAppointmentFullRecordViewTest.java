@@ -7,75 +7,79 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.companieshouse.api.model.delta.officers.AddressAPI;
-import uk.gov.companieshouse.api.model.delta.officers.FormerNamesAPI;
-import uk.gov.companieshouse.api.model.delta.officers.IdentificationAPI;
-import uk.gov.companieshouse.api.model.delta.officers.LinksAPI;
-import uk.gov.companieshouse.api.model.delta.officers.OfficerAPI;
-import uk.gov.companieshouse.api.model.delta.officers.SensitiveOfficerAPI;
+import uk.gov.companieshouse.api.appointment.Data;
+import uk.gov.companieshouse.api.appointment.DateOfBirth;
+import uk.gov.companieshouse.api.appointment.FormerNames;
+import uk.gov.companieshouse.api.appointment.Identification;
+import uk.gov.companieshouse.api.appointment.ItemLinkTypes;
+import uk.gov.companieshouse.api.appointment.OfficerLinkTypes;
+import uk.gov.companieshouse.api.appointment.SensitiveData;
+import uk.gov.companieshouse.api.appointment.ServiceAddress;
+import uk.gov.companieshouse.api.appointment.UsualResidentialAddress;
+import uk.gov.companieshouse.api.model.delta.officers.DeltaAppointmentApi;
 
-import java.time.Instant;
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 
 @ExtendWith(MockitoExtension.class)
 class CompanyAppointmentFullRecordViewTest {
 
-    private static final Instant INSTANT_DOB = Instant.parse("1989-01-12T00:00:00.000Z");
-    private static final Instant INSTANT_ONE = Instant.parse("2009-01-12T00:00:00.000Z");
-    private static final Instant INSTANT_TWO = Instant.parse("2019-01-12T00:00:00.000Z");
-    private static final Instant INSTANT_THREE = Instant.parse("1991-01-12T00:00:00.000Z");
+    private static final LocalDate INSTANT_ONE = LocalDate.parse("2009-01-12");
+    private static final LocalDate INSTANT_TWO = LocalDate.parse("2019-01-12");
+    private static final LocalDate INSTANT_THREE = LocalDate.parse("1991-01-12");
 
 
-    private List<FormerNamesAPI> formerNames
-        = Collections.singletonList(new FormerNamesAPI("John", "Davies"));
-    private IdentificationAPI identification
-        = new IdentificationAPI("eea","Chapter 32","Hong Kong","UK","32982");
-    private LinksAPI links =
-        new LinksAPI("/officers/abcde123456789","/officers/abcde123456789/appointments","/company/01777777/appointments/123456789abcde");
-    private DateOfBirth dob = new DateOfBirth(12,1,1989);
+    private List<FormerNames> formerNames
+            = buildFormerNamesList("John", "Davies");
+    private Identification identification = buildIdentification();
+    private DateOfBirth INSTANT_DOB = buildDateOfBirth(12,1,1989);
+    private ItemLinkTypes links = buildLinksItem();
+    private DateOfBirthView dob = new DateOfBirthView(12,1,1989);
 
     private CompanyAppointmentFullRecordView testView;
 
     @BeforeEach
     void setUp() {
 
-        OfficerAPI officerData = new OfficerAPI();
-        SensitiveOfficerAPI sensitiveOfficer = new SensitiveOfficerAPI();
-        officerData.setServiceAddress(createAddress("service"));
-        sensitiveOfficer.setUsualResidentialAddress(createAddress("usualResidential"));
-        officerData.setAppointedOn(INSTANT_ONE);
-        officerData.setAppointedBefore(INSTANT_THREE);
-        officerData.setCountryOfResidence("countryOfResidence");
-        sensitiveOfficer.setDateOfBirth(INSTANT_DOB);
-        officerData.setFormerNameData(formerNames);
-        officerData.setIdentificationData(identification);
-        officerData.setLinksData(links);
-        officerData.setSurname("Davies");
-        officerData.setForename("James");
-        officerData.setTitle("Sir");
-        officerData.setNationality("Welsh");
-        officerData.setOccupation("occupation");
-        officerData.setOfficerRole("director");
-        officerData.setResignedOn(INSTANT_TWO);
-        officerData.setEtag("etag");
+        DeltaAppointmentApi deltaAppointmentApi = new DeltaAppointmentApi();
+        deltaAppointmentApi.setData(new Data());
+        deltaAppointmentApi.setSensitiveData(new SensitiveData());
 
-        testView = CompanyAppointmentFullRecordView.Builder.view(officerData, sensitiveOfficer).build();
+        deltaAppointmentApi.getData().setServiceAddress(createServiceAddress("service"));
+        deltaAppointmentApi.getSensitiveData().setUsualResidentialAddress(createUsualResidentialAddress("usualResidential"));
+        deltaAppointmentApi.getData().setAppointedOn(INSTANT_ONE);
+        deltaAppointmentApi.getData().setAppointedBefore(INSTANT_THREE);
+        deltaAppointmentApi.getData().setCountryOfResidence("countryOfResidence");
+        deltaAppointmentApi.getSensitiveData().setDateOfBirth(INSTANT_DOB);
+        deltaAppointmentApi.getData().setFormerNames(formerNames);;
+        deltaAppointmentApi.getData().setIdentification(identification);
+        deltaAppointmentApi.getData().setLinks(buildLinksList());
+        deltaAppointmentApi.getData().setSurname("Davies");
+        deltaAppointmentApi.getData().setForename("James");
+        deltaAppointmentApi.getData().setTitle("Sir");
+        deltaAppointmentApi.getData().setNationality("Welsh");
+        deltaAppointmentApi.getData().setOccupation("occupation");
+        deltaAppointmentApi.getData().setOfficerRole(Data.OfficerRoleEnum.DIRECTOR);
+        deltaAppointmentApi.getData().setResignedOn(INSTANT_TWO);
+        deltaAppointmentApi.setEtag("etag");
+
+        testView = CompanyAppointmentFullRecordView.Builder.view(deltaAppointmentApi).build();
     }
 
     @Test
     void serviceAddress() {
 
-        checkAddress(testView.getServiceAddress(), "service");
+        checkServiceAddress(testView.getServiceAddress(), "service");
     }
 
     @Test
     void usualResidentialAddress() {
 
-        checkAddress(testView.getUsualResidentialAddress(), "usualResidential");
+        checkUsualResidentialAddress(testView.getUsualResidentialAddress(), "usualResidential");
     }
 
-    private void checkAddress(AddressAPI address, String prefix) {
+    private void checkUsualResidentialAddress(UsualResidentialAddress address, String prefix) {
 
         assertThat(address.getAddressLine1(), is(String.join(" ", "prefix", "address1")));
         assertThat(address.getAddressLine2(), is(String.join(" ", "prefix", "address2")));
@@ -83,7 +87,18 @@ class CompanyAppointmentFullRecordViewTest {
         assertThat(address.getCountry(), is(String.join(" ", "prefix", "country")));
         assertThat(address.getLocality(), is(String.join(" ", "prefix", "locality")));
         assertThat(address.getPoBox(), is(String.join(" ", "prefix", "poBox")));
-        assertThat(address.getPostcode(), is(String.join(" ", "prefix", "postcode")));
+        assertThat(address.getPostalCode(), is(String.join(" ", "prefix", "postcode")));
+        assertThat(address.getPremises(), is(String.join(" ", "prefix", "premises")));
+        assertThat(address.getRegion(), is(String.join(" ", "prefix", "region")));
+    }
+
+    private void checkServiceAddress(ServiceAddress address, String prefix) {
+
+        assertThat(address.getAddressLine1(), is(String.join(" ", "prefix", "address1")));
+        assertThat(address.getAddressLine2(), is(String.join(" ", "prefix", "address2")));
+        assertThat(address.getCountry(), is(String.join(" ", "prefix", "country")));
+        assertThat(address.getLocality(), is(String.join(" ", "prefix", "locality")));
+        assertThat(address.getPostalCode(), is(String.join(" ", "prefix", "postcode")));
         assertThat(address.getPremises(), is(String.join(" ", "prefix", "premises")));
         assertThat(address.getRegion(), is(String.join(" ", "prefix", "region")));
     }
@@ -166,19 +181,77 @@ class CompanyAppointmentFullRecordViewTest {
         assertThat(testView.getEtag(), is("etag"));
     }
 
-    private AddressAPI createAddress(String prefix) {
+    private ServiceAddress createServiceAddress(String prefix) {
 
-        AddressAPI address = new AddressAPI();
+        ServiceAddress address = new ServiceAddress();
+        address.setAddressLine1(String.join(" ", "prefix", "address1"));
+        address.setAddressLine2(String.join(" ", "prefix", "address2"));
+        address.setCountry(String.join(" ", "prefix", "country"));
+        address.setLocality(String.join(" ", "prefix", "locality"));
+        address.setPostalCode(String.join(" ", "prefix", "postcode"));
+        address.setPremises(String.join(" ", "prefix", "premises"));
+        address.setRegion(String.join(" ", "prefix", "region"));
+
+        return address;
+    }
+
+    private UsualResidentialAddress createUsualResidentialAddress(String prefix) {
+
+        UsualResidentialAddress address = new UsualResidentialAddress();
         address.setAddressLine1(String.join(" ", "prefix", "address1"));
         address.setAddressLine2(String.join(" ", "prefix", "address2"));
         address.setCareOf(String.join(" ", "prefix", "careOf"));
         address.setCountry(String.join(" ", "prefix", "country"));
         address.setLocality(String.join(" ", "prefix", "locality"));
         address.setPoBox(String.join(" ", "prefix", "poBox"));
-        address.setPostcode(String.join(" ", "prefix", "postcode"));
+        address.setPostalCode(String.join(" ", "prefix", "postcode"));
         address.setPremises(String.join(" ", "prefix", "premises"));
         address.setRegion(String.join(" ", "prefix", "region"));
 
         return address;
+    }
+
+    private List<FormerNames> buildFormerNamesList(String forename, String surname) {
+        FormerNames formerNamesItems = new FormerNames();
+        formerNamesItems.setForenames(forename);
+        formerNamesItems.setSurname(surname);
+        return Collections.singletonList(formerNamesItems);
+    }
+
+    private DateOfBirth buildDateOfBirth(int day, int month, int year) {
+        DateOfBirth dob = new DateOfBirth();
+        dob.setDay(day);
+        dob.setMonth(month);
+        dob.setYear(year);
+        return dob;
+    }
+
+    private Identification buildIdentification() {
+        Identification identification = new Identification();
+        identification.setIdentificationType(Identification.IdentificationTypeEnum.EEA);
+        identification.setLegalAuthority("Chapter 32");
+        identification.setLegalForm("Hong Kong");
+        identification.setPlaceRegistered("UK");
+        identification.setRegistrationNumber("32982");
+        return identification;
+    }
+
+    private List<ItemLinkTypes> buildLinksList() {
+        ItemLinkTypes linksItem = new ItemLinkTypes();
+        linksItem.setSelf("/officers/abcde123456789");
+        OfficerLinkTypes officerLinkTypes = new OfficerLinkTypes();
+        officerLinkTypes.setSelf("/officers/abcde123456789/appointments");
+        officerLinkTypes.setAppointments("/company/01777777/appointments/123456789abcde");
+        linksItem.setOfficer(officerLinkTypes);
+        return Collections.singletonList(linksItem);
+    }
+
+    private ItemLinkTypes buildLinksItem() {
+        ItemLinkTypes linksItem = new ItemLinkTypes();
+        linksItem.setSelf("/officers/abcde123456789/full_record");
+        OfficerLinkTypes officerLinkTypes = new OfficerLinkTypes();
+        officerLinkTypes.setAppointments("/company/01777777/appointments/123456789abcde");
+        linksItem.setOfficer(officerLinkTypes);
+        return linksItem;
     }
 }

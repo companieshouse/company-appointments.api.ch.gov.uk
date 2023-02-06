@@ -13,7 +13,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import uk.gov.companieshouse.company_appointments.model.data.AppointmentApiEntity;
+import uk.gov.companieshouse.api.appointment.FullRecordCompanyOfficerApi;
 import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentFullRecordView;
 
 @ExtendWith(MockitoExtension.class)
@@ -24,7 +24,7 @@ class CompanyAppointmentFullRecordControllerTest {
     private CompanyAppointmentFullRecordService companyAppointmentService;
 
     @Mock
-    private AppointmentApiEntity appointment;
+    private FullRecordCompanyOfficerApi appointment;
 
     @Mock
     private CompanyAppointmentFullRecordView appointmentView;

@@ -15,7 +15,7 @@ import uk.gov.companieshouse.company_appointments.model.data.OfficerData;
 import uk.gov.companieshouse.company_appointments.model.data.ServiceAddressData;
 import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentView;
 import uk.gov.companieshouse.company_appointments.model.view.ContactDetailsView;
-import uk.gov.companieshouse.company_appointments.model.view.DateOfBirth;
+import uk.gov.companieshouse.company_appointments.model.view.DateOfBirthView;
 import uk.gov.companieshouse.company_appointments.model.view.FormerNamesView;
 import uk.gov.companieshouse.company_appointments.model.view.IdentificationView;
 import uk.gov.companieshouse.company_appointments.model.view.LinksView;
@@ -363,7 +363,7 @@ public class CompanyAppointmentMapperTest {
                 .withAppointedOn(LocalDateTime.of(2020, 8, 26, 12, 0))
                 .withResignedOn(LocalDateTime.of(2020, 8, 26, 13, 0))
                 .withCountryOfResidence("Country")
-                .withDateOfBirth(new DateOfBirth(1, 1980))
+                .withDateOfBirth(new DateOfBirthView(1, 1980))
                 .withLinks(new LinksView("/company/12345678/appointment/123", "/officers/abc/appointments"))
                 .withNationality("Nationality")
                 .withOccupation("Occupation")
@@ -400,7 +400,7 @@ public class CompanyAppointmentMapperTest {
 
     private CompanyAppointmentView personalAppointmentViewWithFullDateOfBirth() {
         return expectedCompanyAppointment()
-                .withDateOfBirth(new DateOfBirth(1, 1, 1980))
+                .withDateOfBirth(new DateOfBirthView(1, 1, 1980))
                 .build();
     }
 

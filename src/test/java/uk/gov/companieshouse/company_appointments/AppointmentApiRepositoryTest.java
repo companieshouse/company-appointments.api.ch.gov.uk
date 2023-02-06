@@ -12,11 +12,11 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.companieshouse.api.model.delta.officers.AppointmentAPI;
+import uk.gov.companieshouse.api.appointment.Data;
+import uk.gov.companieshouse.api.appointment.SensitiveData;
+import uk.gov.companieshouse.api.model.delta.officers.DeltaAppointmentApi;
 import uk.gov.companieshouse.api.model.delta.officers.InstantAPI;
-import uk.gov.companieshouse.api.model.delta.officers.OfficerAPI;
-import uk.gov.companieshouse.api.model.delta.officers.SensitiveOfficerAPI;
-import uk.gov.companieshouse.company_appointments.model.data.AppointmentApiEntity;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaAppointmentApiEntity;
 
 import java.time.Instant;
 
@@ -26,7 +26,7 @@ class AppointmentApiRepositoryTest {
     private CompanyAppointmentFullRecordRepository testRepository;
 
     @Captor
-    private ArgumentCaptor<AppointmentApiEntity> captor;
+    private ArgumentCaptor<DeltaAppointmentApiEntity> captor;
 
     private final static Instant CREATED_AT = Instant.parse("2021-08-01T00:00:00.000Z");
     private final static Instant UPDATED_AT = Instant.parse("2021-08-01T00:00:00.000Z");
@@ -37,19 +37,20 @@ class AppointmentApiRepositoryTest {
 
     @Test
     void insertOrUpdate() {
-        final AppointmentAPI appointment = new AppointmentAPI("id",
-                new OfficerAPI(),
-                new SensitiveOfficerAPI(),
+        final DeltaAppointmentApi appointment = new DeltaAppointmentApi("id", "etag",
+                new Data(),
+                new SensitiveData(),
                 "internalId",
                 "appointmentId",
                 "officerId",
                 "previousOfficerId",
                 "companyNumber",
-                new InstantAPI(CREATED_AT),
                 new InstantAPI(UPDATED_AT),
+                "updateBy",
+                new InstantAPI(CREATED_AT),
                 "deltaAt",
                 22);
-        final AppointmentApiEntity expected = new AppointmentApiEntity(appointment);
+        final DeltaAppointmentApiEntity expected = new DeltaAppointmentApiEntity(appointment);
         testRepository.insertOrUpdate(appointment);
 
         verify(testRepository).save(captor.capture());

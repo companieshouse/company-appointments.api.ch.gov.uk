@@ -1,57 +1,75 @@
 {
   "_id" : "7IjxamNGLlqtIingmTZJJ42Hw9Q",
-  "appointment_id" : "7IjxamNGLlqtIingmTZJJ42Hw9Q",
-  "company_name" : "TEST COMPANY LIMITED",
-  "company_number" : "12345678",
-  "company_status" : "active",
-  "created" : {
-    "at" : ISODate("2020-08-26T12:00:00.000Z")
-  },
+  "etag" : "fedb91fa70ce4ef335d6d2e24f2f7242c9360a69",
   "data" : {
-    "officer_role" : "director",
-    "title" : "Mrs",
-    "country_of_residence" : "United Kingdom",
-    "links" : {
-      "officer" : {
-        "self" : "/officers/5VEOBB4a9dlB_iugw_vieHjWpCk",
-        "appointments" : "/officers/5VEOBB4a9dlB_iugw_vieHjWpCk/appointments"
-      },
-      "self" : "/company/12345678/appointments/7IjxamNGLlqtIingmTZJJ42Hw9Q"
-    },
-    "nationality" : "British",
-    "forename" : "Noname1",
-    "surname" : "NOSURNAME",
-    "resigned_on" : ISODate("2020-08-26T13:00:00.000Z"),
-    "company_number" : "12345678",
-    "updated_at" : ISODate("2020-08-26T13:00:00.000Z"),
-    "other_forenames" : "Noname2",
-    "appointed_on" : ISODate("2020-08-26T12:00:00.000Z"),
-    "etag" : "8f58a770d34f982a1b2a5a29fcde12528e82f903",
-    "occupation" : "Company Director",
+    "person_number" : "1234567890",
     "service_address" : {
-      "region" : "Cardiff",
       "address_line_1" : "1 Crown Way",
-      "postal_code" : "CF14 3UZ",
       "address_line_2" : "Pavement",
-      "locality" : "Cardiff"
-    }
+      "country" : "United Kingdom",
+      "locality" : "Cardiff",
+      "postal_code" : "CF14 3UZ",
+      "premises" : "1",
+      "region" : "Cardiff"
+    },
+    "service_address_same_as_registered_office_address" : true,
+    "appointed_on" : ISODate("2011-11-03T00:00:00.000Z"),
+    "is_pre_1992_appointment" : false,
+    "links" : [
+      {
+        "self" : "/company/12345678/appointments/7IjxamNGLlqtIingmTZJJ42Hw9Q",
+        "officer" : {
+          "self" : "/officers/5VEOBB4a9dlB_iugw_vieHjWpCk",
+          "appointments" : "/officers/5VEOBB4a9dlB_iugw_vieHjWpCk/appointments"
+        }
+      }
+    ],
+    "nationality" : "British",
+    "occupation" : "Lawyer",
+    "officer_role" : "DIRECTOR",
+    "is_secure_officer" : false,
+    "identification" : {
+      "identification_type" : "EEA",
+      "legal_authority" : "Chapter 32",
+      "legal_form" : "Hong Kong",
+      "place_registered" : "United Kingdom",
+      "registration_number" : "38298"
+    },
+    "surname" : "GLOVER",
+    "forename" : "PHIL",
+    "other_forenames" : "Peter",
+    "title" : "Mr",
+    "company_number" : "12345678"
   },
   "sensitive_data" : {
     "usual_residential_address" : {
-      "region" : "Cardiff",
-      "address_line_1" : "1 Crown Way",
-      "postal_code" : "CF14 3UZ",
-      "address_line_2" : "Pavement",
-      "locality" : "Cardiff"
+      "address_line_1" : "ura_line1",
+      "address_line_2" : "ura_line2",
+      "care_of" : "ura_care_of",
+      "country" : "United Kingdom",
+      "locality" : "Cardiff",
+      "po_box" : "ura_po",
+      "postal_code" : "CF2 1B6",
+      "premises" : "URA",
+      "region" : "ura_region"
     },
-    "date_of_birth" : ISODate("1980-01-01T00:00:00.000Z")
+    "date_of_birth" : {
+      "day" : 30,
+      "month" : 6,
+      "year" : 1985
+    }
   },
-  "delta_at" : "20200623121303006153",
-  "internal_id" : "2500085646",
+  "internal_id" : "0025987375",
+  "appointment_id" : "7IjxamNGLlqtIingmTZJJ42Hw9Q",
   "officer_id" : "5VEOBB4a9dlB_iugw_vieHjWpCk",
-  "officer_role_sort_order" : 200,
-  "updated" : {
-    "at" : ISODate("2020-08-26T13:00:00.000Z")
+  "previous_officer_id" : "vuIAhYYbRDhqzx9b3e_jd6Uhres",
+  "company_number" : "12345678",
+  "updated_at" : {
+    "at" : ISODate("2023-02-02T10:36:28.595Z")
   },
-  "previous_officer_id" : "5VEOBB4a9dlB_iugw_vieHjWpCk"
+  "created" : {
+    "at" : ISODate("2023-02-02T10:36:28.595Z")
+  },
+  "delta_at" : "2021-04-23T18:25:43.511Z",
+  "officer_role_sort_order" : 20,
 }

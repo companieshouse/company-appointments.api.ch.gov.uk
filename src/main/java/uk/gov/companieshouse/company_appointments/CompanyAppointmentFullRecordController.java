@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import uk.gov.companieshouse.api.model.delta.officers.AppointmentAPI;
+import uk.gov.companieshouse.api.appointment.FullRecordCompanyOfficerApi;
 import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentFullRecordView;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.logging.LoggerFactory;
@@ -38,10 +38,14 @@ public class CompanyAppointmentFullRecordController {
     }
 
     @PutMapping(consumes = "application/json")
-    public ResponseEntity<Void> submitOfficerData(@RequestBody final AppointmentAPI companyAppointmentData) {
-        companyAppointmentService.insertAppointmentDelta(companyAppointmentData);
-
-        return ResponseEntity.ok().build();
+    public ResponseEntity<Void> submitOfficerData(@RequestBody final FullRecordCompanyOfficerApi companyAppointmentData) {
+        try {
+            companyAppointmentService.insertAppointmentDelta(companyAppointmentData);
+            return ResponseEntity.ok().build();
+        } catch (ServiceUnavailableException e) {
+            LOGGER.info(e.getMessage());
+            return ResponseEntity.internalServerError().build();
+        }
     }
 
     @DeleteMapping(path = "/delete")
