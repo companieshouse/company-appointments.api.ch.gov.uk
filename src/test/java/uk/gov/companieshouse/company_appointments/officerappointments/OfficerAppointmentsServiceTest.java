@@ -1,0 +1,74 @@
+package uk.gov.companieshouse.company_appointments.officerappointments;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.util.Optional;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import uk.gov.companieshouse.api.model.officerappointments.AppointmentApi;
+import uk.gov.companieshouse.api.model.officerappointments.OfficerAppointmentsApi;
+
+@ExtendWith(MockitoExtension.class)
+class OfficerAppointmentsServiceTest {
+
+    private static final String OFFICER_ID = "officerId";
+
+    @InjectMocks
+    private OfficerAppointmentsService service;
+
+    @Mock
+    private OfficerAppointmentsRepository repository;
+
+    @Mock
+    private OfficerAppointmentsMapper mapper;
+
+    @Mock
+    private OfficerAppointmentsApi officerAppointmentsApi;
+
+    @Mock
+    private OfficerAppointmentsAggregate officerAppointmentsAggregate;
+
+    @Mock
+    private AppointmentApi appointmentApi;
+
+    @Test
+    @DisplayName("Get officer appointments returns an officer appointments api")
+    void getOfficerAppointments() {
+        // given
+        when(repository.findOfficerAppointments(anyString())).thenReturn(Optional.of(officerAppointmentsAggregate));
+        when(mapper.map(any())).thenReturn(officerAppointmentsApi);
+
+        // when
+        Optional<OfficerAppointmentsApi> actual = service.getOfficerAppointments(OFFICER_ID);
+
+        // then
+        assertTrue(actual.isPresent());
+        assertEquals(officerAppointmentsApi, actual.get());
+        verify(repository).findOfficerAppointments(OFFICER_ID);
+        verify(mapper).map(officerAppointmentsAggregate);
+    }
+
+    @Test
+    @DisplayName("Get officer appointments returns empty")
+    void getOfficerAppointmentsEmpty() {
+        // given
+        when(repository.findOfficerAppointments(anyString())).thenReturn(Optional.empty());
+
+        // when
+        Optional<OfficerAppointmentsApi> actual = service.getOfficerAppointments(OFFICER_ID);
+
+        // then
+        assertFalse(actual.isPresent());
+        verify(repository).findOfficerAppointments(OFFICER_ID);
+    }
+}
