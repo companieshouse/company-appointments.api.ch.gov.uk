@@ -7,7 +7,17 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.companieshouse.api.appointment.*;
+import uk.gov.companieshouse.api.appointment.Data;
+import uk.gov.companieshouse.api.appointment.DateOfBirth;
+import uk.gov.companieshouse.api.appointment.FormerNames;
+import uk.gov.companieshouse.api.appointment.Identification;
+import uk.gov.companieshouse.api.appointment.ItemLinkTypes;
+import uk.gov.companieshouse.api.appointment.OfficerLinkTypes;
+import uk.gov.companieshouse.api.appointment.SensitiveData;
+import uk.gov.companieshouse.api.appointment.ServiceAddress;
+import uk.gov.companieshouse.api.appointment.UsualResidentialAddress;
+import uk.gov.companieshouse.api.appointment.ContactDetails;
+import uk.gov.companieshouse.api.appointment.PrincipalOfficeAddress;
 import uk.gov.companieshouse.api.model.delta.officers.DeltaAppointmentApi;
 
 import java.time.LocalDate;
