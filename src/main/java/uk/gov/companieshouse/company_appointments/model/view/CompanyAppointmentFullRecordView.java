@@ -3,13 +3,7 @@ package uk.gov.companieshouse.company_appointments.model.view;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import uk.gov.companieshouse.api.appointment.Data;
-import uk.gov.companieshouse.api.appointment.FormerNames;
-import uk.gov.companieshouse.api.appointment.Identification;
-import uk.gov.companieshouse.api.appointment.ItemLinkTypes;
-import uk.gov.companieshouse.api.appointment.SensitiveData;
-import uk.gov.companieshouse.api.appointment.ServiceAddress;
-import uk.gov.companieshouse.api.appointment.UsualResidentialAddress;
+import uk.gov.companieshouse.api.appointment.*;
 import uk.gov.companieshouse.api.model.delta.officers.DeltaAppointmentApi;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -88,6 +82,15 @@ public class CompanyAppointmentFullRecordView {
 
     @JsonProperty("is_pre_1992_appointment")
     private Boolean isPre1992Appointment;
+
+    @JsonProperty("contact_details")
+    private ContactDetails contactDetails;
+
+    @JsonProperty("principal_office_address")
+    private PrincipalOfficeAddress principalOfficeAddress;
+
+    @JsonProperty("responsibilities")
+    private String responsibilities;
 
     public ServiceAddress getServiceAddress() {
         return serviceAddress;
@@ -169,6 +172,12 @@ public class CompanyAppointmentFullRecordView {
         return isPre1992Appointment;
     }
 
+    public ContactDetails getContactDetails() {return contactDetails;}
+
+    public String getResponsibilities() {return responsibilities;}
+
+    public PrincipalOfficeAddress getPrincipalOfficeAddress() {return principalOfficeAddress;}
+
     public static class Builder {
 
         public static final ZoneId UTC_ZONE = ZoneId.of("UTC");
@@ -202,7 +211,10 @@ public class CompanyAppointmentFullRecordView {
                     .withResignedOn(api.getData().getResignedOn())
                     .withEtag(api.getEtag())
                     .withPersonNumber(api.getData().getPersonNumber())
-                    .withIsPre1992Appointment(api.getData().getIsPre1992Appointment());
+                    .withIsPre1992Appointment(api.getData().getIsPre1992Appointment())
+                    .withContactDetails(api.getData().getContactDetails())
+                    .withResponsibilities(api.getData().getResponsibilities())
+                    .withPrincipleOfficeAddress(api.getData().getPrincipalOfficeAddress());
         }
 
         private static void appendSelfLinkFullRecord(CompanyAppointmentFullRecordView view) {
@@ -358,6 +370,27 @@ public class CompanyAppointmentFullRecordView {
         public Builder withIsPre1992Appointment(Boolean isPre1992Appointment) {
 
             buildSteps.add(view -> view.isPre1992Appointment = isPre1992Appointment);
+
+            return this;
+        }
+
+        public Builder withContactDetails(ContactDetails contactDetails) {
+
+            buildSteps.add(view -> view.contactDetails = contactDetails);
+
+            return this;
+        }
+
+        public Builder withResponsibilities(String responsibilities) {
+
+            buildSteps.add(view -> view.responsibilities = responsibilities);
+
+            return this;
+        }
+
+        public Builder withPrincipleOfficeAddress(PrincipalOfficeAddress principalOfficeAddress) {
+
+            buildSteps.add(view -> view.principalOfficeAddress = principalOfficeAddress);
 
             return this;
         }

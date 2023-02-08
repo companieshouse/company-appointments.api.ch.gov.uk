@@ -7,15 +7,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.companieshouse.api.appointment.Data;
-import uk.gov.companieshouse.api.appointment.DateOfBirth;
-import uk.gov.companieshouse.api.appointment.FormerNames;
-import uk.gov.companieshouse.api.appointment.Identification;
-import uk.gov.companieshouse.api.appointment.ItemLinkTypes;
-import uk.gov.companieshouse.api.appointment.OfficerLinkTypes;
-import uk.gov.companieshouse.api.appointment.SensitiveData;
-import uk.gov.companieshouse.api.appointment.ServiceAddress;
-import uk.gov.companieshouse.api.appointment.UsualResidentialAddress;
+import uk.gov.companieshouse.api.appointment.*;
 import uk.gov.companieshouse.api.model.delta.officers.DeltaAppointmentApi;
 
 import java.time.LocalDate;
@@ -35,6 +27,7 @@ class CompanyAppointmentFullRecordViewTest {
     private Identification identification = buildIdentification();
     private DateOfBirth INSTANT_DOB = buildDateOfBirth(12,1,1989);
     private ItemLinkTypes links = buildLinksItem();
+    private ContactDetails contactDetails = buildContactDetails();
     private DateOfBirthView dob = new DateOfBirthView(12,1,1989);
 
     private CompanyAppointmentFullRecordView testView;
@@ -63,6 +56,11 @@ class CompanyAppointmentFullRecordViewTest {
         deltaAppointmentApi.getData().setOfficerRole(Data.OfficerRoleEnum.DIRECTOR);
         deltaAppointmentApi.getData().setResignedOn(INSTANT_TWO);
         deltaAppointmentApi.setEtag("etag");
+        deltaAppointmentApi.getData().setPersonNumber("1234");
+        deltaAppointmentApi.getData().setIsPre1992Appointment(Boolean.TRUE);
+        deltaAppointmentApi.getData().setContactDetails(contactDetails);
+        deltaAppointmentApi.getData().setResponsibilities("responsibilities");
+        deltaAppointmentApi.getData().setPrincipalOfficeAddress(createPrincipalOfficeAddress("principleOffice"));
 
         testView = CompanyAppointmentFullRecordView.Builder.view(deltaAppointmentApi).build();
     }
@@ -79,28 +77,47 @@ class CompanyAppointmentFullRecordViewTest {
         checkUsualResidentialAddress(testView.getUsualResidentialAddress(), "usualResidential");
     }
 
+    @Test
+    void principleOfficeAddress() {
+
+        checkPrincipleOfficeAddress(testView.getPrincipalOfficeAddress(), "principleOffice");
+    }
+
     private void checkUsualResidentialAddress(UsualResidentialAddress address, String prefix) {
 
-        assertThat(address.getAddressLine1(), is(String.join(" ", "prefix", "address1")));
-        assertThat(address.getAddressLine2(), is(String.join(" ", "prefix", "address2")));
-        assertThat(address.getCareOf(), is(String.join(" ", "prefix", "careOf")));
-        assertThat(address.getCountry(), is(String.join(" ", "prefix", "country")));
-        assertThat(address.getLocality(), is(String.join(" ", "prefix", "locality")));
-        assertThat(address.getPoBox(), is(String.join(" ", "prefix", "poBox")));
-        assertThat(address.getPostalCode(), is(String.join(" ", "prefix", "postcode")));
-        assertThat(address.getPremises(), is(String.join(" ", "prefix", "premises")));
-        assertThat(address.getRegion(), is(String.join(" ", "prefix", "region")));
+        assertThat(address.getAddressLine1(), is(String.join(" ", prefix, "address1")));
+        assertThat(address.getAddressLine2(), is(String.join(" ", prefix, "address2")));
+        assertThat(address.getCareOf(), is(String.join(" ", prefix, "careOf")));
+        assertThat(address.getCountry(), is(String.join(" ", prefix, "country")));
+        assertThat(address.getLocality(), is(String.join(" ", prefix, "locality")));
+        assertThat(address.getPoBox(), is(String.join(" ", prefix, "poBox")));
+        assertThat(address.getPostalCode(), is(String.join(" ", prefix, "postcode")));
+        assertThat(address.getPremises(), is(String.join(" ", prefix, "premises")));
+        assertThat(address.getRegion(), is(String.join(" ", prefix, "region")));
     }
 
     private void checkServiceAddress(ServiceAddress address, String prefix) {
 
-        assertThat(address.getAddressLine1(), is(String.join(" ", "prefix", "address1")));
-        assertThat(address.getAddressLine2(), is(String.join(" ", "prefix", "address2")));
-        assertThat(address.getCountry(), is(String.join(" ", "prefix", "country")));
-        assertThat(address.getLocality(), is(String.join(" ", "prefix", "locality")));
-        assertThat(address.getPostalCode(), is(String.join(" ", "prefix", "postcode")));
-        assertThat(address.getPremises(), is(String.join(" ", "prefix", "premises")));
-        assertThat(address.getRegion(), is(String.join(" ", "prefix", "region")));
+        assertThat(address.getAddressLine1(), is(String.join(" ", prefix, "address1")));
+        assertThat(address.getAddressLine2(), is(String.join(" ", prefix, "address2")));
+        assertThat(address.getCountry(), is(String.join(" ", prefix, "country")));
+        assertThat(address.getLocality(), is(String.join(" ", prefix, "locality")));
+        assertThat(address.getPostalCode(), is(String.join(" ", prefix, "postcode")));
+        assertThat(address.getPremises(), is(String.join(" ", prefix, "premises")));
+        assertThat(address.getRegion(), is(String.join(" ", prefix, "region")));
+    }
+
+    private void checkPrincipleOfficeAddress(PrincipalOfficeAddress address, String prefix) {
+
+        assertThat(address.getAddressLine1(), is(String.join(" ", prefix, "address1")));
+        assertThat(address.getAddressLine2(), is(String.join(" ", prefix, "address2")));
+        assertThat(address.getCareOf(), is(String.join(" ", prefix, "careOf")));
+        assertThat(address.getCountry(), is(String.join(" ", prefix, "country")));
+        assertThat(address.getLocality(), is(String.join(" ", prefix, "locality")));
+        assertThat(address.getPoBox(), is(String.join(" ", prefix, "poBox")));
+        assertThat(address.getPostalCode(), is(String.join(" ", prefix, "postcode")));
+        assertThat(address.getPremises(), is(String.join(" ", prefix, "premises")));
+        assertThat(address.getRegion(), is(String.join(" ", prefix, "region")));
     }
 
     @Test
@@ -181,16 +198,40 @@ class CompanyAppointmentFullRecordViewTest {
         assertThat(testView.getEtag(), is("etag"));
     }
 
+    @Test
+    void personNumber() {
+
+        assertThat(testView.getPersonNumber(), is("1234"));
+    }
+
+    @Test
+    void isPre1998Appointment() {
+
+        assertThat(testView.getIsPre1992Appointment(), is(Boolean.TRUE));
+    }
+
+    @Test
+    void contactDetails() {
+
+        assertThat(testView.getContactDetails(), is(contactDetails));
+    }
+
+    @Test
+    void responsibilities() {
+
+        assertThat(testView.getResponsibilities(), is("responsibilities"));
+    }
+
     private ServiceAddress createServiceAddress(String prefix) {
 
         ServiceAddress address = new ServiceAddress();
-        address.setAddressLine1(String.join(" ", "prefix", "address1"));
-        address.setAddressLine2(String.join(" ", "prefix", "address2"));
-        address.setCountry(String.join(" ", "prefix", "country"));
-        address.setLocality(String.join(" ", "prefix", "locality"));
-        address.setPostalCode(String.join(" ", "prefix", "postcode"));
-        address.setPremises(String.join(" ", "prefix", "premises"));
-        address.setRegion(String.join(" ", "prefix", "region"));
+        address.setAddressLine1(String.join(" ", prefix, "address1"));
+        address.setAddressLine2(String.join(" ", prefix, "address2"));
+        address.setCountry(String.join(" ", prefix, "country"));
+        address.setLocality(String.join(" ", prefix, "locality"));
+        address.setPostalCode(String.join(" ", prefix, "postcode"));
+        address.setPremises(String.join(" ", prefix, "premises"));
+        address.setRegion(String.join(" ", prefix, "region"));
 
         return address;
     }
@@ -198,15 +239,31 @@ class CompanyAppointmentFullRecordViewTest {
     private UsualResidentialAddress createUsualResidentialAddress(String prefix) {
 
         UsualResidentialAddress address = new UsualResidentialAddress();
-        address.setAddressLine1(String.join(" ", "prefix", "address1"));
-        address.setAddressLine2(String.join(" ", "prefix", "address2"));
-        address.setCareOf(String.join(" ", "prefix", "careOf"));
-        address.setCountry(String.join(" ", "prefix", "country"));
-        address.setLocality(String.join(" ", "prefix", "locality"));
-        address.setPoBox(String.join(" ", "prefix", "poBox"));
-        address.setPostalCode(String.join(" ", "prefix", "postcode"));
-        address.setPremises(String.join(" ", "prefix", "premises"));
-        address.setRegion(String.join(" ", "prefix", "region"));
+        address.setAddressLine1(String.join(" ", prefix, "address1"));
+        address.setAddressLine2(String.join(" ", prefix, "address2"));
+        address.setCareOf(String.join(" ", prefix, "careOf"));
+        address.setCountry(String.join(" ", prefix, "country"));
+        address.setLocality(String.join(" ", prefix, "locality"));
+        address.setPoBox(String.join(" ", prefix, "poBox"));
+        address.setPostalCode(String.join(" ", prefix, "postcode"));
+        address.setPremises(String.join(" ", prefix, "premises"));
+        address.setRegion(String.join(" ", prefix, "region"));
+
+        return address;
+    }
+
+    private PrincipalOfficeAddress createPrincipalOfficeAddress(String prefix) {
+
+        PrincipalOfficeAddress address = new PrincipalOfficeAddress();
+        address.setAddressLine1(String.join(" ", prefix, "address1"));
+        address.setAddressLine2(String.join(" ", prefix, "address2"));
+        address.setCareOf(String.join(" ", prefix, "careOf"));
+        address.setCountry(String.join(" ", prefix, "country"));
+        address.setLocality(String.join(" ", prefix, "locality"));
+        address.setPoBox(String.join(" ", prefix, "poBox"));
+        address.setPostalCode(String.join(" ", prefix, "postcode"));
+        address.setPremises(String.join(" ", prefix, "premises"));
+        address.setRegion(String.join(" ", prefix, "region"));
 
         return address;
     }
@@ -253,5 +310,11 @@ class CompanyAppointmentFullRecordViewTest {
         officerLinkTypes.setAppointments("/company/01777777/appointments/123456789abcde");
         linksItem.setOfficer(officerLinkTypes);
         return linksItem;
+    }
+
+    private ContactDetails buildContactDetails() {
+        ContactDetails contactDetails = new ContactDetails();
+        contactDetails.setContactName("John Smith");
+        return contactDetails;
     }
 }
