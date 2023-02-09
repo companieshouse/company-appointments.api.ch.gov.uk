@@ -180,11 +180,17 @@ public class CompanyAppointmentFullRecordView {
         return isPre1992Appointment;
     }
 
-    public ContactDetails getContactDetails() {return contactDetails;}
+    public ContactDetails getContactDetails() {
+        return contactDetails;
+    }
 
-    public String getResponsibilities() {return responsibilities;}
+    public String getResponsibilities() {
+        return responsibilities;
+    }
 
-    public PrincipalOfficeAddress getPrincipalOfficeAddress() {return principalOfficeAddress;}
+    public PrincipalOfficeAddress getPrincipalOfficeAddress() {
+        return principalOfficeAddress;
+    }
 
     public static class Builder {
 
