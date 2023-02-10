@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import uk.gov.companieshouse.api.model.common.Address;
@@ -30,18 +31,53 @@ class OfficerAppointmentsMapperTest {
 
     private OfficerAppointmentsMapper mapper;
 
+    @BeforeEach
+    void setUp() {
+        mapper = new OfficerAppointmentsMapper();
+    }
+
     @Test
     @DisplayName("Should map officer appointments aggregate to an officer appointments api")
     void testMap() {
         // given
+        OfficerAppointmentsRequest request = new OfficerAppointmentsRequest("officerId", "", null, null);
         OfficerAppointmentsAggregate officerAppointmentsAggregate = getOfficerAppointmentsAggregate();
 
         // when
-        OfficerAppointmentsApi actual = mapper.map(officerAppointmentsAggregate);
+        OfficerAppointmentsApi actual = mapper.map(officerAppointmentsAggregate, request);
 
         // then
         assertEquals(getExpectedOfficerAppointmentsApi(), actual);
     }
+
+    @Test
+    @DisplayName("Should map top level fields successfully")
+    void testMapTopLevel() {
+        // given
+        OfficerAppointmentsRequest request = new OfficerAppointmentsRequest("officerId", "", null, null);
+        OfficerAppointmentsAggregate officerAppointmentsAggregate = getOfficerAppointmentsAggregate();
+
+        OfficerAppointmentsApi expected = new OfficerAppointmentsApi();
+        expected.setTotalResults(1L);
+        expected.setCorporateOfficer(true);
+        expected.setItemsPerPage(35L);
+        expected.setKind("kind");
+        expected.setName("forename secondForename surname");
+        expected.setStartIndex(0L);
+
+        // when
+        OfficerAppointmentsApi actual = mapper.map(officerAppointmentsAggregate, request);
+
+        // then
+        assertEquals(expected.getTotalResults(), actual.getTotalResults());
+        assertEquals(expected.isCorporateOfficer(), actual.isCorporateOfficer());
+        assertEquals(expected.getItemsPerPage(), actual.getItemsPerPage());
+        assertEquals(expected.getKind(), actual.getKind());
+        assertEquals(expected.getName(), actual.getName());
+        assertEquals(expected.getStartIndex(), actual.getStartIndex());
+    }
+
+
 
     private OfficerAppointmentsAggregate getOfficerAppointmentsAggregate() {
         TotalResults totalResults = new TotalResults();
@@ -50,7 +86,7 @@ class OfficerAppointmentsMapperTest {
         OfficerData officerData = OfficerData.builder()
                 .withCompanyNumber("12345678")
                 .withCompanyName("company name")
-                .withOfficerRole("director")
+                .withOfficerRole("corporate-director")
                 .withTitle("Mrs")
                 .withFormerNames(singletonList(new FormerNamesData("former former", "names")))
                 .withIdentification(new IdentificationData("idType", "legalAuth",
@@ -150,8 +186,8 @@ class OfficerAppointmentsMapperTest {
         links.setSelf("/officers/officerId/appointments");
 
         OfficerAppointmentsApi expected = new OfficerAppointmentsApi();
-        expected.setTotalResults(2L);
-        expected.setCorporateOfficer(false);
+        expected.setTotalResults(1L);
+        expected.setCorporateOfficer(true);
         expected.setDateOfBirth(dateOfBirth);
         expected.setItemsPerPage(35L);
         expected.setKind("kind");

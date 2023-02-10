@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.Optional;
@@ -45,30 +46,33 @@ class OfficerAppointmentsServiceTest {
     @DisplayName("Get officer appointments returns an officer appointments api")
     void getOfficerAppointments() {
         // given
+        OfficerAppointmentsRequest request = new OfficerAppointmentsRequest(OFFICER_ID, null, null, null);
         when(repository.findOfficerAppointments(anyString())).thenReturn(Optional.of(officerAppointmentsAggregate));
-        when(mapper.map(any())).thenReturn(officerAppointmentsApi);
+        when(mapper.map(any(), any())).thenReturn(officerAppointmentsApi);
 
         // when
-        Optional<OfficerAppointmentsApi> actual = service.getOfficerAppointments(OFFICER_ID);
+        Optional<OfficerAppointmentsApi> actual = service.getOfficerAppointments(request);
 
         // then
         assertTrue(actual.isPresent());
         assertEquals(officerAppointmentsApi, actual.get());
         verify(repository).findOfficerAppointments(OFFICER_ID);
-        verify(mapper).map(officerAppointmentsAggregate);
+        verify(mapper).map(officerAppointmentsAggregate, request);
     }
 
     @Test
     @DisplayName("Get officer appointments returns empty")
     void getOfficerAppointmentsEmpty() {
         // given
+        OfficerAppointmentsRequest request = new OfficerAppointmentsRequest(OFFICER_ID, null, null, null);
         when(repository.findOfficerAppointments(anyString())).thenReturn(Optional.empty());
 
         // when
-        Optional<OfficerAppointmentsApi> actual = service.getOfficerAppointments(OFFICER_ID);
+        Optional<OfficerAppointmentsApi> actual = service.getOfficerAppointments(request);
 
         // then
         assertFalse(actual.isPresent());
         verify(repository).findOfficerAppointments(OFFICER_ID);
+        verifyNoInteractions(mapper);
     }
 }

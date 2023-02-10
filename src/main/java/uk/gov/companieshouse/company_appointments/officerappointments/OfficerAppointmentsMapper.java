@@ -6,7 +6,10 @@ import uk.gov.companieshouse.api.model.officerappointments.OfficerAppointmentsAp
 @Component
 public class OfficerAppointmentsMapper {
 
-    public OfficerAppointmentsApi map(OfficerAppointmentsAggregate officerAppointmentsAggregate) {
-        return null;
+    public OfficerAppointmentsApi map(OfficerAppointmentsAggregate aggregate, OfficerAppointmentsRequest request) {
+        OfficerAppointmentsApi officerAppointments = new OfficerAppointmentsApi();
+        officerAppointments.setTotalResults(aggregate.getTotalResults().getCount());
+
+        return officerAppointments;
     }
 }

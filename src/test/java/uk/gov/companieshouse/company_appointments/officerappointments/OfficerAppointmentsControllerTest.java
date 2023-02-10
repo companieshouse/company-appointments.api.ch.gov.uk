@@ -44,30 +44,32 @@ class OfficerAppointmentsControllerTest {
     @DisplayName("Call to get officer appointments returns http 200 ok and officer appointments api")
     void testGetOfficerAppointments() {
         // given
+        OfficerAppointmentsRequest request = new OfficerAppointmentsRequest(OFFICER_ID, null, null, null);
         when(service.getOfficerAppointments(any())).thenReturn(Optional.of(officerAppointmentsApi));
 
         // when
-        ResponseEntity<OfficerAppointmentsApi> response = controller.getOfficerAppointments(OFFICER_ID);
+        ResponseEntity<OfficerAppointmentsApi> response = controller.getOfficerAppointments(OFFICER_ID, null, null, null);
 
         // then
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(officerAppointmentsApi, response.getBody());
-        verify(service).getOfficerAppointments(OFFICER_ID);
+        verify(service).getOfficerAppointments(request);
     }
 
     @Test
     @DisplayName("Call to get officer appointments returns http 404 not found when officer id does not exist")
     void testGetOfficerAppointmentsNotFound() {
         // given
+        OfficerAppointmentsRequest request = new OfficerAppointmentsRequest(OFFICER_ID, null, null, null);
         when(service.getOfficerAppointments(any())).thenReturn(Optional.empty());
 
         // when
-        ResponseEntity<OfficerAppointmentsApi> response = controller.getOfficerAppointments(OFFICER_ID);
+        ResponseEntity<OfficerAppointmentsApi> response = controller.getOfficerAppointments(OFFICER_ID, null, null, null);
 
         // then
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         assertNull(response.getBody());
-        verify(service).getOfficerAppointments(OFFICER_ID);
+        verify(service).getOfficerAppointments(request);
         verify(logger).error(loggerCaptor.capture());
         assertEquals(String.format("No appointments found for officer id %s", OFFICER_ID), loggerCaptor.getValue());
     }
