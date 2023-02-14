@@ -17,7 +17,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import uk.gov.companieshouse.api.model.officerappointments.OfficerAppointmentsApi;
+import uk.gov.companieshouse.api.officer.AppointmentList;
 import uk.gov.companieshouse.logging.Logger;
 
 @ExtendWith(MockitoExtension.class)
@@ -27,12 +27,12 @@ class OfficerAppointmentsControllerTest {
 
     @InjectMocks
     private OfficerAppointmentsController controller;
-    
+
     @Mock
     private OfficerAppointmentsService service;
 
     @Mock
-    private OfficerAppointmentsApi officerAppointmentsApi;
+    private AppointmentList officerAppointments;
 
     @Mock
     private Logger logger;
@@ -45,14 +45,14 @@ class OfficerAppointmentsControllerTest {
     void testGetOfficerAppointments() {
         // given
         OfficerAppointmentsRequest request = new OfficerAppointmentsRequest(OFFICER_ID, null, null, null);
-        when(service.getOfficerAppointments(any())).thenReturn(Optional.of(officerAppointmentsApi));
+        when(service.getOfficerAppointments(any())).thenReturn(Optional.of(officerAppointments));
 
         // when
-        ResponseEntity<OfficerAppointmentsApi> response = controller.getOfficerAppointments(OFFICER_ID, null, null, null);
+        ResponseEntity<AppointmentList> response = controller.getOfficerAppointments(OFFICER_ID, null, null, null);
 
         // then
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(officerAppointmentsApi, response.getBody());
+        assertEquals(officerAppointments, response.getBody());
         verify(service).getOfficerAppointments(request);
     }
 
@@ -64,7 +64,7 @@ class OfficerAppointmentsControllerTest {
         when(service.getOfficerAppointments(any())).thenReturn(Optional.empty());
 
         // when
-        ResponseEntity<OfficerAppointmentsApi> response = controller.getOfficerAppointments(OFFICER_ID, null, null, null);
+        ResponseEntity<AppointmentList> response = controller.getOfficerAppointments(OFFICER_ID, null, null, null);
 
         // then
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());

@@ -1,31 +1,35 @@
 package uk.gov.companieshouse.company_appointments.officerappointments;
 
+import static java.util.Optional.ofNullable;
+
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.Locale;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import org.springframework.stereotype.Component;
-import uk.gov.companieshouse.api.model.common.Address;
-import uk.gov.companieshouse.api.model.common.DateOfBirth;
-import uk.gov.companieshouse.api.model.common.Links;
-import uk.gov.companieshouse.api.model.officerappointments.AppointedToApi;
-import uk.gov.companieshouse.api.model.officerappointments.AppointmentApi;
-import uk.gov.companieshouse.api.model.officerappointments.AppointmentsNameElements;
-import uk.gov.companieshouse.api.model.officerappointments.OfficerAppointmentsApi;
-import uk.gov.companieshouse.api.model.officers.FormerNamesApi;
+import uk.gov.companieshouse.api.officer.Address;
+import uk.gov.companieshouse.api.officer.AppointedTo;
+import uk.gov.companieshouse.api.officer.AppointmentLinkTypes;
+import uk.gov.companieshouse.api.officer.AppointmentList;
+import uk.gov.companieshouse.api.officer.ContactDetails;
+import uk.gov.companieshouse.api.officer.CorporateIdent;
+import uk.gov.companieshouse.api.officer.DateOfBirth;
+import uk.gov.companieshouse.api.officer.FormerNames;
+import uk.gov.companieshouse.api.officer.NameElements;
+import uk.gov.companieshouse.api.officer.OfficerAppointmentSummary;
+import uk.gov.companieshouse.api.officer.OfficerLinkTypes;
 import uk.gov.companieshouse.company_appointments.RoleHelper;
 import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentData;
 import uk.gov.companieshouse.company_appointments.model.data.OfficerData;
-
-import static java.util.Optional.*;
 
 @Component
 public class OfficerAppointmentsMapper {
 
     private static final String TITLE_REGEX = "^(?i)(?=m)(?:mrs?|miss|ms|master)$";
-    private static final String KIND = "personal-appointment";
     private static final String CORPORATE = "corporate";
 
     /**
@@ -36,100 +40,113 @@ public class OfficerAppointmentsMapper {
      * @param request   The request containing parameters for sorting, filtering and pagination.
      * @return The optional OfficerAppointmentsApi for the response body.
      */
-    public Optional<OfficerAppointmentsApi> mapOfficerAppointments(OfficerAppointmentsAggregate aggregate, OfficerAppointmentsRequest request) {
+    public Optional<AppointmentList> mapOfficerAppointments(OfficerAppointmentsAggregate aggregate, OfficerAppointmentsRequest request) {
         return ofNullable(aggregate.getOfficerAppointments().stream()
                 .filter(appointmentData -> appointmentData.getData().getResignedOn() == null)
                 .findFirst()
                 .orElse(aggregate.getOfficerAppointments().get(0))
-        ).map(firstAppointment -> {
-            OfficerAppointmentsApi officerAppointments = new OfficerAppointmentsApi();
-            officerAppointments.setDateOfBirth(RoleHelper.isSecretary(firstAppointment) ? null : mapDateOfBirth(firstAppointment));
-            officerAppointments.setEtag(firstAppointment.getData().getEtag());
-            officerAppointments.setCorporateOfficer(firstAppointment.getData().getOfficerRole().startsWith(CORPORATE));
-            officerAppointments.setItemsPerPage(35L);
-            officerAppointments.setKind(KIND);
-
-            Links links = new Links();
-            links.setSelf(String.format("/officers/%s/appointments", request.getOfficerId()));
-            officerAppointments.setLinks(links);
-
-            officerAppointments.setName(ofNullable(firstAppointment.getData().getCompanyName())
-                    .orElse(buildOfficerName(firstAppointment)));
-            officerAppointments.setStartIndex(0L);
-            officerAppointments.setTotalResults(aggregate.getTotalResults().getCount());
-
-            officerAppointments.setItems(aggregate.getOfficerAppointments().stream()
-                    .map(appointment -> {
-                        OfficerData data = appointment.getData();
-                        AppointmentApi appointmentApi = new AppointmentApi();
-
-                        appointmentApi.setAddress(ofNullable(data.getServiceAddress())
-                                .map(serviceAddress -> {
-                                    Address address = new Address();
-                                    address.setAddressLine1(serviceAddress.getAddressLine1());
-                                    address.setAddressLine2(serviceAddress.getAddressLine2());
-                                    address.setCareOf(serviceAddress.getCareOf());
-                                    address.setCountry(serviceAddress.getCountry());
-                                    address.setLocality(serviceAddress.getLocality());
-                                    address.setPoBox(serviceAddress.getPoBox());
-                                    address.setPostalCode(serviceAddress.getPostcode());
-                                    address.setPremises(serviceAddress.getPremises());
-                                    address.setRegion(serviceAddress.getRegion());
-                                    return address;
-                                })
-                                .orElse(null));
-
-                        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.UK);
-                        appointmentApi.setAppointedBefore(LocalDate.parse(data.getAppointedBefore(), formatter));
-
-                        appointmentApi.setAppointedOn(data.getAppointedOn().toLocalDate());
-
-                        AppointedToApi appointedToApi = new AppointedToApi();
-                        appointedToApi.setCompanyName(data.getCompanyName());
-                        appointedToApi.setCompanyNumber(data.getCompanyNumber());
-                        appointedToApi.setCompanyStatus(appointment.getCompanyStatus());
-                        appointmentApi.setAppointedTo(appointedToApi);
-
-                        appointmentApi.setCountryOfResidence(data.getCountryOfResidence());
-
-                        appointmentApi.setFormerNames(data.getFormerNameData().stream()
-                                .map(names -> {
-                                    FormerNamesApi formerNames = new FormerNamesApi();
-                                    formerNames.setForenames(names.getForenames());
-                                    formerNames.setSurname(names.getSurname());
-                                    return formerNames;
-                                })
-                                .collect(Collectors.toList()));
-
-                        appointmentApi.setName(ofNullable(data.getCompanyName())
-                                .orElse(buildOfficerName(appointment)));
-                        appointmentApi.setNameElements(new AppointmentsNameElements());
-                        return appointmentApi;
-                    }).collect(Collectors.toList()));
-            return officerAppointments;
-        });
+        ).map(firstAppointment -> new AppointmentList()
+                .dateOfBirth(RoleHelper.isSecretary(firstAppointment) ? null : mapDateOfBirth(firstAppointment))
+                .etag(firstAppointment.getData().getEtag())
+                .isCorporateOfficer(firstAppointment.getData().getOfficerRole().startsWith(CORPORATE))
+                .itemsPerPage(35)
+                .kind(AppointmentList.KindEnum.PERSONAL_APPOINTMENT)
+                .links(new OfficerLinkTypes().self(String.format("/officers/%s/appointments", request.getOfficerId())))
+                .items(aggregate.getOfficerAppointments().stream()
+                        .map(appointment -> {
+                            OfficerData data = appointment.getData();
+                            return new OfficerAppointmentSummary()
+                                    .address(ofNullable(data.getServiceAddress())
+                                            .map(address -> new Address()
+                                                    .addressLine1(address.getAddressLine1())
+                                                    .addressLine2(address.getAddressLine2())
+                                                    .careOf(address.getCareOf())
+                                                    .country(address.getCountry())
+                                                    .locality(address.getLocality())
+                                                    .poBox(address.getPoBox())
+                                                    .postalCode(address.getPostcode())
+                                                    .premises(address.getPremises())
+                                                    .region(address.getRegion()))
+                                            .orElse(null))
+                                    .appointedBefore(LocalDate.parse(data.getAppointedBefore(),
+                                            DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.UK)))
+                                    .appointedOn(data.getAppointedOn().toLocalDate())
+                                    .appointedTo(new AppointedTo()
+                                            .companyName(appointment.getCompanyName())
+                                            .companyNumber(data.getCompanyNumber())
+                                            .companyStatus(appointment.getCompanyStatus()))
+                                    .contactDetails(ofNullable(data.getContactDetails())
+                                            .map(contactDetails -> new ContactDetails()
+                                                    .contactName(contactDetails.getContactName()))
+                                            .orElse(null))
+                                    .name(ofNullable(data.getCompanyName())
+                                            .orElse(buildOfficerName(appointment)))
+                                    .countryOfResidence(data.getCountryOfResidence())
+                                    .formerNames(ofNullable(data.getFormerNameData())
+                                            .map(formerNamesData -> formerNamesData.stream()
+                                                    .map(names -> new FormerNames()
+                                                            .forenames(names.getForenames())
+                                                            .surname(names.getSurname()))
+                                                    .collect(Collectors.toList()))
+                                            .orElse(null))
+                                    .identification(ofNullable(data.getIdentificationData())
+                                            .map(identification -> new CorporateIdent()
+                                                    .identificationType(CorporateIdent.IdentificationTypeEnum.fromValue(identification.getIdentificationType()))
+                                                    .legalAuthority(identification.getLegalAuthority())
+                                                    .legalForm(identification.getLegalForm())
+                                                    .placeRegistered(identification.getPlaceRegistered())
+                                                    .registrationNumber(identification.getRegistrationNumber()))
+                                            .orElse(null))
+                                    .isPre1992Appointment(data.getIsPre1992Appointment())
+                                    .links(new AppointmentLinkTypes().company(String.format("/company/%s", data.getCompanyNumber())))
+                                    .nameElements(new NameElements()
+                                            .forename(data.getForename())
+                                            .title(data.getTitle())
+                                            .otherForenames(data.getOtherForenames())
+                                            .surname(data.getSurname())
+                                            .honours(data.getHonours()))
+                                    .nationality(data.getNationality())
+                                    .occupation(data.getOccupation())
+                                    .officerRole(OfficerAppointmentSummary.OfficerRoleEnum.fromValue(data.getOfficerRole()))
+                                    .principalOfficeAddress(ofNullable(data.getPrincipalOfficeAddress())
+                                            .map(address -> new Address()
+                                                    .addressLine1(address.getAddressLine1())
+                                                    .addressLine2(address.getAddressLine2())
+                                                    .careOf(address.getCareOf())
+                                                    .country(address.getCountry())
+                                                    .locality(address.getLocality())
+                                                    .poBox(address.getPoBox())
+                                                    .postalCode(address.getPostcode())
+                                                    .premises(address.getPremises())
+                                                    .region(address.getRegion()))
+                                            .orElse(null))
+                                    .resignedOn(ofNullable(data.getResignedOn())
+                                            .map(LocalDateTime::toLocalDate)
+                                            .orElse(null))
+                                    .responsibilities(data.getResponsibilities());
+                        }).collect(Collectors.toList()))
+                .name(ofNullable(firstAppointment.getData().getCompanyName())
+                        .orElse(buildOfficerName(firstAppointment)))
+                .startIndex(0)
+                .totalResults(aggregate.getTotalResults().getCount().intValue())
+        );
     }
 
     private DateOfBirth mapDateOfBirth(CompanyAppointmentData appointmentData) {
         return ofNullable(appointmentData.getData().getDateOfBirth())
-                .map(dateOfBirth -> {
-                    DateOfBirth dob = new DateOfBirth();
-                    dob.setMonth((long) dateOfBirth.getMonthValue());
-                    dob.setYear((long) dateOfBirth.getYear());
-                    return dob;
-                })
+                .map(dateOfBirth -> new DateOfBirth()
+                        .month(dateOfBirth.getMonthValue())
+                        .year(dateOfBirth.getYear()))
                 .orElse(null);
     }
 
     private String buildOfficerName(CompanyAppointmentData companyAppointmentData) {
-        String result = companyAppointmentData.getData().getSurname();
-        if (companyAppointmentData.getData().getForename() != null || companyAppointmentData.getData().getOtherForenames() != null) {
-            result = String.join(", ", companyAppointmentData.getData().getSurname(), Stream.of(companyAppointmentData.getData().getForename(), companyAppointmentData.getData().getOtherForenames())
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.joining(" ")));
-        }
+        String result = Stream.of(companyAppointmentData.getData().getForename(), companyAppointmentData.getData().getOtherForenames(), companyAppointmentData.getData().getSurname())
+                .filter(Objects::nonNull)
+                .collect(Collectors.joining(" "));
+
         if (companyAppointmentData.getData().getTitle() != null && !companyAppointmentData.getData().getTitle().matches(TITLE_REGEX)) {
-            result = String.join(", ", result, companyAppointmentData.getData().getTitle());
+            result = companyAppointmentData.getData().getTitle() + result;
         }
         return result;
     }

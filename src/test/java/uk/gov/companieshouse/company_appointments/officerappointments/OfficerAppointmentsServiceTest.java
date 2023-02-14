@@ -17,7 +17,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.companieshouse.api.model.officerappointments.AppointmentApi;
-import uk.gov.companieshouse.api.model.officerappointments.OfficerAppointmentsApi;
+import uk.gov.companieshouse.api.officer.AppointmentList;
 
 @ExtendWith(MockitoExtension.class)
 class OfficerAppointmentsServiceTest {
@@ -34,7 +34,7 @@ class OfficerAppointmentsServiceTest {
     private OfficerAppointmentsMapper mapper;
 
     @Mock
-    private OfficerAppointmentsApi officerAppointmentsApi;
+    private AppointmentList officerAppointments;
 
     @Mock
     private OfficerAppointmentsAggregate officerAppointmentsAggregate;
@@ -48,14 +48,14 @@ class OfficerAppointmentsServiceTest {
         // given
         OfficerAppointmentsRequest request = new OfficerAppointmentsRequest(OFFICER_ID, null, null, null);
         when(repository.findOfficerAppointments(anyString())).thenReturn(Optional.of(officerAppointmentsAggregate));
-        when(mapper.mapOfficerAppointments(any(), any())).thenReturn(Optional.of(officerAppointmentsApi));
+        when(mapper.mapOfficerAppointments(any(), any())).thenReturn(Optional.of(officerAppointments));
 
         // when
-        Optional<OfficerAppointmentsApi> actual = service.getOfficerAppointments(request);
+        Optional<AppointmentList> actual = service.getOfficerAppointments(request);
 
         // then
         assertTrue(actual.isPresent());
-        assertEquals(officerAppointmentsApi, actual.get());
+        assertEquals(officerAppointments, actual.get());
         verify(repository).findOfficerAppointments(OFFICER_ID);
         verify(mapper).mapOfficerAppointments(officerAppointmentsAggregate, request);
     }
@@ -68,7 +68,7 @@ class OfficerAppointmentsServiceTest {
         when(repository.findOfficerAppointments(anyString())).thenReturn(Optional.empty());
 
         // when
-        Optional<OfficerAppointmentsApi> actual = service.getOfficerAppointments(request);
+        Optional<AppointmentList> actual = service.getOfficerAppointments(request);
 
         // then
         assertFalse(actual.isPresent());

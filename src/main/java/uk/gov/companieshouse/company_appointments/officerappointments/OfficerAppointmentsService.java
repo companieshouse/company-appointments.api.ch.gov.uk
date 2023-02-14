@@ -2,7 +2,7 @@ package uk.gov.companieshouse.company_appointments.officerappointments;
 
 import java.util.Optional;
 import org.springframework.stereotype.Service;
-import uk.gov.companieshouse.api.model.officerappointments.OfficerAppointmentsApi;
+import uk.gov.companieshouse.api.officer.AppointmentList;
 
 @Service
 public class OfficerAppointmentsService {
@@ -15,7 +15,7 @@ public class OfficerAppointmentsService {
         this.mapper = mapper;
     }
 
-    public Optional<OfficerAppointmentsApi> getOfficerAppointments(OfficerAppointmentsRequest request) {
+    public Optional<AppointmentList> getOfficerAppointments(OfficerAppointmentsRequest request) {
         return repository.findOfficerAppointments(request.getOfficerId())
                 .flatMap(aggregate -> mapper.mapOfficerAppointments(aggregate, request));
     }

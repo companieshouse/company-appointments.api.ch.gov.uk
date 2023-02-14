@@ -5,7 +5,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
-import uk.gov.companieshouse.api.model.officerappointments.OfficerAppointmentsApi;
+import uk.gov.companieshouse.api.officer.AppointmentList;
 import uk.gov.companieshouse.logging.Logger;
 
 @Controller
@@ -20,7 +20,7 @@ public class OfficerAppointmentsController {
     }
 
     @GetMapping(path = "/officers/{officer_id}/appointments")
-    public ResponseEntity<OfficerAppointmentsApi> getOfficerAppointments(@PathVariable("officer_id") String officerId,
+    public ResponseEntity<AppointmentList> getOfficerAppointments(@PathVariable("officer_id") String officerId,
             @RequestParam("filter") String filter,
             @RequestParam("start_index") Integer startIndex,
             @RequestParam("items_per_page") Integer itemsPerPage) {
