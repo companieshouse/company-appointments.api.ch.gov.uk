@@ -48,7 +48,7 @@ class OfficerAppointmentsServiceTest {
         // given
         OfficerAppointmentsRequest request = new OfficerAppointmentsRequest(OFFICER_ID, null, null, null);
         when(repository.findOfficerAppointments(anyString())).thenReturn(Optional.of(officerAppointmentsAggregate));
-        when(mapper.map(any(), any())).thenReturn(officerAppointmentsApi);
+        when(mapper.map(any(), any())).thenReturn(Optional.of(officerAppointmentsApi));
 
         // when
         Optional<OfficerAppointmentsApi> actual = service.getOfficerAppointments(request);
