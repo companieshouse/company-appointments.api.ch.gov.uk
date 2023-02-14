@@ -37,10 +37,9 @@ public class OfficerAppointmentsMapper {
      * first active appointment, if present, otherwise uses the first appointment.
      *
      * @param aggregate The count and appointments list pairing returned by the repository.
-     * @param request   The request containing parameters for sorting, filtering and pagination.
      * @return The optional OfficerAppointmentsApi for the response body.
      */
-    public Optional<AppointmentList> mapOfficerAppointments(OfficerAppointmentsAggregate aggregate, OfficerAppointmentsRequest request) {
+    public Optional<AppointmentList> mapOfficerAppointments(OfficerAppointmentsAggregate aggregate) {
         return ofNullable(aggregate.getOfficerAppointments().stream()
                 .filter(appointmentData -> appointmentData.getData().getResignedOn() == null)
                 .findFirst()
@@ -51,7 +50,7 @@ public class OfficerAppointmentsMapper {
                 .isCorporateOfficer(firstAppointment.getData().getOfficerRole().startsWith(CORPORATE))
                 .itemsPerPage(35)
                 .kind(AppointmentList.KindEnum.PERSONAL_APPOINTMENT)
-                .links(new OfficerLinkTypes().self(String.format("/officers/%s/appointments", request.getOfficerId())))
+                .links(new OfficerLinkTypes().self(String.format("/officers/%s/appointments", firstAppointment.getOfficerId())))
                 .items(aggregate.getOfficerAppointments().stream()
                         .map(appointment -> {
                             OfficerData data = appointment.getData();
@@ -80,7 +79,7 @@ public class OfficerAppointmentsMapper {
                                                     .contactName(contactDetails.getContactName()))
                                             .orElse(null))
                                     .name(ofNullable(data.getCompanyName())
-                                            .orElse(buildOfficerName(appointment)))
+                                            .orElse(buildOfficerName(data)))
                                     .countryOfResidence(data.getCountryOfResidence())
                                     .formerNames(ofNullable(data.getFormerNameData())
                                             .map(formerNamesData -> formerNamesData.stream()
@@ -126,7 +125,7 @@ public class OfficerAppointmentsMapper {
                                     .responsibilities(data.getResponsibilities());
                         }).collect(Collectors.toList()))
                 .name(ofNullable(firstAppointment.getData().getCompanyName())
-                        .orElse(buildOfficerName(firstAppointment)))
+                        .orElse(buildOfficerName(firstAppointment.getData())))
                 .startIndex(0)
                 .totalResults(aggregate.getTotalResults().getCount().intValue())
         );
@@ -140,13 +139,13 @@ public class OfficerAppointmentsMapper {
                 .orElse(null);
     }
 
-    private String buildOfficerName(CompanyAppointmentData companyAppointmentData) {
-        String result = Stream.of(companyAppointmentData.getData().getForename(), companyAppointmentData.getData().getOtherForenames(), companyAppointmentData.getData().getSurname())
+    private String buildOfficerName(OfficerData data) {
+        String result = Stream.of(data.getForename(), data.getOtherForenames(), data.getSurname())
                 .filter(Objects::nonNull)
                 .collect(Collectors.joining(" "));
 
-        if (companyAppointmentData.getData().getTitle() != null && !companyAppointmentData.getData().getTitle().matches(TITLE_REGEX)) {
-            result = companyAppointmentData.getData().getTitle() + result;
+        if (data.getTitle() != null && !data.getTitle().matches(TITLE_REGEX)) {
+            result = data.getTitle() + result;
         }
         return result;
     }

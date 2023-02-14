@@ -43,12 +43,11 @@ class OfficerAppointmentsMapperTest {
     @DisplayName("Should map officer appointments aggregate to an officer appointments api")
     void testMap() {
         // given
-        OfficerAppointmentsRequest request = new OfficerAppointmentsRequest("officerId", "", null, null);
         OfficerAppointmentsAggregate officerAppointmentsAggregate = getOfficerAppointmentsAggregate();
         AppointmentList expected = getExpectedOfficerAppointments();
 
         // when
-        Optional<AppointmentList> actual = mapper.mapOfficerAppointments(officerAppointmentsAggregate, request);
+        Optional<AppointmentList> actual = mapper.mapOfficerAppointments(officerAppointmentsAggregate);
 
         // then
         assertTrue(actual.isPresent());
