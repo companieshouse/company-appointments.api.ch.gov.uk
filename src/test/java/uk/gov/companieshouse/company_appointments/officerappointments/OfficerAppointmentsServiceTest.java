@@ -48,7 +48,7 @@ class OfficerAppointmentsServiceTest {
         // given
         OfficerAppointmentsRequest request = new OfficerAppointmentsRequest(OFFICER_ID, null, null, null);
         when(repository.findOfficerAppointments(anyString())).thenReturn(Optional.of(officerAppointmentsAggregate));
-        when(mapper.map(any(), any())).thenReturn(Optional.of(officerAppointmentsApi));
+        when(mapper.mapOfficerAppointments(any(), any())).thenReturn(Optional.of(officerAppointmentsApi));
 
         // when
         Optional<OfficerAppointmentsApi> actual = service.getOfficerAppointments(request);
@@ -57,7 +57,7 @@ class OfficerAppointmentsServiceTest {
         assertTrue(actual.isPresent());
         assertEquals(officerAppointmentsApi, actual.get());
         verify(repository).findOfficerAppointments(OFFICER_ID);
-        verify(mapper).map(officerAppointmentsAggregate, request);
+        verify(mapper).mapOfficerAppointments(officerAppointmentsAggregate, request);
     }
 
     @Test

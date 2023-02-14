@@ -47,7 +47,7 @@ class OfficerAppointmentsMapperTest {
         OfficerAppointmentsApi expected = getExpectedOfficerAppointmentsApi();
 
         // when
-        Optional<OfficerAppointmentsApi> actual = mapper.map(officerAppointmentsAggregate, request);
+        Optional<OfficerAppointmentsApi> actual = mapper.mapOfficerAppointments(officerAppointmentsAggregate, request);
 
         // then
         assertTrue(actual.isPresent());
