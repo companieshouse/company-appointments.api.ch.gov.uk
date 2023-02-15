@@ -139,13 +139,13 @@ public class OfficerAppointmentsMapper {
                 .orElse(null);
     }
 
-    private String buildOfficerName(OfficerData data) {
+    protected String buildOfficerName(OfficerData data) {
         String result = Stream.of(data.getForename(), data.getOtherForenames(), data.getSurname())
                 .filter(Objects::nonNull)
                 .collect(Collectors.joining(" "));
 
         if (data.getTitle() != null && !data.getTitle().matches(TITLE_REGEX)) {
-            result = data.getTitle() + result;
+            result = String.format("%s %s", data.getTitle(), result);
         }
         return result;
     }

@@ -10,23 +10,8 @@ import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import uk.gov.companieshouse.api.officer.Address;
-import uk.gov.companieshouse.api.officer.AppointedTo;
-import uk.gov.companieshouse.api.officer.AppointmentLinkTypes;
-import uk.gov.companieshouse.api.officer.AppointmentList;
-import uk.gov.companieshouse.api.officer.CorporateIdent;
-import uk.gov.companieshouse.api.officer.DateOfBirth;
-import uk.gov.companieshouse.api.officer.FormerNames;
-import uk.gov.companieshouse.api.officer.NameElements;
-import uk.gov.companieshouse.api.officer.OfficerAppointmentSummary;
-import uk.gov.companieshouse.api.officer.OfficerLinkTypes;
-import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentData;
-import uk.gov.companieshouse.company_appointments.model.data.FormerNamesData;
-import uk.gov.companieshouse.company_appointments.model.data.IdentificationData;
-import uk.gov.companieshouse.company_appointments.model.data.LinksData;
-import uk.gov.companieshouse.company_appointments.model.data.OfficerData;
-import uk.gov.companieshouse.company_appointments.model.data.OfficerLinksData;
-import uk.gov.companieshouse.company_appointments.model.data.ServiceAddressData;
+import uk.gov.companieshouse.api.officer.*;
+import uk.gov.companieshouse.company_appointments.model.data.*;
 
 class OfficerAppointmentsMapperTest {
 
@@ -43,8 +28,8 @@ class OfficerAppointmentsMapperTest {
     @DisplayName("Should map officer appointments aggregate to an officer appointments api")
     void testMap() {
         // given
-        OfficerAppointmentsAggregate officerAppointmentsAggregate = getOfficerAppointmentsAggregate();
-        AppointmentList expected = getExpectedOfficerAppointments();
+        OfficerAppointmentsAggregate officerAppointmentsAggregate = getOfficerAppointmentsAggregate("director");
+        AppointmentList expected = getExpectedOfficerAppointments(false, OfficerAppointmentSummary.OfficerRoleEnum.DIRECTOR);
 
         // when
         Optional<AppointmentList> actual = mapper.mapOfficerAppointments(officerAppointmentsAggregate);
@@ -54,14 +39,109 @@ class OfficerAppointmentsMapperTest {
         assertEquals(expected, actual.get());
     }
 
-    private OfficerAppointmentsAggregate getOfficerAppointmentsAggregate() {
+    @Test
+    @DisplayName("Should map corporate managing officer appointments aggregate to an officer appointments api")
+    void testMapCorporateManagingOfficer() {
+        // given
+        OfficerAppointmentsAggregate officerAppointmentsAggregate = getOfficerAppointmentsAggregate("corporate-managing-officer");
+
+        OfficerData data = officerAppointmentsAggregate.getOfficerAppointments().get(0).getData();
+        data.setContactDetails(new ContactDetailsData("contact name"));
+        data.setPrincipalOfficeAddress(
+                ServiceAddressData.builder()
+                        .withAddressLine1("address line 1")
+                        .withAddressLine2("address line 2")
+                        .withCareOf("care of")
+                        .withCountry("United Kingdom")
+                        .withLocality("United Kingdom")
+                        .withPoBox("PO BOX")
+                        .withPostcode("POST CODE")
+                        .withPremises("premises")
+                        .withRegion("UK")
+                        .build()
+        );
+        data.setResponsibilities("responsibilities");
+        officerAppointmentsAggregate.getOfficerAppointments().get(0).setData(data);
+
+        AppointmentList expected = getExpectedOfficerAppointments(true, OfficerAppointmentSummary.OfficerRoleEnum.CORPORATE_MANAGING_OFFICER);
+        expected.getItems().get(0)
+                .contactDetails(new ContactDetails().contactName("contact name"))
+                .principalOfficeAddress(new Address()
+                        .addressLine1("address line 1")
+                        .addressLine2("address line 2")
+                        .careOf("care of")
+                        .country("United Kingdom")
+                        .locality("United Kingdom")
+                        .poBox("PO BOX")
+                        .postalCode("POST CODE")
+                        .premises("premises")
+                        .region("UK"))
+                .responsibilities("responsibilities");
+
+        // when
+        Optional<AppointmentList> actual = mapper.mapOfficerAppointments(officerAppointmentsAggregate);
+
+        // then
+        assertTrue(actual.isPresent());
+        assertEquals(expected, actual.get());
+    }
+
+    @Test
+    @DisplayName("Successfully builds an officer name")
+    void testBuildOfficerName() {
+        // given
+        OfficerData data = OfficerData.builder()
+                .withTitle("Dr")
+                .withForename("John")
+                .withOtherForenames("Tester")
+                .withSurname("Smith")
+                .build();
+
+        // when
+        String actual = mapper.buildOfficerName(data);
+
+        // then
+        assertEquals("Dr John Tester Smith", actual);
+    }
+
+    @Test
+    @DisplayName("Successfully builds an officer name with null title and other forenames")
+    void testBuildOfficerNameNullTitleAndOtherForenames() {
+        // given
+        OfficerData data = OfficerData.builder()
+                .withForename("John")
+                .withSurname("Smith")
+                .build();
+
+        // when
+        String actual = mapper.buildOfficerName(data);
+
+        // then
+        assertEquals("John Smith", actual);
+    }
+
+    @Test
+    @DisplayName("Successfully builds an officer name all null values")
+    void testBuildOfficerNameAllNull() {
+        // given
+        OfficerData data = OfficerData.builder()
+                .build();
+
+        // when
+        String actual = mapper.buildOfficerName(data);
+
+        // then
+        assertEquals("", actual);
+    }
+
+    private OfficerAppointmentsAggregate getOfficerAppointmentsAggregate(String role) {
         TotalResults totalResults = new TotalResults();
         totalResults.setCount(1L);
 
         OfficerData officerData = OfficerData.builder()
                 .withCompanyNumber("12345678")
                 .withEtag("etag")
-                .withOfficerRole("director")
+                .withOfficerRole(role)
                 .withTitle("Mrs")
                 .withFormerNames(singletonList(new FormerNamesData("former former", "names")))
                 .withIdentification(new IdentificationData("eea", "legalAuth",
@@ -99,13 +179,13 @@ class OfficerAppointmentsMapperTest {
         return officerAppointmentsAggregate;
     }
 
-    private AppointmentList getExpectedOfficerAppointments() {
+    private AppointmentList getExpectedOfficerAppointments(boolean isCorporateOfficer, OfficerAppointmentSummary.OfficerRoleEnum role) {
         return new AppointmentList()
                 .dateOfBirth(new DateOfBirth()
                         .year(2000)
                         .month(1))
                 .etag("etag")
-                .isCorporateOfficer(false)
+                .isCorporateOfficer(isCorporateOfficer)
                 .itemsPerPage(35)
                 .kind(AppointmentList.KindEnum.PERSONAL_APPOINTMENT)
                 .links(new OfficerLinkTypes().self("/officers/officerId/appointments"))
@@ -147,7 +227,7 @@ class OfficerAppointmentsMapperTest {
                                 .honours("FCA"))
                         .nationality("British")
                         .occupation("Company Director")
-                        .officerRole(OfficerAppointmentSummary.OfficerRoleEnum.DIRECTOR)
+                        .officerRole(role)
                         .resignedOn(LocalDate.of(2020, 1, 1))))
                 .name("forename secondForename surname")
                 .startIndex(0)
