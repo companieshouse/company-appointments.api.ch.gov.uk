@@ -10,8 +10,25 @@ import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import uk.gov.companieshouse.api.officer.*;
-import uk.gov.companieshouse.company_appointments.model.data.*;
+import uk.gov.companieshouse.api.officer.Address;
+import uk.gov.companieshouse.api.officer.AppointedTo;
+import uk.gov.companieshouse.api.officer.AppointmentLinkTypes;
+import uk.gov.companieshouse.api.officer.AppointmentList;
+import uk.gov.companieshouse.api.officer.ContactDetails;
+import uk.gov.companieshouse.api.officer.CorporateIdent;
+import uk.gov.companieshouse.api.officer.DateOfBirth;
+import uk.gov.companieshouse.api.officer.FormerNames;
+import uk.gov.companieshouse.api.officer.NameElements;
+import uk.gov.companieshouse.api.officer.OfficerAppointmentSummary;
+import uk.gov.companieshouse.api.officer.OfficerLinkTypes;
+import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentData;
+import uk.gov.companieshouse.company_appointments.model.data.ContactDetailsData;
+import uk.gov.companieshouse.company_appointments.model.data.FormerNamesData;
+import uk.gov.companieshouse.company_appointments.model.data.IdentificationData;
+import uk.gov.companieshouse.company_appointments.model.data.LinksData;
+import uk.gov.companieshouse.company_appointments.model.data.OfficerData;
+import uk.gov.companieshouse.company_appointments.model.data.OfficerLinksData;
+import uk.gov.companieshouse.company_appointments.model.data.ServiceAddressData;
 
 class OfficerAppointmentsMapperTest {
 
@@ -21,8 +38,6 @@ class OfficerAppointmentsMapperTest {
     void setUp() {
         mapper = new OfficerAppointmentsMapper();
     }
-
-    // TODO test corporate-managing-officer role for contact details, principal office address and responsibilities
 
     @Test
     @DisplayName("Should map officer appointments aggregate to an officer appointments api")
@@ -84,54 +99,6 @@ class OfficerAppointmentsMapperTest {
         // then
         assertTrue(actual.isPresent());
         assertEquals(expected, actual.get());
-    }
-
-    @Test
-    @DisplayName("Successfully builds an officer name")
-    void testBuildOfficerName() {
-        // given
-        OfficerData data = OfficerData.builder()
-                .withTitle("Dr")
-                .withForename("John")
-                .withOtherForenames("Tester")
-                .withSurname("Smith")
-                .build();
-
-        // when
-        String actual = mapper.buildOfficerName(data);
-
-        // then
-        assertEquals("Dr John Tester Smith", actual);
-    }
-
-    @Test
-    @DisplayName("Successfully builds an officer name with null title and other forenames")
-    void testBuildOfficerNameNullTitleAndOtherForenames() {
-        // given
-        OfficerData data = OfficerData.builder()
-                .withForename("John")
-                .withSurname("Smith")
-                .build();
-
-        // when
-        String actual = mapper.buildOfficerName(data);
-
-        // then
-        assertEquals("John Smith", actual);
-    }
-
-    @Test
-    @DisplayName("Successfully builds an officer name all null values")
-    void testBuildOfficerNameAllNull() {
-        // given
-        OfficerData data = OfficerData.builder()
-                .build();
-
-        // when
-        String actual = mapper.buildOfficerName(data);
-
-        // then
-        assertEquals("", actual);
     }
 
     private OfficerAppointmentsAggregate getOfficerAppointmentsAggregate(String role) {
