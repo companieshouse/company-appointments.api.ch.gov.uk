@@ -27,20 +27,22 @@ public class OfficerAppointmentsMapper {
      */
     public Optional<AppointmentList> mapOfficerAppointments(OfficerAppointmentsAggregate aggregate) {
         return ofNullable(aggregate.getOfficerAppointments().stream()
-                    .filter(appointmentData -> appointmentData.getData().getResignedOn() == null)
-                    .findFirst()
-                    .orElse(aggregate.getOfficerAppointments().get(0)))
-                .map(firstAppointment -> new AppointmentList()
-                        .dateOfBirth(mapDateOfBirth(firstAppointment.getData()))
-                        .etag(firstAppointment.getData().getEtag())
-                        .isCorporateOfficer(mapIsCorporateOfficer(firstAppointment.getData()))
-                        .itemsPerPage(ITEMS_PER_PAGE)
-                        .kind(KindEnum.PERSONAL_APPOINTMENT)
-                        .links(new OfficerLinkTypes().self(String.format("/officers/%s/appointments", firstAppointment.getOfficerId())))
-                        .items(mapItems(aggregate.getOfficerAppointments()))
-                        .name(mapName(firstAppointment.getData()))
-                        .startIndex(START_INDEX)
-                        .totalResults(aggregate.getTotalResults().getCount().intValue())
-                );
+                .filter(appointmentData -> appointmentData.getData().getResignedOn() == null)
+                .findFirst()
+                .orElse(aggregate.getOfficerAppointments().get(0)))
+                .flatMap(firstAppointment -> ofNullable(firstAppointment.getData())
+                        .map(data -> new AppointmentList()
+                                .dateOfBirth(mapDateOfBirth(data))
+                                .etag(data.getEtag())
+                                .isCorporateOfficer(mapIsCorporateOfficer(data))
+                                .itemsPerPage(ITEMS_PER_PAGE)
+                                .kind(KindEnum.PERSONAL_APPOINTMENT)
+                                .links(new OfficerLinkTypes().self(
+                                        String.format("/officers/%s/appointments", firstAppointment.getOfficerId())))
+                                .items(mapItems(aggregate.getOfficerAppointments()))
+                                .name(mapName(data))
+                                .startIndex(START_INDEX)
+                                .totalResults(aggregate.getTotalResults().getCount().intValue())
+                        ));
     }
 }
