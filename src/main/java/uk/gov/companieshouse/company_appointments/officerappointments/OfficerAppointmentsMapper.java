@@ -19,17 +19,15 @@ public class OfficerAppointmentsMapper {
     private static final int START_INDEX = 0;
 
     /**
-     * Maps the the appointments returned from MongoDB to a list of officer appointments. Uses the
-     * first active appointment, if present, otherwise uses the first appointment.
+     * Maps the appointments returned from MongoDB to a list of officer appointments
+     * alongside top level fields, relating to the first appointment found.
      *
      * @param aggregate The count and appointments list pairing returned by the repository.
      * @return The optional OfficerAppointmentsApi for the response body.
      */
     public Optional<AppointmentList> mapOfficerAppointments(OfficerAppointmentsAggregate aggregate) {
-        return ofNullable(aggregate.getOfficerAppointments().stream()
-                .filter(appointmentData -> appointmentData.getData().getResignedOn() == null)
+        return aggregate.getOfficerAppointments().stream()
                 .findFirst()
-                .orElse(aggregate.getOfficerAppointments().get(0)))
                 .flatMap(firstAppointment -> ofNullable(firstAppointment.getData())
                         .map(data -> new AppointmentList()
                                 .dateOfBirth(mapDateOfBirth(data))

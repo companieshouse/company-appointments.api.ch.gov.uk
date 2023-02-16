@@ -2,6 +2,7 @@ package uk.gov.companieshouse.company_appointments.officerappointments;
 
 import static java.util.Collections.singletonList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.LocalDate;
@@ -41,7 +42,7 @@ class OfficerAppointmentsMapperTest {
 
     @Test
     @DisplayName("Should map officer appointments aggregate to an officer appointments api")
-    void testMap() {
+    void map() {
         // given
         OfficerAppointmentsAggregate officerAppointmentsAggregate = getOfficerAppointmentsAggregate("director");
         AppointmentList expected = getExpectedOfficerAppointments(false, OfficerAppointmentSummary.OfficerRoleEnum.DIRECTOR);
@@ -56,7 +57,7 @@ class OfficerAppointmentsMapperTest {
 
     @Test
     @DisplayName("Should map corporate managing officer appointments aggregate to an officer appointments api")
-    void testMapCorporateManagingOfficer() {
+    void mapCorporateManagingOfficer() {
         // given
         OfficerAppointmentsAggregate officerAppointmentsAggregate = getOfficerAppointmentsAggregate("corporate-managing-officer");
 
@@ -99,6 +100,33 @@ class OfficerAppointmentsMapperTest {
         // then
         assertTrue(actual.isPresent());
         assertEquals(expected, actual.get());
+    }
+
+    @Test
+    @DisplayName("Should return an empty optional if the list of appointments within the aggregate is empty")
+    void mapEmptyAppointmentsList() {
+        // given
+        OfficerAppointmentsAggregate aggregate = new OfficerAppointmentsAggregate();
+
+        // when
+        Optional<AppointmentList> actual = mapper.mapOfficerAppointments(aggregate);
+
+        // then
+        assertFalse(actual.isPresent());
+    }
+
+    @Test
+    @DisplayName("Should return an empty optional if the list of appointments within the aggregate has null officer data")
+    void mapNullOfficerData() {
+        // given
+        OfficerAppointmentsAggregate aggregate = new OfficerAppointmentsAggregate();
+        aggregate.getOfficerAppointments().add(new CompanyAppointmentData());
+
+        // when
+        Optional<AppointmentList> actual = mapper.mapOfficerAppointments(aggregate);
+
+        // then
+        assertFalse(actual.isPresent());
     }
 
     private OfficerAppointmentsAggregate getOfficerAppointmentsAggregate(String role) {
