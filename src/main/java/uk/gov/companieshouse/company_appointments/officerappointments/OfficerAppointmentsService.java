@@ -16,7 +16,6 @@ public class OfficerAppointmentsService {
     }
 
     public Optional<AppointmentList> getOfficerAppointments(OfficerAppointmentsRequest request) {
-        return repository.findOfficerAppointments(request.getOfficerId())
-                .flatMap(mapper::mapOfficerAppointments);
+        return mapper.mapOfficerAppointments(repository.findOfficerAppointments(request.getOfficerId()));
     }
 }

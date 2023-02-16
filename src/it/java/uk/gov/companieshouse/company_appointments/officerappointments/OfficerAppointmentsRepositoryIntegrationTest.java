@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 import java.util.Optional;
 import org.apache.commons.io.IOUtils;
 import org.bson.Document;
@@ -56,13 +57,12 @@ class OfficerAppointmentsRepositoryIntegrationTest {
         // given
 
         // when
-        Optional<OfficerAppointmentsAggregate> officerAppointmentsAggregate = repository.findOfficerAppointments(OFFICER_ID);
+        OfficerAppointmentsAggregate officerAppointmentsAggregate = repository.findOfficerAppointments(OFFICER_ID);
 
         // then
-        assertTrue(officerAppointmentsAggregate.isPresent());
-        assertEquals(2, officerAppointmentsAggregate.get().getTotalResults().getCount());
-        assertEquals(OFFICER_ID, officerAppointmentsAggregate.get().getOfficerAppointments().get(0).getOfficerId());
-        assertEquals(OFFICER_ID, officerAppointmentsAggregate.get().getOfficerAppointments().get(1).getOfficerId());
+        assertEquals(2, officerAppointmentsAggregate.getTotalResults());
+        assertEquals(OFFICER_ID, officerAppointmentsAggregate.getOfficerAppointments().get(0).getOfficerId());
+        assertEquals(OFFICER_ID, officerAppointmentsAggregate.getOfficerAppointments().get(1).getOfficerId());
     }
 
     @DisplayName("Repository returns no appointments when there are no matches")
@@ -71,9 +71,11 @@ class OfficerAppointmentsRepositoryIntegrationTest {
         // given
         // when
 
-        Optional<OfficerAppointmentsAggregate> officerAppointmentsAggregate = repository.findOfficerAppointments("officerId");
+        OfficerAppointmentsAggregate officerAppointmentsAggregate = repository.findOfficerAppointments("officerId");
 
         // then
-        assertFalse(officerAppointmentsAggregate.isPresent());
+        assertEquals(0, officerAppointmentsAggregate.getTotalResults());
+        assertTrue(officerAppointmentsAggregate.getOfficerAppointments().isEmpty());
+
     }
 }

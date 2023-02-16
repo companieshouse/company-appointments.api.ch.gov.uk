@@ -1,6 +1,5 @@
 package uk.gov.companieshouse.company_appointments.officerappointments;
 
-import java.util.Optional;
 import org.springframework.data.mongodb.repository.Aggregation;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
@@ -13,7 +12,9 @@ public interface OfficerAppointmentsRepository extends MongoRepository<CompanyAp
             "{ '$match': { 'officer_id': ?0 } }",
             "{ '$facet': { 'total_results': [{ '$count': 'count' }], "
                     + "'officer_appointments': [ { '$skip': 0 } ] }}",
-            "{ '$unwind': '$total_results' }"
+            "{ '$unwind': { 'path': '$total_results', 'preserveNullAndEmptyArrays': true }}",
+            "{ '$project': { 'total_results': { '$ifNull': ['$total_results.count', NumberInt(0)] },"
+                    + "'officer_appointments': '$officer_appointments' } }"
     })
-    Optional<OfficerAppointmentsAggregate> findOfficerAppointments(String officerId);
+    OfficerAppointmentsAggregate findOfficerAppointments(String officerId);
 }

@@ -40,7 +40,7 @@ public class OfficerAppointmentsMapper {
                                 .items(mapItems(aggregate.getOfficerAppointments()))
                                 .name(mapName(data))
                                 .startIndex(START_INDEX)
-                                .totalResults(aggregate.getTotalResults().getCount().intValue())
+                                .totalResults(aggregate.getTotalResults())
                         ));
     }
 }

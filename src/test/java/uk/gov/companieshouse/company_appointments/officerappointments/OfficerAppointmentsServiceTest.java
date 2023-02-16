@@ -47,7 +47,7 @@ class OfficerAppointmentsServiceTest {
     void getOfficerAppointments() {
         // given
         OfficerAppointmentsRequest request = new OfficerAppointmentsRequest(OFFICER_ID, null, null, null);
-        when(repository.findOfficerAppointments(anyString())).thenReturn(Optional.of(officerAppointmentsAggregate));
+        when(repository.findOfficerAppointments(anyString())).thenReturn(officerAppointmentsAggregate);
         when(mapper.mapOfficerAppointments(any())).thenReturn(Optional.of(officerAppointments));
 
         // when
@@ -58,21 +58,5 @@ class OfficerAppointmentsServiceTest {
         assertEquals(officerAppointments, actual.get());
         verify(repository).findOfficerAppointments(OFFICER_ID);
         verify(mapper).mapOfficerAppointments(officerAppointmentsAggregate);
-    }
-
-    @Test
-    @DisplayName("Get officer appointments returns empty")
-    void getOfficerAppointmentsEmpty() {
-        // given
-        OfficerAppointmentsRequest request = new OfficerAppointmentsRequest(OFFICER_ID, null, null, null);
-        when(repository.findOfficerAppointments(anyString())).thenReturn(Optional.empty());
-
-        // when
-        Optional<AppointmentList> actual = service.getOfficerAppointments(request);
-
-        // then
-        assertFalse(actual.isPresent());
-        verify(repository).findOfficerAppointments(OFFICER_ID);
-        verifyNoInteractions(mapper);
     }
 }

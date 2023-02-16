@@ -10,11 +10,11 @@ import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentD
 public class OfficerAppointmentsAggregate {
 
     @Field("total_results")
-    private TotalResults totalResults;
+    private Integer totalResults;
     @Field("officer_appointments")
     private List<CompanyAppointmentData> officerAppointments;
 
-    public OfficerAppointmentsAggregate(TotalResults totalResults, List<CompanyAppointmentData> officerAppointments) {
+    public OfficerAppointmentsAggregate(Integer totalResults, List<CompanyAppointmentData> officerAppointments) {
         this.totalResults = totalResults;
         this.officerAppointments = officerAppointments;
     }
@@ -23,11 +23,11 @@ public class OfficerAppointmentsAggregate {
         this.officerAppointments = new ArrayList<>();
     }
 
-    public TotalResults getTotalResults() {
+    public Integer getTotalResults() {
         return totalResults;
     }
 
-    public OfficerAppointmentsAggregate setTotalResults(TotalResults totalResults) {
+    public OfficerAppointmentsAggregate setTotalResults(Integer totalResults) {
         this.totalResults = totalResults;
         return this;
     }

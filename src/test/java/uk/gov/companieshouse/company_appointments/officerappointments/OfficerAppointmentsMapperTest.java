@@ -130,9 +130,6 @@ class OfficerAppointmentsMapperTest {
     }
 
     private OfficerAppointmentsAggregate getOfficerAppointmentsAggregate(String role) {
-        TotalResults totalResults = new TotalResults();
-        totalResults.setCount(1L);
-
         OfficerData officerData = OfficerData.builder()
                 .withCompanyNumber("12345678")
                 .withEtag("etag")
@@ -169,7 +166,7 @@ class OfficerAppointmentsMapperTest {
         data.setCompanyName("company name");
 
         OfficerAppointmentsAggregate officerAppointmentsAggregate = new OfficerAppointmentsAggregate();
-        officerAppointmentsAggregate.setTotalResults(totalResults);
+        officerAppointmentsAggregate.setTotalResults(1);
         officerAppointmentsAggregate.setOfficerAppointments(singletonList(data));
         return officerAppointmentsAggregate;
     }
