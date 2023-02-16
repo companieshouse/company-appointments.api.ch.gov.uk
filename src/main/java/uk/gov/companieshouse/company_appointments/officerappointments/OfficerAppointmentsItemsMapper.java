@@ -4,8 +4,10 @@ import static java.util.Optional.ofNullable;
 import static uk.gov.companieshouse.company_appointments.officerappointments.AddressMapper.mapAddress;
 import static uk.gov.companieshouse.company_appointments.officerappointments.ContactDetailsMapper.mapContactDetails;
 import static uk.gov.companieshouse.company_appointments.officerappointments.FormerNamesMapper.mapFormerNames;
+import static uk.gov.companieshouse.company_appointments.officerappointments.IdentificationMapper.mapIdentification;
 import static uk.gov.companieshouse.company_appointments.officerappointments.LocalDateMapper.mapLocalDate;
 import static uk.gov.companieshouse.company_appointments.officerappointments.OfficerDataMapper.mapName;
+import static uk.gov.companieshouse.company_appointments.officerappointments.OfficerRoleMapper.mapOfficerRole;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -37,14 +39,7 @@ public class OfficerAppointmentsItemsMapper {
                                 .name(mapName(data))
                                 .countryOfResidence(data.getCountryOfResidence())
                                 .formerNames(mapFormerNames(data.getFormerNameData()))
-                                .identification(ofNullable(data.getIdentificationData())
-                                        .map(identification -> new CorporateIdent()
-                                                .identificationType(CorporateIdent.IdentificationTypeEnum.fromValue(identification.getIdentificationType()))
-                                                .legalAuthority(identification.getLegalAuthority())
-                                                .legalForm(identification.getLegalForm())
-                                                .placeRegistered(identification.getPlaceRegistered())
-                                                .registrationNumber(identification.getRegistrationNumber()))
-                                        .orElse(null))
+                                .identification(mapIdentification(data.getIdentificationData()))
                                 .isPre1992Appointment(data.getIsPre1992Appointment())
                                 .links(new AppointmentLinkTypes().company(String.format("/company/%s", data.getCompanyNumber())))
                                 .nameElements(new NameElements()
@@ -55,13 +50,9 @@ public class OfficerAppointmentsItemsMapper {
                                         .honours(data.getHonours()))
                                 .nationality(data.getNationality())
                                 .occupation(data.getOccupation())
-                                .officerRole(ofNullable(data.getOfficerRole())
-                                        .map(OfficerAppointmentSummary.OfficerRoleEnum::fromValue)
-                                        .orElse(null))
+                                .officerRole(mapOfficerRole(data.getOfficerRole()))
                                 .principalOfficeAddress(mapAddress(data.getPrincipalOfficeAddress()))
-                                .resignedOn(ofNullable(data.getResignedOn())
-                                        .map(LocalDateTime::toLocalDate)
-                                        .orElse(null))
+                                .resignedOn(mapLocalDate(data.getResignedOn()))
                                 .responsibilities(data.getResponsibilities()))
                         .orElse(null))
                 .collect(Collectors.toList());
