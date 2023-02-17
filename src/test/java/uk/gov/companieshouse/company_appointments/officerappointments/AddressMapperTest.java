@@ -2,11 +2,19 @@ package uk.gov.companieshouse.company_appointments.officerappointments;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import uk.gov.companieshouse.api.officer.Address;
 import uk.gov.companieshouse.company_appointments.model.data.ServiceAddressData;
 
 class AddressMapperTest {
+
+    private AddressMapper mapper;
+
+    @BeforeEach
+    void setUp() {
+        mapper = new AddressMapper();
+    }
 
     @Test
     void mapAddress() {
@@ -35,7 +43,7 @@ class AddressMapperTest {
                 .region("Cardiff");
 
         // when
-        Address actual = AddressMapper.mapAddress(addressData);
+        Address actual = mapper.map(addressData);
 
         // then
         assertEquals(expected, actual);
@@ -49,7 +57,7 @@ class AddressMapperTest {
         Address expected = new Address();
 
         // when
-        Address actual = AddressMapper.mapAddress(addressData);
+        Address actual = mapper.map(addressData);
 
         // then
         assertEquals(expected, actual);

@@ -5,9 +5,17 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class LocalDateMapperTest {
+
+    private LocalDateMapper mapper;
+
+    @BeforeEach
+    void setUp() {
+        mapper = new LocalDateMapper();
+    }
 
     @Test
     void mapAppointedBefore() {
@@ -17,7 +25,7 @@ class LocalDateMapperTest {
         LocalDate expected = LocalDate.of(1990, 1, 20);
 
         // when
-        LocalDate actual = LocalDateMapper.mapLocalDate(appointedBefore);
+        LocalDate actual = mapper.map(appointedBefore);
 
         // then
         assertEquals(expected, actual);
@@ -27,7 +35,7 @@ class LocalDateMapperTest {
     void mapAppointedBeforeNull() {
         // given
         // when
-        LocalDate actual = LocalDateMapper.mapLocalDate((String) null);
+        LocalDate actual = mapper.map((String) null);
 
         // then
         assertNull(actual);
@@ -41,7 +49,7 @@ class LocalDateMapperTest {
         LocalDate expected = LocalDate.of(1990, 1, 20);
 
         // when
-        LocalDate actual = LocalDateMapper.mapLocalDate(appointedOn);
+        LocalDate actual = mapper.map(appointedOn);
 
         // then
         assertEquals(expected, actual);
@@ -51,7 +59,7 @@ class LocalDateMapperTest {
     void mapAppointedOnNull() {
         // given
         // when
-        LocalDate actual = LocalDateMapper.mapLocalDate((LocalDateTime) null);
+        LocalDate actual = mapper.map((LocalDateTime) null);
 
         // then
         assertNull(actual);

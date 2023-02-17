@@ -1,13 +1,23 @@
 package uk.gov.companieshouse.company_appointments.officerappointments;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static uk.gov.companieshouse.api.officer.CorporateIdent.IdentificationTypeEnum.UK_LIMITED;
+
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import uk.gov.companieshouse.api.officer.CorporateIdent.IdentificationTypeEnum;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static uk.gov.companieshouse.api.officer.CorporateIdent.IdentificationTypeEnum.UK_LIMITED;
-
 class IdentificationTypeMapperTest {
+
+    private IdentificationTypeMapper mapper;
+
+    @BeforeEach
+    void setUp() {
+        mapper = new IdentificationTypeMapper();
+    }
 
     @Test
     void mapIdentificationType() {
@@ -15,7 +25,7 @@ class IdentificationTypeMapperTest {
         String identificationType = "uk-limited";
 
         // when
-        IdentificationTypeEnum actual = IdentificationTypeMapper.mapIdentificationType(identificationType);
+        IdentificationTypeEnum actual = mapper.map(identificationType);
 
         // then
         assertEquals(UK_LIMITED, actual);
@@ -25,7 +35,7 @@ class IdentificationTypeMapperTest {
     void mapIdentificationTypeNull() {
         // given
         // when
-        IdentificationTypeEnum actual = IdentificationTypeMapper.mapIdentificationType(null);
+        IdentificationTypeEnum actual = mapper.map(null);
 
         // then
         assertNull(actual);
@@ -37,7 +47,7 @@ class IdentificationTypeMapperTest {
         String identificationType = "incorrect-id-type";
 
         // when
-        Executable executable = () -> IdentificationTypeMapper.mapIdentificationType(identificationType);
+        Executable executable = () -> mapper.map(identificationType);
 
         // then
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, executable);

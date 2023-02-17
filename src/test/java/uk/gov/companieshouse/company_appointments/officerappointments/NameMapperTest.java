@@ -2,10 +2,18 @@ package uk.gov.companieshouse.company_appointments.officerappointments;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import uk.gov.companieshouse.company_appointments.model.data.OfficerData;
 
 class NameMapperTest {
+
+    private NameMapper mapper;
+
+    @BeforeEach
+    void setUp() {
+        mapper = new NameMapper();
+    }
 
     @Test
     void mapName() {
@@ -18,7 +26,7 @@ class NameMapperTest {
                 .build();
 
         // when
-        String actual = NameMapper.mapName(data);
+        String actual = mapper.map(data);
 
         // then
         assertEquals("Dr John Tester Smith", actual);
@@ -33,7 +41,7 @@ class NameMapperTest {
                 .build();
 
         // when
-        String actual = NameMapper.mapName(data);
+        String actual = mapper.map(data);
 
         // then
         assertEquals("John Smith", actual);
@@ -45,7 +53,7 @@ class NameMapperTest {
         OfficerData data = OfficerData.builder().build();
 
         // when
-        String actual = NameMapper.mapName(data);
+        String actual = mapper.map(data);
 
         // then
         assertEquals("", actual);

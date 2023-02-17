@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import uk.gov.companieshouse.api.officer.Address;
 import uk.gov.companieshouse.api.officer.AppointedTo;
@@ -26,6 +27,18 @@ import uk.gov.companieshouse.company_appointments.model.data.ServiceAddressData;
 
 class ItemsMapperTest {
 
+    private ItemsMapper mapper;
+
+    @BeforeEach
+    void setUp() {
+        mapper = new ItemsMapper(new AddressMapper(),
+                new ContactDetailsMapper(), new NameMapper(),
+                new LocalDateMapper(), new FormerNamesMapper(),
+                new IdentificationMapper(
+                        new IdentificationTypeMapper()),
+                new OfficerRoleMapper());
+    }
+
     @Test
     void mapItems() {
         // given
@@ -33,7 +46,7 @@ class ItemsMapperTest {
 
         List<OfficerAppointmentSummary> expected = getOfficerAppointments();
         // when
-        List<OfficerAppointmentSummary> actual = ItemsMapper.mapItems(appointmentList);
+        List<OfficerAppointmentSummary> actual = mapper.map(appointmentList);
 
         // then
         assertEquals(expected, actual);

@@ -6,19 +6,18 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
+import org.springframework.stereotype.Component;
 
+@Component
 public class LocalDateMapper {
 
-    private LocalDateMapper() {
-    }
-
-    protected static LocalDate mapLocalDate(String dateString) {
+    protected LocalDate map(String dateString) {
         return ofNullable(dateString)
                 .map(appointed -> LocalDate.parse(appointed, DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.UK)))
                 .orElse(null);
     }
 
-    protected static LocalDate mapLocalDate(LocalDateTime dateTime) {
+    protected LocalDate map(LocalDateTime dateTime) {
         return ofNullable(dateTime)
                 .map(LocalDateTime::toLocalDate)
                 .orElse(null);

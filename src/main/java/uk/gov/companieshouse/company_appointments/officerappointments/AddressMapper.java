@@ -2,15 +2,14 @@ package uk.gov.companieshouse.company_appointments.officerappointments;
 
 import static java.util.Optional.ofNullable;
 
+import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.api.officer.Address;
 import uk.gov.companieshouse.company_appointments.model.data.ServiceAddressData;
 
+@Component
 public class AddressMapper {
 
-    private AddressMapper() {
-    }
-
-    protected static Address mapAddress(ServiceAddressData addressData) {
+    protected Address map(ServiceAddressData addressData) {
         return ofNullable(addressData)
                 .map(address -> new Address()
                         .addressLine1(address.getAddressLine1())

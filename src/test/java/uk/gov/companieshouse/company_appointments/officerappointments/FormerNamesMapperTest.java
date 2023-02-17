@@ -6,11 +6,19 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.util.List;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import uk.gov.companieshouse.api.officer.FormerNames;
 import uk.gov.companieshouse.company_appointments.model.data.FormerNamesData;
 
 class FormerNamesMapperTest {
+
+    private FormerNamesMapper mapper;
+
+    @BeforeEach
+    void setUp() {
+        mapper = new FormerNamesMapper();
+    }
 
     @Test
     void mapFormerNames() {
@@ -21,7 +29,7 @@ class FormerNamesMapperTest {
                 .forenames("forenames")
                 .surname("surname"));
         // when
-        List<FormerNames> actual = FormerNamesMapper.mapFormerNames(formerNames);
+        List<FormerNames> actual = mapper.map(formerNames);
 
         // then
         assertEquals(expected, actual);
@@ -34,7 +42,7 @@ class FormerNamesMapperTest {
 
         List<FormerNames> expected = singletonList(new FormerNames());
         // when
-        List<FormerNames> actual = FormerNamesMapper.mapFormerNames(formerNames);
+        List<FormerNames> actual = mapper.map(formerNames);
 
         // then
         assertEquals(expected, actual);
@@ -47,7 +55,7 @@ class FormerNamesMapperTest {
 
         List<FormerNames> expected = emptyList();
         // when
-        List<FormerNames> actual = FormerNamesMapper.mapFormerNames(formerNames);
+        List<FormerNames> actual = mapper.map(formerNames);
 
         // then
         assertEquals(expected, actual);
@@ -57,7 +65,7 @@ class FormerNamesMapperTest {
     void mapFormerNamesNull() {
         // given
         // when
-        List<FormerNames> actual = FormerNamesMapper.mapFormerNames(null);
+        List<FormerNames> actual = mapper.map(null);
 
         // then
         assertNull(actual);

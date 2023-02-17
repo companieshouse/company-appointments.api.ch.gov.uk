@@ -37,7 +37,13 @@ class OfficerAppointmentsMapperTest {
 
     @BeforeEach
     void setUp() {
-        mapper = new OfficerAppointmentsMapper();
+        mapper = new OfficerAppointmentsMapper(
+                new ItemsMapper(
+                        new AddressMapper(), new ContactDetailsMapper(),
+                        new NameMapper(), new LocalDateMapper(),
+                        new FormerNamesMapper(), new IdentificationMapper(new IdentificationTypeMapper()),
+                        new OfficerRoleMapper()),
+                new NameMapper(), new DateOfBirthMapper(), new OfficerRoleMapper());
     }
 
     @Test

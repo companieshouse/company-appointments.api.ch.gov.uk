@@ -1,13 +1,22 @@
 package uk.gov.companieshouse.company_appointments.officerappointments;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import uk.gov.companieshouse.api.officer.CorporateIdent;
 import uk.gov.companieshouse.api.officer.CorporateIdent.IdentificationTypeEnum;
 import uk.gov.companieshouse.company_appointments.model.data.IdentificationData;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 class IdentificationMapperTest {
+
+    private IdentificationMapper mapper;
+
+    @BeforeEach
+    void setUp() {
+        mapper = new IdentificationMapper(new IdentificationTypeMapper());
+    }
 
     @Test
     void mapIdentification() {
@@ -19,17 +28,17 @@ class IdentificationMapperTest {
                 .withPlaceRegistered("place registered")
                 .withRegistrationNumber("registration number")
                 .build();
-        
+
         CorporateIdent expected = new CorporateIdent()
                 .identificationType(IdentificationTypeEnum.UK_LIMITED)
                 .legalAuthority("legal authority")
                 .legalForm("legal form")
                 .placeRegistered("place registered")
                 .registrationNumber("registration number");
-        
+
         // when
-        CorporateIdent actual = IdentificationMapper.mapIdentification(identificationData);
-        
+        CorporateIdent actual = mapper.map(identificationData);
+
         // then
         assertEquals(expected, actual);
     }
@@ -42,7 +51,7 @@ class IdentificationMapperTest {
         CorporateIdent expected = new CorporateIdent();
 
         // when
-        CorporateIdent actual = IdentificationMapper.mapIdentification(identificationData);
+        CorporateIdent actual = mapper.map(identificationData);
 
         // then
         assertEquals(expected, actual);
@@ -52,7 +61,7 @@ class IdentificationMapperTest {
     void mapIdentificationNull() {
         // given
         // when
-        CorporateIdent actual = IdentificationMapper.mapIdentification(null);
+        CorporateIdent actual = mapper.map(null);
 
         // then
         assertNull(actual);

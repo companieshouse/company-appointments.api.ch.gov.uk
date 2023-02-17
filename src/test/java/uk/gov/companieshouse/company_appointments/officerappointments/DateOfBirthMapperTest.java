@@ -4,10 +4,18 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.time.LocalDateTime;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import uk.gov.companieshouse.api.officer.DateOfBirth;
 
 class DateOfBirthMapperTest {
+
+    private DateOfBirthMapper mapper;
+
+    @BeforeEach
+    void setUp() {
+        mapper = new DateOfBirthMapper();
+    }
 
     @Test
     void mapDateOfBirth() {
@@ -19,7 +27,7 @@ class DateOfBirthMapperTest {
                 .year(2000);
 
         // when
-        DateOfBirth actual = DateOfBirthMapper.mapDateOfBirth(dateOfBirth, "director");
+        DateOfBirth actual = mapper.map(dateOfBirth, "director");
 
         // then
         assertEquals(expected, actual);
@@ -32,7 +40,7 @@ class DateOfBirthMapperTest {
 
 
         // when
-        DateOfBirth actual = DateOfBirthMapper.mapDateOfBirth(dateOfBirth, "secretary");
+        DateOfBirth actual = mapper.map(dateOfBirth, "secretary");
 
         // then
         assertNull(actual);
@@ -43,7 +51,7 @@ class DateOfBirthMapperTest {
         // given
 
         // when
-        DateOfBirth actual = DateOfBirthMapper.mapDateOfBirth(null, "");
+        DateOfBirth actual = mapper.map(null, "");
 
         // then
         assertNull(actual);
