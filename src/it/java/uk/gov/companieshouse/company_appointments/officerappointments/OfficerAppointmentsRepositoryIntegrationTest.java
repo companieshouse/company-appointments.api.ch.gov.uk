@@ -33,7 +33,7 @@ class OfficerAppointmentsRepositoryIntegrationTest {
     private OfficerAppointmentsRepository repository;
 
     @Container
-    private static MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:4.2");
+    private static MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:4.4");
 
     private static MongoTemplate mongoTemplate;
 
