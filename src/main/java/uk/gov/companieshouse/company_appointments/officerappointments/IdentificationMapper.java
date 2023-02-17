@@ -11,7 +11,7 @@ public class IdentificationMapper {
     private IdentificationMapper() {
     }
 
-    public static CorporateIdent mapIdentification(IdentificationData identificationData) {
+    protected static CorporateIdent mapIdentification(IdentificationData identificationData) {
         return ofNullable(identificationData)
                 .map(identification -> new CorporateIdent()
                         .identificationType(mapIdentificationType(identification.getIdentificationType()))

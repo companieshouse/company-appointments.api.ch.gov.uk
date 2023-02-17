@@ -12,7 +12,7 @@ public class FormerNamesMapper {
     private FormerNamesMapper() {
     }
 
-    public static List<FormerNames> mapFormerNames(List<FormerNamesData> formerNames) {
+    protected static List<FormerNames> mapFormerNames(List<FormerNamesData> formerNames) {
         return ofNullable(formerNames)
                 .map(formerNamesData -> formerNamesData.stream()
                         .map(names -> new FormerNames()

@@ -12,13 +12,13 @@ public class LocalDateMapper {
     private LocalDateMapper() {
     }
 
-    public static LocalDate mapLocalDate(String dateString) {
+    protected static LocalDate mapLocalDate(String dateString) {
         return ofNullable(dateString)
                 .map(appointed -> LocalDate.parse(appointed, DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.UK)))
                 .orElse(null);
     }
 
-    public static LocalDate mapLocalDate(LocalDateTime dateTime) {
+    protected static LocalDate mapLocalDate(LocalDateTime dateTime) {
         return ofNullable(dateTime)
                 .map(LocalDateTime::toLocalDate)
                 .orElse(null);

@@ -10,7 +10,7 @@ public class AddressMapper {
     private AddressMapper() {
     }
 
-    public static Address mapAddress(ServiceAddressData addressData) {
+    protected static Address mapAddress(ServiceAddressData addressData) {
         return ofNullable(addressData)
                 .map(address -> new Address()
                         .addressLine1(address.getAddressLine1())

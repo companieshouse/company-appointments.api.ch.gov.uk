@@ -6,12 +6,20 @@ import static java.util.Optional.ofNullable;
 
 public class OfficerRoleMapper {
 
+    private static final String CORPORATE = "corporate";
+
     private OfficerRoleMapper() {
     }
 
-    public static OfficerRoleEnum mapOfficerRole(String officerRole) {
+    protected static OfficerRoleEnum mapOfficerRole(String officerRole) {
         return ofNullable(officerRole)
                 .map(OfficerRoleEnum::fromValue)
                 .orElse(null);
+    }
+
+    protected static boolean mapIsCorporateOfficer(String officerRole) {
+        return ofNullable(officerRole)
+                .map(role -> role.startsWith(CORPORATE))
+                .orElse(false);
     }
 }

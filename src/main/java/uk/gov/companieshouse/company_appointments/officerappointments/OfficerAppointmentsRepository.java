@@ -10,11 +10,15 @@ public interface OfficerAppointmentsRepository extends MongoRepository<CompanyAp
 
     @Aggregation(pipeline = {
             "{ '$match': { 'officer_id': ?0 } }",
-            "{ '$facet': { 'total_results': [{ '$count': 'count' }], "
-                    + "'officer_appointments': [ { '$skip': 0 } ] }}",
-            "{ '$unwind': { 'path': '$total_results', 'preserveNullAndEmptyArrays': true }}",
-            "{ '$project': { 'total_results': { '$ifNull': ['$total_results.count', NumberInt(0)] },"
-                    + "'officer_appointments': '$officer_appointments' } }"
+            "{ '$facet': {"
+                    + "'total_results': [{ '$count': 'count' }],"
+                    + "'officer_appointments': [{ '$skip': 0 }]}}",
+            "{ '$unwind': {"
+                    + "'path': '$total_results',"
+                    + "'preserveNullAndEmptyArrays': true}}",
+            "{ '$project': {"
+                    + "'total_results': { '$ifNull': ['$total_results.count', NumberInt(0)] },"
+                    + "'officer_appointments': '$officer_appointments'}}"
     })
     OfficerAppointmentsAggregate findOfficerAppointments(String officerId);
 }

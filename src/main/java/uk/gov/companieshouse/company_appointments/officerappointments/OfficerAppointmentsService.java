@@ -15,7 +15,7 @@ public class OfficerAppointmentsService {
         this.mapper = mapper;
     }
 
-    public Optional<AppointmentList> getOfficerAppointments(OfficerAppointmentsRequest request) {
+    protected Optional<AppointmentList> getOfficerAppointments(OfficerAppointmentsRequest request) {
         return mapper.mapOfficerAppointments(repository.findOfficerAppointments(request.getOfficerId()));
     }
 }

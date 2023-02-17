@@ -9,7 +9,7 @@ public class IdentificationTypeMapper {
     private IdentificationTypeMapper() {
     }
 
-    public static IdentificationTypeEnum mapIdentificationType(String identificationType) {
+    protected static IdentificationTypeEnum mapIdentificationType(String identificationType) {
         return ofNullable(identificationType)
                 .map(IdentificationTypeEnum::fromValue)
                 .orElse(null);

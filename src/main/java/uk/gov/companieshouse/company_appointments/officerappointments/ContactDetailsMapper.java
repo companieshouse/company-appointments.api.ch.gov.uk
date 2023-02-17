@@ -10,7 +10,7 @@ public class ContactDetailsMapper {
     private ContactDetailsMapper() {
     }
 
-    public static ContactDetails mapContactDetails(ContactDetailsData contactDetailsData) {
+    protected static ContactDetails mapContactDetails(ContactDetailsData contactDetailsData) {
         return ofNullable(contactDetailsData)
                 .map(contactDetails -> new ContactDetails()
                         .contactName(contactDetails.getContactName()))

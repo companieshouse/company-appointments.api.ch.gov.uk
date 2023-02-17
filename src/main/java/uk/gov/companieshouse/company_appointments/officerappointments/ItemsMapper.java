@@ -6,22 +6,20 @@ import static uk.gov.companieshouse.company_appointments.officerappointments.Con
 import static uk.gov.companieshouse.company_appointments.officerappointments.FormerNamesMapper.mapFormerNames;
 import static uk.gov.companieshouse.company_appointments.officerappointments.IdentificationMapper.mapIdentification;
 import static uk.gov.companieshouse.company_appointments.officerappointments.LocalDateMapper.mapLocalDate;
-import static uk.gov.companieshouse.company_appointments.officerappointments.OfficerDataMapper.mapName;
+import static uk.gov.companieshouse.company_appointments.officerappointments.NameMapper.mapName;
 import static uk.gov.companieshouse.company_appointments.officerappointments.OfficerRoleMapper.mapOfficerRole;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 import uk.gov.companieshouse.api.officer.AppointedTo;
 import uk.gov.companieshouse.api.officer.AppointmentLinkTypes;
-import uk.gov.companieshouse.api.officer.CorporateIdent;
 import uk.gov.companieshouse.api.officer.NameElements;
 import uk.gov.companieshouse.api.officer.OfficerAppointmentSummary;
 import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentData;
 
-public class OfficerAppointmentsItemsMapper {
+public class ItemsMapper {
 
-    private OfficerAppointmentsItemsMapper() {
+    private ItemsMapper() {
     }
 
     public static List<OfficerAppointmentSummary> mapItems(List<CompanyAppointmentData> appointments) {

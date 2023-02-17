@@ -2,7 +2,6 @@ package uk.gov.companieshouse.company_appointments.officerappointments;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
-import uk.gov.companieshouse.api.officer.OfficerAppointmentSummary;
 import uk.gov.companieshouse.api.officer.OfficerAppointmentSummary.OfficerRoleEnum;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -42,5 +41,39 @@ class OfficerRoleMapperTest {
         // then
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, executable);
         assertEquals(String.format("Unexpected value '%s'", officerRole), exception.getMessage());
+    }
+
+    @Test
+    void mapIsCorporateOfficer() {
+        // given
+        String officerRole = "corporate-director";
+
+        // when
+        boolean actual = OfficerRoleMapper.mapIsCorporateOfficer(officerRole);
+
+        // then
+        assertTrue(actual);
+    }
+
+    @Test
+    void mapIsCorporateOfficerFalse() {
+        // given
+        String officerRole = "director";
+
+        // when
+        boolean actual = OfficerRoleMapper.mapIsCorporateOfficer(officerRole);
+
+        // then
+        assertFalse(actual);
+    }
+
+    @Test
+    void mapIsCorporateOfficerNull() {
+        // given
+        // when
+        boolean actual = OfficerRoleMapper.mapIsCorporateOfficer(null);
+
+        // then
+        assertFalse(actual);
     }
 }
