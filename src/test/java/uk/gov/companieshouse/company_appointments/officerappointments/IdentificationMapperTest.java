@@ -2,25 +2,32 @@ package uk.gov.companieshouse.company_appointments.officerappointments;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.companieshouse.api.officer.CorporateIdent;
 import uk.gov.companieshouse.api.officer.CorporateIdent.IdentificationTypeEnum;
 import uk.gov.companieshouse.company_appointments.model.data.IdentificationData;
 
+@ExtendWith(MockitoExtension.class)
 class IdentificationMapperTest {
 
+    @InjectMocks
     private IdentificationMapper mapper;
-
-    @BeforeEach
-    void setUp() {
-        mapper = new IdentificationMapper(new IdentificationTypeMapper());
-    }
+    @Mock
+    private IdentificationTypeMapper identificationTypeMapper;
 
     @Test
     void mapIdentification() {
         // given
+        when(identificationTypeMapper.map(anyString())).thenReturn(IdentificationTypeEnum.UK_LIMITED);
         IdentificationData identificationData = IdentificationData.builder()
                 .withIdentificationType("uk-limited")
                 .withLegalAuthority("legal authority")
@@ -41,6 +48,7 @@ class IdentificationMapperTest {
 
         // then
         assertEquals(expected, actual);
+        verify(identificationTypeMapper).map("uk-limited");
     }
 
     @Test
@@ -55,6 +63,7 @@ class IdentificationMapperTest {
 
         // then
         assertEquals(expected, actual);
+        verify(identificationTypeMapper).map(null);
     }
 
     @Test
@@ -65,5 +74,6 @@ class IdentificationMapperTest {
 
         // then
         assertNull(actual);
+        verifyNoInteractions(identificationTypeMapper);
     }
 }

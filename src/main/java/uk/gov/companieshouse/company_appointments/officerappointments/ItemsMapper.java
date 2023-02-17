@@ -68,7 +68,7 @@ public class ItemsMapper {
                                 .principalOfficeAddress(addressMapper.map(data.getPrincipalOfficeAddress()))
                                 .resignedOn(localDateMapper.map(data.getResignedOn()))
                                 .responsibilities(data.getResponsibilities()))
-                        .orElse(null))
+                        .orElse(new OfficerAppointmentSummary()))
                 .collect(Collectors.toList());
     }
 }
