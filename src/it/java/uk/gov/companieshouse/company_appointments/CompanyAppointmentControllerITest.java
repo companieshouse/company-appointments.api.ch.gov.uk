@@ -31,7 +31,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 @AutoConfigureMockMvc
 @SpringBootTest(classes = CompanyAppointmentsApplication.class, webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
-class CompanyAppointmentControllerITest {
+public class CompanyAppointmentControllerITest {
 
     @Autowired
     private MockMvc mockMvc;
