@@ -14,11 +14,6 @@ public class OfficerAppointmentsAggregate {
     @Field("officer_appointments")
     private List<CompanyAppointmentData> officerAppointments;
 
-    public OfficerAppointmentsAggregate(Integer totalResults, List<CompanyAppointmentData> officerAppointments) {
-        this.totalResults = totalResults;
-        this.officerAppointments = officerAppointments;
-    }
-
     public OfficerAppointmentsAggregate() {
         this.officerAppointments = new ArrayList<>();
     }

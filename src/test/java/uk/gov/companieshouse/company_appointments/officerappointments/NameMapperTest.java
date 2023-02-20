@@ -33,6 +33,23 @@ class NameMapperTest {
     }
 
     @Test
+    void mapNameCommonTitle() {
+        // given
+        OfficerData data = OfficerData.builder()
+                .withTitle("Mr")
+                .withForename("John")
+                .withOtherForenames("Tester")
+                .withSurname("Smith")
+                .build();
+
+        // when
+        String actual = mapper.map(data);
+
+        // then
+        assertEquals("John Tester Smith", actual);
+    }
+
+    @Test
     void mapNameNulls() {
         // given
         OfficerData data = OfficerData.builder()
