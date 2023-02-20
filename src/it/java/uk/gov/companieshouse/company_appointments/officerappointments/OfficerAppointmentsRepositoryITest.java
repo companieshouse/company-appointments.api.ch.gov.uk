@@ -25,7 +25,7 @@ import uk.gov.companieshouse.company_appointments.CompanyAppointmentsApplication
 @AutoConfigureMockMvc
 @SpringBootTest(classes = CompanyAppointmentsApplication.class, webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
-class OfficerAppointmentsRepositoryIntegrationTest {
+class OfficerAppointmentsRepositoryITest {
 
     private static final String OFFICER_ID = "5VEOBB4a9dlB_iugw_vieHjWpCk";
 
