@@ -30,6 +30,7 @@
         <sdk-manager-java.version>1.5.1</sdk-manager-java.version>
         <api-sdk-manager-java-library.version>1.0.4</api-sdk-manager-java-library.version>
         <private-api-sdk-java.version>2.0.222</private-api-sdk-java.version>
+        <io-cucumber.version>7.2.3</io-cucumber.version>
 
         <api-helper-java-library.version>1.4.5</api-helper-java-library.version>
         <log4j.version>2.16.0</log4j.version>
@@ -146,6 +147,29 @@
             <groupId>uk.gov.companieshouse</groupId>
             <artifactId>api-helper-java</artifactId>
             <version>${api-helper-java-library.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.cucumber</groupId>
+            <artifactId>cucumber-core</artifactId>
+            <version>${io-cucumber.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.cucumber</groupId>
+            <artifactId>cucumber-java</artifactId>
+            <version>${io-cucumber.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.cucumber</groupId>
+            <artifactId>cucumber-junit</artifactId>
+            <version>${io-cucumber.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.cucumber</groupId>
+            <artifactId>cucumber-spring</artifactId>
+            <version>${io-cucumber.version}</version>
         </dependency>
     </dependencies>
 

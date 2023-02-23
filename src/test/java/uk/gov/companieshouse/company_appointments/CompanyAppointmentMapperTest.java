@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import uk.gov.companieshouse.company_appointments.mapper.CompanyAppointmentMapper;
 import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentData;
 import uk.gov.companieshouse.company_appointments.model.data.ContactDetailsData;
 import uk.gov.companieshouse.company_appointments.model.data.FormerNamesData;
@@ -20,6 +21,7 @@ import uk.gov.companieshouse.company_appointments.model.view.FormerNamesView;
 import uk.gov.companieshouse.company_appointments.model.view.IdentificationView;
 import uk.gov.companieshouse.company_appointments.model.view.LinksView;
 import uk.gov.companieshouse.company_appointments.model.view.ServiceAddressView;
+import uk.gov.companieshouse.company_appointments.roles.SecretarialRoles;
 
 public class CompanyAppointmentMapperTest {
 

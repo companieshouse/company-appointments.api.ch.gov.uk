@@ -10,6 +10,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Sort;
 
+import uk.gov.companieshouse.company_appointments.exception.NotFoundException;
+import uk.gov.companieshouse.company_appointments.mapper.CompanyAppointmentMapper;
+import uk.gov.companieshouse.company_appointments.mapper.SortMapper;
 import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentData;
 import uk.gov.companieshouse.company_appointments.model.data.ContactDetailsData;
 import uk.gov.companieshouse.company_appointments.model.data.LinksData;
@@ -17,6 +20,9 @@ import uk.gov.companieshouse.company_appointments.model.data.OfficerData;
 import uk.gov.companieshouse.company_appointments.model.data.ServiceAddressData;
 import uk.gov.companieshouse.company_appointments.model.view.AllCompanyAppointmentsView;
 import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentView;
+import uk.gov.companieshouse.company_appointments.repository.CompanyAppointmentRepository;
+import uk.gov.companieshouse.company_appointments.service.CompanyAppointmentService;
+import uk.gov.companieshouse.company_appointments.service.CompanyRegisterService;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;

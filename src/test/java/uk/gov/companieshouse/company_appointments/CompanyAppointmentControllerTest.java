@@ -13,8 +13,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import uk.gov.companieshouse.company_appointments.controller.CompanyAppointmentController;
+import uk.gov.companieshouse.company_appointments.exception.BadRequestException;
+import uk.gov.companieshouse.company_appointments.exception.NotFoundException;
+import uk.gov.companieshouse.company_appointments.exception.ServiceUnavailableException;
 import uk.gov.companieshouse.company_appointments.model.view.AllCompanyAppointmentsView;
 import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentView;
+import uk.gov.companieshouse.company_appointments.service.CompanyAppointmentService;
 
 @ExtendWith(MockitoExtension.class)
 public class CompanyAppointmentControllerTest {

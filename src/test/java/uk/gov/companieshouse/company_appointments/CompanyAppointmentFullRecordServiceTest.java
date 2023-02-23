@@ -33,8 +33,12 @@ import uk.gov.companieshouse.api.appointment.OfficerLinkTypes;
 import uk.gov.companieshouse.api.appointment.SensitiveData;
 import uk.gov.companieshouse.api.model.delta.officers.DeltaAppointmentApi;
 import uk.gov.companieshouse.api.model.delta.officers.InstantAPI;
+import uk.gov.companieshouse.company_appointments.exception.NotFoundException;
+import uk.gov.companieshouse.company_appointments.exception.ServiceUnavailableException;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaAppointmentApiEntity;
 import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentFullRecordView;
+import uk.gov.companieshouse.company_appointments.repository.CompanyAppointmentFullRecordRepository;
+import uk.gov.companieshouse.company_appointments.service.CompanyAppointmentFullRecordService;
 
 import java.time.Clock;
 import java.time.Instant;

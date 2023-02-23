@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.api.appointment.FullRecordCompanyOfficerApi;
 import uk.gov.companieshouse.api.appointment.InternalData;
 import uk.gov.companieshouse.api.model.delta.officers.DeltaAppointmentApi;
-import uk.gov.companieshouse.company_appointments.FailedToTransformException;
+import uk.gov.companieshouse.company_appointments.exception.FailedToTransformException;
 
 @Component
 public class DeltaAppointmentTransformer implements Transformative<FullRecordCompanyOfficerApi, DeltaAppointmentApi> {
