@@ -21,9 +21,9 @@ public class OfficerAppointmentsController {
 
     @GetMapping(path = "/officers/{officer_id}/appointments")
     public ResponseEntity<AppointmentList> getOfficerAppointments(@PathVariable("officer_id") String officerId,
-            @RequestParam("filter") String filter,
-            @RequestParam("start_index") Integer startIndex,
-            @RequestParam("items_per_page") Integer itemsPerPage) {
+            @RequestParam(value = "filter", required = false) String filter,
+            @RequestParam(value = "start_index", required = false) Integer startIndex,
+            @RequestParam(value = "items_per_page", required = false) Integer itemsPerPage) {
         return service.getOfficerAppointments(new OfficerAppointmentsRequest(officerId, filter, startIndex, itemsPerPage))
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> {
