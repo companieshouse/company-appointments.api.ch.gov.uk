@@ -29,7 +29,7 @@ class NameMapperTest {
         String actual = mapper.map(data);
 
         // then
-        assertEquals("Dr John Tester Smith", actual);
+        assertEquals("John Tester Smith", actual);
     }
 
     @Test
