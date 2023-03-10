@@ -98,7 +98,7 @@ public class CompanyAppointmentControllerITest {
     @Test
     void testReturn200OKIfAllOfficersAreFound() throws Exception {
         //when
-        ResultActions result = mockMvc.perform(get("/company/{company_number}/officers", "12345678")
+        ResultActions result = mockMvc.perform(get("/company/{company_number}/officers-test", "12345678")
                 .header("ERIC-Identity", "123")
                 .header("ERIC-Identity-Type", "key")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -116,7 +116,7 @@ public class CompanyAppointmentControllerITest {
     void testReturn404IfOfficersForCompanyIsNotFound() throws Exception {
         // when
         ResultActions result = mockMvc
-                .perform(get("/company/{company_number}/officers", "87654321")
+                .perform(get("/company/{company_number}/officers-test", "87654321")
                         .header("ERIC-Identity", "123").header("ERIC-Identity-Type", "oauth2")
                         .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON));
 
@@ -127,7 +127,7 @@ public class CompanyAppointmentControllerITest {
     @Test
     void testReturn200OKIfAllOfficersAreFoundWithFilter() throws Exception {
         //when
-        ResultActions result = mockMvc.perform(get("/company/{company_number}/officers?filter=active", "12345678")
+        ResultActions result = mockMvc.perform(get("/company/{company_number}/officers-test?filter=active", "12345678")
                 .header("ERIC-Identity", "123")
                 .header("ERIC-Identity-Type", "key")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -143,7 +143,7 @@ public class CompanyAppointmentControllerITest {
 
     @Test
     void testReturn200OkWithOfficersOrderedByAppointedOn() throws Exception {
-        ResultActions result = mockMvc.perform(get("/company/{company_number}/officers?order_by=appointed_on", "12345678")
+        ResultActions result = mockMvc.perform(get("/company/{company_number}/officers-test?order_by=appointed_on", "12345678")
                 .header("ERIC-Identity", "123")
                 .header("ERIC-Identity-Type", "key")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -156,7 +156,7 @@ public class CompanyAppointmentControllerITest {
 
     @Test
     void testReturn200OkWithOfficersOrderedBySurname() throws Exception {
-        ResultActions result = mockMvc.perform(get("/company/{company_number}/officers?order_by=surname", "12345678")
+        ResultActions result = mockMvc.perform(get("/company/{company_number}/officers-test?order_by=surname", "12345678")
                 .header("ERIC-Identity", "123")
                 .header("ERIC-Identity-Type", "key")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -169,7 +169,7 @@ public class CompanyAppointmentControllerITest {
 
     @Test
     void testReturn400BadRequestWithIncorrectOrderBy() throws Exception {
-        ResultActions result = mockMvc.perform(get("/company/{company_number}/officers?order_by=invalid", "12345678")
+        ResultActions result = mockMvc.perform(get("/company/{company_number}/officers-test?order_by=invalid", "12345678")
                 .header("ERIC-Identity", "123")
                 .header("ERIC-Identity-Type", "key")
                 .contentType(MediaType.APPLICATION_JSON)
