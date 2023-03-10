@@ -53,7 +53,7 @@ class CompanyAppointmentControllerITest {
     @Test
     void testReturn200OKIfOfficerIsFound() throws Exception {
         //when
-        ResultActions result = mockMvc.perform(get("/company/{company_number}/appointments/{appointment_id}", "12345678", "7IjxamNGLlqtIingmTZJJ42Hw9Q")
+        ResultActions result = mockMvc.perform(get("/company/{company_number}/appointments/{appointment_id}", "12345678", "resigned_1")
                 .header("ERIC-Identity", "123")
                 .header("ERIC-Identity-Type", "key")
                 .contentType(MediaType.APPLICATION_JSON)
