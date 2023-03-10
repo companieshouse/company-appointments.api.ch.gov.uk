@@ -43,9 +43,16 @@ class OfficerAppointmentsRepositoryITest {
         mongoTemplate.insert(Document.parse(IOUtils.resourceToString("/appointment-data.json", StandardCharsets.UTF_8)), "appointments");
         mongoTemplate.insert(Document.parse(IOUtils.resourceToString("/appointment-data2.json", StandardCharsets.UTF_8)), "appointments");
         mongoTemplate.insert(Document.parse(IOUtils.resourceToString("/appointment-data3.json", StandardCharsets.UTF_8)), "appointments");
+        mongoTemplate.insert(Document.parse(IOUtils.resourceToString("/appointment-data4.json", StandardCharsets.UTF_8)), "appointments");
+        mongoTemplate.insert(Document.parse(IOUtils.resourceToString("/appointment-data5.json", StandardCharsets.UTF_8)), "appointments");
+        mongoTemplate.insert(Document.parse(IOUtils.resourceToString("/appointment-data6.json", StandardCharsets.UTF_8)), "appointments");
         System.setProperty("company-metrics-api.endpoint", "localhost");
     }
 
+    /**
+     * Correct sorting: A list of, first, active officers sorted by appointed_on date in descending order (or appointed_before
+     * if appointed_on is null), followed by resigned officers sorted by resigned_on date in descending order.
+     */
     @DisplayName("Repository returns officer appointments aggregate")
     @Test
     void findOfficerAppointments() {
@@ -55,9 +62,23 @@ class OfficerAppointmentsRepositoryITest {
         OfficerAppointmentsAggregate officerAppointmentsAggregate = repository.findOfficerAppointments(OFFICER_ID);
 
         // then
-        assertEquals(2, officerAppointmentsAggregate.getTotalResults());
+        assertEquals(5, officerAppointmentsAggregate.getTotalResults());
         assertEquals(OFFICER_ID, officerAppointmentsAggregate.getOfficerAppointments().get(0).getOfficerId());
         assertEquals(OFFICER_ID, officerAppointmentsAggregate.getOfficerAppointments().get(1).getOfficerId());
+        assertEquals(OFFICER_ID, officerAppointmentsAggregate.getOfficerAppointments().get(2).getOfficerId());
+        assertEquals(OFFICER_ID, officerAppointmentsAggregate.getOfficerAppointments().get(3).getOfficerId());
+        assertEquals(OFFICER_ID, officerAppointmentsAggregate.getOfficerAppointments().get(4).getOfficerId());
+
+        assertEquals("active_1",
+                officerAppointmentsAggregate.getOfficerAppointments().get(0).getId());
+        assertEquals("active_2",
+                officerAppointmentsAggregate.getOfficerAppointments().get(1).getId());
+        assertEquals("active_3",
+                officerAppointmentsAggregate.getOfficerAppointments().get(2).getId());
+        assertEquals("resigned_1",
+                officerAppointmentsAggregate.getOfficerAppointments().get(3).getId());
+        assertEquals("resigned_2",
+                officerAppointmentsAggregate.getOfficerAppointments().get(4).getId());
     }
 
     @DisplayName("Repository returns no appointments when there are no matches")

@@ -10,15 +10,32 @@ public interface OfficerAppointmentsRepository extends MongoRepository<CompanyAp
 
     @Aggregation(pipeline = {
             "{ '$match': { 'officer_id': ?0 } }",
+            "{ $addFields: {"
+                    + "'sort_active': { $ifNull: ['$data.appointed_on', '$data.appointed_before']}"
+                    + "}"
+        + "}",
             "{ '$facet': {"
-                    + "'total_results': [{ '$count': 'count' }],"
-                    + "'officer_appointments': [{ '$skip': 0 }]}}",
+                    + "'active': ["
+                        + "{ $match: {'data.resigned_on': {$exists: false}} },"
+                        + "{ $sort:  {'sort_active': -1} }"
+                    + "],"
+                    + "'resigned': ["
+                        + "{ $match: {'data.resigned_on': {$exists: true}} },"
+                        + "{ $sort:  {'data.resigned_on': -1} }"
+                    + "],"
+                    + "'total_results': [{ '$count': 'count' }]"
+                    + "}"
+        + "}",
             "{ '$unwind': {"
                     + "'path': '$total_results',"
-                    + "'preserveNullAndEmptyArrays': true}}",
+                    + "'preserveNullAndEmptyArrays': true"
+                    + "}"
+        + "}",
             "{ '$project': {"
                     + "'total_results': { '$ifNull': ['$total_results.count', NumberInt(0)] },"
-                    + "'officer_appointments': '$officer_appointments'}}"
+                    + "'officer_appointments': {$concatArrays: ['$active', '$resigned']}"
+                    + "}"
+        + "}"
     })
     OfficerAppointmentsAggregate findOfficerAppointments(String officerId);
 }

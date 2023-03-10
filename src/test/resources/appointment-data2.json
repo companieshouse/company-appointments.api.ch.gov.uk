@@ -1,6 +1,6 @@
 {
-  "_id" : "abc123",
-  "appointment_id" : "abc123",
+  "_id" : "active_1",
+  "appointment_id" : "active_1",
   "company_name" : "TEST COMPANY LIMITED",
   "company_number" : "12345678",
   "company_status" : "active",
