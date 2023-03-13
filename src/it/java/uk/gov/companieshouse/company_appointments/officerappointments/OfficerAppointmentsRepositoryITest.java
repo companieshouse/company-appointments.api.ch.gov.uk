@@ -49,10 +49,6 @@ class OfficerAppointmentsRepositoryITest {
         System.setProperty("company-metrics-api.endpoint", "localhost");
     }
 
-    /**
-     * Correct sorting: A list of, first, active officers sorted by appointed_on date in descending order (or appointed_before
-     * if appointed_on is null), followed by resigned officers sorted by resigned_on date in descending order.
-     */
     @DisplayName("Repository returns officer appointments aggregate")
     @Test
     void findOfficerAppointments() {
