@@ -1,34 +1,22 @@
 package uk.gov.companieshouse.company_appointments;
 
-import com.google.api.client.http.HttpResponseException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.companieshouse.api.InternalApiClient;
-import uk.gov.companieshouse.api.error.ApiErrorResponseException;
-import uk.gov.companieshouse.api.handler.exception.URIValidationException;
-import uk.gov.companieshouse.api.handler.metrics.PrivateCompanyMetricsResourceHandler;
-import uk.gov.companieshouse.api.handler.metrics.request.PrivateCompanyMetricsGet;
 import uk.gov.companieshouse.api.metrics.MetricsApi;
 import uk.gov.companieshouse.api.metrics.RegisterApi;
 import uk.gov.companieshouse.api.metrics.RegistersApi;
 import uk.gov.companieshouse.api.model.ApiResponse;
 
-import uk.gov.companieshouse.company_appointments.api.ApiClientService;
 import uk.gov.companieshouse.company_appointments.api.CompanyMetricsApiService;
 import uk.gov.companieshouse.company_appointments.exception.BadRequestException;
-import uk.gov.companieshouse.company_appointments.exception.ServiceUnavailableException;
 import uk.gov.companieshouse.company_appointments.service.CompanyRegisterService;
-import uk.gov.companieshouse.logging.Logger;
-
-import com.google.api.client.http.HttpHeaders;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -36,9 +24,6 @@ class CompanyRegisterServiceTest {
 
     @Mock
     CompanyMetricsApiService apiClientService;
-
-    @Mock
-    Logger logger;
 
     private CompanyRegisterService companyRegisterService;
 
@@ -48,7 +33,7 @@ class CompanyRegisterServiceTest {
 
     @BeforeEach
     void setUp() {
-        companyRegisterService = new CompanyRegisterService(logger, apiClientService);
+        companyRegisterService = new CompanyRegisterService(apiClientService);
     }
 
     @Test

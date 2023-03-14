@@ -6,18 +6,15 @@ import uk.gov.companieshouse.api.metrics.RegistersApi;
 import uk.gov.companieshouse.company_appointments.api.CompanyMetricsApiService;
 import uk.gov.companieshouse.company_appointments.exception.BadRequestException;
 import uk.gov.companieshouse.company_appointments.exception.ServiceUnavailableException;
-import uk.gov.companieshouse.logging.Logger;
 
 @Service
 public class CompanyRegisterService {
     private static final String PUBLIC_REGISTER = "public-register";
-    private final Logger logger;
 
     private final CompanyMetricsApiService companyMetricsApiService;
 
     @Autowired
-    public CompanyRegisterService(Logger logger, CompanyMetricsApiService companyMetricsApiService) {
-        this.logger = logger;
+    public CompanyRegisterService(CompanyMetricsApiService companyMetricsApiService) {
         this.companyMetricsApiService = companyMetricsApiService;
     }
 
