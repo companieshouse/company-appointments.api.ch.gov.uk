@@ -23,9 +23,10 @@ public class CompanyMetricsApiService {
 
     @Autowired
     public CompanyMetricsApiService(@Value("${company-metrics-api.endpoint}") String metricsUrl,
-                                  Logger logger) {
+                                  Logger logger, ApiClientService apiClientService) {
         this.metricsUrl = metricsUrl;
         this.logger = logger;
+        this.apiClientService = apiClientService;
     }
 
     public ApiResponse<MetricsApi> invokeGetMetricsApi(String companyNumber) throws ServiceUnavailableException {

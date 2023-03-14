@@ -177,47 +177,6 @@ class CompanyRegisterServiceTest {
                 });
     }
 
-//    @Test
-//    void whenApiReturnsNon200StatusThenThrowServiceUnavailableException() throws Exception {
-//        HttpResponseException.Builder builder = new HttpResponseException.Builder(400,
-//                "statusMessage", new HttpHeaders());
-//        ApiErrorResponseException apiErrorResponseException =
-//                new ApiErrorResponseException(builder);
-//        when(privateCompanyMetricsGet.execute()).thenThrow(apiErrorResponseException);
-//
-//        assertThrows(ServiceUnavailableException.class,
-//                () -> {
-//                    boolean result = companyRegisterService.isRegisterHeldInCompaniesHouse("directors", COMPANY_NUMBER);
-//                });
-//    }
-//
-//    @Test
-//    void whenApiReturns200StatusWithExceptionThenThrowServiceUnavailableException() throws Exception {
-//        HttpResponseException.Builder builder = new HttpResponseException.Builder(200,
-//                "statusMessage", new HttpHeaders());
-//        ApiErrorResponseException apiErrorResponseException =
-//                new ApiErrorResponseException(builder);
-//        when(privateCompanyMetricsGet.execute()).thenThrow(apiErrorResponseException);
-//
-//        assertThrows(ServiceUnavailableException.class,
-//                () -> {
-//                    boolean result = companyRegisterService.isRegisterHeldInCompaniesHouse("directors", COMPANY_NUMBER);
-//                });
-//    }
-//
-//    @Test
-//    void whenApiThrowsExceptionThenThrowServiceUnavailableException() throws Exception {
-//        URIValidationException uriValidationException = new URIValidationException("message");
-//        when(privateCompanyMetricsGet.execute()).thenThrow(uriValidationException);
-//
-//        assertThrows(ServiceUnavailableException.class,
-//                () -> {
-//                    boolean result = companyRegisterService.isRegisterHeldInCompaniesHouse("directors", COMPANY_NUMBER);
-//                });
-//    }
-
-
-
     private MetricsApi getTestResponse() {
         MetricsApi metricsApi = new MetricsApi();
         RegistersApi registersApi = new RegistersApi();
