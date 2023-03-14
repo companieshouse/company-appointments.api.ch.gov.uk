@@ -206,8 +206,6 @@ public class CompanyAppointmentFullRecordView {
 
             Builder builder = new Builder();
 
-            System.out.println("I'm here woooo with " + api.toString());
-
             return builder.withServiceAddress(api.getData().getServiceAddress())
                     .withUsualResidentialAddress(api.getSensitiveData().getUsualResidentialAddress())
                     .withAppointedOn(api.getData().getAppointedOn())
