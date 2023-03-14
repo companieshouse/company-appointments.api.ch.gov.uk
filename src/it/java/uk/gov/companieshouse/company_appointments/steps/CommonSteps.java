@@ -72,34 +72,6 @@ public class CommonSteps {
         CucumberContext.CONTEXT.set("statusCode", response.getStatusCode());
     }
 
-    @When("I send a GET request with id {string}")
-    public void sendGetRequest(String id) throws JsonProcessingException {
-        String data = FileReader.readDataFile(id);
-        Document document = Document.parse(data);
-        mongoTemplate.insert(Document.parse(data), "delta_appointments");
-
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new JavaTimeModule());
-        DeltaAppointmentApiEntity entity = mapper.readValue(document.toJson(), DeltaAppointmentApiEntity.class);
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-
-        headers.set("x-request-id", "5234234234");
-        headers.set("ERIC-Identity", "TEST-IDENTITY");
-        headers.set("ERIC-Identity-Type", "key");
-        headers.set("ERIC-Authorised-Key-Privileges", "sensitive-data");
-
-        HttpEntity<String> request = new HttpEntity<>(data, headers);
-        String uri = "/company/" + COMPANY_NUMBER + "/appointments/" + id + "/full_record";
-
-        ResponseEntity<Void> response = restTemplate.exchange(uri, HttpMethod.GET, request, Void.class);
-
-        CucumberContext.CONTEXT.set("statusCode", response.getStatusCode());
-        CucumberContext.CONTEXT.set("responseData", response.getBody());
-    }
-
     @Then("I should receive a {int} status code")
     public void receiveStatusCode(int code) {
         HttpStatus statusCode = CucumberContext.CONTEXT.get("statusCode");
@@ -114,14 +86,5 @@ public class CommonSteps {
         List<DeltaAppointmentApiEntity> appointments = mongoTemplate.find(query, DeltaAppointmentApiEntity.class);
 
         assertThat(appointments.size()).isEqualTo(1);
-    }
-
-    @Then("the result should match {string}")
-    public void resultShouldMatchData(String name) {
-        String expected = FileReader.readOutputFile(name);
-
-        String actual = CucumberContext.CONTEXT.get("responseData");
-
-        jsonMatcher.doJSONsMatch(expected, actual);
     }
 }
