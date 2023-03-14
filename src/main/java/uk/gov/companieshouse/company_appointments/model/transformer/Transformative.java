@@ -1,6 +1,6 @@
 package uk.gov.companieshouse.company_appointments.model.transformer;
 
-import uk.gov.companieshouse.company_appointments.FailedToTransformException;
+import uk.gov.companieshouse.company_appointments.exception.FailedToTransformException;
 
 import java.util.ArrayList;
 import java.util.Collection;
