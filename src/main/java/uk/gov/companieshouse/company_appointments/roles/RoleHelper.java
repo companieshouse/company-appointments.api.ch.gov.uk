@@ -1,10 +1,6 @@
 package uk.gov.companieshouse.company_appointments.roles;
 
 import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentData;
-import uk.gov.companieshouse.company_appointments.roles.DirectorRoles;
-import uk.gov.companieshouse.company_appointments.roles.LlpRoles;
-import uk.gov.companieshouse.company_appointments.roles.SecretarialRoles;
-
 
 public class RoleHelper {
     private RoleHelper(){}

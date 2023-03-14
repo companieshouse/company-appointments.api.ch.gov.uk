@@ -1,16 +1,8 @@
 package uk.gov.companieshouse.company_appointments.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import uk.gov.companieshouse.api.InternalApiClient;
-import uk.gov.companieshouse.api.error.ApiErrorResponseException;
-import uk.gov.companieshouse.api.handler.metrics.request.PrivateCompanyMetricsGet;
-import uk.gov.companieshouse.api.metrics.MetricsApi;
 import uk.gov.companieshouse.api.metrics.RegistersApi;
-import uk.gov.companieshouse.api.model.ApiResponse;
-import uk.gov.companieshouse.company_appointments.api.ApiClientService;
 import uk.gov.companieshouse.company_appointments.api.CompanyMetricsApiService;
 import uk.gov.companieshouse.company_appointments.exception.BadRequestException;
 import uk.gov.companieshouse.company_appointments.exception.ServiceUnavailableException;

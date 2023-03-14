@@ -25,7 +25,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class CompanyMetricsApiServiceTest {
+class CompanyMetricsApiServiceTest {
 
     private static String COMPANY_NUMBER = "12345678";
 
