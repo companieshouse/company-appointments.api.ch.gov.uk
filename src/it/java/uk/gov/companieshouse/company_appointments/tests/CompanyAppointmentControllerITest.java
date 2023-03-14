@@ -53,7 +53,7 @@ class CompanyAppointmentControllerITest {
     @Test
     void testReturn200OKIfOfficerIsFound() throws Exception {
         //when
-        ResultActions result = mockMvc.perform(get("/company/{company_number}/appointments/{appointment_id}", "12345678", "resigned_1")
+        ResultActions result = mockMvc.perform(get("/company/{company_number}/appointments/{appointment_id}", "12345678", "active_1")
                 .header("ERIC-Identity", "123")
                 .header("ERIC-Identity-Type", "key")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -63,7 +63,6 @@ class CompanyAppointmentControllerITest {
         result.andExpect(status().isOk())
                 .andExpect(jsonPath("$.name", is("NOSURNAME, Noname1 Noname2")))
                 .andExpect(jsonPath("$.appointed_on", is("2020-08-26")))
-                .andExpect(jsonPath("$.resigned_on", is("2020-08-26")))
                 .andExpect(jsonPath("$.date_of_birth", not(contains("day"))))
                 .andExpect(jsonPath("$.date_of_birth.year", is(1980)))
                 .andExpect(jsonPath("$.date_of_birth.month", is(1)));
@@ -133,7 +132,7 @@ class CompanyAppointmentControllerITest {
 
         //then
         result.andExpect(status().isOk())
-                .andExpect(jsonPath("$.items.[0].name", is("Doe, John Forename")))
+                .andExpect(jsonPath("$.items.[0].name", is("NOSURNAME, Noname1 Noname2")))
                 .andExpect(jsonPath("$.active_count", is(1)))
                 .andExpect(jsonPath("$.resigned_count", is(0)))
                 .andExpect(jsonPath("$.total_results", is(1)));

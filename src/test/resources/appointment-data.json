@@ -1,6 +1,6 @@
 {
-  "_id" : "resigned_1",
-  "appointment_id" : "resigned_1",
+  "_id" : "active_1",
+  "appointment_id" : "active_1",
   "company_name" : "TEST COMPANY LIMITED",
   "company_number" : "12345678",
   "company_status" : "active",
@@ -22,7 +22,6 @@
     "nationality" : "British",
     "forename" : "Noname1",
     "surname" : "NOSURNAME",
-    "resigned_on" : ISODate("2020-08-26T13:00:00.000Z"),
     "company_number" : "12345678",
     "updated_at" : ISODate("2020-08-26T13:00:00.000Z"),
     "other_forenames" : "Noname2",
