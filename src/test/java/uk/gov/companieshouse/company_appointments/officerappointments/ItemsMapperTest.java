@@ -71,6 +71,8 @@ class ItemsMapperTest {
     private FormerNamesData formerNamesData;
     @Mock
     private IdentificationData identificationData;
+    @Mock
+    private NameElements nameElements;
 
     @Test
     @DisplayName("Should map a list of appointments to a list of officer appointments")
@@ -84,6 +86,7 @@ class ItemsMapperTest {
         when(formerNamesMapper.map(any())).thenReturn(singletonList(formerNames));
         when(identificationMapper.map(any())).thenReturn(corporateIdent);
         when(roleMapper.mapOfficerRole(anyString())).thenReturn(OfficerRoleEnum.DIRECTOR);
+        when(nameMapper.mapNameElements(any())).thenReturn(nameElements);
 
         List<CompanyAppointmentData> appointmentList = getAppointmentList();
 
@@ -196,12 +199,7 @@ class ItemsMapperTest {
                 .identification(corporateIdent)
                 .isPre1992Appointment(false)
                 .links(new AppointmentLinkTypes().company("/company/12345678"))
-                .nameElements(new NameElements()
-                        .forename("forename")
-                        .title("Mrs")
-                        .otherForenames("secondForename")
-                        .surname("surname")
-                        .honours("FCA"))
+                .nameElements(nameElements)
                 .nationality("British")
                 .occupation("Company Director")
                 .officerRole(OfficerRoleEnum.DIRECTOR)

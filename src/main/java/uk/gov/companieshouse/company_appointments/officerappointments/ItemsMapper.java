@@ -7,7 +7,6 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.api.officer.AppointedTo;
 import uk.gov.companieshouse.api.officer.AppointmentLinkTypes;
-import uk.gov.companieshouse.api.officer.NameElements;
 import uk.gov.companieshouse.api.officer.OfficerAppointmentSummary;
 import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentData;
 
@@ -55,13 +54,9 @@ public class ItemsMapper {
                                 .formerNames(formerNamesMapper.map(data.getFormerNameData()))
                                 .identification(identificationMapper.map(data.getIdentificationData()))
                                 .isPre1992Appointment(data.getIsPre1992Appointment())
-                                .links(new AppointmentLinkTypes().company(String.format("/company/%s", data.getCompanyNumber())))
-                                .nameElements(new NameElements()
-                                        .forename(data.getForename())
-                                        .title(data.getTitle())
-                                        .otherForenames(data.getOtherForenames())
-                                        .surname(data.getSurname())
-                                        .honours(data.getHonours()))
+                                .links(new AppointmentLinkTypes()
+                                        .company(String.format("/company/%s", data.getCompanyNumber())))
+                                .nameElements(nameMapper.mapNameElements(data))
                                 .nationality(data.getNationality())
                                 .occupation(data.getOccupation())
                                 .officerRole(roleMapper.mapOfficerRole(data.getOfficerRole()))
