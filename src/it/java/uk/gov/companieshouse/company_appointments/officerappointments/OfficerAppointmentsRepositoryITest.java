@@ -33,14 +33,12 @@ class OfficerAppointmentsRepositoryITest {
     private OfficerAppointmentsRepository repository;
 
     @Container
-    private static MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:4.4");
-
-    private static MongoTemplate mongoTemplate;
+    private static final MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:4.4");
 
     @BeforeAll
     static void start() throws IOException {
         System.setProperty("spring.data.mongodb.uri", mongoDBContainer.getReplicaSetUrl());
-        mongoTemplate = new MongoTemplate(new SimpleMongoClientDatabaseFactory(mongoDBContainer.getReplicaSetUrl()));
+        MongoTemplate mongoTemplate = new MongoTemplate(new SimpleMongoClientDatabaseFactory(mongoDBContainer.getReplicaSetUrl()));
         mongoTemplate.createCollection("appointments");
         mongoTemplate.insert(Document.parse(IOUtils.resourceToString("/appointment-data.json", StandardCharsets.UTF_8)), "appointments");
         mongoTemplate.insert(Document.parse(IOUtils.resourceToString("/appointment-data2.json", StandardCharsets.UTF_8)), "appointments");

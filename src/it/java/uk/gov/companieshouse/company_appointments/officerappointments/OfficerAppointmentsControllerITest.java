@@ -36,7 +36,7 @@ import uk.gov.companieshouse.company_appointments.CompanyAppointmentsApplication
 class OfficerAppointmentsControllerITest {
 
     @Container
-    private static final MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:4.2");
+    private static final MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:4.4");
     @Autowired
     private MockMvc mockMvc;
 

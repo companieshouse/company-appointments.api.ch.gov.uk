@@ -24,7 +24,7 @@ public class NameMapper {
                 .otherForenames(data.getOtherForenames())
                 .surname(data.getSurname())
                 .honours(data.getHonours());
-        if (new NameElements().equals(nameElements)) {
+        if (nameElements.equals(new NameElements())) {
             nameElements = null;
         }
         return nameElements;
