@@ -5,6 +5,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentData;
 import uk.gov.companieshouse.company_appointments.model.data.OfficerData;
+import uk.gov.companieshouse.company_appointments.roles.DirectorRoles;
+import uk.gov.companieshouse.company_appointments.roles.LlpRoles;
+import uk.gov.companieshouse.company_appointments.roles.SecretarialRoles;
+import uk.gov.companieshouse.company_appointments.roles.RoleHelper;
 
 import java.util.stream.Collectors;
 

@@ -3,6 +3,8 @@ package uk.gov.companieshouse.company_appointments;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Sort;
+import uk.gov.companieshouse.company_appointments.exception.BadRequestException;
+import uk.gov.companieshouse.company_appointments.mapper.SortMapper;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;

@@ -14,7 +14,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import uk.gov.companieshouse.api.appointment.FullRecordCompanyOfficerApi;
+import uk.gov.companieshouse.company_appointments.controller.CompanyAppointmentFullRecordController;
+import uk.gov.companieshouse.company_appointments.exception.NotFoundException;
 import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentFullRecordView;
+import uk.gov.companieshouse.company_appointments.service.CompanyAppointmentFullRecordService;
 
 @ExtendWith(MockitoExtension.class)
 class CompanyAppointmentFullRecordControllerTest {
