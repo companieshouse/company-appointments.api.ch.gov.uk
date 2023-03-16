@@ -5,7 +5,7 @@ import static java.util.Optional.ofNullable;
 import java.time.LocalDateTime;
 import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.api.officer.DateOfBirth;
-import uk.gov.companieshouse.company_appointments.SecretarialRoles;
+import uk.gov.companieshouse.company_appointments.roles.SecretarialRoles;
 
 @Component
 public class DateOfBirthMapper {
