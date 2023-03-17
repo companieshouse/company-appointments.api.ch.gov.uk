@@ -9,22 +9,29 @@ import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentD
  * Correct sorting: A list of, first, active officers sorted by appointed_on date in descending order (or appointed_before
  * if appointed_on is null), followed by resigned officers sorted by resigned_on date in descending order.
  */
+// TODO: Include filtering in java docs
 @Repository
 public interface OfficerAppointmentsRepository extends MongoRepository<CompanyAppointmentData, String> {
 
     @Aggregation(pipeline = {
-            "{ '$match': { 'officer_id': ?0 } }",
-            "{ $addFields: {"
-        +           "'sort_active': { $ifNull: ['$data.appointed_on', '$data.appointed_before']}"
-        +                 "}"
-        +   "}",
+            "{ '$match': { "
+        +           "$and: [ "
+        +                "{'officer_id': ?0 }, "
+        +                "{ $or: [ "
+        +                    "{ 'data.resigned_on': { $exists: false } }, "
+        +                    "{ 'data.resigned_on': { $exists: ?1 } } "
+        +                   "] "
+        +                "}"
+        +             "] "
+        +         "}"
+        +     "}",
             "{ '$facet': {"
         +           "'active': ["
         +               "{ $match: {'data.resigned_on': {$exists: false}} },"
-        +               "{ $sort:  {'sort_active': -1} }"
+        +               "{ $sort:  {'data.appointed_on': -1, 'data.appointed_before': -1 } }"
         +                   "],"
         +           "'resigned': ["
-        +               "{ $match: {'data.resigned_on': {$exists: true}} },"
+        +               "{ $match: {'data.resigned_on': {$exists: true} } },"
         +               "{ $sort:  {'data.resigned_on': -1} }"
         +                       "],"
         +           "'total_results': [{ '$count': 'count' }]"
@@ -41,5 +48,5 @@ public interface OfficerAppointmentsRepository extends MongoRepository<CompanyAp
         + "                }"
         +   "}"
     })
-    OfficerAppointmentsAggregate findOfficerAppointments(String officerId);
+    OfficerAppointmentsAggregate findOfficerAppointments(String officerId, boolean noFilter);
 }

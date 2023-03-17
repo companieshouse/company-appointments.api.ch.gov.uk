@@ -55,7 +55,7 @@ class OfficerAppointmentsRepositoryITest {
         // given
 
         // when
-        OfficerAppointmentsAggregate officerAppointmentsAggregate = repository.findOfficerAppointments(OFFICER_ID);
+        OfficerAppointmentsAggregate officerAppointmentsAggregate = repository.findOfficerAppointments(OFFICER_ID, true);
 
         // then
         assertEquals(5, officerAppointmentsAggregate.getTotalResults());
@@ -83,7 +83,7 @@ class OfficerAppointmentsRepositoryITest {
         // given
         // when
 
-        OfficerAppointmentsAggregate officerAppointmentsAggregate = repository.findOfficerAppointments("officerId");
+        OfficerAppointmentsAggregate officerAppointmentsAggregate = repository.findOfficerAppointments("officerId", true);
 
         // then
         assertEquals(0, officerAppointmentsAggregate.getTotalResults());
