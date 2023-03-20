@@ -8,13 +8,19 @@ import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentD
 /**
  * Correct sorting: A list of, first, active officers sorted by appointed_on date in descending order (or appointed_before
  * if appointed_on is null), followed by resigned officers sorted by resigned_on date in descending order.
+ *
+ * If noFilter = true, this means the show-active-only filter on the frontend has not been checked, and so we want to
+ * display all appointments (active and inactive). This results in the aggregation matching on records where
+ * data.resigned_on either exists or does not (i.e., all appointments).
+ *
+ * If noFilter = false, the aggregation matches on records where data.resigned_on exists is false or false - which effectively
+ * just finds records where data.resigned_on does not exist (i.e., only active appointments).
  */
-// TODO: Include filtering in java docs
 @Repository
 public interface OfficerAppointmentsRepository extends MongoRepository<CompanyAppointmentData, String> {
 
     @Aggregation(pipeline = {
-            "{ '$match': { "
+            "{ $match: { "
         +           "$and: [ "
         +                "{'officer_id': ?0 }, "
         +                "{ $or: [ "
@@ -25,7 +31,7 @@ public interface OfficerAppointmentsRepository extends MongoRepository<CompanyAp
         +             "] "
         +         "}"
         +     "}",
-            "{ '$facet': {"
+            "{ $facet: {"
         +           "'active': ["
         +               "{ $match: {'data.resigned_on': {$exists: false}} },"
         +               "{ $sort:  {'data.appointed_on': -1, 'data.appointed_before': -1 } }"
@@ -37,12 +43,12 @@ public interface OfficerAppointmentsRepository extends MongoRepository<CompanyAp
         +           "'total_results': [{ '$count': 'count' }]"
         +               "}"
         +   "}",
-            "{ '$unwind': {"
+            "{ $unwind: {"
         +           "'path': '$total_results',"
         +           "'preserveNullAndEmptyArrays': true"
         +                 "}"
         +   "}",
-            "{ '$project': {"
+            "{ $project: {"
         +           "'total_results': { '$ifNull': ['$total_results.count', NumberInt(0)] },"
         +           "'officer_appointments': {$concatArrays: ['$active', '$resigned']}"
         + "                }"

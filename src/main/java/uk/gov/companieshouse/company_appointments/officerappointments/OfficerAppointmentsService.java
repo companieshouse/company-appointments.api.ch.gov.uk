@@ -16,7 +16,7 @@ public class OfficerAppointmentsService {
     }
 
     protected Optional<AppointmentList> getOfficerAppointments(OfficerAppointmentsRequest request) {
-        boolean noFilter = !request.getFilter().equals("active");
+        boolean noFilter = request.getFilter() == null || !request.getFilter().equals("active");
         return mapper.mapOfficerAppointments(repository.findOfficerAppointments(request.getOfficerId(), noFilter));
     }
 }

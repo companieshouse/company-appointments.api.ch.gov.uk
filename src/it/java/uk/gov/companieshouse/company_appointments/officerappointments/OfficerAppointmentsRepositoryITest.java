@@ -81,13 +81,36 @@ class OfficerAppointmentsRepositoryITest {
     @Test
     void findOfficerAppointmentsNoResults() {
         // given
-        // when
 
+        // when
         OfficerAppointmentsAggregate officerAppointmentsAggregate = repository.findOfficerAppointments("officerId", true);
 
         // then
         assertEquals(0, officerAppointmentsAggregate.getTotalResults());
         assertTrue(officerAppointmentsAggregate.getOfficerAppointments().isEmpty());
 
+    }
+
+    @DisplayName("Repository returns only active appointments when filter = active")
+    @Test
+    void findActiveOfficerAppointments() {
+        // given
+
+        // when
+        OfficerAppointmentsAggregate officerAppointmentsAggregate = repository.findOfficerAppointments(OFFICER_ID, false);
+
+        // then
+        assertEquals(3, officerAppointmentsAggregate.getTotalResults());
+
+        assertEquals(OFFICER_ID, officerAppointmentsAggregate.getOfficerAppointments().get(0).getOfficerId());
+        assertEquals(OFFICER_ID, officerAppointmentsAggregate.getOfficerAppointments().get(1).getOfficerId());
+        assertEquals(OFFICER_ID, officerAppointmentsAggregate.getOfficerAppointments().get(2).getOfficerId());
+
+        assertEquals("active_1",
+                officerAppointmentsAggregate.getOfficerAppointments().get(0).getId());
+        assertEquals("active_2",
+                officerAppointmentsAggregate.getOfficerAppointments().get(1).getId());
+        assertEquals("active_3",
+                officerAppointmentsAggregate.getOfficerAppointments().get(2).getId());
     }
 }
