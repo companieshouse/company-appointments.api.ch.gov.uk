@@ -1,6 +1,7 @@
 package uk.gov.companieshouse.company_appointments;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -8,10 +9,14 @@ import static org.mockito.Mockito.when;
 
 import com.google.api.client.http.HttpHeaders;
 import com.google.api.client.http.HttpResponseException;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.function.Executable;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -81,11 +86,11 @@ class ResourceChangedApiServiceTest {
         verify(changedResourcePost).execute();
     }
 
-    @Test
-    @DisplayName("Test should handle a service unavailable exception when response code is HTTP 503")
-    void invokeChsKafkaApi503() throws ApiErrorResponseException {
+    @ParameterizedTest(name = "{index}: {0}")
+    @MethodSource("invokeChsKafkaApiExceptionFixtures")
+    void invokeChsKafkaApi503(String displayName, int statusCode, String statusMessage) throws ApiErrorResponseException {
         // given
-        setupExceptionScenario(503, "Service Unavailable");
+        setupExceptionScenario(statusCode, statusMessage);
 
         // when
         Executable executable = () -> resourceChangedApiService.invokeChsKafkaApi(resourceChangedRequest);
@@ -95,32 +100,12 @@ class ResourceChangedApiServiceTest {
         verifyExceptionScenario();
     }
 
-    @Test
-    @DisplayName("Test should handle a service unavailable exception when response code is HTTP 500")
-    void invokeChsKafkaApi500() throws ApiErrorResponseException, ServiceUnavailableException {
-        // given
-        setupExceptionScenario(500, "Internal Service Error");
-
-        // when
-        Executable executable = () -> resourceChangedApiService.invokeChsKafkaApi(resourceChangedRequest);
-
-        // then
-        assertThrows(ServiceUnavailableException.class, executable);
-        verifyExceptionScenario();
-    }
-
-    @Test
-    @DisplayName("Test should handle a service unavailable exception when response code is HTTP 200 with errors")
-    void invokeChsKafkaApi200Errors() throws ApiErrorResponseException, ServiceUnavailableException {
-        // given
-        setupExceptionScenario(200, "");
-
-        // when
-        Executable executable = () -> resourceChangedApiService.invokeChsKafkaApi(resourceChangedRequest);
-
-        // then
-        assertThrows(ServiceUnavailableException.class, executable);
-        verifyExceptionScenario();
+    private static Stream<Arguments> invokeChsKafkaApiExceptionFixtures() {
+        return Stream.of(
+                arguments("Throws service unavailable exception when response code is HTTP 503", 503, "Service Unavailable"),
+                arguments("Throws service unavailable exception when response code is HTTP 500", 500, "Internal Service Error"),
+                arguments("Throws service unavailable exception when response code is HTTP 200 with errors", 200, "")
+        );
     }
 
     private void setupExceptionScenario(int statusCode, String statusMessage) throws ApiErrorResponseException {

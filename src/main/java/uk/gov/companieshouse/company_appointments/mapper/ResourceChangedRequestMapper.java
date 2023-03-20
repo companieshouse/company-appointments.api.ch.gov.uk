@@ -23,7 +23,7 @@ public class ResourceChangedRequestMapper {
                 .event(event)
                 .contextId(request.getContextId());
 
-        if (request.getIsDelete()) {
+        if (Boolean.TRUE.equals(request.getIsDelete())) {
             event.setType("deleted");
             changedResource.setDeletedData(request.getOfficersData());
         } else {
