@@ -1,6 +1,6 @@
 package uk.gov.companieshouse.company_appointments;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -8,10 +8,10 @@ import static org.mockito.Mockito.when;
 
 import com.google.api.client.http.HttpHeaders;
 import com.google.api.client.http.HttpResponseException;
-import java.util.function.Supplier;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.function.Executable;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -23,9 +23,9 @@ import uk.gov.companieshouse.api.handler.chskafka.request.PrivateChangedResource
 import uk.gov.companieshouse.api.model.ApiResponse;
 import uk.gov.companieshouse.company_appointments.api.ApiClientService;
 import uk.gov.companieshouse.company_appointments.api.ResourceChangedApiService;
+import uk.gov.companieshouse.company_appointments.exception.ServiceUnavailableException;
 import uk.gov.companieshouse.company_appointments.mapper.ResourceChangedRequestMapper;
 import uk.gov.companieshouse.company_appointments.model.data.ResourceChangedRequest;
-import uk.gov.companieshouse.company_appointments.model.util.ServiceStatus;
 import uk.gov.companieshouse.logging.Logger;
 
 @ExtendWith(MockitoExtension.class)
@@ -63,17 +63,18 @@ class ResourceChangedApiServiceTest {
 
     @Test
     @DisplayName("Test should successfully invoke chs-kafka-api")
-    void invokeChsKafkaApi() throws ApiErrorResponseException {
+    void invokeChsKafkaApi() throws ApiErrorResponseException, ServiceUnavailableException {
+        // given
         when(apiClientService.getInternalApiClient()).thenReturn(internalApiClient);
         when(internalApiClient.privateChangedResourceHandler()).thenReturn(privateChangedResourceHandler);
         when(privateChangedResourceHandler.postChangedResource(any(), any())).thenReturn(changedResourcePost);
         when(changedResourcePost.execute()).thenReturn(response);
         when(mapper.mapChangedResource(resourceChangedRequest)).thenReturn(changedResource);
 
-        ServiceStatus serviceStatus = resourceChangedApiService.invokeChsKafkaApi(resourceChangedRequest);
+        // when
+        resourceChangedApiService.invokeChsKafkaApi(resourceChangedRequest);
 
-        assertEquals(serviceStatus.SUCCESS, serviceStatus);
-
+        // then
         verify(apiClientService).getInternalApiClient();
         verify(internalApiClient).privateChangedResourceHandler();
         verify(privateChangedResourceHandler).postChangedResource("/resource-changed", changedResource);
@@ -83,33 +84,42 @@ class ResourceChangedApiServiceTest {
     @Test
     @DisplayName("Test should handle a service unavailable exception when response code is HTTP 503")
     void invokeChsKafkaApi503() throws ApiErrorResponseException {
+        // given
         setupExceptionScenario(503, "Service Unavailable");
 
-        ServiceStatus serviceStatus = resourceChangedApiService.invokeChsKafkaApi(resourceChangedRequest);
+        // when
+        Executable executable = () -> resourceChangedApiService.invokeChsKafkaApi(resourceChangedRequest);
 
-        assertEquals(ServiceStatus.SERVER_ERROR, serviceStatus);
+        // then
+        assertThrows(ServiceUnavailableException.class, executable);
         verifyExceptionScenario();
     }
 
     @Test
     @DisplayName("Test should handle a service unavailable exception when response code is HTTP 500")
-    void invokeChsKafkaApi500() throws ApiErrorResponseException {
+    void invokeChsKafkaApi500() throws ApiErrorResponseException, ServiceUnavailableException {
+        // given
         setupExceptionScenario(500, "Internal Service Error");
 
-        ServiceStatus serviceStatus = resourceChangedApiService.invokeChsKafkaApi(resourceChangedRequest);
+        // when
+        Executable executable = () -> resourceChangedApiService.invokeChsKafkaApi(resourceChangedRequest);
 
-        assertEquals(ServiceStatus.SERVER_ERROR, serviceStatus);
+        // then
+        assertThrows(ServiceUnavailableException.class, executable);
         verifyExceptionScenario();
     }
 
     @Test
     @DisplayName("Test should handle a service unavailable exception when response code is HTTP 200 with errors")
-    void invokeChsKafkaApi200Errors() throws ApiErrorResponseException {
+    void invokeChsKafkaApi200Errors() throws ApiErrorResponseException, ServiceUnavailableException {
+        // given
         setupExceptionScenario(200, "");
 
-        ServiceStatus serviceStatus = resourceChangedApiService.invokeChsKafkaApi(resourceChangedRequest);
+        // when
+        Executable executable = () -> resourceChangedApiService.invokeChsKafkaApi(resourceChangedRequest);
 
-        assertEquals(ServiceStatus.SERVER_ERROR, serviceStatus);
+        // then
+        assertThrows(ServiceUnavailableException.class, executable);
         verifyExceptionScenario();
     }
 

@@ -16,7 +16,7 @@
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-        <spring-boot-dependencies.version>2.5.6</spring-boot-dependencies.version>
+        <spring-boot-dependencies.version>2.7.9</spring-boot-dependencies.version>
         <testcontainers.version>1.16.2</testcontainers.version>
         <commons-io.version>2.6</commons-io.version>
         <commons-lang.version>2.6</commons-lang.version>
