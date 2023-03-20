@@ -90,14 +90,24 @@ class ResourceChangedApiServiceTest {
     @MethodSource("invokeChsKafkaApiExceptionFixtures")
     void invokeChsKafkaApiExceptionTests(String displayName, int statusCode, String statusMessage) throws ApiErrorResponseException {
         // given
-        setupExceptionScenario(statusCode, statusMessage);
+        HttpResponseException.Builder builder = new HttpResponseException.Builder(statusCode, statusMessage, new HttpHeaders());
+        ApiErrorResponseException apiErrorResponseException = new ApiErrorResponseException(builder);
+
+        when(apiClientService.getInternalApiClient()).thenReturn(internalApiClient);
+        when(internalApiClient.privateChangedResourceHandler()).thenReturn(privateChangedResourceHandler);
+        when(privateChangedResourceHandler.postChangedResource(any(), any())).thenReturn(changedResourcePost);
+        when(mapper.mapChangedResource(resourceChangedRequest)).thenReturn(changedResource);
+        when(changedResourcePost.execute()).thenThrow(apiErrorResponseException);
 
         // when
         Executable executable = () -> resourceChangedApiService.invokeChsKafkaApi(resourceChangedRequest);
 
         // then
         assertThrows(ServiceUnavailableException.class, executable);
-        verifyExceptionScenario();
+        verify(apiClientService, times(1)).getInternalApiClient();
+        verify(internalApiClient, times(1)).privateChangedResourceHandler();
+        verify(privateChangedResourceHandler, times(1)).postChangedResource("/resource-changed", changedResource);
+        verify(changedResourcePost, times(1)).execute();
     }
 
     private static Stream<Arguments> invokeChsKafkaApiExceptionFixtures() {
@@ -106,25 +116,5 @@ class ResourceChangedApiServiceTest {
                 arguments("Throws service unavailable exception when response code is HTTP 500", 500, "Internal Service Error"),
                 arguments("Throws service unavailable exception when response code is HTTP 200 with errors", 200, "")
         );
-    }
-
-    private void setupExceptionScenario(int statusCode, String statusMessage) throws ApiErrorResponseException {
-        when(apiClientService.getInternalApiClient()).thenReturn(internalApiClient);
-        when(internalApiClient.privateChangedResourceHandler()).thenReturn(privateChangedResourceHandler);
-        when(privateChangedResourceHandler.postChangedResource(any(), any())).thenReturn(changedResourcePost);
-        when(mapper.mapChangedResource(resourceChangedRequest)).thenReturn(changedResource);
-
-        HttpResponseException.Builder builder = new HttpResponseException.Builder(statusCode,
-                statusMessage, new HttpHeaders());
-        ApiErrorResponseException apiErrorResponseException =
-                new ApiErrorResponseException(builder);
-        when(changedResourcePost.execute()).thenThrow(apiErrorResponseException);
-    }
-
-    private void verifyExceptionScenario() throws ApiErrorResponseException {
-        verify(apiClientService, times(1)).getInternalApiClient();
-        verify(internalApiClient, times(1)).privateChangedResourceHandler();
-        verify(privateChangedResourceHandler, times(1)).postChangedResource("/resource-changed", changedResource);
-        verify(changedResourcePost, times(1)).execute();
     }
 }
