@@ -88,7 +88,7 @@ class ResourceChangedApiServiceTest {
 
     @ParameterizedTest(name = "{index}: {0}")
     @MethodSource("invokeChsKafkaApiExceptionFixtures")
-    void invokeChsKafkaApi503(String displayName, int statusCode, String statusMessage) throws ApiErrorResponseException {
+    void invokeChsKafkaApiExceptionTests(String displayName, int statusCode, String statusMessage) throws ApiErrorResponseException {
         // given
         setupExceptionScenario(statusCode, statusMessage);
 
