@@ -9,12 +9,12 @@ import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentD
  * Correct sorting: A list of, first, active officers sorted by appointed_on date in descending order (or appointed_before
  * if appointed_on is null), followed by resigned officers sorted by resigned_on date in descending order.
  *
- * If noFilter = true, this means the show-active-only filter on the frontend has not been checked, and so we want to
- * display all appointments (active and inactive). This results in the aggregation matching on records where
- * data.resigned_on either exists or does not (i.e., all appointments).
+ * If filter = true, this means the show-active-only filter on the frontend has been checked, and so we want to
+ * display active appointments only. This results in the aggregation matching on records where
+ * data.resigned_on does not exist.
  *
- * If noFilter = false, the aggregation matches on records where data.resigned_on exists is false or false - which effectively
- * just finds records where data.resigned_on does not exist (i.e., only active appointments).
+ * If filter = false, the aggregation matches on records where data.resigned_on either exists or does not - which effectively
+ * just finds all records (i.e., both active and resigned appointments).
  */
 @Repository
 public interface OfficerAppointmentsRepository extends MongoRepository<CompanyAppointmentData, String> {
@@ -25,16 +25,21 @@ public interface OfficerAppointmentsRepository extends MongoRepository<CompanyAp
         +                "{'officer_id': ?0 }, "
         +                "{ $or: [ "
         +                    "{ 'data.resigned_on': { $exists: false } }, "
-        +                    "{ 'data.resigned_on': { $exists: ?1 } } "
+        +                    "{ 'data.resigned_on': { $not: { $exists: ?1 } } } "
         +                   "] "
         +                "}"
         +             "] "
         +         "}"
         +     "}",
+            "{"
+        +       "$addFields: {"
+        +           "'__sort_active__': { $ifNull: ['$data.appointed_on', { $toDate: '$data.appointed_before' } ] }"
+        +       "}"
+        +   "}",
             "{ $facet: {"
         +           "'active': ["
         +               "{ $match: {'data.resigned_on': {$exists: false}} },"
-        +               "{ $sort:  {'data.appointed_on': -1, 'data.appointed_before': -1 } }"
+        +               "{ $sort:  {'__sort_active__': -1 } }"
         +                   "],"
         +           "'resigned': ["
         +               "{ $match: {'data.resigned_on': {$exists: true} } },"
@@ -54,5 +59,5 @@ public interface OfficerAppointmentsRepository extends MongoRepository<CompanyAp
         + "                }"
         +   "}"
     })
-    OfficerAppointmentsAggregate findOfficerAppointments(String officerId, boolean noFilter);
+    OfficerAppointmentsAggregate findOfficerAppointments(String officerId, boolean filter);
 }

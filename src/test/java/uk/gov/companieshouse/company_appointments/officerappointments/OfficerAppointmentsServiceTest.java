@@ -2,7 +2,9 @@ package uk.gov.companieshouse.company_appointments.officerappointments;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -44,6 +46,42 @@ class OfficerAppointmentsServiceTest {
     void getOfficerAppointments() {
         // given
         OfficerAppointmentsRequest request = new OfficerAppointmentsRequest(OFFICER_ID, "", null, null);
+        when(repository.findOfficerAppointments(anyString(), anyBoolean())).thenReturn(officerAppointmentsAggregate);
+        when(mapper.mapOfficerAppointments(any())).thenReturn(Optional.of(officerAppointments));
+
+        // when
+        Optional<AppointmentList> actual = service.getOfficerAppointments(request);
+
+        // then
+        assertTrue(actual.isPresent());
+        assertEquals(officerAppointments, actual.get());
+        verify(repository).findOfficerAppointments(OFFICER_ID, false);
+        verify(mapper).mapOfficerAppointments(officerAppointmentsAggregate);
+    }
+
+    @Test
+    @DisplayName("Get officer appointments returns an officer appointments api when filter is null")
+    void getOfficerAppointmentsWithNullFilter() {
+        // given
+        OfficerAppointmentsRequest request = new OfficerAppointmentsRequest(OFFICER_ID, null, null, null);
+        when(repository.findOfficerAppointments(anyString(), anyBoolean())).thenReturn(officerAppointmentsAggregate);
+        when(mapper.mapOfficerAppointments(any())).thenReturn(Optional.of(officerAppointments));
+
+        // when
+        Optional<AppointmentList> actual = service.getOfficerAppointments(request);
+
+        // then
+        assertTrue(actual.isPresent());
+        assertEquals(officerAppointments, actual.get());
+        verify(repository).findOfficerAppointments(OFFICER_ID, false);
+        verify(mapper).mapOfficerAppointments(officerAppointmentsAggregate);
+    }
+
+    @Test
+    @DisplayName("Get officer appointments returns an officer appointments api when filter is active")
+    void getOfficerAppointmentsWithActiveFilter() {
+        // given
+        OfficerAppointmentsRequest request = new OfficerAppointmentsRequest(OFFICER_ID, "active", null, null);
         when(repository.findOfficerAppointments(anyString(), anyBoolean())).thenReturn(officerAppointmentsAggregate);
         when(mapper.mapOfficerAppointments(any())).thenReturn(Optional.of(officerAppointments));
 
