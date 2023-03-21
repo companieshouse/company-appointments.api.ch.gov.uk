@@ -6,11 +6,17 @@ db.getCollection("appointments").aggregate([
                 { 'officer_id': '_c2mqo8zkGw2VgK4wETDargF8x4' },
                 {
                     $or: [
-                        { 'data.resigned_on': { $exists: false } }, { 'data.resigned_on': { $exists: true } }
+                        { 'data.resigned_on': { $not: { $exists: false } } },
+                        { 'data.resigned_on': { $exists: false } }
                     ]
                 }
 
             ]
+        }
+    },
+    {
+        $addFields: {
+            '__sort_active__': { $ifNull: ['$data.appointed_on', { $toDate: '$data.appointed_before' }]}
         }
     },
     {
@@ -21,8 +27,7 @@ db.getCollection("appointments").aggregate([
                 },
                 {
                     $sort: {
-                        'data.appointed_on': -1,
-                        'data.appointed_before': -1
+                        '__sort_active__': -1
                     }
                 }
             ],
