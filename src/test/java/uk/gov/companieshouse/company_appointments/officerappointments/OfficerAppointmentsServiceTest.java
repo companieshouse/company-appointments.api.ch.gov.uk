@@ -84,6 +84,25 @@ class OfficerAppointmentsServiceTest {
                                         .withFilter(true)
                                         .withStartIndex(3)
                                         .withItemsPerPage(3)
+                                        .build())),
+                Arguments.of(
+                        Named.of("Get officer appointments returns default paging when itemsPerPage is 0",
+                                ServiceTestArgument.ServiceTestArgumentBuilder()
+                                        .withRequest(new OfficerAppointmentsRequest(OFFICER_ID, "", null, 0))
+                                        .withOfficerId(OFFICER_ID)
+                                        .withFilter(false)
+                                        .withStartIndex(0)
+                                        .withItemsPerPage(35)
+                                        .build())),
+
+                Arguments.of(
+                        Named.of("Get officer appointments successfully handles negative paging values",
+                                ServiceTestArgument.ServiceTestArgumentBuilder()
+                                        .withRequest(new OfficerAppointmentsRequest(OFFICER_ID, "", -1, -5))
+                                        .withOfficerId(OFFICER_ID)
+                                        .withFilter(false)
+                                        .withStartIndex(1)
+                                        .withItemsPerPage(5)
                                         .build())));
     }
 

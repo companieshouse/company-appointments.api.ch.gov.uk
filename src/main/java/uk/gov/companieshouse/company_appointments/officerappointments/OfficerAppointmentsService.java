@@ -19,10 +19,21 @@ public class OfficerAppointmentsService {
     }
 
     protected Optional<AppointmentList> getOfficerAppointments(OfficerAppointmentsRequest request) {
-        boolean filter = "active".equals(request.getFilter());
-        int startIndex = request.getStartIndex() == null ? START_INDEX : request.getStartIndex();
-        int itemsPerPage = request.getItemsPerPage() == null ? ITEMS_PER_PAGE : request.getItemsPerPage();
+        int startIndex;
+        if (request.getStartIndex() == null) {
+            startIndex = START_INDEX;
+        } else {
+            startIndex = Math.abs(request.getStartIndex());
+        }
 
+        int itemsPerPage;
+        if (request.getItemsPerPage() == null || request.getItemsPerPage() == 0) {
+            itemsPerPage = ITEMS_PER_PAGE;
+        } else {
+            itemsPerPage = Math.abs(request.getItemsPerPage());
+        }
+
+        boolean filter = "active".equals(request.getFilter());
         return mapper.mapOfficerAppointments(startIndex, itemsPerPage,
                 repository.findOfficerAppointments(request.getOfficerId(), filter, startIndex, itemsPerPage));
     }
