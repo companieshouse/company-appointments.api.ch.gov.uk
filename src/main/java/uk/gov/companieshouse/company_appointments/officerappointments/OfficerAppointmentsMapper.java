@@ -11,8 +11,6 @@ import uk.gov.companieshouse.api.officer.OfficerLinkTypes;
 @Component
 public class OfficerAppointmentsMapper {
 
-    private static final int ITEMS_PER_PAGE = 35;
-    private static final int START_INDEX = 0;
     private final ItemsMapper itemsMapper;
     private final NameMapper nameMapper;
     private final DateOfBirthMapper dobMapper;
@@ -35,7 +33,7 @@ public class OfficerAppointmentsMapper {
      * @param aggregate The count and appointments list pairing returned by the repository.
      * @return The optional OfficerAppointmentsApi for the response body.
      */
-    protected Optional<AppointmentList> mapOfficerAppointments(OfficerAppointmentsAggregate aggregate) {
+    protected Optional<AppointmentList> mapOfficerAppointments(Integer startIndex, Integer itemsPerPage, OfficerAppointmentsAggregate aggregate) {
         return aggregate.getOfficerAppointments().stream()
                 .findFirst()
                 .flatMap(firstAppointment -> ofNullable(firstAppointment.getData())
@@ -43,13 +41,13 @@ public class OfficerAppointmentsMapper {
                                 .dateOfBirth(dobMapper.map(data.getDateOfBirth(), data.getOfficerRole()))
                                 .etag(data.getEtag())
                                 .isCorporateOfficer(roleMapper.mapIsCorporateOfficer(data.getOfficerRole()))
-                                .itemsPerPage(ITEMS_PER_PAGE)
+                                .itemsPerPage(itemsPerPage)
                                 .kind(KindEnum.PERSONAL_APPOINTMENT)
                                 .links(new OfficerLinkTypes().self(
                                         String.format("/officers/%s/appointments", firstAppointment.getOfficerId())))
                                 .items(itemsMapper.map(aggregate.getOfficerAppointments()))
                                 .name(nameMapper.map(data))
-                                .startIndex(START_INDEX)
+                                .startIndex(startIndex)
                                 .totalResults(aggregate.getTotalResults())
                         ));
     }

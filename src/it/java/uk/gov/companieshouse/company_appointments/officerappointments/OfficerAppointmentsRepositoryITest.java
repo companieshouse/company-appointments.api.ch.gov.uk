@@ -3,6 +3,8 @@ package uk.gov.companieshouse.company_appointments.officerappointments;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import org.apache.commons.io.IOUtils;
 import org.bson.Document;
 import org.junit.jupiter.api.BeforeAll;
@@ -19,9 +21,6 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import uk.gov.companieshouse.company_appointments.CompanyAppointmentsApplication;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-
 @Testcontainers
 @AutoConfigureMockMvc
 @SpringBootTest(classes = CompanyAppointmentsApplication.class, webEnvironment = SpringBootTest.WebEnvironment.MOCK)
@@ -29,6 +28,8 @@ import java.nio.charset.StandardCharsets;
 class OfficerAppointmentsRepositoryITest {
 
     private static final String OFFICER_ID = "5VEOBB4a9dlB_iugw_vieHjWpCk";
+    private static final int START_INDEX = 0;
+    private static final int ITEMS_PER_PAGE = 35;
 
     @Autowired
     private OfficerAppointmentsRepository repository;
@@ -56,7 +57,7 @@ class OfficerAppointmentsRepositoryITest {
         // given
 
         // when
-        OfficerAppointmentsAggregate officerAppointmentsAggregate = repository.findOfficerAppointments(OFFICER_ID, false);
+        OfficerAppointmentsAggregate officerAppointmentsAggregate = repository.findOfficerAppointments(OFFICER_ID, false, START_INDEX, ITEMS_PER_PAGE);
 
         // then
         assertEquals(5, officerAppointmentsAggregate.getTotalResults());
@@ -84,7 +85,7 @@ class OfficerAppointmentsRepositoryITest {
         // given
 
         // when
-        OfficerAppointmentsAggregate officerAppointmentsAggregate = repository.findOfficerAppointments("officerId", false);
+        OfficerAppointmentsAggregate officerAppointmentsAggregate = repository.findOfficerAppointments("officerId", false, START_INDEX, ITEMS_PER_PAGE);
 
         // then
         assertEquals(0, officerAppointmentsAggregate.getTotalResults());
@@ -98,7 +99,7 @@ class OfficerAppointmentsRepositoryITest {
         // given
 
         // when
-        OfficerAppointmentsAggregate officerAppointmentsAggregate = repository.findOfficerAppointments(OFFICER_ID, true);
+        OfficerAppointmentsAggregate officerAppointmentsAggregate = repository.findOfficerAppointments(OFFICER_ID, true, START_INDEX, ITEMS_PER_PAGE);
 
         // then
         assertEquals(3, officerAppointmentsAggregate.getTotalResults());
@@ -121,10 +122,61 @@ class OfficerAppointmentsRepositoryITest {
         // given
 
         // when
-        OfficerAppointmentsAggregate officerAppointmentsAggregate = repository.findOfficerAppointments("officerId", true);
+        OfficerAppointmentsAggregate officerAppointmentsAggregate = repository.findOfficerAppointments("officerId", true, START_INDEX, ITEMS_PER_PAGE);
 
         // then
         assertEquals(0, officerAppointmentsAggregate.getTotalResults());
+        assertTrue(officerAppointmentsAggregate.getOfficerAppointments().isEmpty());
+    }
+
+    @DisplayName("Repository returns a paged officer appointments aggregate")
+    @Test
+    void findOfficerAppointmentsWithPaging() {
+        // given
+
+        // when
+        OfficerAppointmentsAggregate officerAppointmentsAggregate = repository.findOfficerAppointments(OFFICER_ID, false, 1, 3);
+
+        // then
+        assertEquals(5, officerAppointmentsAggregate.getTotalResults());
+        assertEquals(OFFICER_ID, officerAppointmentsAggregate.getOfficerAppointments().get(0).getOfficerId());
+        assertEquals(OFFICER_ID, officerAppointmentsAggregate.getOfficerAppointments().get(1).getOfficerId());
+        assertEquals(OFFICER_ID, officerAppointmentsAggregate.getOfficerAppointments().get(2).getOfficerId());
+
+        assertEquals("active_2",
+                officerAppointmentsAggregate.getOfficerAppointments().get(0).getId());
+        assertEquals("active_3",
+                officerAppointmentsAggregate.getOfficerAppointments().get(1).getId());
+        assertEquals("resigned_1",
+                officerAppointmentsAggregate.getOfficerAppointments().get(2).getId());
+    }
+
+    @DisplayName("Repository returns a paged officer appointments aggregate with the filter applied")
+    @Test
+    void findOfficerAppointmentsWithPagingAndFilter() {
+        // given
+
+        // when
+        OfficerAppointmentsAggregate officerAppointmentsAggregate = repository.findOfficerAppointments(OFFICER_ID, true, 2, 3);
+
+        // then
+        assertEquals(3, officerAppointmentsAggregate.getTotalResults());
+        assertEquals(OFFICER_ID, officerAppointmentsAggregate.getOfficerAppointments().get(0).getOfficerId());
+
+        assertEquals("active_3",
+                officerAppointmentsAggregate.getOfficerAppointments().get(0).getId());
+    }
+
+    @DisplayName("Repository returns a no officer appointments when start index is greater than total results")
+    @Test
+    void findOfficerAppointmentsIncorrectStartIndex() {
+        // given
+
+        // when
+        OfficerAppointmentsAggregate officerAppointmentsAggregate = repository.findOfficerAppointments(OFFICER_ID, false, 10, ITEMS_PER_PAGE);
+
+        // then
+        assertEquals(5, officerAppointmentsAggregate.getTotalResults());
         assertTrue(officerAppointmentsAggregate.getOfficerAppointments().isEmpty());
     }
 }
