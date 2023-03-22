@@ -1,7 +1,6 @@
 package uk.gov.companieshouse.company_appointments;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -11,6 +10,7 @@ import com.google.api.client.http.HttpHeaders;
 import com.google.api.client.http.HttpResponseException;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Named;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.function.Executable;
@@ -86,11 +86,11 @@ class ResourceChangedApiServiceTest {
         verify(changedResourcePost).execute();
     }
 
-    @ParameterizedTest(name = "{index}: {0}")
+    @ParameterizedTest
     @MethodSource("invokeChsKafkaApiExceptionFixtures")
-    void invokeChsKafkaApiExceptionTests(String displayName, int statusCode, String statusMessage) throws ApiErrorResponseException {
+    void invokeChsKafkaApiExceptionTests(ResourceChangedApiServiceTestArgument argument) throws ApiErrorResponseException {
         // given
-        HttpResponseException.Builder builder = new HttpResponseException.Builder(statusCode, statusMessage, new HttpHeaders());
+        HttpResponseException.Builder builder = new HttpResponseException.Builder(argument.getStatusCode(), argument.getErrorMessage(), new HttpHeaders());
         ApiErrorResponseException apiErrorResponseException = new ApiErrorResponseException(builder);
 
         when(apiClientService.getInternalApiClient()).thenReturn(internalApiClient);
@@ -112,9 +112,40 @@ class ResourceChangedApiServiceTest {
 
     private static Stream<Arguments> invokeChsKafkaApiExceptionFixtures() {
         return Stream.of(
-                arguments("Throws service unavailable exception when response code is HTTP 503", 503, "Service Unavailable"),
-                arguments("Throws service unavailable exception when response code is HTTP 500", 500, "Internal Service Error"),
-                arguments("Throws service unavailable exception when response code is HTTP 200 with errors", 200, "")
+                Arguments.of(
+                        Named.of("Throws service unavailable exception when response code is HTTP 500",
+                                new ResourceChangedApiServiceTestArgument(503, "Service Unavailable")
+                        )
+                ),
+                Arguments.of(
+                        Named.of("Throws service unavailable exception when response code is HTTP 503",
+                                new ResourceChangedApiServiceTestArgument(500, "Internal Service Error")
+                        )
+                ),
+                Arguments.of(
+                        Named.of("Throws service unavailable exception when response code is HTTP 200 with errors",
+                                new ResourceChangedApiServiceTestArgument(200, "")
+                        )
+                )
         );
     }
+
+    private static class ResourceChangedApiServiceTestArgument {
+        private final int statusCode;
+        private final String errorMessage;
+
+        public ResourceChangedApiServiceTestArgument(int statusCode, String errorMessage) {
+            this.statusCode = statusCode;
+            this.errorMessage = errorMessage;
+        }
+
+        public int getStatusCode() {
+            return statusCode;
+        }
+
+        public String getErrorMessage() {
+            return errorMessage;
+        }
+    }
+
 }
