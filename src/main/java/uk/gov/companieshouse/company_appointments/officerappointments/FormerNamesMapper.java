@@ -1,0 +1,23 @@
+package uk.gov.companieshouse.company_appointments.officerappointments;
+
+import static java.util.Optional.ofNullable;
+
+import java.util.List;
+import java.util.stream.Collectors;
+import org.springframework.stereotype.Component;
+import uk.gov.companieshouse.api.officer.FormerNames;
+import uk.gov.companieshouse.company_appointments.model.data.FormerNamesData;
+
+@Component
+public class FormerNamesMapper {
+
+    protected List<FormerNames> map(List<FormerNamesData> formerNames) {
+        return ofNullable(formerNames)
+                .map(formerNamesData -> formerNamesData.stream()
+                        .map(names -> new FormerNames()
+                                .forenames(names.getForenames())
+                                .surname(names.getSurname()))
+                        .collect(Collectors.toList()))
+                .orElse(null);
+    }
+}

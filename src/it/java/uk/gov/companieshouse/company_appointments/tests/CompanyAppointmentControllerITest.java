@@ -32,20 +32,18 @@ import uk.gov.companieshouse.company_appointments.CompanyAppointmentsApplication
 @AutoConfigureMockMvc
 @SpringBootTest(classes = CompanyAppointmentsApplication.class, webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
-public class CompanyAppointmentControllerITest {
+class CompanyAppointmentControllerITest {
 
     @Autowired
     private MockMvc mockMvc;
 
     @Container
-    private static MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:4.2");
-
-    private static MongoTemplate mongoTemplate;
+    private static final MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:4.4");
 
     @BeforeAll
     static void start() throws IOException {
         System.setProperty("spring.data.mongodb.uri", mongoDBContainer.getReplicaSetUrl());
-        mongoTemplate = new MongoTemplate(new SimpleMongoClientDatabaseFactory(mongoDBContainer.getReplicaSetUrl()));
+        MongoTemplate mongoTemplate = new MongoTemplate(new SimpleMongoClientDatabaseFactory(mongoDBContainer.getReplicaSetUrl()));
         mongoTemplate.createCollection("appointments");
         mongoTemplate.insert(Document.parse(IOUtils.resourceToString("/appointment-data.json", StandardCharsets.UTF_8)), "appointments");
         mongoTemplate.insert(Document.parse(IOUtils.resourceToString("/appointment-data2.json", StandardCharsets.UTF_8)), "appointments");

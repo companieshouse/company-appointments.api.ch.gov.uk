@@ -34,7 +34,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @SpringBootTest(classes = CompanyAppointmentsApplication.class, webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
-public class CompanyAppointmentFullRecordControllerITest {
+class CompanyAppointmentFullRecordControllerITest {
 
     private static final String COMPANY_NUMBER = "12345678";
     private static final String OFFICER_ID = "7IjxamNGLlqtIingmTZJJ42Hw9Q";
@@ -43,7 +43,7 @@ public class CompanyAppointmentFullRecordControllerITest {
     private MockMvc mockMvc;
 
     @Container
-    private static MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:4.2");
+    private static final MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:4.4");
 
     private static MongoTemplate mongoTemplate;
 
