@@ -3,8 +3,6 @@ package uk.gov.companieshouse.company_appointments.officerappointments;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import org.apache.commons.io.IOUtils;
 import org.bson.Document;
 import org.junit.jupiter.api.BeforeAll;
@@ -20,6 +18,9 @@ import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import uk.gov.companieshouse.company_appointments.CompanyAppointmentsApplication;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 @Testcontainers
 @AutoConfigureMockMvc
@@ -55,7 +56,7 @@ class OfficerAppointmentsRepositoryITest {
         // given
 
         // when
-        OfficerAppointmentsAggregate officerAppointmentsAggregate = repository.findOfficerAppointments(OFFICER_ID);
+        OfficerAppointmentsAggregate officerAppointmentsAggregate = repository.findOfficerAppointments(OFFICER_ID, false);
 
         // then
         assertEquals(5, officerAppointmentsAggregate.getTotalResults());
@@ -81,13 +82,49 @@ class OfficerAppointmentsRepositoryITest {
     @Test
     void findOfficerAppointmentsNoResults() {
         // given
-        // when
 
-        OfficerAppointmentsAggregate officerAppointmentsAggregate = repository.findOfficerAppointments("officerId");
+        // when
+        OfficerAppointmentsAggregate officerAppointmentsAggregate = repository.findOfficerAppointments("officerId", false);
 
         // then
         assertEquals(0, officerAppointmentsAggregate.getTotalResults());
         assertTrue(officerAppointmentsAggregate.getOfficerAppointments().isEmpty());
 
+    }
+
+    @DisplayName("Repository returns only active appointments when the filter is enabled")
+    @Test
+    void findActiveOfficerAppointments() {
+        // given
+
+        // when
+        OfficerAppointmentsAggregate officerAppointmentsAggregate = repository.findOfficerAppointments(OFFICER_ID, true);
+
+        // then
+        assertEquals(3, officerAppointmentsAggregate.getTotalResults());
+
+        assertEquals(OFFICER_ID, officerAppointmentsAggregate.getOfficerAppointments().get(0).getOfficerId());
+        assertEquals(OFFICER_ID, officerAppointmentsAggregate.getOfficerAppointments().get(1).getOfficerId());
+        assertEquals(OFFICER_ID, officerAppointmentsAggregate.getOfficerAppointments().get(2).getOfficerId());
+
+        assertEquals("active_1",
+                officerAppointmentsAggregate.getOfficerAppointments().get(0).getId());
+        assertEquals("active_2",
+                officerAppointmentsAggregate.getOfficerAppointments().get(1).getId());
+        assertEquals("active_3",
+                officerAppointmentsAggregate.getOfficerAppointments().get(2).getId());
+    }
+
+    @DisplayName("Repository returns no appointments when there are no matches when the filter is enabled")
+    @Test
+    void findActiveOfficerAppointmentsNoResults() {
+        // given
+
+        // when
+        OfficerAppointmentsAggregate officerAppointmentsAggregate = repository.findOfficerAppointments("officerId", true);
+
+        // then
+        assertEquals(0, officerAppointmentsAggregate.getTotalResults());
+        assertTrue(officerAppointmentsAggregate.getOfficerAppointments().isEmpty());
     }
 }
