@@ -6,8 +6,8 @@ db.getCollection("appointments").aggregate([
                 { 'officer_id': '_c2mqo8zkGw2VgK4wETDargF8x4' },
                 {
                     $or: [
-                        { 'data.resigned_on': { $not: { $exists: false } } },
-                        { 'data.resigned_on': { $exists: false } }
+                        { 'data.resigned_on': { $exists: false } },
+                        { 'data.resigned_on': { $not: { $exists: false } } }
                     ]
                 }
 
@@ -53,7 +53,7 @@ db.getCollection("appointments").aggregate([
     {
         $project: {
             'total_results': { '$ifNull': ['$total_results.count', NumberInt(0)] },
-            'officer_appointments': { $concatArrays: ['$active', '$resigned'] }
+            'officer_appointments': { $slice: [{ $concatArrays: ['$active', '$resigned']},  0, 35] }
         }
     }
 ])

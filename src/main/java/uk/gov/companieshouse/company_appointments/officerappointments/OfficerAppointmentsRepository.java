@@ -22,15 +22,15 @@ public interface OfficerAppointmentsRepository extends MongoRepository<CompanyAp
     @Aggregation(pipeline = {
             "{ $match: { "
         +           "$and: [ "
-        +                "{'officer_id': ?0 }, "
+        +                "{'officer_id': ?0 },"
         +                "{ $or: [ "
-        +                    "{ 'data.resigned_on': { $exists: false } }, "
-        +                    "{ 'data.resigned_on': { $not: { $exists: ?1 } } } "
-        +                   "] "
+        +                    "{ 'data.resigned_on': { $exists: false } },"
+        +                    "{ 'data.resigned_on': { $not: { $exists: ?1 } } }"
+        +                   "]"
         +                "}"
-        +             "] "
-        +         "}"
-        +     "}",
+        +           "]"
+        +       "}"
+        +   "}",
             "{"
         +       "$addFields: {"
         +           "'__sort_active__': { $ifNull: ['$data.appointed_on', { $toDate: '$data.appointed_before' } ] }"
@@ -38,26 +38,26 @@ public interface OfficerAppointmentsRepository extends MongoRepository<CompanyAp
         +   "}",
             "{ $facet: {"
         +           "'active': ["
-        +               "{ $match: {'data.resigned_on': {$exists: false}} },"
+        +               "{ $match: {'data.resigned_on': {$exists: false} } },"
         +               "{ $sort:  {'__sort_active__': -1 } }"
-        +                   "],"
+        +               "],"
         +           "'resigned': ["
         +               "{ $match: {'data.resigned_on': {$exists: true} } },"
         +               "{ $sort:  {'data.resigned_on': -1} }"
-        +                       "],"
+        +               "],"
         +           "'total_results': [{ '$count': 'count' }]"
-        +               "}"
+        +       "}"
         +   "}",
             "{ $unwind: {"
         +           "'path': '$total_results',"
         +           "'preserveNullAndEmptyArrays': true"
-        +                 "}"
+        +       "}"
         +   "}",
             "{ $project: {"
         +           "'total_results': { '$ifNull': ['$total_results.count', NumberInt(0)] },"
-        +           "'officer_appointments': {$concatArrays: ['$active', '$resigned']}"
-        + "                }"
+        +           "'officer_appointments': { $slice: [{ $concatArrays: ['$active', '$resigned'] },  ?2, ?3] }"
+        +       "}"
         +   "}"
     })
-    OfficerAppointmentsAggregate findOfficerAppointments(String officerId, boolean filter);
+    OfficerAppointmentsAggregate findOfficerAppointments(String officerId, boolean filter, int startIndex, int pageSize);
 }
