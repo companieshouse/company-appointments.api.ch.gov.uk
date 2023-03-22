@@ -50,8 +50,13 @@ public class OfficerData {
 
     private String title;
 
+    private String honours;
+
     @Field("company_name")
     private String companyName;
+
+    @Field("company_number")
+    private String companyNumber;
 
     private String responsibilities;
 
@@ -73,9 +78,9 @@ public class OfficerData {
             LocalDateTime dateOfBirth,
             IdentificationData identificationData,
             List<FormerNamesData> formerNameData, String surname, String forename,
-            String otherForenames, String title, String companyName, String responsibilities,
-            ServiceAddressData principalOfficeAddress, ContactDetailsData contactDetails, String etag,
-            Boolean isPre1992Appointment) {
+            String otherForenames, String title, String honours, String companyName, String companyNumber,
+            String responsibilities, ServiceAddressData principalOfficeAddress,
+            ContactDetailsData contactDetails, String etag, Boolean isPre1992Appointment) {
         this.serviceAddress = serviceAddress;
         this.appointedOn = appointedOn;
         this.appointedBefore = appointedBefore;
@@ -92,7 +97,9 @@ public class OfficerData {
         this.forename = forename;
         this.otherForenames = otherForenames;
         this.title = title;
+        this.honours = honours;
         this.companyName = companyName;
+        this.companyNumber = companyNumber;
         this.responsibilities = responsibilities;
         this.principalOfficeAddress = principalOfficeAddress;
         this.contactDetails = contactDetails;
@@ -228,12 +235,30 @@ public class OfficerData {
         this.title = title;
     }
 
+    public String getHonours() {
+        return honours;
+    }
+
+    public OfficerData setHonours(String honours) {
+        this.honours = honours;
+        return this;
+    }
+
     public String getCompanyName() {
         return companyName;
     }
 
     public void setCompanyName(String companyName) {
         this.companyName = companyName;
+    }
+
+    public String getCompanyNumber() {
+        return companyNumber;
+    }
+
+    public OfficerData setCompanyNumber(String companyNumber) {
+        this.companyNumber = companyNumber;
+        return this;
     }
 
     public String getResponsibilities() {
@@ -297,7 +322,9 @@ public class OfficerData {
         private String forename;
         private String otherForenames;
         private String title;
+        private String honours;
         private String companyName;
+        private String companyNumber;
         private String responsibilities;
         private ServiceAddressData principalOfficeAddress;
         private ContactDetailsData contactDetailsData;
@@ -384,8 +411,18 @@ public class OfficerData {
             return this;
         }
 
+        public Builder withHonours(String honours) {
+            this.honours = honours;
+            return this;
+        }
+
         public Builder withCompanyName(String companyName) {
             this.companyName = companyName;
+            return this;
+        }
+
+        public Builder withCompanyNumber(String companyNumber) {
+            this.companyNumber = companyNumber;
             return this;
         }
 
@@ -417,7 +454,7 @@ public class OfficerData {
         public OfficerData build() {
             return new OfficerData(serviceAddress, appointedOn, appointedBefore, resignedOn, countryOfResidence, linksData, nationality,
                     occupation, officerRole, dateOfBirth, identificationData, formerNameData, surname, forename,
-                    otherForenames, title, companyName, responsibilities, principalOfficeAddress,
+                    otherForenames, title, honours, companyName, companyNumber, responsibilities, principalOfficeAddress,
                     contactDetailsData, etag, isPre1992Appointment);
         }
     }
@@ -427,42 +464,40 @@ public class OfficerData {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof OfficerData)) return false;
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         OfficerData that = (OfficerData) o;
-        return Objects.equals(getServiceAddress(), that.getServiceAddress()) &&
-                Objects.equals(getAppointedOn(), that.getAppointedOn()) &&
-                Objects.equals(getAppointedBefore(), that.getAppointedBefore()) &&
-                Objects.equals(getResignedOn(), that.getResignedOn()) &&
-                Objects.equals(getCountryOfResidence(), that.getCountryOfResidence()) &&
-                Objects.equals(getLinksData(), that.getLinksData()) &&
-                Objects.equals(getNationality(), that.getNationality()) &&
-                Objects.equals(getOccupation(), that.getOccupation()) &&
-                Objects.equals(getOfficerRole(), that.getOfficerRole()) &&
-                Objects.equals(getDateOfBirth(), that.getDateOfBirth()) &&
-                Objects.equals(getIdentificationData(), that.getIdentificationData()) &&
-                Objects.equals(getFormerNameData(), that.getFormerNameData()) &&
-                Objects.equals(getSurname(), that.getSurname()) &&
-                Objects.equals(getForename(), that.getForename()) &&
-                Objects.equals(getOtherForenames(), that.getOtherForenames()) &&
-                Objects.equals(getTitle(), that.getTitle()) &&
-                Objects.equals(getCompanyName(), that.getCompanyName()) &&
-                Objects.equals(getResponsibilities(), that.getResponsibilities()) &&
-                Objects.equals(getPrincipalOfficeAddress(), that.getPrincipalOfficeAddress()) &&
-                Objects.equals(getContactDetails(), that.getContactDetails()) &&
-                Objects.equals(getEtag(), that.getEtag()) &&
-                Objects.equals(getIsPre1992Appointment(), that.getIsPre1992Appointment());
+        return Objects.equals(serviceAddress, that.serviceAddress)
+                && Objects.equals(appointedOn, that.appointedOn)
+                && Objects.equals(appointedBefore, that.appointedBefore)
+                && Objects.equals(resignedOn, that.resignedOn)
+                && Objects.equals(countryOfResidence, that.countryOfResidence)
+                && Objects.equals(linksData, that.linksData)
+                && Objects.equals(nationality, that.nationality)
+                && Objects.equals(occupation, that.occupation)
+                && Objects.equals(officerRole, that.officerRole)
+                && Objects.equals(dateOfBirth, that.dateOfBirth)
+                && Objects.equals(identificationData, that.identificationData)
+                && Objects.equals(formerNameData, that.formerNameData)
+                && Objects.equals(surname, that.surname)
+                && Objects.equals(forename, that.forename)
+                && Objects.equals(otherForenames, that.otherForenames)
+                && Objects.equals(title, that.title)
+                && Objects.equals(honours, that.honours)
+                && Objects.equals(companyName, that.companyName)
+                && Objects.equals(companyNumber, that.companyNumber)
+                && Objects.equals(responsibilities, that.responsibilities)
+                && Objects.equals(principalOfficeAddress, that.principalOfficeAddress)
+                && Objects.equals(contactDetails, that.contactDetails)
+                && Objects.equals(etag, that.etag)
+                && Objects.equals(isPre1992Appointment, that.isPre1992Appointment);
     }
 
     @Override
     public int hashCode() {
-        return Objects
-                .hash(getServiceAddress(), getAppointedOn(), getAppointedBefore(), getResignedOn(),
-                        getCountryOfResidence(),
-                        getLinksData(), getNationality(), getOccupation(), getOfficerRole(),
-                        getDateOfBirth(), getIdentificationData(), getFormerNameData(),
-                        getSurname(),
-                        getForename(), getOtherForenames(), getTitle(), getCompanyName(),
-                        getResponsibilities(), getPrincipalOfficeAddress(), getContactDetails(),
-                        getEtag(), getIsPre1992Appointment());
+        return Objects.hash(serviceAddress, appointedOn, appointedBefore, resignedOn, countryOfResidence, linksData, nationality, occupation, officerRole, dateOfBirth, identificationData,
+                formerNameData,
+                surname, forename, otherForenames, title, honours, companyName, companyNumber, responsibilities, principalOfficeAddress, contactDetails, etag, isPre1992Appointment);
     }
 }

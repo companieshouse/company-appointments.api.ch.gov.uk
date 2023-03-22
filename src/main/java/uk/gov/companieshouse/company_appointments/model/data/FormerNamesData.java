@@ -13,6 +13,9 @@ public class FormerNamesData {
         this.surname = surname;
     }
 
+    public FormerNamesData() {
+    }
+
     public String getForenames() {
         return forenames;
     }

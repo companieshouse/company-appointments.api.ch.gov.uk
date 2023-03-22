@@ -32,20 +32,18 @@ import uk.gov.companieshouse.company_appointments.CompanyAppointmentsApplication
 @AutoConfigureMockMvc
 @SpringBootTest(classes = CompanyAppointmentsApplication.class, webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
-public class CompanyAppointmentControllerITest {
+class CompanyAppointmentControllerITest {
 
     @Autowired
     private MockMvc mockMvc;
 
     @Container
-    private static MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:4.2");
-
-    private static MongoTemplate mongoTemplate;
+    private static final MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:4.4");
 
     @BeforeAll
     static void start() throws IOException {
         System.setProperty("spring.data.mongodb.uri", mongoDBContainer.getReplicaSetUrl());
-        mongoTemplate = new MongoTemplate(new SimpleMongoClientDatabaseFactory(mongoDBContainer.getReplicaSetUrl()));
+        MongoTemplate mongoTemplate = new MongoTemplate(new SimpleMongoClientDatabaseFactory(mongoDBContainer.getReplicaSetUrl()));
         mongoTemplate.createCollection("appointments");
         mongoTemplate.insert(Document.parse(IOUtils.resourceToString("/appointment-data.json", StandardCharsets.UTF_8)), "appointments");
         mongoTemplate.insert(Document.parse(IOUtils.resourceToString("/appointment-data2.json", StandardCharsets.UTF_8)), "appointments");
@@ -55,7 +53,7 @@ public class CompanyAppointmentControllerITest {
     @Test
     void testReturn200OKIfOfficerIsFound() throws Exception {
         //when
-        ResultActions result = mockMvc.perform(get("/company/{company_number}/appointments/{appointment_id}", "12345678", "7IjxamNGLlqtIingmTZJJ42Hw9Q")
+        ResultActions result = mockMvc.perform(get("/company/{company_number}/appointments/{appointment_id}", "12345678", "active_1")
                 .header("ERIC-Identity", "123")
                 .header("ERIC-Identity-Type", "key")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -65,7 +63,6 @@ public class CompanyAppointmentControllerITest {
         result.andExpect(status().isOk())
                 .andExpect(jsonPath("$.name", is("NOSURNAME, Noname1 Noname2")))
                 .andExpect(jsonPath("$.appointed_on", is("2020-08-26")))
-                .andExpect(jsonPath("$.resigned_on", is("2020-08-26")))
                 .andExpect(jsonPath("$.date_of_birth", not(contains("day"))))
                 .andExpect(jsonPath("$.date_of_birth.year", is(1980)))
                 .andExpect(jsonPath("$.date_of_birth.month", is(1)));
@@ -135,7 +132,7 @@ public class CompanyAppointmentControllerITest {
 
         //then
         result.andExpect(status().isOk())
-                .andExpect(jsonPath("$.items.[0].name", is("Doe, John Forename")))
+                .andExpect(jsonPath("$.items.[0].name", is("NOSURNAME, Noname1 Noname2")))
                 .andExpect(jsonPath("$.active_count", is(1)))
                 .andExpect(jsonPath("$.resigned_count", is(0)))
                 .andExpect(jsonPath("$.total_results", is(1)));
