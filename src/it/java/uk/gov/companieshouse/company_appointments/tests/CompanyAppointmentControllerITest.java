@@ -174,4 +174,6 @@ class CompanyAppointmentControllerITest {
 
         result.andExpect(status().isBadRequest());
     }
+
+    // TODO Add tests for the new PATH appointments with name and status API
 }
