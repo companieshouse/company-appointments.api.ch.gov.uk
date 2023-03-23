@@ -1,6 +1,5 @@
 package uk.gov.companieshouse.company_appointments.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import uk.gov.companieshouse.company_appointments.*;
@@ -27,13 +26,12 @@ public class CompanyAppointmentService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CompanyAppointmentsApplication.APPLICATION_NAMESPACE);
 
-    private CompanyAppointmentRepository companyAppointmentRepository;
-    private CompanyAppointmentMapper companyAppointmentMapper;
-    private SortMapper sortMapper;
+    private final CompanyAppointmentRepository companyAppointmentRepository;
+    private final CompanyAppointmentMapper companyAppointmentMapper;
+    private final SortMapper sortMapper;
 
-    private CompanyRegisterService companyRegisterService;
+    private final CompanyRegisterService companyRegisterService;
 
-    @Autowired
     public CompanyAppointmentService(CompanyAppointmentRepository companyAppointmentRepository,
             CompanyAppointmentMapper companyAppointmentMapper, SortMapper sortMapper, CompanyRegisterService companyRegisterService) {
         this.companyAppointmentRepository = companyAppointmentRepository;
@@ -94,6 +92,11 @@ public class CompanyAppointmentService {
         companyAppointmentViews = addPagingAndStartIndex(companyAppointmentViews, startIndex, itemsPerPage);
 
         return new AllCompanyAppointmentsView(companyAppointmentViews.size(), companyAppointmentViews, activeCount, inactiveCount, resignedCount);
+    }
+
+    public void patchCompanyNameStatus(String companyNumber, String companyName,
+            String companyStatus) throws NotFoundException {
+
     }
 
     private List<CompanyAppointmentView> addPagingAndStartIndex(List<CompanyAppointmentView> companyAppointmentViews, Integer startIndex, Integer itemsPerPage) throws NotFoundException {

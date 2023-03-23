@@ -1,17 +1,20 @@
 package uk.gov.companieshouse.company_appointments.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import uk.gov.companieshouse.company_appointments.CompanyAppointmentsApplication;
 import uk.gov.companieshouse.company_appointments.exception.BadRequestException;
 import uk.gov.companieshouse.company_appointments.exception.NotFoundException;
 import uk.gov.companieshouse.company_appointments.exception.ServiceUnavailableException;
+import uk.gov.companieshouse.company_appointments.model.data.PatchAppointmentNameStatusApi;
 import uk.gov.companieshouse.company_appointments.model.view.AllCompanyAppointmentsView;
 import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentView;
 import uk.gov.companieshouse.company_appointments.service.CompanyAppointmentService;
@@ -22,11 +25,10 @@ import uk.gov.companieshouse.logging.LoggerFactory;
 @RequestMapping(path = "/company/{company_number}", produces = "application/json")
 public class CompanyAppointmentController {
 
-    private CompanyAppointmentService companyAppointmentService;
+    private final CompanyAppointmentService companyAppointmentService;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CompanyAppointmentsApplication.APPLICATION_NAMESPACE);
 
-    @Autowired
     public CompanyAppointmentController(CompanyAppointmentService companyAppointmentService) {
         this.companyAppointmentService = companyAppointmentService;
     }
@@ -62,6 +64,22 @@ public class CompanyAppointmentController {
         } catch (ServiceUnavailableException e) {
             LOGGER.info(e.getMessage());
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();
+        }
+    }
+
+    @PatchMapping(path = "/appointments")
+    public ResponseEntity<Void> patchCompanyNameStatus(
+            @PathVariable("company_number") String companyNumber,
+            @RequestBody PatchAppointmentNameStatusApi requestBody,
+            @RequestHeader() String contextId) {
+        try {
+            companyAppointmentService.patchCompanyNameStatus(companyNumber,
+                    requestBody.getCompanyName(), requestBody.getCompanyStatus());
+            return ResponseEntity.ok().build();
+        } catch (NotFoundException e) {
+            LOGGER.info(String.format("No appointments found for companyNumber %s, contextId %s",
+                    companyNumber, contextId));
+            return ResponseEntity.notFound().build();
         }
     }
 }
