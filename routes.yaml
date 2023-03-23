@@ -4,4 +4,4 @@ weight: 900
 routes:
   1: ^/company/.*?/appointments/.*?$
   2: ^/company/(.){0,10}/officers-test$
-  3: ^/officer/.*/appointments$
+  3: ^/officers/.*/appointments$
