@@ -8,6 +8,7 @@ import uk.gov.companieshouse.api.officer.AppointmentList;
 public class OfficerAppointmentsService {
 
     private static final int ITEMS_PER_PAGE = 35;
+    private static final int MAX_ITEMS_PER_PAGE = 50;
     private static final int START_INDEX = 0;
 
     private final OfficerAppointmentsRepository repository;
@@ -29,6 +30,8 @@ public class OfficerAppointmentsService {
         int itemsPerPage;
         if (request.getItemsPerPage() == null || request.getItemsPerPage() == 0) {
             itemsPerPage = ITEMS_PER_PAGE;
+        } else if (Math.abs(request.getItemsPerPage()) > 50) {
+            itemsPerPage = MAX_ITEMS_PER_PAGE;
         } else {
             itemsPerPage = Math.abs(request.getItemsPerPage());
         }
