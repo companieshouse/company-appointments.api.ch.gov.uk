@@ -20,6 +20,7 @@ import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import uk.gov.companieshouse.company_appointments.CompanyAppointmentsApplication;
+import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentData;
 
 @Testcontainers
 @AutoConfigureMockMvc
@@ -28,8 +29,11 @@ import uk.gov.companieshouse.company_appointments.CompanyAppointmentsApplication
 class OfficerAppointmentsRepositoryITest {
 
     private static final String OFFICER_ID = "5VEOBB4a9dlB_iugw_vieHjWpCk";
+    private static final String SECOND_OFFICER_ID = "1234";
     private static final int START_INDEX = 0;
-    private static final int ITEMS_PER_PAGE = 35;
+    private static final int DEFAULT_ITEMS_PER_PAGE = 35;
+    private static final int MAX_ITEMS_PER_PAGE = 50;
+    private static final int SECOND_OFFICER_TOTAL_RESULTS = 55;
 
     @Autowired
     private OfficerAppointmentsRepository repository;
@@ -48,6 +52,13 @@ class OfficerAppointmentsRepositoryITest {
         mongoTemplate.insert(Document.parse(IOUtils.resourceToString("/appointment-data4.json", StandardCharsets.UTF_8)), "appointments");
         mongoTemplate.insert(Document.parse(IOUtils.resourceToString("/appointment-data5.json", StandardCharsets.UTF_8)), "appointments");
         mongoTemplate.insert(Document.parse(IOUtils.resourceToString("/appointment-data6.json", StandardCharsets.UTF_8)), "appointments");
+
+        // Adding over 50 appointments for a second officer to test pagination works
+        for (int i = 0; i < SECOND_OFFICER_TOTAL_RESULTS; i++) {
+            CompanyAppointmentData appointment = new CompanyAppointmentData();
+            appointment.setOfficerId(SECOND_OFFICER_ID);
+            mongoTemplate.insert(appointment);
+        }
         System.setProperty("company-metrics-api.endpoint", "localhost");
     }
 
@@ -57,7 +68,7 @@ class OfficerAppointmentsRepositoryITest {
         // given
 
         // when
-        OfficerAppointmentsAggregate officerAppointmentsAggregate = repository.findOfficerAppointments(OFFICER_ID, false, START_INDEX, ITEMS_PER_PAGE);
+        OfficerAppointmentsAggregate officerAppointmentsAggregate = repository.findOfficerAppointments(OFFICER_ID, false, START_INDEX, DEFAULT_ITEMS_PER_PAGE);
 
         // then
         assertEquals(5, officerAppointmentsAggregate.getTotalResults());
@@ -85,7 +96,7 @@ class OfficerAppointmentsRepositoryITest {
         // given
 
         // when
-        OfficerAppointmentsAggregate officerAppointmentsAggregate = repository.findOfficerAppointments("officerId", false, START_INDEX, ITEMS_PER_PAGE);
+        OfficerAppointmentsAggregate officerAppointmentsAggregate = repository.findOfficerAppointments("officerId", false, START_INDEX, DEFAULT_ITEMS_PER_PAGE);
 
         // then
         assertEquals(0, officerAppointmentsAggregate.getTotalResults());
@@ -99,7 +110,7 @@ class OfficerAppointmentsRepositoryITest {
         // given
 
         // when
-        OfficerAppointmentsAggregate officerAppointmentsAggregate = repository.findOfficerAppointments(OFFICER_ID, true, START_INDEX, ITEMS_PER_PAGE);
+        OfficerAppointmentsAggregate officerAppointmentsAggregate = repository.findOfficerAppointments(OFFICER_ID, true, START_INDEX, DEFAULT_ITEMS_PER_PAGE);
 
         // then
         assertEquals(3, officerAppointmentsAggregate.getTotalResults());
@@ -122,7 +133,7 @@ class OfficerAppointmentsRepositoryITest {
         // given
 
         // when
-        OfficerAppointmentsAggregate officerAppointmentsAggregate = repository.findOfficerAppointments("officerId", true, START_INDEX, ITEMS_PER_PAGE);
+        OfficerAppointmentsAggregate officerAppointmentsAggregate = repository.findOfficerAppointments("officerId", true, START_INDEX, DEFAULT_ITEMS_PER_PAGE);
 
         // then
         assertEquals(0, officerAppointmentsAggregate.getTotalResults());
@@ -173,10 +184,23 @@ class OfficerAppointmentsRepositoryITest {
         // given
 
         // when
-        OfficerAppointmentsAggregate officerAppointmentsAggregate = repository.findOfficerAppointments(OFFICER_ID, false, 10, ITEMS_PER_PAGE);
+        OfficerAppointmentsAggregate officerAppointmentsAggregate = repository.findOfficerAppointments(OFFICER_ID, false, 10, DEFAULT_ITEMS_PER_PAGE);
 
         // then
         assertEquals(5, officerAppointmentsAggregate.getTotalResults());
         assertTrue(officerAppointmentsAggregate.getOfficerAppointments().isEmpty());
+    }
+
+    @DisplayName("Repository returns a paged officer appointments aggregate with 50 appointments when items per page is set to over 50")
+    @Test
+    void findOfficerAppointmentsWithPagingOver50() {
+        // given
+
+        // when
+        OfficerAppointmentsAggregate officerAppointmentsAggregate = repository.findOfficerAppointments(SECOND_OFFICER_ID, false, START_INDEX, MAX_ITEMS_PER_PAGE);
+
+        // then
+        assertEquals(SECOND_OFFICER_TOTAL_RESULTS, officerAppointmentsAggregate.getTotalResults());
+        assertEquals(MAX_ITEMS_PER_PAGE, officerAppointmentsAggregate.getOfficerAppointments().size());
     }
 }

@@ -28,6 +28,7 @@ class OfficerAppointmentsServiceTest {
     private static final String OFFICER_ID = "officerId";
     private static final int START_INDEX = 0;
     private static final int ITEMS_PER_PAGE = 35;
+    private static final int MAX_ITEMS_PER_PAGE = 50;
 
     @InjectMocks
     private OfficerAppointmentsService service;
@@ -103,6 +104,26 @@ class OfficerAppointmentsServiceTest {
                                         .withFilter(false)
                                         .withStartIndex(1)
                                         .withItemsPerPage(5)
+                                        .build())),
+
+                Arguments.of(
+                        Named.of("Get officer appointments successfully handles paging values over 50",
+                                ServiceTestArgument.ServiceTestArgumentBuilder()
+                                        .withRequest(new OfficerAppointmentsRequest(OFFICER_ID, "", 1, 55))
+                                        .withOfficerId(OFFICER_ID)
+                                        .withFilter(false)
+                                        .withStartIndex(1)
+                                        .withItemsPerPage(MAX_ITEMS_PER_PAGE)
+                                        .build())),
+
+                Arguments.of(
+                        Named.of("Get officer appointments successfully handles negative paging values over 50",
+                                ServiceTestArgument.ServiceTestArgumentBuilder()
+                                        .withRequest(new OfficerAppointmentsRequest(OFFICER_ID, "", -1, -55))
+                                        .withOfficerId(OFFICER_ID)
+                                        .withFilter(false)
+                                        .withStartIndex(1)
+                                        .withItemsPerPage(MAX_ITEMS_PER_PAGE)
                                         .build())));
     }
 
