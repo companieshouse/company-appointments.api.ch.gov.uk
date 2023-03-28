@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Optional;
 import org.apache.commons.io.IOUtils;
 import org.bson.Document;
 import org.junit.jupiter.api.BeforeAll;
@@ -191,7 +192,7 @@ class OfficerAppointmentsRepositoryITest {
         assertTrue(officerAppointmentsAggregate.getOfficerAppointments().isEmpty());
     }
 
-    @DisplayName("Repository returns a paged officer appointments aggregate with 50 appointments when items per page is set to over 50")
+    @DisplayName("Repository returns a paged officer appointments aggregate with correct total results items per page is set to over 50")
     @Test
     void findOfficerAppointmentsWithPagingOver50() {
         // given
@@ -202,5 +203,30 @@ class OfficerAppointmentsRepositoryITest {
         // then
         assertEquals(SECOND_OFFICER_TOTAL_RESULTS, officerAppointmentsAggregate.getTotalResults());
         assertEquals(MAX_ITEMS_PER_PAGE, officerAppointmentsAggregate.getOfficerAppointments().size());
+    }
+
+    @DisplayName("Repository should return the first appointment for the given officer ID")
+    @Test
+    void findFirstByOfficerId() {
+        // given
+
+        // when
+        Optional<CompanyAppointmentData> actual = repository.findFirstByOfficerId(OFFICER_ID);
+
+        // then
+        assertTrue(actual.isPresent());
+        assertEquals(OFFICER_ID, actual.get().getOfficerId());
+    }
+
+    @DisplayName("Repository should return no appointment for the given officer ID")
+    @Test
+    void findFirstByOfficerIdEmpty() {
+        // given
+
+        // when
+        Optional<CompanyAppointmentData> actual = repository.findFirstByOfficerId("not an officer id");
+
+        // then
+        assertTrue(actual.isEmpty());
     }
 }

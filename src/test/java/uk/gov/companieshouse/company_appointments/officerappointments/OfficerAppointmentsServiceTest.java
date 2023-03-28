@@ -11,7 +11,9 @@ import static org.mockito.Mockito.when;
 
 import java.util.Optional;
 import java.util.stream.Stream;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Named;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -19,8 +21,8 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.companieshouse.api.model.officerappointments.AppointmentApi;
 import uk.gov.companieshouse.api.officer.AppointmentList;
+import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentData;
 
 @ExtendWith(MockitoExtension.class)
 class OfficerAppointmentsServiceTest {
@@ -46,7 +48,7 @@ class OfficerAppointmentsServiceTest {
     private OfficerAppointmentsAggregate officerAppointmentsAggregate;
 
     @Mock
-    private AppointmentApi appointmentApi;
+    private CompanyAppointmentData companyAppointmentData;
 
     private static Stream<Arguments> serviceTestParameters() {
         return Stream.of(
@@ -131,8 +133,9 @@ class OfficerAppointmentsServiceTest {
     @MethodSource("serviceTestParameters")
     void getOfficerAppointments(ServiceTestArgument argument) {
         // given
+        when(repository.findFirstByOfficerId(anyString())).thenReturn(Optional.of(companyAppointmentData));
         when(repository.findOfficerAppointments(anyString(), anyBoolean(), anyInt(), anyInt())).thenReturn(officerAppointmentsAggregate);
-        when(mapper.mapOfficerAppointments(anyInt(), anyInt(), any())).thenReturn(Optional.of(officerAppointments));
+        when(mapper.mapOfficerAppointments(anyInt(), anyInt(), any(), any())).thenReturn(Optional.of(officerAppointments));
 
         // when
         Optional<AppointmentList> actual = service.getOfficerAppointments(argument.getRequest());
@@ -141,7 +144,20 @@ class OfficerAppointmentsServiceTest {
         assertTrue(actual.isPresent());
         assertEquals(officerAppointments, actual.get());
         verify(repository).findOfficerAppointments(argument.getOfficerId(), argument.isFilter(), argument.getStartIndex(), argument.getItemsPerPage());
-        verify(mapper).mapOfficerAppointments(argument.getStartIndex(), argument.getItemsPerPage(), officerAppointmentsAggregate);
+        verify(mapper).mapOfficerAppointments(argument.getStartIndex(), argument.getItemsPerPage(), companyAppointmentData, officerAppointmentsAggregate);
+    }
+
+    @DisplayName("Should return empty optional when no appointments found for officer id")
+    @Test
+    void getOfficerAppointmentsEmpty() {
+        // given
+        when(repository.findFirstByOfficerId(anyString())).thenReturn(Optional.empty());
+
+        // when
+        Optional<AppointmentList> actual = service.getOfficerAppointments(new OfficerAppointmentsRequest(OFFICER_ID, null, null, null));
+
+        // then
+        assertTrue(actual.isEmpty());
     }
 
     private static class ServiceTestArgument {
