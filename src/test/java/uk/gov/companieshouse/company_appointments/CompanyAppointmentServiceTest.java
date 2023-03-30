@@ -10,6 +10,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Sort;
 
+import uk.gov.companieshouse.company_appointments.exception.BadRequestException;
 import uk.gov.companieshouse.company_appointments.exception.NotFoundException;
 import uk.gov.companieshouse.company_appointments.mapper.CompanyAppointmentMapper;
 import uk.gov.companieshouse.company_appointments.mapper.SortMapper;
@@ -20,6 +21,7 @@ import uk.gov.companieshouse.company_appointments.model.data.OfficerData;
 import uk.gov.companieshouse.company_appointments.model.data.ServiceAddressData;
 import uk.gov.companieshouse.company_appointments.model.view.AllCompanyAppointmentsView;
 import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentView;
+import uk.gov.companieshouse.company_appointments.repository.CompanyAppointmentFullRecordRepository;
 import uk.gov.companieshouse.company_appointments.repository.CompanyAppointmentRepository;
 import uk.gov.companieshouse.company_appointments.service.CompanyAppointmentService;
 import uk.gov.companieshouse.company_appointments.service.CompanyRegisterService;
@@ -28,6 +30,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import uk.gov.companieshouse.company_appointments.util.CompanyStatusValidator;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -50,6 +53,12 @@ class CompanyAppointmentServiceTest {
     private CompanyAppointmentMapper companyAppointmentMapper;
 
     @Mock
+    private CompanyStatusValidator companyStatusValidator;
+
+    @Mock
+    private CompanyAppointmentFullRecordRepository fullRecordAppointmentRepository;
+
+    @Mock
     private SortMapper sortMapper;
 
     private final static String COMPANY_NUMBER = "123456";
@@ -64,13 +73,20 @@ class CompanyAppointmentServiceTest {
 
     private final static String REGISTER_TYPE = "directors";
 
+    private final static String COMPANY_NAME = "ACME LTD";
+
+    private final static String OPEN_STATUS = "open";
+
+    private final static String FAKE_STATUS = "fake";
+
     @Captor
     private ArgumentCaptor<Sort> sortCaptor;
 
     @BeforeEach
     void setUp() throws Exception {
         companyAppointmentMapper = new CompanyAppointmentMapper();
-        companyAppointmentService = new CompanyAppointmentService(companyAppointmentRepository, companyAppointmentMapper, sortMapper, companyRegisterService);
+        companyAppointmentService = new CompanyAppointmentService(companyAppointmentRepository, companyAppointmentMapper, sortMapper,
+                companyRegisterService, companyStatusValidator, fullRecordAppointmentRepository);
     }
 
     @Test
@@ -409,6 +425,57 @@ class CompanyAppointmentServiceTest {
                 null, null, true, REGISTER_TYPE);
 
         assertEquals(1, result.getItems().size());
+    }
+
+    @Test
+    void testBadRequestExceptionThrownWhenCompanyNameIsMissing() {
+        // given
+
+        // when
+        Executable executable = () -> companyAppointmentService.patchNewAppointmentCompanyNameStatus(COMPANY_NUMBER, APPOINTMENT_ID, "", OPEN_STATUS);
+
+        // then
+        BadRequestException exception = assertThrows(BadRequestException.class, executable);
+        assertEquals("Request missing mandatory fields: company name and/or company status", exception.getMessage());
+    }
+
+    @Test
+    void testBadRequestExceptionThrownWhenCompanyStatusIsMissing() {
+        // given
+
+        // when
+        Executable executable = () -> companyAppointmentService.patchNewAppointmentCompanyNameStatus(COMPANY_NUMBER, APPOINTMENT_ID, COMPANY_NAME, "");
+
+        // then
+        BadRequestException exception = assertThrows(BadRequestException.class, executable);
+        assertEquals("Request missing mandatory fields: company name and/or company status", exception.getMessage());
+    }
+
+    @Test
+    void testBadRequestExceptionThrownWhenInvalidStatusPassedToValidator() {
+        // given
+        when(companyStatusValidator.isValidCompanyStatus(FAKE_STATUS)).thenReturn(false);
+
+        // when
+        Executable executable = () -> companyAppointmentService.patchNewAppointmentCompanyNameStatus(COMPANY_NUMBER, APPOINTMENT_ID, COMPANY_NAME, FAKE_STATUS);
+
+        // then
+        BadRequestException exception = assertThrows(BadRequestException.class, executable);
+        assertEquals("Non-valid company status provided", exception.getMessage());
+    }
+
+    @Test
+    void testNotFoundExceptionThrownWhenAppointmentIsNotPresent() {
+        // given
+        when(companyStatusValidator.isValidCompanyStatus(OPEN_STATUS)).thenReturn(true);
+        when(fullRecordAppointmentRepository.readByCompanyNumberAndID(COMPANY_NUMBER, APPOINTMENT_ID)).thenReturn(Optional.empty());
+
+        // when
+        Executable executable = () -> companyAppointmentService.patchNewAppointmentCompanyNameStatus(COMPANY_NUMBER, APPOINTMENT_ID, COMPANY_NAME, OPEN_STATUS);
+
+        // then
+        NotFoundException exception = assertThrows(NotFoundException.class, executable);
+        assertEquals("Appointment [345678] for company [123456] not found", exception.getMessage());
     }
 
     private OfficerData.Builder officerData() {

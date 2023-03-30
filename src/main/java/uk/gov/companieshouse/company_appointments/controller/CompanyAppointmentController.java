@@ -82,4 +82,23 @@ public class CompanyAppointmentController {
             return ResponseEntity.notFound().build();
         }
     }
+
+    @PatchMapping(path = "/appointments/{appointment_id}")
+    public ResponseEntity<Void> patchNewAppointmentCompanyNameStatus(
+            @PathVariable("company_number") String companyNumber,
+            @PathVariable("appointment_id") String appointmentId,
+            @RequestBody final PatchAppointmentNameStatusApi requestBody,
+            @RequestHeader() String contextId) {
+        try {
+            companyAppointmentService.patchNewAppointmentCompanyNameStatus(companyNumber, appointmentId,
+                    requestBody.getCompanyName(), requestBody.getCompanyStatus());
+            return ResponseEntity.ok().build();
+        } catch (BadRequestException e) {
+            LOGGER.info(e.getMessage());
+            return ResponseEntity.badRequest().build();
+        } catch (NotFoundException e) {
+            LOGGER.info(e.getMessage());
+            return ResponseEntity.notFound().build();
+        }
+    }
 }

@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.company_appointments.service;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import uk.gov.companieshouse.company_appointments.*;
@@ -9,10 +10,13 @@ import uk.gov.companieshouse.company_appointments.exception.ServiceUnavailableEx
 import uk.gov.companieshouse.company_appointments.mapper.CompanyAppointmentMapper;
 import uk.gov.companieshouse.company_appointments.mapper.SortMapper;
 import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentData;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaAppointmentApiEntity;
 import uk.gov.companieshouse.company_appointments.model.view.AllCompanyAppointmentsView;
 import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentView;
+import uk.gov.companieshouse.company_appointments.repository.CompanyAppointmentFullRecordRepository;
 import uk.gov.companieshouse.company_appointments.repository.CompanyAppointmentRepository;
 import uk.gov.companieshouse.company_appointments.roles.RoleHelper;
+import uk.gov.companieshouse.company_appointments.util.CompanyStatusValidator;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.logging.LoggerFactory;
 
@@ -29,15 +33,20 @@ public class CompanyAppointmentService {
     private final CompanyAppointmentRepository companyAppointmentRepository;
     private final CompanyAppointmentMapper companyAppointmentMapper;
     private final SortMapper sortMapper;
-
+    private final CompanyStatusValidator companyStatusValidator;
     private final CompanyRegisterService companyRegisterService;
+    private final CompanyAppointmentFullRecordRepository fullRecordAppointmentRepository;
 
     public CompanyAppointmentService(CompanyAppointmentRepository companyAppointmentRepository,
-            CompanyAppointmentMapper companyAppointmentMapper, SortMapper sortMapper, CompanyRegisterService companyRegisterService) {
+            CompanyAppointmentMapper companyAppointmentMapper, SortMapper sortMapper,
+            CompanyRegisterService companyRegisterService, CompanyStatusValidator companyStatusValidator,
+            CompanyAppointmentFullRecordRepository fullRecordAppointmentRepository) {
         this.companyAppointmentRepository = companyAppointmentRepository;
         this.companyAppointmentMapper = companyAppointmentMapper;
         this.sortMapper = sortMapper;
         this.companyRegisterService = companyRegisterService;
+        this.companyStatusValidator = companyStatusValidator;
+        this.fullRecordAppointmentRepository = fullRecordAppointmentRepository;
     }
 
     public CompanyAppointmentView fetchAppointment(String companyNumber, String appointmentID) throws NotFoundException {
@@ -99,6 +108,25 @@ public class CompanyAppointmentService {
 
     }
 
+    public void patchNewAppointmentCompanyNameStatus(String companyNumber, String appointmentId, String companyName, String companyStatus)
+            throws BadRequestException, NotFoundException {
+        if (isRequestFieldEmpty(companyName) || isRequestFieldEmpty(companyStatus)) {
+            throw new BadRequestException("Request missing mandatory fields: company name and/or company status");
+        }
+        if (!companyStatusValidator.isValidCompanyStatus(companyStatus)) {
+            throw new BadRequestException("Non-valid company status provided");
+        }
+
+        LOGGER.debug(String.format("Patching company name: [%s] and company status [%s] for company [%s] with appointment [%s]",
+                companyName, companyNumber, companyNumber, appointmentId));
+
+        Optional<DeltaAppointmentApiEntity> retrievedAppointment = fullRecordAppointmentRepository.readByCompanyNumberAndID(companyNumber, appointmentId);
+
+        if (!retrievedAppointment.isPresent()) {
+            throw new NotFoundException(String.format("Appointment [%s] for company [%s] not found", appointmentId, companyNumber));
+        }
+    }
+
     private List<CompanyAppointmentView> addPagingAndStartIndex(List<CompanyAppointmentView> companyAppointmentViews, Integer startIndex, Integer itemsPerPage) throws NotFoundException {
         int firstItem = 0;
         int lastItem = 35;
@@ -126,5 +154,9 @@ public class CompanyAppointmentService {
         }
 
         return companyAppointmentViews;
+    }
+
+    private boolean isRequestFieldEmpty(String field) {
+        return StringUtils.isBlank(field);
     }
 }
