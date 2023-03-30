@@ -3,6 +3,7 @@ package uk.gov.companieshouse.company_appointments.officerappointments;
 import java.util.Optional;
 import org.springframework.stereotype.Service;
 import uk.gov.companieshouse.api.officer.AppointmentList;
+import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentData;
 
 @Service
 public class OfficerAppointmentsService {
@@ -20,6 +21,13 @@ public class OfficerAppointmentsService {
     }
 
     protected Optional<AppointmentList> getOfficerAppointments(OfficerAppointmentsRequest request) {
+        String officerId = request.getOfficerId();
+
+        Optional<CompanyAppointmentData> firstAppointment = repository.findFirstByOfficerId(officerId);
+        if (firstAppointment.isEmpty()) {
+            return Optional.empty();
+        }
+
         int startIndex;
         if (request.getStartIndex() == null) {
             startIndex = START_INDEX;
@@ -38,6 +46,6 @@ public class OfficerAppointmentsService {
 
         boolean filter = "active".equals(request.getFilter());
         return mapper.mapOfficerAppointments(startIndex, itemsPerPage,
-                repository.findOfficerAppointments(request.getOfficerId(), filter, startIndex, itemsPerPage));
+                firstAppointment.get(), repository.findOfficerAppointments(officerId, filter, startIndex, itemsPerPage));
     }
 }

@@ -1,8 +1,8 @@
 package uk.gov.companieshouse.company_appointments.officerappointments;
 
+import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -30,6 +30,8 @@ class OfficerAppointmentsMapperTest {
 
     private static final int START_INDEX = 0;
     private static final int ITEMS_PER_PAGE = 35;
+    public static final String DIRECTOR = "director";
+    public static final String CORPORATE_MANAGING_OFFICER = "corporate-managing-officer";
 
     @InjectMocks
     private OfficerAppointmentsMapper mapper;
@@ -50,79 +52,91 @@ class OfficerAppointmentsMapperTest {
     @DisplayName("Should map officer appointments aggregate to an officer appointments api")
     void map() {
         // given
-        String role = "director";
         when(itemsMapper.map(any())).thenReturn(singletonList(officerAppointmentSummary));
         when(nameMapper.map(any())).thenReturn("forename secondForename surname");
         when(dobMapper.map(any(), anyString())).thenReturn(dateOfBirth);
         when(roleMapper.mapIsCorporateOfficer(anyString())).thenReturn(false);
-        OfficerAppointmentsAggregate officerAppointmentsAggregate = getOfficerAppointmentsAggregate(role);
+        OfficerAppointmentsAggregate officerAppointmentsAggregate = getOfficerAppointmentsAggregate(DIRECTOR);
+        CompanyAppointmentData companyAppointmentData = getCompanyAppointmentData(getOfficerData(DIRECTOR));
         AppointmentList expected = getExpectedOfficerAppointments(false);
 
         // when
-        Optional<AppointmentList> actual = mapper.mapOfficerAppointments(START_INDEX, ITEMS_PER_PAGE, officerAppointmentsAggregate);
+        Optional<AppointmentList> actual = mapper.mapOfficerAppointments(START_INDEX, ITEMS_PER_PAGE, companyAppointmentData, officerAppointmentsAggregate);
 
         // then
         assertTrue(actual.isPresent());
         assertEquals(expected, actual.get());
-        verify(dobMapper).map(LocalDateTime.of(2000, 1, 1, 0, 0), role);
-        verify(roleMapper).mapIsCorporateOfficer(role);
-        verify(itemsMapper).map(singletonList(getCompanyAppointmentData(getOfficerData(role))));
-        verify(nameMapper).map(getOfficerData(role));
+        verify(dobMapper).map(LocalDateTime.of(2000, 1, 1, 0, 0), DIRECTOR);
+        verify(roleMapper).mapIsCorporateOfficer(DIRECTOR);
+        verify(itemsMapper).map(singletonList(companyAppointmentData));
+        verify(nameMapper).map(getOfficerData(DIRECTOR));
     }
 
     @Test
     @DisplayName("Should map corporate managing officer appointments aggregate to an officer appointments api")
     void mapCorporateManagingOfficer() {
         // given
-        String role = "corporate-managing-officer";
         when(itemsMapper.map(any())).thenReturn(singletonList(officerAppointmentSummary));
         when(nameMapper.map(any())).thenReturn("forename secondForename surname");
         when(dobMapper.map(any(), anyString())).thenReturn(dateOfBirth);
         when(roleMapper.mapIsCorporateOfficer(anyString())).thenReturn(true);
-        OfficerAppointmentsAggregate officerAppointmentsAggregate = getOfficerAppointmentsAggregate(role);
+        OfficerAppointmentsAggregate officerAppointmentsAggregate = getOfficerAppointmentsAggregate(CORPORATE_MANAGING_OFFICER);
+        CompanyAppointmentData companyAppointmentData = getCompanyAppointmentData(getOfficerData(CORPORATE_MANAGING_OFFICER));
 
         AppointmentList expected = getExpectedOfficerAppointments(true);
         // when
-        Optional<AppointmentList> actual = mapper.mapOfficerAppointments(START_INDEX, ITEMS_PER_PAGE, officerAppointmentsAggregate);
+        Optional<AppointmentList> actual = mapper.mapOfficerAppointments(START_INDEX, ITEMS_PER_PAGE, companyAppointmentData, officerAppointmentsAggregate);
 
         // then
         assertTrue(actual.isPresent());
         assertEquals(expected, actual.get());
-        verify(dobMapper).map(LocalDateTime.of(2000, 1, 1, 0, 0), role);
-        verify(roleMapper).mapIsCorporateOfficer(role);
-        verify(itemsMapper).map(singletonList(getCompanyAppointmentData(getOfficerData(role))));
-        verify(nameMapper).map(getOfficerData(role));
+        verify(dobMapper).map(LocalDateTime.of(2000, 1, 1, 0, 0), CORPORATE_MANAGING_OFFICER);
+        verify(roleMapper).mapIsCorporateOfficer(CORPORATE_MANAGING_OFFICER);
+        verify(itemsMapper).map(singletonList(companyAppointmentData));
+        verify(nameMapper).map(getOfficerData(CORPORATE_MANAGING_OFFICER));
     }
 
     @Test
-    @DisplayName("Should return an empty optional if the list of appointments within the aggregate is empty")
+    @DisplayName("Should return an appointment list with empty items and 0 total results if the list of appointments within the aggregate is empty")
     void mapEmptyAppointmentsList() {
         // given
+        when(itemsMapper.map(any())).thenReturn(emptyList());
+        when(nameMapper.map(any())).thenReturn("forename secondForename surname");
+        when(dobMapper.map(any(), anyString())).thenReturn(dateOfBirth);
+        when(roleMapper.mapIsCorporateOfficer(anyString())).thenReturn(false);
         OfficerAppointmentsAggregate aggregate = new OfficerAppointmentsAggregate();
+        aggregate.setTotalResults(0);
+        CompanyAppointmentData companyAppointmentData = getCompanyAppointmentData(getOfficerData(DIRECTOR));
+        AppointmentList expected = getExpectedOfficerAppointments(false);
+        expected.setItems(emptyList());
+        expected.setTotalResults(0);
 
         // when
-        Optional<AppointmentList> actual = mapper.mapOfficerAppointments(START_INDEX, ITEMS_PER_PAGE, aggregate);
+        Optional<AppointmentList> actual = mapper.mapOfficerAppointments(START_INDEX, ITEMS_PER_PAGE, companyAppointmentData, aggregate);
 
         // then
-        assertFalse(actual.isPresent());
-        verifyNoInteractions(dobMapper);
-        verifyNoInteractions(roleMapper);
-        verifyNoInteractions(itemsMapper);
-        verifyNoInteractions(nameMapper);
+        assertTrue(actual.isPresent());
+        assertEquals(expected, actual.get());
+        verify(dobMapper).map(LocalDateTime.of(2000, 1, 1, 0, 0), DIRECTOR);
+        verify(roleMapper).mapIsCorporateOfficer(DIRECTOR);
+        verify(itemsMapper).map(emptyList());
+        verify(nameMapper).map(getOfficerData(DIRECTOR));
     }
 
     @Test
     @DisplayName("Should return an empty optional if the list of appointments within the aggregate has null officer data")
     void mapNullOfficerData() {
         // given
-        OfficerAppointmentsAggregate aggregate = new OfficerAppointmentsAggregate();
-        aggregate.getOfficerAppointments().add(new CompanyAppointmentData());
 
         // when
-        Optional<AppointmentList> actual = mapper.mapOfficerAppointments(START_INDEX, ITEMS_PER_PAGE, aggregate);
+        Optional<AppointmentList> actual = mapper.mapOfficerAppointments(
+                START_INDEX,
+                ITEMS_PER_PAGE,
+                getCompanyAppointmentData(null),
+                new OfficerAppointmentsAggregate());
 
         // then
-        assertFalse(actual.isPresent());
+        assertTrue(actual.isEmpty());
         verifyNoInteractions(dobMapper);
         verifyNoInteractions(roleMapper);
         verifyNoInteractions(itemsMapper);
