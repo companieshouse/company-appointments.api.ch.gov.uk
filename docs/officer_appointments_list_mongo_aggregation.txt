@@ -9,8 +9,8 @@ db.getCollection("appointments").aggregate([
                         { 'data.resigned_on': { $exists: false } },
                         { 'data.resigned_on': { $not: { $exists: false } } }
                     ]
-                }
-
+                },
+                { 'company_status': { $nin: [] } }
             ]
         }
     },

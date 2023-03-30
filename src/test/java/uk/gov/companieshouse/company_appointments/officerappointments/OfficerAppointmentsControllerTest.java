@@ -18,6 +18,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import uk.gov.companieshouse.api.officer.AppointmentList;
+import uk.gov.companieshouse.company_appointments.exception.BadRequestException;
 import uk.gov.companieshouse.logging.Logger;
 
 @ExtendWith(MockitoExtension.class)
@@ -42,9 +43,8 @@ class OfficerAppointmentsControllerTest {
 
     @Test
     @DisplayName("Call to get officer appointments returns http 200 ok and officer appointments api")
-    void testGetOfficerAppointments() {
+    void testGetOfficerAppointments() throws BadRequestException {
         // given
-        OfficerAppointmentsRequest request = new OfficerAppointmentsRequest(OFFICER_ID, null, null, null);
         when(service.getOfficerAppointments(any())).thenReturn(Optional.of(officerAppointments));
 
         // when
@@ -53,14 +53,13 @@ class OfficerAppointmentsControllerTest {
         // then
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(officerAppointments, response.getBody());
-        verify(service).getOfficerAppointments(request);
+        verify(service).getOfficerAppointments(new OfficerAppointmentsRequest(OFFICER_ID, null, null, null));
     }
 
     @Test
     @DisplayName("Call to get officer appointments returns http 404 not found when officer id does not exist")
-    void testGetOfficerAppointmentsNotFound() {
+    void testGetOfficerAppointmentsNotFound() throws BadRequestException {
         // given
-        OfficerAppointmentsRequest request = new OfficerAppointmentsRequest(OFFICER_ID, null, null, null);
         when(service.getOfficerAppointments(any())).thenReturn(Optional.empty());
 
         // when
@@ -69,8 +68,25 @@ class OfficerAppointmentsControllerTest {
         // then
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         assertNull(response.getBody());
-        verify(service).getOfficerAppointments(request);
+        verify(service).getOfficerAppointments(new OfficerAppointmentsRequest(OFFICER_ID, null, null, null));
         verify(logger).error(loggerCaptor.capture());
-        assertEquals(String.format("No appointments found for officer id %s", OFFICER_ID), loggerCaptor.getValue());
+        assertEquals(String.format("No appointments found for officer ID %s", OFFICER_ID), loggerCaptor.getValue());
+    }
+
+    @Test
+    @DisplayName("Call to get officer appointments returns http 400 bad request when filter parameter is invalid")
+    void testGetOfficerAppointmentsBadRequest() throws BadRequestException {
+        // given
+        when(service.getOfficerAppointments(any())).thenThrow(BadRequestException.class);
+
+        // when
+        ResponseEntity<AppointmentList> response = controller.getOfficerAppointments(OFFICER_ID, "invalid", null, null);
+
+        // then
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertNull(response.getBody());
+        verify(service).getOfficerAppointments(new OfficerAppointmentsRequest(OFFICER_ID, "invalid", null, null));
+        verify(logger).error(loggerCaptor.capture());
+        assertEquals(String.format("Invalid filter parameter supplied: %s, officer ID %s", "invalid", OFFICER_ID), loggerCaptor.getValue());
     }
 }

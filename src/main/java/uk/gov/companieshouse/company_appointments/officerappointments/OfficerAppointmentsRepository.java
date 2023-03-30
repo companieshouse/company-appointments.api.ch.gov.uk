@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.company_appointments.officerappointments;
 
+import java.util.List;
 import org.springframework.data.mongodb.repository.Aggregation;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
@@ -24,12 +25,13 @@ public interface OfficerAppointmentsRepository extends MongoRepository<CompanyAp
     @Aggregation(pipeline = {
             "{ $match: { "
         +           "$and: [ "
-        +                "{'officer_id': ?0 },"
-        +                "{ $or: [ "
-        +                    "{ 'data.resigned_on': { $exists: false } },"
-        +                    "{ 'data.resigned_on': { $not: { $exists: ?1 } } }"
+        +               "{'officer_id': ?0 },"
+        +               "{ $or: [ "
+        +                   "{ 'data.resigned_on': { $exists: false } },"
+        +                   "{ 'data.resigned_on': { $not: { $exists: ?1 } } }"
         +                   "]"
-        +                "}"
+        +               "},"
+        +               "{ 'company_status': { $nin: ?2 } }"
         +           "]"
         +       "}"
         +   "}",
@@ -57,11 +59,11 @@ public interface OfficerAppointmentsRepository extends MongoRepository<CompanyAp
         +   "}",
             "{ $project: {"
         +           "'total_results': { '$ifNull': ['$total_results.count', NumberInt(0)] },"
-        +           "'officer_appointments': { $slice: [{ $concatArrays: ['$active', '$resigned'] },  ?2, ?3] }"
+        +           "'officer_appointments': { $slice: [{ $concatArrays: ['$active', '$resigned'] },  ?3, ?4] }"
         +       "}"
         +   "}"
     })
-    OfficerAppointmentsAggregate findOfficerAppointments(String officerId, boolean filter, int startIndex, int pageSize);
+    OfficerAppointmentsAggregate findOfficerAppointments(String officerId, boolean filterEnabled, List<String> statusFilter, int startIndex, int pageSize);
 
     Optional<CompanyAppointmentData> findFirstByOfficerId(String officerId);
 }
