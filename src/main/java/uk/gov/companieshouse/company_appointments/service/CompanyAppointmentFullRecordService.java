@@ -64,7 +64,7 @@ public class CompanyAppointmentFullRecordService {
         Data officer = deltaAppointmentApi.getData();
 
         if (officer != null) {
-            deltaAppointmentApi.setUpdatedAt(instant);
+            deltaAppointmentApi.setUpdated(instant);
             deltaAppointmentApi.setEtag(GenerateEtagUtil.generateEtag());
         }
 

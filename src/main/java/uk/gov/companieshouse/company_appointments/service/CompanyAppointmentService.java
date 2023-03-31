@@ -135,7 +135,7 @@ public class CompanyAppointmentService {
         DeltaAppointmentApiEntity deltaAppointmentApiEntity = retrievedAppointment.orElseThrow(() -> new NotFoundException(String.format("Appointment [%s] for company [%s] not found", appointmentId, companyNumber)));
         deltaAppointmentApiEntity.setCompanyName(companyName);
         deltaAppointmentApiEntity.setCompanyStatus(companyStatus);
-        deltaAppointmentApiEntity.setUpdatedAt(new InstantAPI(Instant.now(clock)));
+        deltaAppointmentApiEntity.setUpdated(new InstantAPI(Instant.now(clock)));
         deltaAppointmentApiEntity.setEtag(GenerateEtagUtil.generateEtag());
 
         resourceChangedApiService.invokeChsKafkaApi(new ResourceChangedRequest(contextId, companyNumber, appointmentId, null, false));
