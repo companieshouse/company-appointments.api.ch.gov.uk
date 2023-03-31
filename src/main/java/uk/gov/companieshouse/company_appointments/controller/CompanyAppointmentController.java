@@ -91,7 +91,7 @@ public class CompanyAppointmentController {
             @RequestHeader() String contextId) {
         try {
             companyAppointmentService.patchNewAppointmentCompanyNameStatus(companyNumber, appointmentId,
-                    requestBody.getCompanyName(), requestBody.getCompanyStatus());
+                    requestBody.getCompanyName(), requestBody.getCompanyStatus(), contextId);
             return ResponseEntity.ok().build();
         } catch (BadRequestException e) {
             LOGGER.info(e.getMessage());
@@ -99,6 +99,9 @@ public class CompanyAppointmentController {
         } catch (NotFoundException e) {
             LOGGER.info(e.getMessage());
             return ResponseEntity.notFound().build();
+        } catch (ServiceUnavailableException e) {
+            LOGGER.info(e.getMessage());
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();
         }
     }
 }

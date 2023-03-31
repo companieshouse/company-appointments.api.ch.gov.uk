@@ -1,9 +1,14 @@
 package uk.gov.companieshouse.company_appointments.service;
 
+import java.time.Clock;
+import java.time.Instant;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import uk.gov.companieshouse.GenerateEtagUtil;
+import uk.gov.companieshouse.api.model.delta.officers.InstantAPI;
 import uk.gov.companieshouse.company_appointments.*;
+import uk.gov.companieshouse.company_appointments.api.ResourceChangedApiService;
 import uk.gov.companieshouse.company_appointments.exception.BadRequestException;
 import uk.gov.companieshouse.company_appointments.exception.NotFoundException;
 import uk.gov.companieshouse.company_appointments.exception.ServiceUnavailableException;
@@ -11,6 +16,7 @@ import uk.gov.companieshouse.company_appointments.mapper.CompanyAppointmentMappe
 import uk.gov.companieshouse.company_appointments.mapper.SortMapper;
 import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentData;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaAppointmentApiEntity;
+import uk.gov.companieshouse.company_appointments.model.data.ResourceChangedRequest;
 import uk.gov.companieshouse.company_appointments.model.view.AllCompanyAppointmentsView;
 import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentView;
 import uk.gov.companieshouse.company_appointments.repository.CompanyAppointmentFullRecordRepository;
@@ -36,17 +42,22 @@ public class CompanyAppointmentService {
     private final CompanyStatusValidator companyStatusValidator;
     private final CompanyRegisterService companyRegisterService;
     private final CompanyAppointmentFullRecordRepository fullRecordAppointmentRepository;
+    private final ResourceChangedApiService resourceChangedApiService;
+    private final Clock clock;
 
     public CompanyAppointmentService(CompanyAppointmentRepository companyAppointmentRepository,
             CompanyAppointmentMapper companyAppointmentMapper, SortMapper sortMapper,
             CompanyRegisterService companyRegisterService, CompanyStatusValidator companyStatusValidator,
-            CompanyAppointmentFullRecordRepository fullRecordAppointmentRepository) {
+            CompanyAppointmentFullRecordRepository fullRecordAppointmentRepository,
+            ResourceChangedApiService resourceChangedApiService, Clock clock) {
         this.companyAppointmentRepository = companyAppointmentRepository;
         this.companyAppointmentMapper = companyAppointmentMapper;
         this.sortMapper = sortMapper;
         this.companyRegisterService = companyRegisterService;
         this.companyStatusValidator = companyStatusValidator;
         this.fullRecordAppointmentRepository = fullRecordAppointmentRepository;
+        this.resourceChangedApiService = resourceChangedApiService;
+        this.clock = clock;
     }
 
     public CompanyAppointmentView fetchAppointment(String companyNumber, String appointmentID) throws NotFoundException {
@@ -108,8 +119,8 @@ public class CompanyAppointmentService {
 
     }
 
-    public void patchNewAppointmentCompanyNameStatus(String companyNumber, String appointmentId, String companyName, String companyStatus)
-            throws BadRequestException, NotFoundException {
+    public void patchNewAppointmentCompanyNameStatus(String companyNumber, String appointmentId, String companyName,
+            String companyStatus, String contextId) throws BadRequestException, NotFoundException, ServiceUnavailableException {
         if (isRequestFieldEmpty(companyName) || isRequestFieldEmpty(companyStatus)) {
             throw new BadRequestException("Request missing mandatory fields: company name and/or company status");
         }
@@ -121,10 +132,16 @@ public class CompanyAppointmentService {
                 companyName, companyNumber, companyNumber, appointmentId));
 
         Optional<DeltaAppointmentApiEntity> retrievedAppointment = fullRecordAppointmentRepository.readByCompanyNumberAndID(companyNumber, appointmentId);
+        DeltaAppointmentApiEntity deltaAppointmentApiEntity = retrievedAppointment.orElseThrow(() -> new NotFoundException(String.format("Appointment [%s] for company [%s] not found", appointmentId, companyNumber)));
+        deltaAppointmentApiEntity.setCompanyName(companyName);
+        deltaAppointmentApiEntity.setCompanyStatus(companyStatus);
+        deltaAppointmentApiEntity.setUpdatedAt(new InstantAPI(Instant.now(clock)));
+        deltaAppointmentApiEntity.setEtag(GenerateEtagUtil.generateEtag());
 
-        if (!retrievedAppointment.isPresent()) {
-            throw new NotFoundException(String.format("Appointment [%s] for company [%s] not found", appointmentId, companyNumber));
-        }
+        resourceChangedApiService.invokeChsKafkaApi(new ResourceChangedRequest(contextId, companyNumber, appointmentId, null, false));
+        LOGGER.info(String.format("ChsKafka api CHANGED invoked updated successfully for context id: %s and company number: %s",
+                contextId,
+                companyNumber));
     }
 
     private List<CompanyAppointmentView> addPagingAndStartIndex(List<CompanyAppointmentView> companyAppointmentViews, Integer startIndex, Integer itemsPerPage) throws NotFoundException {

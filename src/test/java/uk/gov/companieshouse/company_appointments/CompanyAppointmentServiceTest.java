@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.company_appointments;
 
+import java.time.Clock;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -10,6 +11,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Sort;
 
+import uk.gov.companieshouse.company_appointments.api.ResourceChangedApiService;
 import uk.gov.companieshouse.company_appointments.exception.BadRequestException;
 import uk.gov.companieshouse.company_appointments.exception.NotFoundException;
 import uk.gov.companieshouse.company_appointments.mapper.CompanyAppointmentMapper;
@@ -59,25 +61,25 @@ class CompanyAppointmentServiceTest {
     private CompanyAppointmentFullRecordRepository fullRecordAppointmentRepository;
 
     @Mock
+    private ResourceChangedApiService resourceChangedApiService;
+
+    @Mock
+    private Clock clock;
+
+    @Mock
     private SortMapper sortMapper;
 
     private final static String COMPANY_NUMBER = "123456";
-
     private final static String APPOINTMENT_ID = "345678";
-
     private final static String FILTER = "active";
-
     private final static String ORDER_BY = "surname";
-
     private final static Sort SORT = Sort.by("test");
-
     private final static String REGISTER_TYPE = "directors";
-
     private final static String COMPANY_NAME = "ACME LTD";
-
     private final static String OPEN_STATUS = "open";
-
     private final static String FAKE_STATUS = "fake";
+    private final static String CONTEXT_ID = "ABC123";
+
 
     @Captor
     private ArgumentCaptor<Sort> sortCaptor;
@@ -86,7 +88,7 @@ class CompanyAppointmentServiceTest {
     void setUp() throws Exception {
         companyAppointmentMapper = new CompanyAppointmentMapper();
         companyAppointmentService = new CompanyAppointmentService(companyAppointmentRepository, companyAppointmentMapper, sortMapper,
-                companyRegisterService, companyStatusValidator, fullRecordAppointmentRepository);
+                companyRegisterService, companyStatusValidator, fullRecordAppointmentRepository, resourceChangedApiService, clock);
     }
 
     @Test
@@ -432,7 +434,7 @@ class CompanyAppointmentServiceTest {
         // given
 
         // when
-        Executable executable = () -> companyAppointmentService.patchNewAppointmentCompanyNameStatus(COMPANY_NUMBER, APPOINTMENT_ID, "", OPEN_STATUS);
+        Executable executable = () -> companyAppointmentService.patchNewAppointmentCompanyNameStatus(COMPANY_NUMBER, APPOINTMENT_ID, "", OPEN_STATUS, CONTEXT_ID);
 
         // then
         BadRequestException exception = assertThrows(BadRequestException.class, executable);
@@ -444,7 +446,7 @@ class CompanyAppointmentServiceTest {
         // given
 
         // when
-        Executable executable = () -> companyAppointmentService.patchNewAppointmentCompanyNameStatus(COMPANY_NUMBER, APPOINTMENT_ID, COMPANY_NAME, "");
+        Executable executable = () -> companyAppointmentService.patchNewAppointmentCompanyNameStatus(COMPANY_NUMBER, APPOINTMENT_ID, COMPANY_NAME, "", CONTEXT_ID);
 
         // then
         BadRequestException exception = assertThrows(BadRequestException.class, executable);
@@ -457,7 +459,7 @@ class CompanyAppointmentServiceTest {
         when(companyStatusValidator.isValidCompanyStatus(FAKE_STATUS)).thenReturn(false);
 
         // when
-        Executable executable = () -> companyAppointmentService.patchNewAppointmentCompanyNameStatus(COMPANY_NUMBER, APPOINTMENT_ID, COMPANY_NAME, FAKE_STATUS);
+        Executable executable = () -> companyAppointmentService.patchNewAppointmentCompanyNameStatus(COMPANY_NUMBER, APPOINTMENT_ID, COMPANY_NAME, FAKE_STATUS, CONTEXT_ID);
 
         // then
         BadRequestException exception = assertThrows(BadRequestException.class, executable);
@@ -471,7 +473,7 @@ class CompanyAppointmentServiceTest {
         when(fullRecordAppointmentRepository.readByCompanyNumberAndID(COMPANY_NUMBER, APPOINTMENT_ID)).thenReturn(Optional.empty());
 
         // when
-        Executable executable = () -> companyAppointmentService.patchNewAppointmentCompanyNameStatus(COMPANY_NUMBER, APPOINTMENT_ID, COMPANY_NAME, OPEN_STATUS);
+        Executable executable = () -> companyAppointmentService.patchNewAppointmentCompanyNameStatus(COMPANY_NUMBER, APPOINTMENT_ID, COMPANY_NAME, OPEN_STATUS, CONTEXT_ID);
 
         // then
         NotFoundException exception = assertThrows(NotFoundException.class, executable);
