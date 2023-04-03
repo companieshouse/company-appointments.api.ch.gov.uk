@@ -15,11 +15,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import uk.gov.companieshouse.api.appointment.PatchAppointmentNameStatusApi;
 import uk.gov.companieshouse.company_appointments.controller.CompanyAppointmentController;
 import uk.gov.companieshouse.company_appointments.exception.BadRequestException;
 import uk.gov.companieshouse.company_appointments.exception.NotFoundException;
 import uk.gov.companieshouse.company_appointments.exception.ServiceUnavailableException;
-import uk.gov.companieshouse.company_appointments.model.data.PatchAppointmentNameStatusApi;
 import uk.gov.companieshouse.company_appointments.model.view.AllCompanyAppointmentsView;
 import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentView;
 import uk.gov.companieshouse.company_appointments.service.CompanyAppointmentService;
@@ -189,6 +189,8 @@ public class CompanyAppointmentControllerTest {
         verify(companyAppointmentService).patchNewAppointmentCompanyNameStatus(COMPANY_NUMBER, APPOINTMENT_ID,
                 COMPANY_NAME, COMPANY_STATUS_ACTIVE, CONTEXT_ID);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getHeaders().getLocation()).hasToString(String.format("/company/%s/appointments/%s", COMPANY_NUMBER, APPOINTMENT_ID));
+
     }
 
     @Test
@@ -207,6 +209,7 @@ public class CompanyAppointmentControllerTest {
         verify(companyAppointmentService).patchNewAppointmentCompanyNameStatus(COMPANY_NUMBER, APPOINTMENT_ID,
                 COMPANY_NAME, COMPANY_STATUS_ACTIVE, CONTEXT_ID);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(response.getHeaders().getLocation()).isNull();
     }
 
     @Test
@@ -225,6 +228,7 @@ public class CompanyAppointmentControllerTest {
         verify(companyAppointmentService).patchNewAppointmentCompanyNameStatus(COMPANY_NUMBER, APPOINTMENT_ID,
                 COMPANY_NAME, COMPANY_STATUS_ACTIVE, CONTEXT_ID);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(response.getHeaders().getLocation()).isNull();
     }
 
     @Test
@@ -243,5 +247,6 @@ public class CompanyAppointmentControllerTest {
         verify(companyAppointmentService).patchNewAppointmentCompanyNameStatus(COMPANY_NUMBER, APPOINTMENT_ID,
                 COMPANY_NAME, COMPANY_STATUS_ACTIVE, CONTEXT_ID);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.SERVICE_UNAVAILABLE);
+        assertThat(response.getHeaders().getLocation()).isNull();
     }
 }
