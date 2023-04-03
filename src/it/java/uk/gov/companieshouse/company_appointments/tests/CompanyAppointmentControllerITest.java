@@ -10,7 +10,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
-import com.google.gson.Gson;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.IOUtils;
 import org.bson.Document;
 import org.junit.jupiter.api.BeforeAll;
@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.SimpleMongoClientDatabaseFactory;
 import org.springframework.http.HttpHeaders;
@@ -31,6 +32,7 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import uk.gov.companieshouse.api.appointment.PatchAppointmentNameStatusApi;
 import uk.gov.companieshouse.company_appointments.CompanyAppointmentsApplication;
+import uk.gov.companieshouse.company_appointments.api.ResourceChangedApiService;
 
 @Testcontainers
 @AutoConfigureMockMvc
@@ -47,10 +49,14 @@ class CompanyAppointmentControllerITest {
     @Autowired
     private MockMvc mockMvc;
 
+    @MockBean
+    private ResourceChangedApiService resourceChangedApiService;
+
     @Container
     private static final MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:4.4");
 
-    private final Gson gson = new Gson();
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @BeforeAll
     static void start() throws IOException {
@@ -195,7 +201,6 @@ class CompanyAppointmentControllerITest {
     @Test
     @DisplayName("Returns 200 ok when PATCH request handled successfully")
     void testPatchNewAppointmentCompanyNameStatus() throws Exception {
-        // TODO: Fix null company name and status
         PatchAppointmentNameStatusApi requestBody = new PatchAppointmentNameStatusApi()
                 .companyName("company name")
                 .companyStatus("active");
@@ -206,7 +211,7 @@ class CompanyAppointmentControllerITest {
                     .header(ERIC_IDENTITY, "SOME_IDENTITY")
                     .header(ERIC_IDENTITY_TYPE, "key")
                     .header(ERIC_AUTHORISED_KEY_PRIVILEGES, "internal-app")
-                    .content(gson.toJson(requestBody)))
+                    .content(objectMapper.writeValueAsString(requestBody)))
                 .andExpect(status().isOk())
                 .andExpect(header().string(HttpHeaders.LOCATION, String.format("/company/%s/appointments/%s", COMPANY_NUMBER, APPOINTMENT_ID)));
     }
