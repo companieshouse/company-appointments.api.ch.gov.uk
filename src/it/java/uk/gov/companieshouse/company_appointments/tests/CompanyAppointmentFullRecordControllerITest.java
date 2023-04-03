@@ -1,92 +1,89 @@
 package uk.gov.companieshouse.company_appointments.tests;
 
-import org.apache.commons.io.IOUtils;
-import org.bson.Document;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.SimpleMongoClientDatabaseFactory;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.ResultActions;
-import org.testcontainers.containers.MongoDBContainer;
-import org.testcontainers.junit.jupiter.Container;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import uk.gov.companieshouse.company_appointments.CompanyAppointmentsApplication;
-import uk.gov.companieshouse.company_appointments.model.data.DeltaAppointmentApiEntity;
+import uk.gov.companieshouse.company_appointments.exception.NotFoundException;
+import uk.gov.companieshouse.company_appointments.exception.ServiceUnavailableException;
+import uk.gov.companieshouse.company_appointments.service.CompanyAppointmentFullRecordService;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
+import java.util.Collections;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.empty;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.doThrow;
 
 @Testcontainers
 @AutoConfigureMockMvc
-@SpringBootTest(classes = CompanyAppointmentsApplication.class, webEnvironment = SpringBootTest.WebEnvironment.MOCK)
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
+@SpringBootTest(webEnvironment= SpringBootTest.WebEnvironment.RANDOM_PORT)
 class CompanyAppointmentFullRecordControllerITest {
 
     private static final String COMPANY_NUMBER = "12345678";
-    private static final String OFFICER_ID = "7IjxamNGLlqtIingmTZJJ42Hw9Q";
+    private static final String APPOINTMENT_ID = "7IjxamNGLlqtIingmTZJJ42Hw9Q";
+    private static final String CONTEXT_ID = "5234234234";
+    private static final String APPOINTMENT_URL = "/company/%s/appointments/%s/full_record/delete";
 
     @Autowired
-    private MockMvc mockMvc;
+    private TestRestTemplate restTemplate;
 
-    @Container
-    private static final MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:4.4");
-
-    private static MongoTemplate mongoTemplate;
+    @MockBean
+    private CompanyAppointmentFullRecordService companyAppointmentService;
 
     @BeforeAll
     static void start() throws IOException {
-        System.setProperty("spring.data.mongodb.uri", mongoDBContainer.getReplicaSetUrl());
-        mongoTemplate = new MongoTemplate(new SimpleMongoClientDatabaseFactory(mongoDBContainer.getReplicaSetUrl()));
-        mongoTemplate.createCollection("delta_appointments");
-        mongoTemplate.insert(Document.parse(
-                IOUtils.resourceToString("/delta-appointment-data.json", StandardCharsets.UTF_8)),
-                "delta_appointments");
         System.setProperty("company-metrics-api.endpoint", "localhost");
     }
 
     @Test
-    void testReturn200IfOfficerIsDeleted() throws Exception{
-        ResultActions result = mockMvc
-                .perform(delete("/company/{company_number}/appointments/{appointment_id}/full_record/delete", COMPANY_NUMBER,
-                        OFFICER_ID)
-                        .header("ERIC-Identity", "123").header("ERIC-Identity-Type", "key")
-                        .header("ERIC-authorised-key-privileges", "internal-app"));
+    @DisplayName("DELETE appointment full record")
+    void testReturn200OkToDeleteAppointment() {
 
-        result.andExpect(status().isOk());
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+        headers.set("x-request-id", "5234234234");
+        headers.add("ERIC-Identity" , "SOME_IDENTITY");
+        headers.add("ERIC-Identity-Type", "key");
+        headers.add("ERIC-Authorised-Key-Privileges", "internal-app");
 
-        Query query = new Query();
-        query.addCriteria(Criteria.where("_id").is("7IjxamNGLlqtIingmTZJJ42Hw9Q"));
-        List<DeltaAppointmentApiEntity> appointments = mongoTemplate.find(query, DeltaAppointmentApiEntity.class);
-        assertThat(appointments, is(empty()));
+        HttpEntity<String> request = new HttpEntity<>(null, headers);
+        ResponseEntity<Void> responseEntity = restTemplate.exchange(String.format(APPOINTMENT_URL, COMPANY_NUMBER, APPOINTMENT_ID),
+                HttpMethod.DELETE, request, Void.class);
+
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 
     @Test
-    void testReturn404IfOfficerIsNotDeleted() throws Exception{
-        ResultActions result = mockMvc
-                .perform(delete("/company/{company_number}/appointments/{appointment_id}/full_record/delete", COMPANY_NUMBER,
-                        "Incorrect")
-                        .header("ERIC-Identity", "123").header("ERIC-Identity-Type", "key")
-                        .header("ERIC-authorised-key-privileges", "internal-app"));
+    @DisplayName("Return not found if appointment id incorrect")
+    void testReturn404NotFoundIfAppointmentNotDeleted() throws NotFoundException, ServiceUnavailableException {
 
-        result.andExpect(status().isNotFound());
+        doThrow(new NotFoundException(String.format("Appointment [%s] for company [%s] not found", "incorrect", COMPANY_NUMBER)))
+                .when(companyAppointmentService).deleteAppointmentDelta(CONTEXT_ID, COMPANY_NUMBER, "incorrect");
 
-        Query query = new Query();
-        query.addCriteria(Criteria.where("_id").is("7IjxamNGLlqtIingmTZJJ42Hw9Q"));
-        List<DeltaAppointmentApiEntity> appointments = mongoTemplate.find(query, DeltaAppointmentApiEntity.class);
-        assertThat(appointments.size(), is(1));
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+        headers.set("x-request-id", "5234234234");
+        headers.add("ERIC-Identity" , "SOME_IDENTITY");
+        headers.add("ERIC-Identity-Type", "key");
+        headers.add("ERIC-Authorised-Key-Privileges", "internal-app");
+
+        HttpEntity<String> request = new HttpEntity<>(null, headers);
+        ResponseEntity<Void> responseEntity = restTemplate.exchange(String.format(APPOINTMENT_URL, COMPANY_NUMBER, "incorrect"),
+                HttpMethod.DELETE, request, Void.class);
+
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
     }
 }

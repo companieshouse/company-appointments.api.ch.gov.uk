@@ -1,6 +1,7 @@
 package uk.gov.companieshouse.company_appointments.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -8,6 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import uk.gov.companieshouse.api.appointment.FullRecordCompanyOfficerApi;
 import uk.gov.companieshouse.company_appointments.CompanyAppointmentsApplication;
@@ -22,7 +24,7 @@ import uk.gov.companieshouse.logging.LoggerFactory;
 @RequestMapping(path = "/company/{company_number}/appointments/{appointment_id}/full_record", produces = "application/json")
 public class CompanyAppointmentFullRecordController {
 
-    private CompanyAppointmentFullRecordService companyAppointmentService;
+    private final CompanyAppointmentFullRecordService companyAppointmentService;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CompanyAppointmentsApplication.APPLICATION_NAMESPACE);
 
@@ -32,7 +34,9 @@ public class CompanyAppointmentFullRecordController {
     }
 
     @GetMapping
-    public ResponseEntity<CompanyAppointmentFullRecordView> getAppointment(@PathVariable("company_number") String companyNumber, @PathVariable("appointment_id") String appointmentID) {
+    public ResponseEntity<CompanyAppointmentFullRecordView> getAppointment(
+            @PathVariable("company_number") String companyNumber,
+            @PathVariable("appointment_id") String appointmentID) {
         try {
             return ResponseEntity.ok(companyAppointmentService.getAppointment(companyNumber, appointmentID));
         } catch (NotFoundException e) {
@@ -42,9 +46,11 @@ public class CompanyAppointmentFullRecordController {
     }
 
     @PutMapping(consumes = "application/json")
-    public ResponseEntity<Void> submitOfficerData(@RequestBody final FullRecordCompanyOfficerApi companyAppointmentData) {
+    public ResponseEntity<Void> submitOfficerData(
+            @RequestHeader("x-request-id") String contextId,
+            @RequestBody final FullRecordCompanyOfficerApi companyAppointmentData) {
         try {
-            companyAppointmentService.insertAppointmentDelta(companyAppointmentData);
+            companyAppointmentService.upsertAppointmentDelta(contextId, companyAppointmentData);
             return ResponseEntity.ok().build();
         } catch (ServiceUnavailableException e) {
             LOGGER.info(e.getMessage());
@@ -53,14 +59,19 @@ public class CompanyAppointmentFullRecordController {
     }
 
     @DeleteMapping(path = "/delete")
-    public ResponseEntity<Void> deleteOfficerData(@PathVariable("company_number") String companyNumber,
-                                                  @PathVariable("appointment_id") String appointmentId) {
+    public ResponseEntity<Void> deleteOfficerData(
+            @RequestHeader("x-request-id") String contextId,
+            @PathVariable("company_number") String companyNumber,
+            @PathVariable("appointment_id") String appointmentId) {
         try {
-            companyAppointmentService.deleteOfficer(companyNumber, appointmentId);
+            companyAppointmentService.deleteAppointmentDelta(contextId, companyNumber, appointmentId);
             return ResponseEntity.ok().build();
         } catch (NotFoundException e) {
             LOGGER.info(e.getMessage());
             return ResponseEntity.notFound().build();
+        } catch (ServiceUnavailableException e) {
+            LOGGER.info(e.getMessage());
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();
         }
     }
 

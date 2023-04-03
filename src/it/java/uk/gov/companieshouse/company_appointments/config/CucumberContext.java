@@ -2,8 +2,10 @@ package uk.gov.companieshouse.company_appointments.config;
 
 import java.util.HashMap;
 import java.util.Map;
-import org.springframework.http.ResponseEntity;
 
+/**
+ * Context to store the state.
+ */
 public enum CucumberContext {
 
     CONTEXT;
@@ -12,16 +14,8 @@ public enum CucumberContext {
 
     private final ThreadLocal<Map<String, Object>> testContexts = ThreadLocal.withInitial(HashMap::new);
 
-    public ResponseEntity<?> getResponse() {
-        return get(RESPONSE);
-    }
-
-    public ResponseEntity<?> setResponse(ResponseEntity<?> response) {
-        return set(RESPONSE, response);
-    }
-
     public <T> T get(String name) {
-        return (T) testContexts.get()
+        return (T)testContexts.get()
                 .get(name);
     }
 

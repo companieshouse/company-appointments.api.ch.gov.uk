@@ -1,11 +1,5 @@
 package uk.gov.companieshouse.company_appointments;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,6 +12,12 @@ import uk.gov.companieshouse.company_appointments.controller.CompanyAppointmentF
 import uk.gov.companieshouse.company_appointments.exception.NotFoundException;
 import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentFullRecordView;
 import uk.gov.companieshouse.company_appointments.service.CompanyAppointmentFullRecordService;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class CompanyAppointmentFullRecordControllerTest {
@@ -34,6 +34,7 @@ class CompanyAppointmentFullRecordControllerTest {
 
     private final static String COMPANY_NUMBER = "123456";
     private final static String APPOINTMENT_ID = "345678";
+    private final static String CONTEXT_ID = "contextId";
 
     @BeforeEach
     void setUp() {
@@ -47,7 +48,7 @@ class CompanyAppointmentFullRecordControllerTest {
 
         // when
         ResponseEntity<CompanyAppointmentFullRecordView> response = companyAppointmentFullRecordController.getAppointment(COMPANY_NUMBER,
-            APPOINTMENT_ID);
+                APPOINTMENT_ID);
 
         // then
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -62,7 +63,7 @@ class CompanyAppointmentFullRecordControllerTest {
 
         // when
         ResponseEntity<CompanyAppointmentFullRecordView> response = companyAppointmentFullRecordController.getAppointment(COMPANY_NUMBER,
-            APPOINTMENT_ID);
+                APPOINTMENT_ID);
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         verify(companyAppointmentService).getAppointment(any(), any());
@@ -73,7 +74,7 @@ class CompanyAppointmentFullRecordControllerTest {
         // given
 
         // when
-        ResponseEntity<Void> response = companyAppointmentFullRecordController.submitOfficerData(appointment);
+        ResponseEntity<Void> response = companyAppointmentFullRecordController.submitOfficerData(CONTEXT_ID, appointment);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
     }
@@ -81,16 +82,16 @@ class CompanyAppointmentFullRecordControllerTest {
     @Test
     void testControllerReturns200WhenOfficerDeleted() {
 
-        ResponseEntity<Void> response = companyAppointmentFullRecordController.deleteOfficerData(COMPANY_NUMBER, APPOINTMENT_ID);
+        ResponseEntity<Void> response = companyAppointmentFullRecordController.deleteOfficerData(CONTEXT_ID, COMPANY_NUMBER, APPOINTMENT_ID);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 
     @Test
     void testControllerReturns404WhenOfficerNotDeleted() throws Exception{
-        doThrow(NotFoundException.class).when(companyAppointmentService).deleteOfficer(any(), any());
+        doThrow(NotFoundException.class).when(companyAppointmentService).deleteAppointmentDelta(any(), any(), any());
 
-        ResponseEntity<Void> response = companyAppointmentFullRecordController.deleteOfficerData(COMPANY_NUMBER, APPOINTMENT_ID);
+        ResponseEntity<Void> response = companyAppointmentFullRecordController.deleteOfficerData(CONTEXT_ID, COMPANY_NUMBER, APPOINTMENT_ID);
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }

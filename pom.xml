@@ -23,7 +23,7 @@
         <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
         <maven-failsafe-plugin.version>2.22.2</maven-failsafe-plugin.version>
         <jacoco-maven-plugin.version>0.8.5</jacoco-maven-plugin.version>
-        <skip.integration.tests>true</skip.integration.tests>
+        <skip.integration.tests>false</skip.integration.tests>
         <skip.unit.tests>false</skip.unit.tests>
 
         <structured-logging.version>1.9.11</structured-logging.version>
@@ -31,6 +31,7 @@
         <api-sdk-manager-java-library.version>1.0.4</api-sdk-manager-java-library.version>
         <private-api-sdk-java.version>2.0.222</private-api-sdk-java.version>
         <io-cucumber.version>7.2.3</io-cucumber.version>
+        <wiremock.version>2.35.0</wiremock.version>
 
         <api-helper-java-library.version>1.4.5</api-helper-java-library.version>
 
@@ -163,6 +164,12 @@
             <artifactId>cucumber-spring</artifactId>
             <version>${io-cucumber.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.github.tomakehurst</groupId>
+            <artifactId>wiremock-jre8</artifactId>
+            <version>${wiremock.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -290,6 +297,14 @@
                     <environmentVariables>
                         <HUMAN_LOG>1</HUMAN_LOG>
                     </environmentVariables>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>11</source>
+                    <target>11</target>
                 </configuration>
             </plugin>
         </plugins>
