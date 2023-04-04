@@ -12,11 +12,11 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.companieshouse.api.appointment.Data;
-import uk.gov.companieshouse.api.appointment.SensitiveData;
-import uk.gov.companieshouse.api.model.delta.officers.DeltaAppointmentApi;
-import uk.gov.companieshouse.api.model.delta.officers.InstantAPI;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaOfficerData;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaAppointmentApi;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaAppointmentApiEntity;
+import uk.gov.companieshouse.company_appointments.model.data.InstantAPI;
+import uk.gov.companieshouse.company_appointments.model.data.SensitiveData;
 import uk.gov.companieshouse.company_appointments.repository.CompanyAppointmentFullRecordRepository;
 
 import java.time.Instant;
@@ -39,7 +39,7 @@ class AppointmentApiRepositoryTest {
     @Test
     void insertOrUpdate() {
         final DeltaAppointmentApi appointment = new DeltaAppointmentApi("id", "etag",
-                new Data(),
+                new DeltaOfficerData(),
                 new SensitiveData(),
                 "internalId",
                 "appointmentId",

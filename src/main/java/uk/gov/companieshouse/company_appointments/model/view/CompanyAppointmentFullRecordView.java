@@ -3,16 +3,16 @@ package uk.gov.companieshouse.company_appointments.model.view;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import uk.gov.companieshouse.api.appointment.Data;
-import uk.gov.companieshouse.api.appointment.FormerNames;
-import uk.gov.companieshouse.api.appointment.Identification;
-import uk.gov.companieshouse.api.appointment.ItemLinkTypes;
-import uk.gov.companieshouse.api.appointment.SensitiveData;
-import uk.gov.companieshouse.api.appointment.ServiceAddress;
-import uk.gov.companieshouse.api.appointment.UsualResidentialAddress;
-import uk.gov.companieshouse.api.appointment.ContactDetails;
-import uk.gov.companieshouse.api.appointment.PrincipalOfficeAddress;
-import uk.gov.companieshouse.api.model.delta.officers.DeltaAppointmentApi;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaOfficerData;
+import uk.gov.companieshouse.company_appointments.model.data.FormerNames;
+import uk.gov.companieshouse.company_appointments.model.data.Identification;
+import uk.gov.companieshouse.company_appointments.model.data.ItemLinkTypes;
+import uk.gov.companieshouse.company_appointments.model.data.SensitiveData;
+import uk.gov.companieshouse.company_appointments.model.data.ServiceAddress;
+import uk.gov.companieshouse.company_appointments.model.data.UsualResidentialAddress;
+import uk.gov.companieshouse.company_appointments.model.data.ContactDetails;
+import uk.gov.companieshouse.company_appointments.model.data.PrincipalOfficeAddress;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaAppointmentApi;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -225,7 +225,7 @@ public class CompanyAppointmentFullRecordView {
                     .withResignedOn(api.getData().getResignedOn())
                     .withEtag(api.getEtag())
                     .withPersonNumber(api.getData().getPersonNumber())
-                    .withIsPre1992Appointment(api.getData().getIsPre1992Appointment())
+                    .withIsPre1992Appointment(api.getData().getPre1992Appointment())
                     .withContactDetails(api.getData().getContactDetails())
                     .withResponsibilities(api.getData().getResponsibilities())
                     .withPrincipleOfficeAddress(api.getData().getPrincipalOfficeAddress());
@@ -351,7 +351,7 @@ public class CompanyAppointmentFullRecordView {
             return this;
         }
 
-        public Builder withOfficerRole(Data.OfficerRoleEnum officerRole) {
+        public Builder withOfficerRole(DeltaOfficerData.OfficerRoleEnum officerRole) {
 
             String officerRoleToString = officerRole.toString();
 

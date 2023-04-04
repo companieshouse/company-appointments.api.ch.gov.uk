@@ -7,18 +7,18 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.companieshouse.api.appointment.Data;
-import uk.gov.companieshouse.api.appointment.DateOfBirth;
-import uk.gov.companieshouse.api.appointment.FormerNames;
-import uk.gov.companieshouse.api.appointment.Identification;
-import uk.gov.companieshouse.api.appointment.ItemLinkTypes;
-import uk.gov.companieshouse.api.appointment.OfficerLinkTypes;
-import uk.gov.companieshouse.api.appointment.SensitiveData;
-import uk.gov.companieshouse.api.appointment.ServiceAddress;
-import uk.gov.companieshouse.api.appointment.UsualResidentialAddress;
-import uk.gov.companieshouse.api.appointment.ContactDetails;
-import uk.gov.companieshouse.api.appointment.PrincipalOfficeAddress;
-import uk.gov.companieshouse.api.model.delta.officers.DeltaAppointmentApi;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaOfficerData;
+import uk.gov.companieshouse.company_appointments.model.data.DateOfBirth;
+import uk.gov.companieshouse.company_appointments.model.data.FormerNames;
+import uk.gov.companieshouse.company_appointments.model.data.Identification;
+import uk.gov.companieshouse.company_appointments.model.data.ItemLinkTypes;
+import uk.gov.companieshouse.company_appointments.model.data.OfficerLinkTypes;
+import uk.gov.companieshouse.company_appointments.model.data.SensitiveData;
+import uk.gov.companieshouse.company_appointments.model.data.ServiceAddress;
+import uk.gov.companieshouse.company_appointments.model.data.UsualResidentialAddress;
+import uk.gov.companieshouse.company_appointments.model.data.ContactDetails;
+import uk.gov.companieshouse.company_appointments.model.data.PrincipalOfficeAddress;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaAppointmentApi;
 
 import java.time.LocalDate;
 import java.util.Collections;
@@ -46,7 +46,7 @@ class CompanyAppointmentFullRecordViewTest {
     void setUp() {
 
         DeltaAppointmentApi deltaAppointmentApi = new DeltaAppointmentApi();
-        deltaAppointmentApi.setData(new Data());
+        deltaAppointmentApi.setData(new DeltaOfficerData());
         deltaAppointmentApi.setSensitiveData(new SensitiveData());
 
         deltaAppointmentApi.getData().setServiceAddress(createServiceAddress("service"));
@@ -63,11 +63,11 @@ class CompanyAppointmentFullRecordViewTest {
         deltaAppointmentApi.getData().setTitle("Sir");
         deltaAppointmentApi.getData().setNationality("Welsh");
         deltaAppointmentApi.getData().setOccupation("occupation");
-        deltaAppointmentApi.getData().setOfficerRole(Data.OfficerRoleEnum.DIRECTOR);
+        deltaAppointmentApi.getData().setOfficerRole(DeltaOfficerData.OfficerRoleEnum.DIRECTOR);
         deltaAppointmentApi.getData().setResignedOn(INSTANT_TWO);
         deltaAppointmentApi.setEtag("etag");
         deltaAppointmentApi.getData().setPersonNumber("1234");
-        deltaAppointmentApi.getData().setIsPre1992Appointment(Boolean.TRUE);
+        deltaAppointmentApi.getData().setPre1992Appointment(Boolean.TRUE);
         deltaAppointmentApi.getData().setContactDetails(contactDetails);
         deltaAppointmentApi.getData().setResponsibilities("responsibilities");
         deltaAppointmentApi.getData().setPrincipalOfficeAddress(createPrincipalOfficeAddress("principleOffice"));
