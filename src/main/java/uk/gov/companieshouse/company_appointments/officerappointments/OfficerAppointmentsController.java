@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import uk.gov.companieshouse.api.officer.AppointmentList;
+import uk.gov.companieshouse.company_appointments.exception.BadRequestException;
 import uk.gov.companieshouse.logging.Logger;
 
 @Controller
@@ -24,11 +25,16 @@ public class OfficerAppointmentsController {
             @RequestParam(value = "filter", required = false) String filter,
             @RequestParam(value = "start_index", required = false) Integer startIndex,
             @RequestParam(value = "items_per_page", required = false) Integer itemsPerPage) {
-        return service.getOfficerAppointments(new OfficerAppointmentsRequest(officerId, filter, startIndex, itemsPerPage))
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> {
-                    logger.error(String.format("No appointments found for officer id %s", officerId));
-                    return ResponseEntity.notFound().build();
-                });
+        try {
+            return service.getOfficerAppointments(new OfficerAppointmentsRequest(officerId, filter, startIndex, itemsPerPage))
+                    .map(ResponseEntity::ok)
+                    .orElseGet(() -> {
+                        logger.error(String.format("No appointments found for officer ID %s", officerId));
+                        return ResponseEntity.notFound().build();
+                    });
+        } catch (BadRequestException ex) {
+            logger.error(String.format("Invalid filter parameter supplied: %s, officer ID %s", filter, officerId));
+            return ResponseEntity.badRequest().build();
+        }
     }
 }
