@@ -10,9 +10,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaOfficerData;
 import uk.gov.companieshouse.company_appointments.model.data.DateOfBirth;
 import uk.gov.companieshouse.company_appointments.model.data.FormerNames;
-import uk.gov.companieshouse.company_appointments.model.data.Identification;
-import uk.gov.companieshouse.company_appointments.model.data.ItemLinkTypes;
-import uk.gov.companieshouse.company_appointments.model.data.OfficerLinkTypes;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaIdentification;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaItemLinkTypes;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaOfficerLinkTypes;
 import uk.gov.companieshouse.company_appointments.model.data.SensitiveData;
 import uk.gov.companieshouse.company_appointments.model.data.ServiceAddress;
 import uk.gov.companieshouse.company_appointments.model.data.UsualResidentialAddress;
@@ -34,9 +34,9 @@ class CompanyAppointmentFullRecordViewTest {
 
     private List<FormerNames> formerNames
             = buildFormerNamesList("John", "Davies");
-    private Identification identification = buildIdentification();
+    private DeltaIdentification identification = buildIdentification();
     private DateOfBirth INSTANT_DOB = buildDateOfBirth(12,1,1989);
-    private ItemLinkTypes links = buildLinksItem();
+    private DeltaItemLinkTypes links = buildLinksItem();
     private ContactDetails contactDetails = buildContactDetails();
     private DateOfBirthView dob = new DateOfBirthView(12,1,1989);
 
@@ -293,9 +293,9 @@ class CompanyAppointmentFullRecordViewTest {
         return dob;
     }
 
-    private Identification buildIdentification() {
-        Identification identification = new Identification();
-        identification.setIdentificationType(Identification.IdentificationTypeEnum.EEA);
+    private DeltaIdentification buildIdentification() {
+        DeltaIdentification identification = new DeltaIdentification();
+        identification.setIdentificationType(DeltaIdentification.IdentificationTypeEnum.EEA);
         identification.setLegalAuthority("Chapter 32");
         identification.setLegalForm("Hong Kong");
         identification.setPlaceRegistered("UK");
@@ -303,20 +303,20 @@ class CompanyAppointmentFullRecordViewTest {
         return identification;
     }
 
-    private List<ItemLinkTypes> buildLinksList() {
-        ItemLinkTypes linksItem = new ItemLinkTypes();
+    private List<DeltaItemLinkTypes> buildLinksList() {
+        DeltaItemLinkTypes linksItem = new DeltaItemLinkTypes();
         linksItem.setSelf("/officers/abcde123456789");
-        OfficerLinkTypes officerLinkTypes = new OfficerLinkTypes();
+        DeltaOfficerLinkTypes officerLinkTypes = new DeltaOfficerLinkTypes();
         officerLinkTypes.setSelf("/officers/abcde123456789/appointments");
         officerLinkTypes.setAppointments("/company/01777777/appointments/123456789abcde");
         linksItem.setOfficer(officerLinkTypes);
         return Collections.singletonList(linksItem);
     }
 
-    private ItemLinkTypes buildLinksItem() {
-        ItemLinkTypes linksItem = new ItemLinkTypes();
+    private DeltaItemLinkTypes buildLinksItem() {
+        DeltaItemLinkTypes linksItem = new DeltaItemLinkTypes();
         linksItem.setSelf("/officers/abcde123456789/full_record");
-        OfficerLinkTypes officerLinkTypes = new OfficerLinkTypes();
+        DeltaOfficerLinkTypes officerLinkTypes = new DeltaOfficerLinkTypes();
         officerLinkTypes.setAppointments("/company/01777777/appointments/123456789abcde");
         linksItem.setOfficer(officerLinkTypes);
         return linksItem;

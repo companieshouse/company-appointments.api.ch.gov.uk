@@ -32,7 +32,7 @@ public class DeltaOfficerData {
 
   @Field("links")
   @Valid
-  private List<ItemLinkTypes> links = null;
+  private List<DeltaItemLinkTypes> links = null;
 
   @Field("nationality")
   private String nationality;
@@ -136,7 +136,7 @@ public class DeltaOfficerData {
   private Boolean isSecureOfficer;
 
   @Field("identification")
-  private Identification identification;
+  private DeltaIdentification identification;
 
   @Field("company_name")
   private String companyName;
@@ -240,11 +240,11 @@ public class DeltaOfficerData {
     return this;
   }
 
-  public List<ItemLinkTypes> getLinks() {
+  public List<DeltaItemLinkTypes> getLinks() {
     return links;
   }
 
-  public DeltaOfficerData setLinks(List<ItemLinkTypes> links) {
+  public DeltaOfficerData setLinks(List<DeltaItemLinkTypes> links) {
     this.links = links;
     return this;
   }
@@ -286,11 +286,11 @@ public class DeltaOfficerData {
     return this;
   }
 
-  public Identification getIdentification() {
+  public DeltaIdentification getIdentification() {
     return identification;
   }
 
-  public DeltaOfficerData setIdentification(Identification identification) {
+  public DeltaOfficerData setIdentification(DeltaIdentification identification) {
     this.identification = identification;
     return this;
   }

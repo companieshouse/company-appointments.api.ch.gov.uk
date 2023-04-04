@@ -1,21 +1,20 @@
 package uk.gov.companieshouse.company_appointments.model.data;
 
 import java.util.Objects;
-import javax.validation.constraints.*;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 /**
  * OfficerLinkTypes
  */
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.SpringCodegen")
-public class OfficerLinkTypes   {
+public class DeltaOfficerLinkTypes {
   @Field("self")
   private String self;
 
   @Field("appointments")
   private String appointments;
 
-  public OfficerLinkTypes self(String self) {
+  public DeltaOfficerLinkTypes self(String self) {
     this.self = self;
     return this;
   }
@@ -28,7 +27,7 @@ public class OfficerLinkTypes   {
     this.self = self;
   }
 
-  public OfficerLinkTypes appointments(String appointments) {
+  public DeltaOfficerLinkTypes appointments(String appointments) {
     this.appointments = appointments;
     return this;
   }
@@ -49,7 +48,7 @@ public class OfficerLinkTypes   {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    OfficerLinkTypes officerLinkTypes = (OfficerLinkTypes) o;
+    DeltaOfficerLinkTypes officerLinkTypes = (DeltaOfficerLinkTypes) o;
     return Objects.equals(this.self, officerLinkTypes.self) &&
         Objects.equals(this.appointments, officerLinkTypes.appointments);
   }

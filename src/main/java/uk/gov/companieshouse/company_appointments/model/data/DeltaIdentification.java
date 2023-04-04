@@ -6,7 +6,7 @@ import org.springframework.data.mongodb.core.mapping.Field;
 /**
  * Identification
  */
-public class Identification   {
+public class DeltaIdentification {
   /**
    * The officer's identity type
    */
@@ -61,7 +61,7 @@ public class Identification   {
   @Field("registration_number")
   private String registrationNumber;
 
-  public Identification identificationType(IdentificationTypeEnum identificationType) {
+  public DeltaIdentification identificationType(IdentificationTypeEnum identificationType) {
     this.identificationType = identificationType;
     return this;
   }
@@ -74,7 +74,7 @@ public class Identification   {
     this.identificationType = identificationType;
   }
 
-  public Identification legalAuthority(String legalAuthority) {
+  public DeltaIdentification legalAuthority(String legalAuthority) {
     this.legalAuthority = legalAuthority;
     return this;
   }
@@ -87,7 +87,7 @@ public class Identification   {
     this.legalAuthority = legalAuthority;
   }
 
-  public Identification legalForm(String legalForm) {
+  public DeltaIdentification legalForm(String legalForm) {
     this.legalForm = legalForm;
     return this;
   }
@@ -100,7 +100,7 @@ public class Identification   {
     this.legalForm = legalForm;
   }
 
-  public Identification placeRegistered(String placeRegistered) {
+  public DeltaIdentification placeRegistered(String placeRegistered) {
     this.placeRegistered = placeRegistered;
     return this;
   }
@@ -113,7 +113,7 @@ public class Identification   {
     this.placeRegistered = placeRegistered;
   }
 
-  public Identification registrationNumber(String registrationNumber) {
+  public DeltaIdentification registrationNumber(String registrationNumber) {
     this.registrationNumber = registrationNumber;
     return this;
   }
@@ -134,7 +134,7 @@ public class Identification   {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    Identification identification = (Identification) o;
+    DeltaIdentification identification = (DeltaIdentification) o;
     return Objects.equals(this.identificationType, identification.identificationType) &&
         Objects.equals(this.legalAuthority, identification.legalAuthority) &&
         Objects.equals(this.legalForm, identification.legalForm) &&

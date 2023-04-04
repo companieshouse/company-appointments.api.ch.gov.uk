@@ -5,8 +5,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaOfficerData;
 import uk.gov.companieshouse.company_appointments.model.data.FormerNames;
-import uk.gov.companieshouse.company_appointments.model.data.Identification;
-import uk.gov.companieshouse.company_appointments.model.data.ItemLinkTypes;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaIdentification;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaItemLinkTypes;
 import uk.gov.companieshouse.company_appointments.model.data.SensitiveData;
 import uk.gov.companieshouse.company_appointments.model.data.ServiceAddress;
 import uk.gov.companieshouse.company_appointments.model.data.UsualResidentialAddress;
@@ -56,10 +56,10 @@ public class CompanyAppointmentFullRecordView {
     private List<FormerNames> formerNames;
 
     @JsonProperty("identification")
-    private Identification identification;
+    private DeltaIdentification identification;
 
     @JsonProperty("links")
-    private ItemLinkTypes links;
+    private DeltaItemLinkTypes links;
 
     @JsonProperty("name")
     private String name;
@@ -132,11 +132,11 @@ public class CompanyAppointmentFullRecordView {
         return formerNames;
     }
 
-    public Identification getIdentification() {
+    public DeltaIdentification getIdentification() {
         return identification;
     }
 
-    public ItemLinkTypes getLinks() {
+    public DeltaItemLinkTypes getLinks() {
         return links;
     }
 
@@ -290,14 +290,14 @@ public class CompanyAppointmentFullRecordView {
             return this;
         }
 
-        public Builder withIdentification(Identification identification) {
+        public Builder withIdentification(DeltaIdentification identification) {
 
             buildSteps.add(view -> view.identification = identification);
 
             return this;
         }
 
-        public Builder withLinks(List<ItemLinkTypes> links) {
+        public Builder withLinks(List<DeltaItemLinkTypes> links) {
 
             if (links != null && links.get(0) != null) {
                 links.get(0).getOfficer().setSelf(null);

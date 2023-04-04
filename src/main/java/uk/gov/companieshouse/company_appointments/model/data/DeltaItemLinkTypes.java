@@ -7,14 +7,14 @@ import org.springframework.data.mongodb.core.mapping.Field;
 /**
  * ItemLinkTypes
  */
-public class ItemLinkTypes   {
+public class DeltaItemLinkTypes {
   @Field("self")
   private String self;
 
   @Field("officer")
-  private OfficerLinkTypes officer;
+  private DeltaOfficerLinkTypes officer;
 
-  public ItemLinkTypes self(String self) {
+  public DeltaItemLinkTypes self(String self) {
     this.self = self;
     return this;
   }
@@ -27,17 +27,17 @@ public class ItemLinkTypes   {
     this.self = self;
   }
 
-  public ItemLinkTypes officer(OfficerLinkTypes officer) {
+  public DeltaItemLinkTypes officer(DeltaOfficerLinkTypes officer) {
     this.officer = officer;
     return this;
   }
 
   @Valid
-  public OfficerLinkTypes getOfficer() {
+  public DeltaOfficerLinkTypes getOfficer() {
     return officer;
   }
 
-  public void setOfficer(OfficerLinkTypes officer) {
+  public void setOfficer(DeltaOfficerLinkTypes officer) {
     this.officer = officer;
   }
 
@@ -49,7 +49,7 @@ public class ItemLinkTypes   {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    ItemLinkTypes itemLinkTypes = (ItemLinkTypes) o;
+    DeltaItemLinkTypes itemLinkTypes = (DeltaItemLinkTypes) o;
     return Objects.equals(this.self, itemLinkTypes.self) &&
         Objects.equals(this.officer, itemLinkTypes.officer);
   }
