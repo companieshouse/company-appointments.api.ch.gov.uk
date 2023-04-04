@@ -1,9 +1,9 @@
 {
-  "_id" : "active_3",
-  "appointment_id" : "active_3",
+  "_id" : "dissolved_1",
+  "appointment_id" : "dissolved_1",
   "company_name" : "TEST COMPANY LIMITED",
   "company_number" : "12345678",
-  "company_status" : "active",
+  "company_status" : "dissolved",
   "created" : {
     "at" : ISODate("2020-08-26T12:00:00.000Z")
   },

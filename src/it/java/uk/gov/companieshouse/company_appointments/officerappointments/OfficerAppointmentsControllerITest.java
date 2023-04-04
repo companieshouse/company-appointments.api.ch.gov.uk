@@ -90,6 +90,21 @@ class OfficerAppointmentsControllerITest {
         result.andExpect(status().isNotFound());
     }
 
+    @DisplayName("Should return HTTP 400 Bad Request when an invalid filter parameter is supplied")
+    @Test
+    void getOfficerAppointmentsBadRequest() throws Exception {
+        // when
+        ResultActions result = mockMvc.perform(get("/officers/{officer_id}/appointments", "5VEOBB4a9dlB_iugw_vieHjWpCk")
+                .param("filter", "invalid")
+                .header("ERIC-Identity", "123")
+                .header("ERIC-Identity-Type", "oauth2")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON));
+
+        // then
+        result.andExpect(status().isBadRequest());
+    }
+
     @DisplayName("Should return HTTP 401 Unauthorised if the request has no auth headers")
     @Test
     void getOfficerAppointmentsUnauthenticated() throws Exception {

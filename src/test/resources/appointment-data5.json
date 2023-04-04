@@ -25,7 +25,7 @@
     "company_number" : "12345678",
     "updated_at" : ISODate("2020-08-26T13:00:00.000Z"),
     "other_forenames" : "Noname2",
-    "appointed_on" : ISODate("2017-08-26T12:00:00.000Z"),
+    "appointed_before" : "2017-08-26",
     "etag" : "8f58a770d34f982a1b2a5a29fcde12528e82f903",
     "occupation" : "Company Director",
     "service_address" : {
