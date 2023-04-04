@@ -8,16 +8,16 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaOfficerData;
-import uk.gov.companieshouse.company_appointments.model.data.DateOfBirth;
-import uk.gov.companieshouse.company_appointments.model.data.FormerNames;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaDateOfBirth;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaFormerNames;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaIdentification;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaItemLinkTypes;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaOfficerLinkTypes;
-import uk.gov.companieshouse.company_appointments.model.data.SensitiveData;
-import uk.gov.companieshouse.company_appointments.model.data.ServiceAddress;
-import uk.gov.companieshouse.company_appointments.model.data.UsualResidentialAddress;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaSensitiveData;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaServiceAddress;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaUsualResidentialAddress;
 import uk.gov.companieshouse.company_appointments.model.data.ContactDetails;
-import uk.gov.companieshouse.company_appointments.model.data.PrincipalOfficeAddress;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaPrincipalOfficeAddress;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaAppointmentApi;
 
 import java.time.LocalDate;
@@ -32,10 +32,10 @@ class CompanyAppointmentFullRecordViewTest {
     private static final LocalDate INSTANT_THREE = LocalDate.parse("1991-01-12");
 
 
-    private List<FormerNames> formerNames
+    private List<DeltaFormerNames> formerNames
             = buildFormerNamesList("John", "Davies");
     private DeltaIdentification identification = buildIdentification();
-    private DateOfBirth INSTANT_DOB = buildDateOfBirth(12,1,1989);
+    private DeltaDateOfBirth INSTANT_DOB = buildDateOfBirth(12,1,1989);
     private DeltaItemLinkTypes links = buildLinksItem();
     private ContactDetails contactDetails = buildContactDetails();
     private DateOfBirthView dob = new DateOfBirthView(12,1,1989);
@@ -47,7 +47,7 @@ class CompanyAppointmentFullRecordViewTest {
 
         DeltaAppointmentApi deltaAppointmentApi = new DeltaAppointmentApi();
         deltaAppointmentApi.setData(new DeltaOfficerData());
-        deltaAppointmentApi.setSensitiveData(new SensitiveData());
+        deltaAppointmentApi.setSensitiveData(new DeltaSensitiveData());
 
         deltaAppointmentApi.getData().setServiceAddress(createServiceAddress("service"));
         deltaAppointmentApi.getSensitiveData().setUsualResidentialAddress(createUsualResidentialAddress("usualResidential"));
@@ -57,7 +57,7 @@ class CompanyAppointmentFullRecordViewTest {
         deltaAppointmentApi.getSensitiveData().setDateOfBirth(INSTANT_DOB);
         deltaAppointmentApi.getData().setFormerNames(formerNames);;
         deltaAppointmentApi.getData().setIdentification(identification);
-        deltaAppointmentApi.getData().setLinks(buildLinksList());
+        deltaAppointmentApi.getData().setLinks(buildLinksItem());
         deltaAppointmentApi.getData().setSurname("Davies");
         deltaAppointmentApi.getData().setForename("James");
         deltaAppointmentApi.getData().setTitle("Sir");
@@ -93,7 +93,7 @@ class CompanyAppointmentFullRecordViewTest {
         checkPrincipleOfficeAddress(testView.getPrincipalOfficeAddress(), "principleOffice");
     }
 
-    private void checkUsualResidentialAddress(UsualResidentialAddress address, String prefix) {
+    private void checkUsualResidentialAddress(DeltaUsualResidentialAddress address, String prefix) {
 
         assertThat(address.getAddressLine1(), is(String.join(" ", prefix, "address1")));
         assertThat(address.getAddressLine2(), is(String.join(" ", prefix, "address2")));
@@ -106,7 +106,7 @@ class CompanyAppointmentFullRecordViewTest {
         assertThat(address.getRegion(), is(String.join(" ", prefix, "region")));
     }
 
-    private void checkServiceAddress(ServiceAddress address, String prefix) {
+    private void checkServiceAddress(DeltaServiceAddress address, String prefix) {
 
         assertThat(address.getAddressLine1(), is(String.join(" ", prefix, "address1")));
         assertThat(address.getAddressLine2(), is(String.join(" ", prefix, "address2")));
@@ -117,7 +117,7 @@ class CompanyAppointmentFullRecordViewTest {
         assertThat(address.getRegion(), is(String.join(" ", prefix, "region")));
     }
 
-    private void checkPrincipleOfficeAddress(PrincipalOfficeAddress address, String prefix) {
+    private void checkPrincipleOfficeAddress(DeltaPrincipalOfficeAddress address, String prefix) {
 
         assertThat(address.getAddressLine1(), is(String.join(" ", prefix, "address1")));
         assertThat(address.getAddressLine2(), is(String.join(" ", prefix, "address2")));
@@ -232,9 +232,9 @@ class CompanyAppointmentFullRecordViewTest {
         assertThat(testView.getResponsibilities(), is("responsibilities"));
     }
 
-    private ServiceAddress createServiceAddress(String prefix) {
+    private DeltaServiceAddress createServiceAddress(String prefix) {
 
-        ServiceAddress address = new ServiceAddress();
+        DeltaServiceAddress address = new DeltaServiceAddress();
         address.setAddressLine1(String.join(" ", prefix, "address1"));
         address.setAddressLine2(String.join(" ", prefix, "address2"));
         address.setCountry(String.join(" ", prefix, "country"));
@@ -246,25 +246,9 @@ class CompanyAppointmentFullRecordViewTest {
         return address;
     }
 
-    private UsualResidentialAddress createUsualResidentialAddress(String prefix) {
+    private DeltaUsualResidentialAddress createUsualResidentialAddress(String prefix) {
 
-        UsualResidentialAddress address = new UsualResidentialAddress();
-        address.setAddressLine1(String.join(" ", prefix, "address1"));
-        address.setAddressLine2(String.join(" ", prefix, "address2"));
-        address.setCareOf(String.join(" ", prefix, "careOf"));
-        address.setCountry(String.join(" ", prefix, "country"));
-        address.setLocality(String.join(" ", prefix, "locality"));
-        address.setPoBox(String.join(" ", prefix, "poBox"));
-        address.setPostalCode(String.join(" ", prefix, "postcode"));
-        address.setPremises(String.join(" ", prefix, "premises"));
-        address.setRegion(String.join(" ", prefix, "region"));
-
-        return address;
-    }
-
-    private PrincipalOfficeAddress createPrincipalOfficeAddress(String prefix) {
-
-        PrincipalOfficeAddress address = new PrincipalOfficeAddress();
+        DeltaUsualResidentialAddress address = new DeltaUsualResidentialAddress();
         address.setAddressLine1(String.join(" ", prefix, "address1"));
         address.setAddressLine2(String.join(" ", prefix, "address2"));
         address.setCareOf(String.join(" ", prefix, "careOf"));
@@ -278,15 +262,31 @@ class CompanyAppointmentFullRecordViewTest {
         return address;
     }
 
-    private List<FormerNames> buildFormerNamesList(String forename, String surname) {
-        FormerNames formerNamesItems = new FormerNames();
+    private DeltaPrincipalOfficeAddress createPrincipalOfficeAddress(String prefix) {
+
+        DeltaPrincipalOfficeAddress address = new DeltaPrincipalOfficeAddress();
+        address.setAddressLine1(String.join(" ", prefix, "address1"));
+        address.setAddressLine2(String.join(" ", prefix, "address2"));
+        address.setCareOf(String.join(" ", prefix, "careOf"));
+        address.setCountry(String.join(" ", prefix, "country"));
+        address.setLocality(String.join(" ", prefix, "locality"));
+        address.setPoBox(String.join(" ", prefix, "poBox"));
+        address.setPostalCode(String.join(" ", prefix, "postcode"));
+        address.setPremises(String.join(" ", prefix, "premises"));
+        address.setRegion(String.join(" ", prefix, "region"));
+
+        return address;
+    }
+
+    private List<DeltaFormerNames> buildFormerNamesList(String forename, String surname) {
+        DeltaFormerNames formerNamesItems = new DeltaFormerNames();
         formerNamesItems.setForenames(forename);
         formerNamesItems.setSurname(surname);
         return Collections.singletonList(formerNamesItems);
     }
 
-    private DateOfBirth buildDateOfBirth(int day, int month, int year) {
-        DateOfBirth dob = new DateOfBirth();
+    private DeltaDateOfBirth buildDateOfBirth(int day, int month, int year) {
+        DeltaDateOfBirth dob = new DeltaDateOfBirth();
         dob.setDay(day);
         dob.setMonth(month);
         dob.setYear(year);
@@ -301,16 +301,6 @@ class CompanyAppointmentFullRecordViewTest {
         identification.setPlaceRegistered("UK");
         identification.setRegistrationNumber("32982");
         return identification;
-    }
-
-    private List<DeltaItemLinkTypes> buildLinksList() {
-        DeltaItemLinkTypes linksItem = new DeltaItemLinkTypes();
-        linksItem.setSelf("/officers/abcde123456789");
-        DeltaOfficerLinkTypes officerLinkTypes = new DeltaOfficerLinkTypes();
-        officerLinkTypes.setSelf("/officers/abcde123456789/appointments");
-        officerLinkTypes.setAppointments("/company/01777777/appointments/123456789abcde");
-        linksItem.setOfficer(officerLinkTypes);
-        return Collections.singletonList(linksItem);
     }
 
     private DeltaItemLinkTypes buildLinksItem() {

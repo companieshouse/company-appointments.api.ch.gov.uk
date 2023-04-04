@@ -4,14 +4,14 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaOfficerData;
-import uk.gov.companieshouse.company_appointments.model.data.FormerNames;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaFormerNames;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaIdentification;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaItemLinkTypes;
-import uk.gov.companieshouse.company_appointments.model.data.SensitiveData;
-import uk.gov.companieshouse.company_appointments.model.data.ServiceAddress;
-import uk.gov.companieshouse.company_appointments.model.data.UsualResidentialAddress;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaSensitiveData;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaServiceAddress;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaUsualResidentialAddress;
 import uk.gov.companieshouse.company_appointments.model.data.ContactDetails;
-import uk.gov.companieshouse.company_appointments.model.data.PrincipalOfficeAddress;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaPrincipalOfficeAddress;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaAppointmentApi;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -29,10 +29,10 @@ public class CompanyAppointmentFullRecordView {
     private static final String TITLE_REGEX = "^(?i)(?=m)(?:mrs?|miss|ms|master)$";
 
     @JsonProperty("service_address")
-    private ServiceAddress serviceAddress;
+    private DeltaServiceAddress serviceAddress;
 
     @JsonProperty("usual_residential_address")
-    private UsualResidentialAddress usualResidentialAddress;
+    private DeltaUsualResidentialAddress usualResidentialAddress;
 
     @JsonProperty("appointed_on")
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "UTC")
@@ -53,7 +53,7 @@ public class CompanyAppointmentFullRecordView {
     private DateOfBirthView dateOfBirth;
 
     @JsonProperty("former_names")
-    private List<FormerNames> formerNames;
+    private List<DeltaFormerNames> formerNames;
 
     @JsonProperty("identification")
     private DeltaIdentification identification;
@@ -95,16 +95,16 @@ public class CompanyAppointmentFullRecordView {
     private ContactDetails contactDetails;
 
     @JsonProperty("principal_office_address")
-    private PrincipalOfficeAddress principalOfficeAddress;
+    private DeltaPrincipalOfficeAddress principalOfficeAddress;
 
     @JsonProperty("responsibilities")
     private String responsibilities;
 
-    public ServiceAddress getServiceAddress() {
+    public DeltaServiceAddress getServiceAddress() {
         return serviceAddress;
     }
 
-    public UsualResidentialAddress getUsualResidentialAddress() {
+    public DeltaUsualResidentialAddress getUsualResidentialAddress() {
         return usualResidentialAddress;
     }
 
@@ -128,7 +128,7 @@ public class CompanyAppointmentFullRecordView {
         return dateOfBirth;
     }
 
-    public List<FormerNames> getFormerNames() {
+    public List<DeltaFormerNames> getFormerNames() {
         return formerNames;
     }
 
@@ -188,7 +188,7 @@ public class CompanyAppointmentFullRecordView {
         return responsibilities;
     }
 
-    public PrincipalOfficeAddress getPrincipalOfficeAddress() {
+    public DeltaPrincipalOfficeAddress getPrincipalOfficeAddress() {
         return principalOfficeAddress;
     }
 
@@ -214,7 +214,7 @@ public class CompanyAppointmentFullRecordView {
                     .withDateOfBirth(builder.mapDateOfBirth(api.getSensitiveData()))
                     .withFormerNames(api.getData().getFormerNames())
                     .withIdentification(api.getData().getIdentification())
-                    .withLinks(api.getData().getLinks())
+                    .withLinks(List.of(api.getData().getLinks()))
                     .withName(builder.individualOfficerName(api))
                     .withForename(api.getData().getForename())
                     .withSurname(api.getData().getSurname())
@@ -241,14 +241,14 @@ public class CompanyAppointmentFullRecordView {
             }
         }
 
-        public Builder withServiceAddress(ServiceAddress address) {
+        public Builder withServiceAddress(DeltaServiceAddress address) {
 
             buildSteps.add(view -> view.serviceAddress = address);
 
             return this;
         }
 
-        public Builder withUsualResidentialAddress(UsualResidentialAddress address) {
+        public Builder withUsualResidentialAddress(DeltaUsualResidentialAddress address) {
 
             buildSteps.add(view -> view.usualResidentialAddress = address);
 
@@ -283,7 +283,7 @@ public class CompanyAppointmentFullRecordView {
             return this;
         }
 
-        public Builder withFormerNames(List<FormerNames> formerNames) {
+        public Builder withFormerNames(List<DeltaFormerNames> formerNames) {
 
             buildSteps.add(view -> view.formerNames = formerNames);
 
@@ -402,7 +402,7 @@ public class CompanyAppointmentFullRecordView {
             return this;
         }
 
-        public Builder withPrincipleOfficeAddress(PrincipalOfficeAddress principalOfficeAddress) {
+        public Builder withPrincipleOfficeAddress(DeltaPrincipalOfficeAddress principalOfficeAddress) {
 
             buildSteps.add(view -> view.principalOfficeAddress = principalOfficeAddress);
 
@@ -435,7 +435,7 @@ public class CompanyAppointmentFullRecordView {
             return result;
         }
 
-        private DateOfBirthView mapDateOfBirth(SensitiveData sensitiveData) {
+        private DateOfBirthView mapDateOfBirth(DeltaSensitiveData sensitiveData) {
             return Optional.ofNullable(sensitiveData.getDateOfBirth()).
                     map(dob -> new DateOfBirthView(
                             dob.getDay(),

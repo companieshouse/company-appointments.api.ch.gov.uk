@@ -4,7 +4,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.gov.companieshouse.GenerateEtagUtil;
-import uk.gov.companieshouse.api.appointment.Data;
 import uk.gov.companieshouse.api.appointment.FullRecordCompanyOfficerApi;
 import uk.gov.companieshouse.company_appointments.CompanyAppointmentsApplication;
 import uk.gov.companieshouse.company_appointments.exception.FailedToTransformException;
@@ -12,6 +11,7 @@ import uk.gov.companieshouse.company_appointments.exception.NotFoundException;
 import uk.gov.companieshouse.company_appointments.exception.ServiceUnavailableException;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaAppointmentApi;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaAppointmentApiEntity;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaOfficerData;
 import uk.gov.companieshouse.company_appointments.model.data.InstantAPI;
 import uk.gov.companieshouse.company_appointments.model.transformer.DeltaAppointmentTransformer;
 import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentFullRecordView;
@@ -30,12 +30,17 @@ public class CompanyAppointmentFullRecordService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CompanyAppointmentsApplication.APPLICATION_NAMESPACE);
 
+    private final DeltaAppointmentTransformer deltaAppointmentTransformer;
+
     private CompanyAppointmentFullRecordRepository companyAppointmentRepository;
 
     private Clock clock;
 
     @Autowired
-    public CompanyAppointmentFullRecordService(CompanyAppointmentFullRecordRepository companyAppointmentRepository, Clock clock) {
+    public CompanyAppointmentFullRecordService(
+            DeltaAppointmentTransformer deltaAppointmentTransformer,
+            CompanyAppointmentFullRecordRepository companyAppointmentRepository, Clock clock) {
+        this.deltaAppointmentTransformer = deltaAppointmentTransformer;
         this.companyAppointmentRepository = companyAppointmentRepository;
         this.clock = clock;
     }
@@ -52,7 +57,6 @@ public class CompanyAppointmentFullRecordService {
 
     public void insertAppointmentDelta(final FullRecordCompanyOfficerApi appointmentApi) throws ServiceUnavailableException {
 
-        DeltaAppointmentTransformer deltaAppointmentTransformer = new DeltaAppointmentTransformer();
         DeltaAppointmentApi deltaAppointmentApi;
         try {
             deltaAppointmentApi = deltaAppointmentTransformer.transform(appointmentApi);
@@ -61,7 +65,7 @@ public class CompanyAppointmentFullRecordService {
         }
 
         InstantAPI instant = new InstantAPI(Instant.now(clock));
-        Data officer = deltaAppointmentApi.getData();
+        DeltaOfficerData officer = deltaAppointmentApi.getData();
 
         if (officer != null) {
             deltaAppointmentApi.setUpdated(instant);

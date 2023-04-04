@@ -4,31 +4,32 @@ import java.util.Objects;
 import org.springframework.data.mongodb.core.mapping.Field;
 import javax.validation.Valid;
 
-public class SensitiveData   {
+public class DeltaSensitiveData {
   @Field("usual_residential_address")
-  private UsualResidentialAddress usualResidentialAddress;
+  private DeltaUsualResidentialAddress usualResidentialAddress;
 
   @Field("residential_address_same_as_service_address")
   private Boolean residentialAddressSameAsServiceAddress;
 
   @Field("date_of_birth")
-  private DateOfBirth dateOfBirth;
+  private DeltaDateOfBirth dateOfBirth;
 
-  public SensitiveData usualResidentialAddress(UsualResidentialAddress usualResidentialAddress) {
+  public DeltaSensitiveData usualResidentialAddress(
+          DeltaUsualResidentialAddress usualResidentialAddress) {
     this.usualResidentialAddress = usualResidentialAddress;
     return this;
   }
 
   @Valid
-  public UsualResidentialAddress getUsualResidentialAddress() {
+  public DeltaUsualResidentialAddress getUsualResidentialAddress() {
     return usualResidentialAddress;
   }
 
-  public void setUsualResidentialAddress(UsualResidentialAddress usualResidentialAddress) {
+  public void setUsualResidentialAddress(DeltaUsualResidentialAddress usualResidentialAddress) {
     this.usualResidentialAddress = usualResidentialAddress;
   }
 
-  public SensitiveData residentialAddressSameAsServiceAddress(Boolean residentialAddressSameAsServiceAddress) {
+  public DeltaSensitiveData residentialAddressSameAsServiceAddress(Boolean residentialAddressSameAsServiceAddress) {
     this.residentialAddressSameAsServiceAddress = residentialAddressSameAsServiceAddress;
     return this;
   }
@@ -41,16 +42,16 @@ public class SensitiveData   {
     this.residentialAddressSameAsServiceAddress = residentialAddressSameAsServiceAddress;
   }
 
-  public SensitiveData dateOfBirth(DateOfBirth dateOfBirth) {
+  public DeltaSensitiveData dateOfBirth(DeltaDateOfBirth dateOfBirth) {
     this.dateOfBirth = dateOfBirth;
     return this;
   }
 
-  public DateOfBirth getDateOfBirth() {
+  public DeltaDateOfBirth getDateOfBirth() {
     return dateOfBirth;
   }
 
-  public void setDateOfBirth(DateOfBirth dateOfBirth) {
+  public void setDateOfBirth(DeltaDateOfBirth dateOfBirth) {
     this.dateOfBirth = dateOfBirth;
   }
 
@@ -62,7 +63,7 @@ public class SensitiveData   {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    SensitiveData sensitiveData = (SensitiveData) o;
+    DeltaSensitiveData sensitiveData = (DeltaSensitiveData) o;
     return Objects.equals(this.usualResidentialAddress, sensitiveData.usualResidentialAddress) &&
         Objects.equals(this.residentialAddressSameAsServiceAddress, sensitiveData.residentialAddressSameAsServiceAddress) &&
         Objects.equals(this.dateOfBirth, sensitiveData.dateOfBirth);

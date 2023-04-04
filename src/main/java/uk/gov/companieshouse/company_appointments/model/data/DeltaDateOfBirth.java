@@ -2,14 +2,14 @@ package uk.gov.companieshouse.company_appointments.model.data;
 
 import java.util.Objects;
 
-public class DateOfBirth   {
+public class DeltaDateOfBirth {
   private Integer day;
 
   private Integer month;
 
   private Integer year;
 
-  public DateOfBirth day(Integer day) {
+  public DeltaDateOfBirth day(Integer day) {
     this.day = day;
     return this;
   }
@@ -22,7 +22,7 @@ public class DateOfBirth   {
     this.day = day;
   }
 
-  public DateOfBirth month(Integer month) {
+  public DeltaDateOfBirth month(Integer month) {
     this.month = month;
     return this;
   }
@@ -35,7 +35,7 @@ public class DateOfBirth   {
     this.month = month;
   }
 
-  public DateOfBirth year(Integer year) {
+  public DeltaDateOfBirth year(Integer year) {
     this.year = year;
     return this;
   }
@@ -56,7 +56,7 @@ public class DateOfBirth   {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    DateOfBirth dateOfBirth = (DateOfBirth) o;
+    DeltaDateOfBirth dateOfBirth = (DeltaDateOfBirth) o;
     return Objects.equals(this.day, dateOfBirth.day) &&
         Objects.equals(this.month, dateOfBirth.month) &&
         Objects.equals(this.year, dateOfBirth.year);

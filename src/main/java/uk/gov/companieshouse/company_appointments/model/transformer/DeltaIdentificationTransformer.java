@@ -24,10 +24,10 @@ public class DeltaIdentificationTransformer implements Transformative<Identifica
             entity.setLegalForm(source.getLegalForm());
             entity.setPlaceRegistered(source.getPlaceRegistered());
             entity.setRegistrationNumber(source.getRegistrationNumber());
-        } catch (Exception e) {
-            throw new FailedToTransformException(String.format("Failed to transform API payload: %s", e.getMessage()));
-        }
 
-        return entity;
+            return entity;
+        } catch (Exception e) {
+            throw new FailedToTransformException(String.format("Failed to transform Identification: %s", e.getMessage()));
+        }
     }
 }

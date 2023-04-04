@@ -16,7 +16,7 @@ import uk.gov.companieshouse.company_appointments.model.data.DeltaOfficerData;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaAppointmentApi;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaAppointmentApiEntity;
 import uk.gov.companieshouse.company_appointments.model.data.InstantAPI;
-import uk.gov.companieshouse.company_appointments.model.data.SensitiveData;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaSensitiveData;
 import uk.gov.companieshouse.company_appointments.repository.CompanyAppointmentFullRecordRepository;
 
 import java.time.Instant;
@@ -40,7 +40,7 @@ class AppointmentApiRepositoryTest {
     void insertOrUpdate() {
         final DeltaAppointmentApi appointment = new DeltaAppointmentApi("id", "etag",
                 new DeltaOfficerData(),
-                new SensitiveData(),
+                new DeltaSensitiveData(),
                 "internalId",
                 "appointmentId",
                 "officerId",

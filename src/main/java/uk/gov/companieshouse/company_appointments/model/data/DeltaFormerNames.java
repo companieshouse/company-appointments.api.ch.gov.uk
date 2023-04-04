@@ -6,14 +6,14 @@ import org.springframework.data.mongodb.core.mapping.Field;
 /**
  * FormerNames
  */
-public class FormerNames   {
+public class DeltaFormerNames {
   @Field("forenames")
   private String forenames;
 
   @Field("surname")
   private String surname;
 
-  public FormerNames forenames(String forenames) {
+  public DeltaFormerNames forenames(String forenames) {
     this.forenames = forenames;
     return this;
   }
@@ -26,7 +26,7 @@ public class FormerNames   {
     this.forenames = forenames;
   }
 
-  public FormerNames surname(String surname) {
+  public DeltaFormerNames surname(String surname) {
     this.surname = surname;
     return this;
   }
@@ -47,7 +47,7 @@ public class FormerNames   {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    FormerNames formerNames = (FormerNames) o;
+    DeltaFormerNames formerNames = (DeltaFormerNames) o;
     return Objects.equals(this.forenames, formerNames.forenames) &&
         Objects.equals(this.surname, formerNames.surname);
   }

@@ -8,6 +8,17 @@ import uk.gov.companieshouse.company_appointments.model.data.DeltaAppointmentApi
 
 @Component
 public class DeltaAppointmentTransformer implements Transformative<FullRecordCompanyOfficerApi, DeltaAppointmentApi> {
+
+    private final DeltaOfficerDataTransformer officerDataTransformer;
+    private final DeltaSensitiveDataTransformer sensitiveDataTransformer;
+
+
+    public DeltaAppointmentTransformer(DeltaOfficerDataTransformer officerDataTransformer,
+            DeltaSensitiveDataTransformer sensitiveDataTransformer) {
+        this.officerDataTransformer = officerDataTransformer;
+        this.sensitiveDataTransformer = sensitiveDataTransformer;
+    }
+
     @Override
     public DeltaAppointmentApi factory() {
         return new DeltaAppointmentApi();
@@ -16,8 +27,8 @@ public class DeltaAppointmentTransformer implements Transformative<FullRecordCom
     public DeltaAppointmentApi transform(FullRecordCompanyOfficerApi api, DeltaAppointmentApi entity) throws FailedToTransformException {
 
         try {
-            entity.setData(api.getExternalData().getData());
-            entity.setSensitiveData(api.getExternalData().getSensitiveData());
+            entity.setData(officerDataTransformer.transform(api.getExternalData().getData()));
+            entity.setSensitiveData(sensitiveDataTransformer.transform(api.getExternalData().getSensitiveData()));
             entity.setId(api.getExternalData().getAppointmentId());
             entity.setInternalId(api.getExternalData().getInternalId());
             entity.setAppointmentId(api.getExternalData().getAppointmentId());
@@ -25,12 +36,11 @@ public class DeltaAppointmentTransformer implements Transformative<FullRecordCom
             entity.setPreviousOfficerId(api.getExternalData().getPreviousOfficerId());
             entity.setCompanyNumber(api.getExternalData().getCompanyNumber());
             populateInternalFields(entity, api.getInternalData());
+
+            return entity;
         } catch(Exception e) {
             throw new FailedToTransformException(String.format("Failed to transform API payload: %s", e.getMessage()));
         }
-
-
-        return entity;
     }
 
     private void populateInternalFields(DeltaAppointmentApi entity, InternalData internalData) {
@@ -38,5 +48,4 @@ public class DeltaAppointmentTransformer implements Transformative<FullRecordCom
         entity.setUpdatedBy(internalData.getUpdatedBy());
         entity.setOfficerRoleSortOrder(internalData.getOfficerRoleSortOrder());
     }
-
 }

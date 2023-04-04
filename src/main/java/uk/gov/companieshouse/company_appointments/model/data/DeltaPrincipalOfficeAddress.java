@@ -3,10 +3,7 @@ package uk.gov.companieshouse.company_appointments.model.data;
 import java.util.Objects;
 import org.springframework.data.mongodb.core.mapping.Field;
 
-/**
- * UsualResidentialAddress
- */
-public class UsualResidentialAddress   {
+public class DeltaPrincipalOfficeAddress {
   @Field("address_line_1")
   private String addressLine1;
 
@@ -34,7 +31,7 @@ public class UsualResidentialAddress   {
   @Field("region")
   private String region;
 
-  public UsualResidentialAddress addressLine1(String addressLine1) {
+  public DeltaPrincipalOfficeAddress addressLine1(String addressLine1) {
     this.addressLine1 = addressLine1;
     return this;
   }
@@ -43,12 +40,8 @@ public class UsualResidentialAddress   {
     return addressLine1;
   }
 
-  public void setAddressLine1(String addressLine1) {
+  public DeltaPrincipalOfficeAddress setAddressLine1(String addressLine1) {
     this.addressLine1 = addressLine1;
-  }
-
-  public UsualResidentialAddress addressLine2(String addressLine2) {
-    this.addressLine2 = addressLine2;
     return this;
   }
 
@@ -56,12 +49,8 @@ public class UsualResidentialAddress   {
     return addressLine2;
   }
 
-  public void setAddressLine2(String addressLine2) {
+  public DeltaPrincipalOfficeAddress setAddressLine2(String addressLine2) {
     this.addressLine2 = addressLine2;
-  }
-
-  public UsualResidentialAddress careOf(String careOf) {
-    this.careOf = careOf;
     return this;
   }
 
@@ -69,12 +58,8 @@ public class UsualResidentialAddress   {
     return careOf;
   }
 
-  public void setCareOf(String careOf) {
+  public DeltaPrincipalOfficeAddress setCareOf(String careOf) {
     this.careOf = careOf;
-  }
-
-  public UsualResidentialAddress country(String country) {
-    this.country = country;
     return this;
   }
 
@@ -82,12 +67,8 @@ public class UsualResidentialAddress   {
     return country;
   }
 
-  public void setCountry(String country) {
+  public DeltaPrincipalOfficeAddress setCountry(String country) {
     this.country = country;
-  }
-
-  public UsualResidentialAddress locality(String locality) {
-    this.locality = locality;
     return this;
   }
 
@@ -95,12 +76,8 @@ public class UsualResidentialAddress   {
     return locality;
   }
 
-  public void setLocality(String locality) {
+  public DeltaPrincipalOfficeAddress setLocality(String locality) {
     this.locality = locality;
-  }
-
-  public UsualResidentialAddress poBox(String poBox) {
-    this.poBox = poBox;
     return this;
   }
 
@@ -108,12 +85,8 @@ public class UsualResidentialAddress   {
     return poBox;
   }
 
-  public void setPoBox(String poBox) {
+  public DeltaPrincipalOfficeAddress setPoBox(String poBox) {
     this.poBox = poBox;
-  }
-
-  public UsualResidentialAddress postalCode(String postalCode) {
-    this.postalCode = postalCode;
     return this;
   }
 
@@ -121,12 +94,8 @@ public class UsualResidentialAddress   {
     return postalCode;
   }
 
-  public void setPostalCode(String postalCode) {
+  public DeltaPrincipalOfficeAddress setPostalCode(String postalCode) {
     this.postalCode = postalCode;
-  }
-
-  public UsualResidentialAddress premises(String premises) {
-    this.premises = premises;
     return this;
   }
 
@@ -134,12 +103,8 @@ public class UsualResidentialAddress   {
     return premises;
   }
 
-  public void setPremises(String premises) {
+  public DeltaPrincipalOfficeAddress setPremises(String premises) {
     this.premises = premises;
-  }
-
-  public UsualResidentialAddress region(String region) {
-    this.region = region;
     return this;
   }
 
@@ -147,8 +112,9 @@ public class UsualResidentialAddress   {
     return region;
   }
 
-  public void setRegion(String region) {
+  public DeltaPrincipalOfficeAddress setRegion(String region) {
     this.region = region;
+    return this;
   }
 
   @Override
@@ -159,16 +125,16 @@ public class UsualResidentialAddress   {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    UsualResidentialAddress usualResidentialAddress = (UsualResidentialAddress) o;
-    return Objects.equals(this.addressLine1, usualResidentialAddress.addressLine1) &&
-        Objects.equals(this.addressLine2, usualResidentialAddress.addressLine2) &&
-        Objects.equals(this.careOf, usualResidentialAddress.careOf) &&
-        Objects.equals(this.country, usualResidentialAddress.country) &&
-        Objects.equals(this.locality, usualResidentialAddress.locality) &&
-        Objects.equals(this.poBox, usualResidentialAddress.poBox) &&
-        Objects.equals(this.postalCode, usualResidentialAddress.postalCode) &&
-        Objects.equals(this.premises, usualResidentialAddress.premises) &&
-        Objects.equals(this.region, usualResidentialAddress.region);
+    DeltaPrincipalOfficeAddress principalOfficeAddress = (DeltaPrincipalOfficeAddress) o;
+    return Objects.equals(this.addressLine1, principalOfficeAddress.addressLine1) &&
+        Objects.equals(this.addressLine2, principalOfficeAddress.addressLine2) &&
+        Objects.equals(this.careOf, principalOfficeAddress.careOf) &&
+        Objects.equals(this.country, principalOfficeAddress.country) &&
+        Objects.equals(this.locality, principalOfficeAddress.locality) &&
+        Objects.equals(this.poBox, principalOfficeAddress.poBox) &&
+        Objects.equals(this.postalCode, principalOfficeAddress.postalCode) &&
+        Objects.equals(this.premises, principalOfficeAddress.premises) &&
+        Objects.equals(this.region, principalOfficeAddress.region);
   }
 
   @Override
@@ -179,7 +145,7 @@ public class UsualResidentialAddress   {
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("class UsualResidentialAddress {\n");
+    sb.append("class PrincipalOfficeAddress {\n");
     
     sb.append("    addressLine1: ").append(toIndentedString(addressLine1)).append("\n");
     sb.append("    addressLine2: ").append(toIndentedString(addressLine2)).append("\n");
@@ -205,3 +171,4 @@ public class UsualResidentialAddress   {
     return o.toString().replace("\n", "\n    ");
   }
 }
+

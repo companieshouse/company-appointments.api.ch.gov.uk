@@ -11,7 +11,7 @@ public class DeltaOfficerData {
   private String personNumber;
 
   @Field("service_address")
-  private ServiceAddress serviceAddress;
+  private DeltaServiceAddress serviceAddress;
 
   @Field("service_address_same_as_registered_office_address")
   private Boolean serviceAddressSameAsRegisteredOfficeAddress;
@@ -32,7 +32,7 @@ public class DeltaOfficerData {
 
   @Field("links")
   @Valid
-  private List<DeltaItemLinkTypes> links = null;
+  private DeltaItemLinkTypes links;
 
   @Field("nationality")
   private String nationality;
@@ -163,7 +163,7 @@ public class DeltaOfficerData {
   private ContactDetails contactDetails;
 
   @Field("principal_office_address")
-  private PrincipalOfficeAddress principalOfficeAddress;
+  private DeltaPrincipalOfficeAddress principalOfficeAddress;
 
   @Field("resigned_on")
   @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE)
@@ -174,7 +174,7 @@ public class DeltaOfficerData {
 
   @Field("former_names")
   @Valid
-  private List<FormerNames> formerNames = null;
+  private List<DeltaFormerNames> formerNames = null;
 
   public String getPersonNumber() {
     return personNumber;
@@ -185,11 +185,11 @@ public class DeltaOfficerData {
     return this;
   }
 
-  public ServiceAddress getServiceAddress() {
+  public DeltaServiceAddress getServiceAddress() {
     return serviceAddress;
   }
 
-  public DeltaOfficerData setServiceAddress(ServiceAddress serviceAddress) {
+  public DeltaOfficerData setServiceAddress(DeltaServiceAddress serviceAddress) {
     this.serviceAddress = serviceAddress;
     return this;
   }
@@ -240,11 +240,11 @@ public class DeltaOfficerData {
     return this;
   }
 
-  public List<DeltaItemLinkTypes> getLinks() {
+  public DeltaItemLinkTypes getLinks() {
     return links;
   }
 
-  public DeltaOfficerData setLinks(List<DeltaItemLinkTypes> links) {
+  public DeltaOfficerData setLinks(DeltaItemLinkTypes links) {
     this.links = links;
     return this;
   }
@@ -367,12 +367,12 @@ public class DeltaOfficerData {
     return this;
   }
 
-  public PrincipalOfficeAddress getPrincipalOfficeAddress() {
+  public DeltaPrincipalOfficeAddress getPrincipalOfficeAddress() {
     return principalOfficeAddress;
   }
 
   public DeltaOfficerData setPrincipalOfficeAddress(
-          PrincipalOfficeAddress principalOfficeAddress) {
+          DeltaPrincipalOfficeAddress principalOfficeAddress) {
     this.principalOfficeAddress = principalOfficeAddress;
     return this;
   }
@@ -395,12 +395,12 @@ public class DeltaOfficerData {
     return this;
   }
 
-  public List<FormerNames> getFormerNames() {
+  public List<DeltaFormerNames> getFormerNames() {
     return formerNames;
   }
 
   public DeltaOfficerData setFormerNames(
-          List<FormerNames> formerNames) {
+          List<DeltaFormerNames> formerNames) {
     this.formerNames = formerNames;
     return this;
   }
@@ -491,4 +491,3 @@ public class DeltaOfficerData {
     return o.toString().replace("\n", "\n    ");
   }
 }
-

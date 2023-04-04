@@ -21,10 +21,11 @@ public class DeltaItemLinkTypesTransformer implements Transformative<ItemLinkTyp
             entity.setOfficer(new DeltaOfficerLinkTypes()
                     .self(source.getOfficer().getSelf())
                     .appointments(source.getOfficer().getAppointments()));
+
+            return entity;
         } catch (Exception e) {
-            throw new FailedToTransformException(String.format("Failed to transform API payload: %s", e.getMessage()));
+            throw new FailedToTransformException(String.format("Failed to transform DeltaItemLinkTypes: %s", e.getMessage()));
         }
 
-        return entity;
     }
 }

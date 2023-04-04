@@ -4,10 +4,9 @@ import java.util.Objects;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 /**
- * PrincipalOfficeAddress
+ * UsualResidentialAddress
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.SpringCodegen")
-public class PrincipalOfficeAddress   {
+public class DeltaUsualResidentialAddress {
   @Field("address_line_1")
   private String addressLine1;
 
@@ -35,7 +34,7 @@ public class PrincipalOfficeAddress   {
   @Field("region")
   private String region;
 
-  public PrincipalOfficeAddress addressLine1(String addressLine1) {
+  public DeltaUsualResidentialAddress addressLine1(String addressLine1) {
     this.addressLine1 = addressLine1;
     return this;
   }
@@ -44,8 +43,12 @@ public class PrincipalOfficeAddress   {
     return addressLine1;
   }
 
-  public PrincipalOfficeAddress setAddressLine1(String addressLine1) {
+  public void setAddressLine1(String addressLine1) {
     this.addressLine1 = addressLine1;
+  }
+
+  public DeltaUsualResidentialAddress addressLine2(String addressLine2) {
+    this.addressLine2 = addressLine2;
     return this;
   }
 
@@ -53,8 +56,12 @@ public class PrincipalOfficeAddress   {
     return addressLine2;
   }
 
-  public PrincipalOfficeAddress setAddressLine2(String addressLine2) {
+  public void setAddressLine2(String addressLine2) {
     this.addressLine2 = addressLine2;
+  }
+
+  public DeltaUsualResidentialAddress careOf(String careOf) {
+    this.careOf = careOf;
     return this;
   }
 
@@ -62,8 +69,12 @@ public class PrincipalOfficeAddress   {
     return careOf;
   }
 
-  public PrincipalOfficeAddress setCareOf(String careOf) {
+  public void setCareOf(String careOf) {
     this.careOf = careOf;
+  }
+
+  public DeltaUsualResidentialAddress country(String country) {
+    this.country = country;
     return this;
   }
 
@@ -71,8 +82,12 @@ public class PrincipalOfficeAddress   {
     return country;
   }
 
-  public PrincipalOfficeAddress setCountry(String country) {
+  public void setCountry(String country) {
     this.country = country;
+  }
+
+  public DeltaUsualResidentialAddress locality(String locality) {
+    this.locality = locality;
     return this;
   }
 
@@ -80,8 +95,12 @@ public class PrincipalOfficeAddress   {
     return locality;
   }
 
-  public PrincipalOfficeAddress setLocality(String locality) {
+  public void setLocality(String locality) {
     this.locality = locality;
+  }
+
+  public DeltaUsualResidentialAddress poBox(String poBox) {
+    this.poBox = poBox;
     return this;
   }
 
@@ -89,8 +108,12 @@ public class PrincipalOfficeAddress   {
     return poBox;
   }
 
-  public PrincipalOfficeAddress setPoBox(String poBox) {
+  public void setPoBox(String poBox) {
     this.poBox = poBox;
+  }
+
+  public DeltaUsualResidentialAddress postalCode(String postalCode) {
+    this.postalCode = postalCode;
     return this;
   }
 
@@ -98,8 +121,12 @@ public class PrincipalOfficeAddress   {
     return postalCode;
   }
 
-  public PrincipalOfficeAddress setPostalCode(String postalCode) {
+  public void setPostalCode(String postalCode) {
     this.postalCode = postalCode;
+  }
+
+  public DeltaUsualResidentialAddress premises(String premises) {
+    this.premises = premises;
     return this;
   }
 
@@ -107,8 +134,12 @@ public class PrincipalOfficeAddress   {
     return premises;
   }
 
-  public PrincipalOfficeAddress setPremises(String premises) {
+  public void setPremises(String premises) {
     this.premises = premises;
+  }
+
+  public DeltaUsualResidentialAddress region(String region) {
+    this.region = region;
     return this;
   }
 
@@ -116,9 +147,8 @@ public class PrincipalOfficeAddress   {
     return region;
   }
 
-  public PrincipalOfficeAddress setRegion(String region) {
+  public void setRegion(String region) {
     this.region = region;
-    return this;
   }
 
   @Override
@@ -129,16 +159,16 @@ public class PrincipalOfficeAddress   {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    PrincipalOfficeAddress principalOfficeAddress = (PrincipalOfficeAddress) o;
-    return Objects.equals(this.addressLine1, principalOfficeAddress.addressLine1) &&
-        Objects.equals(this.addressLine2, principalOfficeAddress.addressLine2) &&
-        Objects.equals(this.careOf, principalOfficeAddress.careOf) &&
-        Objects.equals(this.country, principalOfficeAddress.country) &&
-        Objects.equals(this.locality, principalOfficeAddress.locality) &&
-        Objects.equals(this.poBox, principalOfficeAddress.poBox) &&
-        Objects.equals(this.postalCode, principalOfficeAddress.postalCode) &&
-        Objects.equals(this.premises, principalOfficeAddress.premises) &&
-        Objects.equals(this.region, principalOfficeAddress.region);
+    DeltaUsualResidentialAddress usualResidentialAddress = (DeltaUsualResidentialAddress) o;
+    return Objects.equals(this.addressLine1, usualResidentialAddress.addressLine1) &&
+        Objects.equals(this.addressLine2, usualResidentialAddress.addressLine2) &&
+        Objects.equals(this.careOf, usualResidentialAddress.careOf) &&
+        Objects.equals(this.country, usualResidentialAddress.country) &&
+        Objects.equals(this.locality, usualResidentialAddress.locality) &&
+        Objects.equals(this.poBox, usualResidentialAddress.poBox) &&
+        Objects.equals(this.postalCode, usualResidentialAddress.postalCode) &&
+        Objects.equals(this.premises, usualResidentialAddress.premises) &&
+        Objects.equals(this.region, usualResidentialAddress.region);
   }
 
   @Override
@@ -149,7 +179,7 @@ public class PrincipalOfficeAddress   {
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("class PrincipalOfficeAddress {\n");
+    sb.append("class UsualResidentialAddress {\n");
     
     sb.append("    addressLine1: ").append(toIndentedString(addressLine1)).append("\n");
     sb.append("    addressLine2: ").append(toIndentedString(addressLine2)).append("\n");
@@ -175,4 +205,3 @@ public class PrincipalOfficeAddress   {
     return o.toString().replace("\n", "\n    ");
   }
 }
-

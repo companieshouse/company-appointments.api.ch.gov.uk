@@ -13,7 +13,7 @@ public class DeltaAppointmentApi {
     @Field("data")
     private DeltaOfficerData data;
     @Field("sensitive_data")
-    private SensitiveData sensitiveData;
+    private DeltaSensitiveData sensitiveData;
     @Field("internal_id")
     private String internalId;
     @Field("appointment_id")
@@ -38,7 +38,7 @@ public class DeltaAppointmentApi {
     public DeltaAppointmentApi() {
     }
 
-    public DeltaAppointmentApi(String id, String etag, DeltaOfficerData data, SensitiveData sensitiveData, String internalId,
+    public DeltaAppointmentApi(String id, String etag, DeltaOfficerData data, DeltaSensitiveData sensitiveData, String internalId,
                                String appointmentId, String officerId, String previousOfficerId, String companyNumber,
                                InstantAPI updated, String updatedBy, InstantAPI created, String deltaAt, int officerRoleSortOrder) {
         this.id = id;
@@ -81,11 +81,11 @@ public class DeltaAppointmentApi {
         this.data = data;
     }
 
-    public SensitiveData getSensitiveData() {
+    public DeltaSensitiveData getSensitiveData() {
         return sensitiveData;
     }
 
-    public void setSensitiveData(SensitiveData sensitiveData) {
+    public void setSensitiveData(DeltaSensitiveData sensitiveData) {
         this.sensitiveData = sensitiveData;
     }
 
@@ -133,7 +133,7 @@ public class DeltaAppointmentApi {
         return updated;
     }
 
-    public void setUpdatedAt(InstantAPI updated) {
+    public void setUpdated(InstantAPI updated) {
         this.updated = updated;
     }
 

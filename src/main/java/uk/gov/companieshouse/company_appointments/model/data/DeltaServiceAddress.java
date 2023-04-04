@@ -7,7 +7,7 @@ import org.springframework.data.mongodb.core.mapping.Field;
 /**
  * ServiceAddress
  */
-public class ServiceAddress   {
+public class DeltaServiceAddress {
   @Field("address_line_1")
   private String addressLine1;
 
@@ -29,7 +29,7 @@ public class ServiceAddress   {
   @Field("region")
   private String region;
 
-  public ServiceAddress addressLine1(String addressLine1) {
+  public DeltaServiceAddress addressLine1(String addressLine1) {
     this.addressLine1 = addressLine1;
     return this;
   }
@@ -42,7 +42,7 @@ public class ServiceAddress   {
     this.addressLine1 = addressLine1;
   }
 
-  public ServiceAddress addressLine2(String addressLine2) {
+  public DeltaServiceAddress addressLine2(String addressLine2) {
     this.addressLine2 = addressLine2;
     return this;
   }
@@ -55,7 +55,7 @@ public class ServiceAddress   {
     this.addressLine2 = addressLine2;
   }
 
-  public ServiceAddress country(String country) {
+  public DeltaServiceAddress country(String country) {
     this.country = country;
     return this;
   }
@@ -68,7 +68,7 @@ public class ServiceAddress   {
     this.country = country;
   }
 
-  public ServiceAddress locality(String locality) {
+  public DeltaServiceAddress locality(String locality) {
     this.locality = locality;
     return this;
   }
@@ -82,7 +82,7 @@ public class ServiceAddress   {
     this.locality = locality;
   }
 
-  public ServiceAddress postalCode(String postalCode) {
+  public DeltaServiceAddress postalCode(String postalCode) {
     this.postalCode = postalCode;
     return this;
   }
@@ -95,7 +95,7 @@ public class ServiceAddress   {
     this.postalCode = postalCode;
   }
 
-  public ServiceAddress premises(String premises) {
+  public DeltaServiceAddress premises(String premises) {
     this.premises = premises;
     return this;
   }
@@ -108,7 +108,7 @@ public class ServiceAddress   {
     this.premises = premises;
   }
 
-  public ServiceAddress region(String region) {
+  public DeltaServiceAddress region(String region) {
     this.region = region;
     return this;
   }
@@ -129,7 +129,7 @@ public class ServiceAddress   {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    ServiceAddress serviceAddress = (ServiceAddress) o;
+    DeltaServiceAddress serviceAddress = (DeltaServiceAddress) o;
     return Objects.equals(this.addressLine1, serviceAddress.addressLine1) &&
         Objects.equals(this.addressLine2, serviceAddress.addressLine2) &&
         Objects.equals(this.country, serviceAddress.country) &&

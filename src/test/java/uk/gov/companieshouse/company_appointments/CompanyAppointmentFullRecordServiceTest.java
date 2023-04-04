@@ -24,18 +24,22 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.verification.VerificationMode;
 import uk.gov.companieshouse.api.appointment.Data;
-import uk.gov.companieshouse.api.appointment.FullRecordCompanyOfficerApi;
 import uk.gov.companieshouse.api.appointment.DateOfBirth;
 import uk.gov.companieshouse.api.appointment.ExternalData;
+import uk.gov.companieshouse.api.appointment.FullRecordCompanyOfficerApi;
 import uk.gov.companieshouse.api.appointment.InternalData;
-import uk.gov.companieshouse.api.appointment.ItemLinkTypes;
-import uk.gov.companieshouse.api.appointment.OfficerLinkTypes;
 import uk.gov.companieshouse.api.appointment.SensitiveData;
-import uk.gov.companieshouse.api.model.delta.officers.DeltaAppointmentApi;
-import uk.gov.companieshouse.api.model.delta.officers.InstantAPI;
 import uk.gov.companieshouse.company_appointments.exception.NotFoundException;
 import uk.gov.companieshouse.company_appointments.exception.ServiceUnavailableException;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaAppointmentApi;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaAppointmentApiEntity;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaDateOfBirth;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaItemLinkTypes;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaOfficerData;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaOfficerLinkTypes;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaSensitiveData;
+import uk.gov.companieshouse.company_appointments.model.data.InstantAPI;
+import uk.gov.companieshouse.company_appointments.model.transformer.DeltaAppointmentTransformer;
 import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentFullRecordView;
 import uk.gov.companieshouse.company_appointments.repository.CompanyAppointmentFullRecordRepository;
 import uk.gov.companieshouse.company_appointments.service.CompanyAppointmentFullRecordService;
@@ -44,7 +48,6 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
-import java.util.Collections;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -52,6 +55,9 @@ import java.util.stream.Stream;
 class CompanyAppointmentFullRecordServiceTest {
 
     private CompanyAppointmentFullRecordService companyAppointmentService;
+
+    @Mock
+    private DeltaAppointmentTransformer deltaAppointmentTransformer;
 
     @Mock
     private CompanyAppointmentFullRecordRepository companyAppointmentRepository;
@@ -62,7 +68,7 @@ class CompanyAppointmentFullRecordServiceTest {
     @Mock
     private DeltaAppointmentApiEntity deltaAppointmentApiEntity;
 
-    private FullRecordCompanyOfficerApi fullRecordCompanyOfficerApi = buildFullRecordOfficer();;
+    private final FullRecordCompanyOfficerApi fullRecordCompanyOfficerApi = buildFullRecordOfficer();;
 
     private final static String COMPANY_NUMBER = "123456";
 
@@ -90,20 +96,21 @@ class CompanyAppointmentFullRecordServiceTest {
     @BeforeEach
     void setUp() {
         companyAppointmentService =
-                new CompanyAppointmentFullRecordService(companyAppointmentRepository, CLOCK);
+                new CompanyAppointmentFullRecordService(deltaAppointmentTransformer,
+                        companyAppointmentRepository, CLOCK);
     }
 
     @Test
     void testFetchAppointmentReturnsMappedAppointmentData() throws NotFoundException {
         // given
-        Data data = new Data();
-        data.setOfficerRole(Data.OfficerRoleEnum.DIRECTOR);
-        ItemLinkTypes linkItem = new ItemLinkTypes();
-        linkItem.setOfficer(new OfficerLinkTypes());
+        DeltaOfficerData data = new DeltaOfficerData();
+        data.setOfficerRole(DeltaOfficerData.OfficerRoleEnum.DIRECTOR);
+        DeltaItemLinkTypes linkItem = new DeltaItemLinkTypes();
+        linkItem.setOfficer(new DeltaOfficerLinkTypes());
         linkItem.setSelf("self");
-        data.setLinks(Collections.singletonList(linkItem));
+        data.setLinks(linkItem);
         deltaAppointmentApiEntity = new DeltaAppointmentApiEntity(
-                new DeltaAppointmentApi("id", "etag", data, new SensitiveData(), "internalId",
+                new DeltaAppointmentApi("id", "etag", data, new DeltaSensitiveData(), "internalId",
                         "appointmentId", "officerId", "previousOfficerId", "companyNumber",
                         instantAPI, "updatedBy", instantAPI, "deltaAt", 22));
 
@@ -131,10 +138,10 @@ class CompanyAppointmentFullRecordServiceTest {
     @Test
     void testPutAppointmentData() throws ServiceUnavailableException {
         // given
-        Data data = new Data();
-        data.setOfficerRole(Data.OfficerRoleEnum.DIRECTOR);
-        SensitiveData sensitiveData = new SensitiveData();
-        sensitiveData.setDateOfBirth(new DateOfBirth());
+        DeltaOfficerData data = new DeltaOfficerData();
+        data.setOfficerRole(DeltaOfficerData.OfficerRoleEnum.DIRECTOR);
+        DeltaSensitiveData sensitiveData = new DeltaSensitiveData();
+        sensitiveData.setDateOfBirth(new DeltaDateOfBirth());
         deltaAppointmentApiEntity = new DeltaAppointmentApiEntity(
                 new DeltaAppointmentApi("id", "etag", data, sensitiveData, "internalId", "id", "officerId",
                         "previousOfficerId", "companyNumber", null,"updatedBy", null, "2022-01-12T00:00Z", 22));
@@ -160,8 +167,8 @@ class CompanyAppointmentFullRecordServiceTest {
         // given
         fullRecordCompanyOfficerApi.getInternalData().setDeltaAt(incomingDeltaAt);
 
-        Data data = new Data();
-        SensitiveData sensitiveData = new SensitiveData();
+        DeltaOfficerData data = new DeltaOfficerData();
+        DeltaSensitiveData sensitiveData = new DeltaSensitiveData();
         String expectedCompanyNumber = "companyNumber";
         String expectedId = "id";
 
@@ -228,5 +235,4 @@ class CompanyAppointmentFullRecordServiceTest {
         output.setInternalData(internalData);
         return output;
     }
-
 }
