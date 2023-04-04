@@ -1,0 +1,59 @@
+db.getCollection("appointments").aggregate([
+
+    {
+        $match: {
+            $and: [
+                { 'officer_id': '_c2mqo8zkGw2VgK4wETDargF8x4' },
+                {
+                    $or: [
+                        { 'data.resigned_on': { $exists: false } },
+                        { 'data.resigned_on': { $not: { $exists: false } } }
+                    ]
+                },
+                { 'company_status': { $nin: [] } }
+            ]
+        }
+    },
+    {
+        $addFields: {
+            '__sort_active__': { $ifNull: ['$data.appointed_on', { $toDate: '$data.appointed_before' }]}
+        }
+    },
+    {
+        $facet: {
+            'active': [
+                {
+                    $match: { 'data.resigned_on': { $exists: false } }
+                },
+                {
+                    $sort: {
+                        '__sort_active__': -1
+                    }
+                }
+            ],
+            'resigned': [
+                {
+                    $match: { 'data.resigned_on': { $exists: true } }
+                },
+                {
+                    $sort: {
+                        'data.resigned_on': -1
+                    }
+                }
+            ],
+            'total_results': [{ '$count': 'count' }]
+        }
+    },
+    {
+        $unwind: {
+            'path': '$total_results',
+            'preserveNullAndEmptyArrays': true
+        }
+    },
+    {
+        $project: {
+            'total_results': { '$ifNull': ['$total_results.count', NumberInt(0)] },
+            'officer_appointments': { $slice: [{ $concatArrays: ['$active', '$resigned']},  0, 35] }
+        }
+    }
+])
