@@ -18,10 +18,13 @@ import org.bson.Document;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.SimpleMongoClientDatabaseFactory;
 import org.springframework.http.HttpHeaders;
@@ -36,6 +39,7 @@ import uk.gov.companieshouse.api.appointment.PatchAppointmentNameStatusApi;
 import uk.gov.companieshouse.company_appointments.CompanyAppointmentsApplication;
 import uk.gov.companieshouse.company_appointments.api.ResourceChangedApiService;
 import uk.gov.companieshouse.company_appointments.exception.ServiceUnavailableException;
+import uk.gov.companieshouse.company_appointments.repository.CompanyAppointmentFullRecordRepository;
 
 @Testcontainers
 @AutoConfigureMockMvc
@@ -294,6 +298,26 @@ class CompanyAppointmentControllerITest {
                 .header(ERIC_IDENTITY_TYPE, "key")
                 .header(ERIC_AUTHORISED_KEY_PRIVILEGES, "internal-app")
                 .content(objectMapper.writeValueAsString(requestBody)))
+                .andExpect(status().isServiceUnavailable());
+    }
+
+    @Test
+    @DisplayName("Patch endpoint returns 503 service unavailable when resource changed endpoint cannot connect to CHS Kafka Api")
+    void testPatchNewAppointmentCompanyNameStatusApiIllegalArgumentException() throws Exception {
+
+        when(resourceChangedApiService.invokeChsKafkaApi(any())).thenThrow(IllegalArgumentException.class);
+
+        PatchAppointmentNameStatusApi requestBody = new PatchAppointmentNameStatusApi()
+                .companyName("company name")
+                .companyStatus("active");
+
+        mockMvc.perform(patch("/company/{company_number}/appointments/{appointment_id}", COMPANY_NUMBER, APPOINTMENT_ID)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(X_REQUEST_ID, "5342342")
+                        .header(ERIC_IDENTITY, "SOME_IDENTITY")
+                        .header(ERIC_IDENTITY_TYPE, "key")
+                        .header(ERIC_AUTHORISED_KEY_PRIVILEGES, "internal-app")
+                        .content(objectMapper.writeValueAsString(requestBody)))
                 .andExpect(status().isServiceUnavailable());
     }
 }

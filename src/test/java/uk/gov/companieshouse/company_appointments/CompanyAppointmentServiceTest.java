@@ -8,6 +8,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.function.Executable;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.data.domain.Sort;
 
 import uk.gov.companieshouse.company_appointments.api.ResourceChangedApiService;
@@ -502,6 +504,23 @@ class CompanyAppointmentServiceTest {
     }
 
     @Test
+    @DisplayName("Should throw service unavailable exception when cannot connect to CHS Kafka API")
+    void testIllegalArgumentException() throws ServiceUnavailableException {
+        // given
+        when(companyStatusValidator.isValidCompanyStatus(anyString())).thenReturn(true);
+        when(resourceChangedApiService.invokeChsKafkaApi(any())).thenThrow(IllegalArgumentException.class);
+
+        // when
+        Executable executable = () -> companyAppointmentService.patchNewAppointmentCompanyNameStatus(COMPANY_NUMBER, APPOINTMENT_ID, COMPANY_NAME, OPEN_STATUS, CONTEXT_ID);
+
+        // then
+        assertThrows(ServiceUnavailableException.class, executable);
+        verify(companyStatusValidator).isValidCompanyStatus(OPEN_STATUS);
+        verify(resourceChangedApiService).invokeChsKafkaApi(new ResourceChangedRequest(CONTEXT_ID, COMPANY_NUMBER, APPOINTMENT_ID, null, false));
+        verifyNoInteractions(fullRecordAppointmentRepository);
+    }
+
+    @Test
     void testNotFoundExceptionThrownWhenAppointmentIsNotPresent() throws ServiceUnavailableException {
         // given
         when(companyStatusValidator.isValidCompanyStatus(OPEN_STATUS)).thenReturn(true);
@@ -512,11 +531,29 @@ class CompanyAppointmentServiceTest {
 
         // then
         NotFoundException exception = assertThrows(NotFoundException.class, executable);
-        assertEquals("Appointment [345678] for company [123456] not found", exception.getMessage());
+        assertEquals("Appointment [345678] for company [123456] not found during PATCH request", exception.getMessage());
         verify(companyStatusValidator).isValidCompanyStatus(OPEN_STATUS);
         verify(resourceChangedApiService).invokeChsKafkaApi(new ResourceChangedRequest(CONTEXT_ID, COMPANY_NUMBER, APPOINTMENT_ID, null, false));
         verify(fullRecordAppointmentRepository).patchAppointmentNameStatus(any(), any(), any(), any(), any());
     }
+
+    @Test
+    @DisplayName("Should throw service unavailable exception when MongoDB is unavailable")
+    void testMongoUnavailable() throws ServiceUnavailableException {
+        // given
+        when(companyStatusValidator.isValidCompanyStatus(anyString())).thenReturn(true);
+        when(fullRecordAppointmentRepository.patchAppointmentNameStatus(any(), any(), any(), any(), any())).thenThrow(DataAccessResourceFailureException.class);
+
+        // when
+        Executable executable = () -> companyAppointmentService.patchNewAppointmentCompanyNameStatus(COMPANY_NUMBER, APPOINTMENT_ID, COMPANY_NAME, OPEN_STATUS, CONTEXT_ID);
+
+        // then
+        assertThrows(ServiceUnavailableException.class, executable);
+        verify(companyStatusValidator).isValidCompanyStatus(OPEN_STATUS);
+        verify(resourceChangedApiService).invokeChsKafkaApi(new ResourceChangedRequest(CONTEXT_ID, COMPANY_NUMBER, APPOINTMENT_ID, null, false));
+        verify(fullRecordAppointmentRepository).patchAppointmentNameStatus(any(), any(), any(), any(), any());
+    }
+
 
     private OfficerData.Builder officerData() {
         return OfficerData.builder()

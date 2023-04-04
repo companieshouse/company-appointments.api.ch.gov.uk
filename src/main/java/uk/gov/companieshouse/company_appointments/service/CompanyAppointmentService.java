@@ -4,6 +4,7 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 
 import java.time.Clock;
 import java.time.Instant;
+import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import uk.gov.companieshouse.GenerateEtagUtil;
@@ -129,18 +130,22 @@ public class CompanyAppointmentService {
 
         LOGGER.debug(String.format("Patching company name: [%s] and company status [%s] for company [%s] with appointment [%s]",
                 companyName, companyNumber, companyNumber, appointmentId));
+        try {
+            resourceChangedApiService.invokeChsKafkaApi(new ResourceChangedRequest(contextId, companyNumber, appointmentId, null, false));
+            LOGGER.debug(String.format("ChsKafka api CHANGED invoked updated successfully for context id: %s and company number: %s",
+                    contextId,
+                    companyNumber));
 
-        resourceChangedApiService.invokeChsKafkaApi(new ResourceChangedRequest(contextId, companyNumber, appointmentId, null, false));
-        LOGGER.debug(String.format("ChsKafka api CHANGED invoked updated successfully for context id: %s and company number: %s",
-                contextId,
-                companyNumber));
-
-        boolean isUpdated = fullRecordAppointmentRepository.patchAppointmentNameStatus(appointmentId, companyName, companyStatus, Instant.now(clock), GenerateEtagUtil.generateEtag()) == 1L;
-
-        if (!isUpdated) {
-            throw new NotFoundException(String.format("Appointment [%s] for company [%s] not found", appointmentId, companyNumber));
+            boolean isUpdated = fullRecordAppointmentRepository.patchAppointmentNameStatus(appointmentId, companyName, companyStatus, Instant.now(clock), GenerateEtagUtil.generateEtag()) == 1L;
+            if (!isUpdated) {
+                throw new NotFoundException(String.format("Appointment [%s] for company [%s] not found during PATCH request", appointmentId, companyNumber));
+            }
+            LOGGER.debug(String.format("Appointment [%s] for company [%s] updated successfully", appointmentId, companyNumber));
+        } catch (IllegalArgumentException ex) {
+            throw new ServiceUnavailableException("Error calling CHS Kafka Api");
+        } catch (DataAccessException ex) {
+            throw new ServiceUnavailableException("Error connecting to MongoDB");
         }
-        LOGGER.debug(String.format("Appointment [%s] for company [%s] updated successfully", appointmentId, companyNumber));
     }
 
     private List<CompanyAppointmentView> addPagingAndStartIndex(List<CompanyAppointmentView> companyAppointmentViews, Integer startIndex, Integer itemsPerPage) throws NotFoundException {
