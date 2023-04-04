@@ -1,8 +1,9 @@
 package uk.gov.companieshouse.company_appointments.service;
 
+import static org.apache.commons.lang3.StringUtils.isBlank;
+
 import java.time.Clock;
 import java.time.Instant;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import uk.gov.companieshouse.GenerateEtagUtil;
@@ -119,7 +120,7 @@ public class CompanyAppointmentService {
 
     public void patchNewAppointmentCompanyNameStatus(String companyNumber, String appointmentId, String companyName,
             String companyStatus, String contextId) throws BadRequestException, NotFoundException, ServiceUnavailableException {
-        if (isRequestFieldEmpty(companyName) || isRequestFieldEmpty(companyStatus)) {
+        if (isBlank(companyName) || isBlank(companyStatus)) {
             throw new BadRequestException("Request missing mandatory fields: company name and/or company status");
         }
         if (!companyStatusValidator.isValidCompanyStatus(companyStatus)) {
@@ -169,9 +170,5 @@ public class CompanyAppointmentService {
         }
 
         return companyAppointmentViews;
-    }
-
-    private boolean isRequestFieldEmpty(String field) {
-        return StringUtils.isBlank(field);
     }
 }
