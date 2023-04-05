@@ -53,16 +53,13 @@ class CompanyAppointmentServiceTest {
     private SortMapper sortMapper;
 
     private final static String COMPANY_NUMBER = "123456";
-
     private final static String APPOINTMENT_ID = "345678";
-
     private final static String FILTER = "active";
-
     private final static String ORDER_BY = "surname";
-
     private final static Sort SORT = Sort.by("test");
-
     private final static String REGISTER_TYPE = "directors";
+    private final static String COMPANY_NAME = "ACME LTD";
+    private final static String OPEN_STATUS = "open";
 
     @Captor
     private ArgumentCaptor<Sort> sortCaptor;
@@ -409,6 +406,17 @@ class CompanyAppointmentServiceTest {
                 null, null, true, REGISTER_TYPE);
 
         assertEquals(1, result.getItems().size());
+    }
+
+    @Test
+    void testPatchCompanyNameStatusThrowsUnsupportedOperationException() {
+        // given
+
+        // when
+        Executable executable = () -> companyAppointmentService.patchCompanyNameStatus(COMPANY_NUMBER, COMPANY_NAME, OPEN_STATUS);
+
+        // then
+        assertThrows(UnsupportedOperationException.class, executable);
     }
 
     private OfficerData.Builder officerData() {
