@@ -96,7 +96,8 @@ public class CompanyAppointmentService {
 
     public void patchCompanyNameStatus(String companyNumber, String companyName,
             String companyStatus) throws NotFoundException {
-
+        // TODO: Implementation started as part of pair programming session, to be implemented in DSND-1531
+        throw new UnsupportedOperationException("Method not implemented");
     }
 
     private List<CompanyAppointmentView> addPagingAndStartIndex(List<CompanyAppointmentView> companyAppointmentViews, Integer startIndex, Integer itemsPerPage) throws NotFoundException {
