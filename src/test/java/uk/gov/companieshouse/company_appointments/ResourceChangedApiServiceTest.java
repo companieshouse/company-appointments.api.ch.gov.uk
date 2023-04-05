@@ -114,12 +114,12 @@ class ResourceChangedApiServiceTest {
         return Stream.of(
                 Arguments.of(
                         Named.of("Throws service unavailable exception when response code is HTTP 500",
-                                new ResourceChangedApiServiceTestArgument(503, "Service Unavailable")
+                                new ResourceChangedApiServiceTestArgument(500, "Internal Service Error")
                         )
                 ),
                 Arguments.of(
                         Named.of("Throws service unavailable exception when response code is HTTP 503",
-                                new ResourceChangedApiServiceTestArgument(500, "Internal Service Error")
+                                new ResourceChangedApiServiceTestArgument(503, "Service Unavailable")
                         )
                 ),
                 Arguments.of(

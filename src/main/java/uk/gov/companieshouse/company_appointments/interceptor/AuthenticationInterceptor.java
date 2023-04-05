@@ -52,7 +52,7 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
         String[] privileges = authenticationHelper.getApiKeyPrivileges(request);
 
         return HttpMethod.GET.matches(request.getMethod())
-                || ("Key".equalsIgnoreCase(ericIdentityType)
+                || ("key".equalsIgnoreCase(ericIdentityType)
                 && ArrayUtils.contains(privileges, "internal-app"));
     }
 
