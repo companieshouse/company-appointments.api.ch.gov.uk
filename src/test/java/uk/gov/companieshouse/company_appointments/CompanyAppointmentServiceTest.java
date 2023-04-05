@@ -8,7 +8,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.function.Executable;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.data.domain.Sort;
 
@@ -424,6 +423,18 @@ class CompanyAppointmentServiceTest {
     }
 
     @Test
+    @DisplayName("Test patchCompanyNameStatus throws UnsupportedOperationException")
+    void testUnsupportedOperationException() {
+        // given
+
+        // when
+        Executable executable = () -> companyAppointmentService.patchCompanyNameStatus(COMPANY_NUMBER, COMPANY_NAME, OPEN_STATUS);
+
+        // then
+        assertThrows(UnsupportedOperationException.class, executable);
+    }
+
+    @Test
     @DisplayName("Should update appointment with no exceptions thrown")
     void testSuccessfulUpdate() throws ServiceUnavailableException {
         // given
@@ -553,7 +564,6 @@ class CompanyAppointmentServiceTest {
         verify(resourceChangedApiService).invokeChsKafkaApi(new ResourceChangedRequest(CONTEXT_ID, COMPANY_NUMBER, APPOINTMENT_ID, null, false));
         verify(fullRecordAppointmentRepository).patchAppointmentNameStatus(any(), any(), any(), any(), any());
     }
-
 
     private OfficerData.Builder officerData() {
         return OfficerData.builder()

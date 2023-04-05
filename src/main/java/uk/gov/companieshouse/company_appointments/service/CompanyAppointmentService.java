@@ -116,7 +116,8 @@ public class CompanyAppointmentService {
 
     public void patchCompanyNameStatus(String companyNumber, String companyName,
             String companyStatus) throws NotFoundException {
-
+        // Implementation started as part of pair programming session, to be implemented in DSND-1531
+        throw new UnsupportedOperationException("Method not implemented");
     }
 
     public void patchNewAppointmentCompanyNameStatus(String companyNumber, String appointmentId, String companyName,
