@@ -28,9 +28,11 @@ public class DeltaSensitiveDataTransformer implements Transformative<SensitiveDa
             throws FailedToTransformException {
 
         try {
-            entity.setUsualResidentialAddress(usualResidentialAddressTransformer.transform(
-                    source.getUsualResidentialAddress()));
-            entity.setDateOfBirth(dateOfBirthTransformer.transform(source.getDateOfBirth()));
+            entity.setUsualResidentialAddress(source.getUsualResidentialAddress() != null?
+                    usualResidentialAddressTransformer
+                            .transform(source.getUsualResidentialAddress()) : null);
+            entity.setDateOfBirth(source.getDateOfBirth() != null?
+                    dateOfBirthTransformer.transform(source.getDateOfBirth()) : null);
             entity.setResidentialAddressSameAsServiceAddress(source.getResidentialAddressSameAsServiceAddress());
 
             return entity;

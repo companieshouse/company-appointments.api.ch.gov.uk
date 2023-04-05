@@ -38,7 +38,8 @@ public class DeltaOfficerDataTransformer implements Transformative<Data, DeltaOf
 
         try {
             entity.setPersonNumber(source.getPersonNumber());
-            entity.setServiceAddress(serviceAddressTransformer.transform(source.getServiceAddress()));
+            entity.setServiceAddress(source.getServiceAddress() != null?
+                    serviceAddressTransformer.transform(source.getServiceAddress()) : null);
             entity.setServiceAddressSameAsRegisteredOfficeAddress(
                     source.getServiceAddressSameAsRegisteredOfficeAddress());
             entity.setCountryOfResidence(source.getCountryOfResidence());
@@ -49,9 +50,12 @@ public class DeltaOfficerDataTransformer implements Transformative<Data, DeltaOf
                             itemLinkTypesTransformer.transform(source.getLinks().get(0)) : null);
             entity.setNationality(source.getNationality());
             entity.setOccupation(source.getOccupation());
-            entity.setOfficerRole(OfficerRoleEnum.fromValue(source.getOfficerRole().getValue()));
+            entity.setOfficerRole(source.getOfficerRole() != null?
+                    OfficerRoleEnum.fromValue(source.getOfficerRole().getValue()) : null
+            );
             entity.setSecureOfficer(source.getIsSecureOfficer());
-            entity.setIdentification(identificationTransformer.transform(source.getIdentification()));
+            entity.setIdentification(source.getIdentification() != null?
+                    identificationTransformer.transform(source.getIdentification()) : null);
             entity.setCompanyName(source.getCompanyName());
             entity.setSurname(source.getSurname());
             entity.setForename(source.getForename());
@@ -59,16 +63,20 @@ public class DeltaOfficerDataTransformer implements Transformative<Data, DeltaOf
             entity.setOtherForenames(source.getOtherForenames());
             entity.setTitle(source.getTitle());
             entity.setCompanyNumber(source.getCompanyNumber());
-            entity.setContactDetails(new ContactDetails()
-                    .contactName(source.getContactDetails().getContactName()));
-            entity.setPrincipalOfficeAddress(principalOfficeAddressTransformer.transform(source.getPrincipalOfficeAddress()));
+            entity.setContactDetails(source.getContactDetails() != null?
+                    new ContactDetails()
+                            .contactName(source.getContactDetails().getContactName()) : null);
+            entity.setPrincipalOfficeAddress(source.getPrincipalOfficeAddress() != null?
+                    principalOfficeAddressTransformer.transform(source.getPrincipalOfficeAddress())
+                    : null);
             entity.setResignedOn(source.getResignedOn());
             entity.setResponsibilities(source.getResponsibilities());
-            entity.setFormerNames(source.getFormerNames().stream()
+            entity.setFormerNames(source.getFormerNames() != null?
+                    source.getFormerNames().stream()
                     .map(formerNames -> new DeltaFormerNames()
                             .surname(formerNames.getSurname())
                             .forenames(formerNames.getForenames()))
-                    .collect(Collectors.toList()));
+                    .collect(Collectors.toList()) : null);
 
             return entity;
         } catch (Exception e) {

@@ -6,7 +6,7 @@ import uk.gov.companieshouse.company_appointments.exception.FailedToTransformExc
 import uk.gov.companieshouse.company_appointments.model.data.DeltaDateOfBirth;
 
 @Component
-public class DeltaDateOfBirthTransformer implements Transformative<DateOfBirth, DeltaDateOfBirth> {
+class DeltaDateOfBirthTransformer implements Transformative<DateOfBirth, DeltaDateOfBirth> {
 
     @Override
     public DeltaDateOfBirth factory() {

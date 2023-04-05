@@ -61,112 +61,130 @@ public class DeltaAppointmentApi {
         return id;
     }
 
-    public void setId(String id) {
+    public DeltaAppointmentApi setId(String id) {
         this.id = id;
+        return this;
     }
 
     public String getEtag() {
         return etag;
     }
 
-    public void setEtag(String etag) {
+    public DeltaAppointmentApi setEtag(String etag) {
         this.etag = etag;
+        return this;
     }
 
     public DeltaOfficerData getData() {
         return data;
     }
 
-    public void setData(DeltaOfficerData data) {
+    public DeltaAppointmentApi setData(
+            DeltaOfficerData data) {
         this.data = data;
+        return this;
     }
 
     public DeltaSensitiveData getSensitiveData() {
         return sensitiveData;
     }
 
-    public void setSensitiveData(DeltaSensitiveData sensitiveData) {
+    public DeltaAppointmentApi setSensitiveData(
+            DeltaSensitiveData sensitiveData) {
         this.sensitiveData = sensitiveData;
+        return this;
     }
 
     public String getInternalId() {
         return internalId;
     }
 
-    public void setInternalId(String internalId) {
+    public DeltaAppointmentApi setInternalId(String internalId) {
         this.internalId = internalId;
+        return this;
     }
 
     public String getAppointmentId() {
         return appointmentId;
     }
 
-    public void setAppointmentId(String appointmentId) {
+    public DeltaAppointmentApi setAppointmentId(String appointmentId) {
         this.appointmentId = appointmentId;
+        return this;
     }
 
     public String getOfficerId() {
         return officerId;
     }
 
-    public void setOfficerId(String officerId) {
+    public DeltaAppointmentApi setOfficerId(String officerId) {
         this.officerId = officerId;
+        return this;
     }
 
     public String getPreviousOfficerId() {
         return previousOfficerId;
     }
 
-    public void setPreviousOfficerId(String previousOfficerId) {
+    public DeltaAppointmentApi setPreviousOfficerId(String previousOfficerId) {
         this.previousOfficerId = previousOfficerId;
+        return this;
     }
 
     public String getCompanyNumber() {
         return companyNumber;
     }
 
-    public void setCompanyNumber(String companyNumber) {
+    public DeltaAppointmentApi setCompanyNumber(String companyNumber) {
         this.companyNumber = companyNumber;
+        return this;
     }
 
     public InstantAPI getUpdated() {
         return updated;
     }
 
-    public void setUpdated(InstantAPI updated) {
+    public DeltaAppointmentApi setUpdated(
+            InstantAPI updated) {
         this.updated = updated;
-    }
-
-    public InstantAPI getCreated() {
-        return created;
-    }
-
-    public void setCreated(InstantAPI created) {
-        this.created = created;
-    }
-
-    public String getDeltaAt() {
-        return deltaAt;
-    }
-
-    public void setDeltaAt(String deltaAt) {
-        this.deltaAt = deltaAt;
-    }
-
-    public int getOfficerRoleSortOrder() {
-        return officerRoleSortOrder;
-    }
-
-    public void setOfficerRoleSortOrder(int officerRoleSortOrder) {
-        this.officerRoleSortOrder = officerRoleSortOrder;
+        return this;
     }
 
     public String getUpdatedBy() {
         return updatedBy;
     }
 
-    public void setUpdatedBy(String updatedBy) {
+    public DeltaAppointmentApi setUpdatedBy(String updatedBy) {
         this.updatedBy = updatedBy;
+        return this;
+    }
+
+    public InstantAPI getCreated() {
+        return created;
+    }
+
+    public DeltaAppointmentApi setCreated(
+            InstantAPI created) {
+        this.created = created;
+        return this;
+    }
+
+    public String getDeltaAt() {
+        return deltaAt;
+    }
+
+    public DeltaAppointmentApi setDeltaAt(String deltaAt) {
+        this.deltaAt = deltaAt;
+        return this;
+    }
+
+    public int getOfficerRoleSortOrder() {
+        return officerRoleSortOrder;
+    }
+
+    public DeltaAppointmentApi setOfficerRoleSortOrder(int officerRoleSortOrder) {
+        this.officerRoleSortOrder = officerRoleSortOrder;
+        return this;
     }
 
     @Override

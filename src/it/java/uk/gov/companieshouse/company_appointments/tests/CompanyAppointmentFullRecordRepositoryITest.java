@@ -59,12 +59,16 @@ class CompanyAppointmentFullRecordRepositoryITest {
         long result = repository.patchAppointmentNameStatus(APPOINTMENT_ID, "test name", "test status", at, "etag");
 
         // then
-        assertEquals(1L, result);
-        Optional<DeltaAppointmentApiEntity> actual = repository.findById(APPOINTMENT_ID);
-        assertTrue(actual.isPresent());
-        assertEquals("test name", actual.get().getCompanyName());
-        assertEquals("test status", actual.get().getCompanyStatus());
-        assertEquals(at, actual.get().getUpdated().getAt());
-        assertEquals("etag", actual.get().getEtag());
+        try {
+            assertEquals(1L, result);
+            Optional<DeltaAppointmentApiEntity> actual = repository.findById(APPOINTMENT_ID);
+            assertTrue(actual.isPresent());
+            assertEquals("test name", actual.get().getCompanyName());
+            assertEquals("test status", actual.get().getCompanyStatus());
+            assertEquals(at, actual.get().getUpdated().getAt());
+            assertEquals("etag", actual.get().getEtag());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

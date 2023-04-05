@@ -1,6 +1,7 @@
 package uk.gov.companieshouse.company_appointments.model.transformer;
 
 import org.springframework.stereotype.Component;
+import uk.gov.companieshouse.api.appointment.ExternalData;
 import uk.gov.companieshouse.api.appointment.FullRecordCompanyOfficerApi;
 import uk.gov.companieshouse.api.appointment.InternalData;
 import uk.gov.companieshouse.company_appointments.exception.FailedToTransformException;
@@ -27,14 +28,16 @@ public class DeltaAppointmentTransformer implements Transformative<FullRecordCom
     public DeltaAppointmentApi transform(FullRecordCompanyOfficerApi api, DeltaAppointmentApi entity) throws FailedToTransformException {
 
         try {
-            entity.setData(officerDataTransformer.transform(api.getExternalData().getData()));
-            entity.setSensitiveData(sensitiveDataTransformer.transform(api.getExternalData().getSensitiveData()));
-            entity.setId(api.getExternalData().getAppointmentId());
-            entity.setInternalId(api.getExternalData().getInternalId());
-            entity.setAppointmentId(api.getExternalData().getAppointmentId());
-            entity.setOfficerId(api.getExternalData().getOfficerId());
-            entity.setPreviousOfficerId(api.getExternalData().getPreviousOfficerId());
-            entity.setCompanyNumber(api.getExternalData().getCompanyNumber());
+            ExternalData externalData = api.getExternalData();
+            entity.setData(officerDataTransformer.transform(externalData.getData()));
+            entity.setSensitiveData(externalData.getSensitiveData() != null?
+                    sensitiveDataTransformer.transform(externalData.getSensitiveData()) : null);
+            entity.setId(externalData.getAppointmentId());
+            entity.setInternalId(externalData.getInternalId());
+            entity.setAppointmentId(externalData.getAppointmentId());
+            entity.setOfficerId(externalData.getOfficerId());
+            entity.setPreviousOfficerId(externalData.getPreviousOfficerId());
+            entity.setCompanyNumber(externalData.getCompanyNumber());
             populateInternalFields(entity, api.getInternalData());
 
             return entity;

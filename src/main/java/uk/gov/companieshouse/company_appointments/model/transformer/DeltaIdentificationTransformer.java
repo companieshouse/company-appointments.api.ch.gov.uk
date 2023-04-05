@@ -19,7 +19,8 @@ public class DeltaIdentificationTransformer implements Transformative<Identifica
     public DeltaIdentification transform(Identification source, DeltaIdentification entity) throws FailedToTransformException {
 
         try {
-            entity.setIdentificationType(fromValue(source.getIdentificationType().getValue()));
+            entity.setIdentificationType(source.getIdentificationType() != null?
+                    fromValue(source.getIdentificationType().getValue()) : null);
             entity.setLegalAuthority(source.getLegalAuthority());
             entity.setLegalForm(source.getLegalForm());
             entity.setPlaceRegistered(source.getPlaceRegistered());
