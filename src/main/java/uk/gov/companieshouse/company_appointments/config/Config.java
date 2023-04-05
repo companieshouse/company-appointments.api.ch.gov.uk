@@ -1,5 +1,7 @@
 package uk.gov.companieshouse.company_appointments.config;
 
+import java.time.OffsetDateTime;
+import java.util.function.Supplier;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -41,4 +43,8 @@ public class Config implements WebMvcConfigurer {
         return Clock.systemUTC();
     }
 
+    @Bean
+    public Supplier<String> offsetDateTimeGenerator() {
+        return () -> String.valueOf(OffsetDateTime.now());
+    }
 }

@@ -1,7 +1,9 @@
 package uk.gov.companieshouse.company_appointments;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -17,6 +19,7 @@ import uk.gov.companieshouse.company_appointments.controller.CompanyAppointmentC
 import uk.gov.companieshouse.company_appointments.exception.BadRequestException;
 import uk.gov.companieshouse.company_appointments.exception.NotFoundException;
 import uk.gov.companieshouse.company_appointments.exception.ServiceUnavailableException;
+import uk.gov.companieshouse.company_appointments.model.data.PatchAppointmentNameStatusApi;
 import uk.gov.companieshouse.company_appointments.model.view.AllCompanyAppointmentsView;
 import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentView;
 import uk.gov.companieshouse.company_appointments.service.CompanyAppointmentService;
@@ -24,6 +27,8 @@ import uk.gov.companieshouse.company_appointments.service.CompanyAppointmentServ
 @ExtendWith(MockitoExtension.class)
 public class CompanyAppointmentControllerTest {
 
+    public static final String COMPANY_NAME = "NewCo";
+    public static final String COMPANY_STATUS_ACTIVE = "active";
     private CompanyAppointmentController companyAppointmentController;
 
     @Mock
@@ -136,5 +141,35 @@ public class CompanyAppointmentControllerTest {
 
         assertEquals(HttpStatus.SERVICE_UNAVAILABLE, response.getStatusCode());
         verify(companyAppointmentService).fetchAppointmentsForCompany(COMPANY_NUMBER, "false", null, null, null, true, "directors");
+    }
+
+    @Test
+    void shouldReturnOKForValidRequest() throws Exception {
+        // Given
+
+        // When
+        ResponseEntity<Void> response = companyAppointmentController.patchCompanyNameStatus(
+                COMPANY_NUMBER, new PatchAppointmentNameStatusApi()
+                .companyName(COMPANY_NAME).companyStatus(COMPANY_STATUS_ACTIVE), "contextId");
+        // Then
+        verify(companyAppointmentService).patchCompanyNameStatus(COMPANY_NUMBER, COMPANY_NAME,
+                COMPANY_STATUS_ACTIVE);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+    }
+
+    @Test
+    void shouldReturnNotFoundForMissingCompanyNumber() throws Exception {
+        // Given
+        doThrow(NotFoundException.class)
+                .when(companyAppointmentService).patchCompanyNameStatus(any(), any(), any());
+
+        // When
+        ResponseEntity<Void> response = companyAppointmentController.patchCompanyNameStatus(
+                COMPANY_NUMBER, new PatchAppointmentNameStatusApi()
+                        .companyName(COMPANY_NAME).companyStatus(COMPANY_STATUS_ACTIVE), "contextId");
+        // Then
+        verify(companyAppointmentService).patchCompanyNameStatus(COMPANY_NUMBER, COMPANY_NAME,
+                COMPANY_STATUS_ACTIVE);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
     }
 }
