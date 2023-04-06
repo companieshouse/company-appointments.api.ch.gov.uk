@@ -21,8 +21,7 @@ class DeltaIdentificationTransformerTest {
 
         DeltaIdentification result = transformer.transform(identification);
 
-        assertThat(result.getIdentificationType()).isEqualTo(
-                DeltaIdentification.IdentificationTypeEnum.UK_LIMITED);
+        assertThat(result.getIdentificationType()).isEqualTo("uk-limited");
         assertThat(result.getLegalAuthority()).isEqualTo("legalAuthority");
         assertThat(result.getLegalForm()).isEqualTo("legalForm");
         assertThat(result.getPlaceRegistered()).isEqualTo("placeRegistered");

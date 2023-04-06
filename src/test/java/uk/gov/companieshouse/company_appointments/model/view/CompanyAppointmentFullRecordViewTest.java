@@ -63,7 +63,7 @@ class CompanyAppointmentFullRecordViewTest {
         companyAppointmentDocument.getData().setTitle("Sir");
         companyAppointmentDocument.getData().setNationality("Welsh");
         companyAppointmentDocument.getData().setOccupation("occupation");
-        companyAppointmentDocument.getData().setOfficerRole(DeltaOfficerData.OfficerRoleEnum.DIRECTOR);
+        companyAppointmentDocument.getData().setOfficerRole("director");
         companyAppointmentDocument.getData().setResignedOn(INSTANT_TWO);
         companyAppointmentDocument.setEtag("etag");
         companyAppointmentDocument.getData().setPersonNumber("1234");
@@ -295,7 +295,7 @@ class CompanyAppointmentFullRecordViewTest {
 
     private DeltaIdentification buildIdentification() {
         DeltaIdentification identification = new DeltaIdentification();
-        identification.setIdentificationType(DeltaIdentification.IdentificationTypeEnum.EEA);
+        identification.setIdentificationType("eea");
         identification.setLegalAuthority("Chapter 32");
         identification.setLegalForm("Hong Kong");
         identification.setPlaceRegistered("UK");

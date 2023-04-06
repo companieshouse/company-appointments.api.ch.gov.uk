@@ -62,7 +62,7 @@ class AuthenticationInterceptorsITest {
         companyAppointmentView = CompanyAppointmentView.builder().withName(NAME)
                 .build();
         DeltaOfficerData data = new DeltaOfficerData();
-        data.setOfficerRole(DeltaOfficerData.OfficerRoleEnum.DIRECTOR);
+        data.setOfficerRole("director");
         DeltaItemLinkTypes linkItem = new DeltaItemLinkTypes();
         linkItem.setOfficer(new DeltaOfficerLinkTypes());
         linkItem.setSelf("self");

@@ -1,7 +1,5 @@
 package uk.gov.companieshouse.company_appointments.model.transformer;
 
-import static uk.gov.companieshouse.company_appointments.model.data.DeltaIdentification.IdentificationTypeEnum.fromValue;
-
 import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.api.appointment.Identification;
 import uk.gov.companieshouse.company_appointments.exception.FailedToTransformException;
@@ -20,7 +18,7 @@ public class DeltaIdentificationTransformer implements Transformative<Identifica
 
         try {
             entity.setIdentificationType(source.getIdentificationType() != null?
-                    fromValue(source.getIdentificationType().getValue()) : null);
+                    source.getIdentificationType().getValue() : null);
             entity.setLegalAuthority(source.getLegalAuthority());
             entity.setLegalForm(source.getLegalForm());
             entity.setPlaceRegistered(source.getPlaceRegistered());

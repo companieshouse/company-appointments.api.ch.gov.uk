@@ -106,7 +106,7 @@ class CompanyAppointmentFullRecordServiceTest {
     void testFetchAppointmentReturnsMappedAppointmentData() throws NotFoundException {
         // given
         DeltaOfficerData data = new DeltaOfficerData();
-        data.setOfficerRole(DeltaOfficerData.OfficerRoleEnum.DIRECTOR);
+        data.setOfficerRole("director");
         DeltaItemLinkTypes linkItem = new DeltaItemLinkTypes();
         linkItem.setOfficer(new DeltaOfficerLinkTypes());
         linkItem.setSelf("self");
@@ -144,7 +144,7 @@ class CompanyAppointmentFullRecordServiceTest {
     void testPutAppointmentData() throws Exception {
         // given
         DeltaOfficerData data = new DeltaOfficerData()
-                .setOfficerRole(DeltaOfficerData.OfficerRoleEnum.DIRECTOR);
+                .setOfficerRole("director");
         DeltaSensitiveData sensitiveData = new DeltaSensitiveData()
                 .setDateOfBirth(new DeltaDateOfBirth());
         CompanyAppointmentDocument deltaAppointmentDocument = buildDeltaAppointmentDocument(

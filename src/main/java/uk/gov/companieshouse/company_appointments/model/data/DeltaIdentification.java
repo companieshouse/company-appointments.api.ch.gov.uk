@@ -7,65 +7,22 @@ import org.springframework.data.mongodb.core.mapping.Field;
  * Identification
  */
 public class DeltaIdentification {
-  /**
-   * The officer's identity type
-   */
-  public enum IdentificationTypeEnum {
-    EEA("eea"),
-    
-    NON_EEA("non-eea"),
-    
-    UK_LIMITED("uk-limited"),
-    
-    OTHER_CORPORATE_BODY_OR_FIRM("other-corporate-body-or-firm"),
-    
-    REGISTERED_OVERSEAS_ENTITY_CORPORATE_MANAGING_OFFICER("registered-overseas-entity-corporate-managing-officer");
-
-    private String value;
-
-    IdentificationTypeEnum(String value) {
-      this.value = value;
-    }
-
-    public String getValue() {
-      return value;
-    }
-
-    @Override
-    public String toString() {
-      return String.valueOf(value);
-    }
-
-    public static IdentificationTypeEnum fromValue(String value) {
-      for (IdentificationTypeEnum b : IdentificationTypeEnum.values()) {
-        if (b.value.equals(value)) {
-          return b;
-        }
-      }
-      throw new IllegalArgumentException("Unexpected value '" + value + "'");
-    }
-  }
-
   @Field("identification_type")
-  private IdentificationTypeEnum identificationType;
-
+  private String identificationType;
   @Field("legal_authority")
   private String legalAuthority;
-
   @Field("legal_form")
   private String legalForm;
-
   @Field("place_registered")
   private String placeRegistered;
-
   @Field("registration_number")
   private String registrationNumber;
 
-  public IdentificationTypeEnum getIdentificationType() {
+  public String getIdentificationType() {
     return identificationType;
   }
 
-  public DeltaIdentification setIdentificationType(IdentificationTypeEnum identificationType) {
+  public DeltaIdentification setIdentificationType(String identificationType) {
     this.identificationType = identificationType;
     return this;
   }

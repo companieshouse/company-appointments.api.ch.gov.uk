@@ -198,7 +198,7 @@ class DeltaOfficerDataTransformerTest {
                 .setLinks(deltaItemLinkTypes)
                 .setNationality("British")
                 .setOccupation("occupation")
-                .setOfficerRole(DeltaOfficerData.OfficerRoleEnum.DIRECTOR)
+                .setOfficerRole("director")
                 .setSecureOfficer(false)
                 .setIdentification(deltaIdentification)
                 .setCompanyName("company name")

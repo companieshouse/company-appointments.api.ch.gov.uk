@@ -7,7 +7,6 @@ import uk.gov.companieshouse.company_appointments.exception.FailedToTransformExc
 import uk.gov.companieshouse.company_appointments.model.data.DeltaContactDetails;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaFormerNames;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaOfficerData;
-import uk.gov.companieshouse.company_appointments.model.data.DeltaOfficerData.OfficerRoleEnum;
 
 @Component
 public class DeltaOfficerDataTransformer implements Transformative<Data, DeltaOfficerData> {
@@ -51,7 +50,7 @@ public class DeltaOfficerDataTransformer implements Transformative<Data, DeltaOf
             entity.setNationality(source.getNationality());
             entity.setOccupation(source.getOccupation());
             entity.setOfficerRole(source.getOfficerRole() != null?
-                    OfficerRoleEnum.fromValue(source.getOfficerRole().getValue()) : null
+                    source.getOfficerRole().getValue() : null
             );
             entity.setSecureOfficer(source.getIsSecureOfficer());
             entity.setIdentification(source.getIdentification() != null?

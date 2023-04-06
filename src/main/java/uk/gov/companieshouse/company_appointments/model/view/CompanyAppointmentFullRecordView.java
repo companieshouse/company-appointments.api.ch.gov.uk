@@ -3,7 +3,6 @@ package uk.gov.companieshouse.company_appointments.model.view;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import uk.gov.companieshouse.company_appointments.model.data.DeltaOfficerData;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaFormerNames;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaIdentification;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaItemLinkTypes;
@@ -351,11 +350,9 @@ public class CompanyAppointmentFullRecordView {
             return this;
         }
 
-        public Builder withOfficerRole(DeltaOfficerData.OfficerRoleEnum officerRole) {
+        public Builder withOfficerRole(String officerRole) {
 
-            String officerRoleToString = officerRole.toString();
-
-            buildSteps.add(view -> view.officerRole = officerRoleToString);
+            buildSteps.add(view -> view.officerRole = officerRole);
 
             return this;
         }
