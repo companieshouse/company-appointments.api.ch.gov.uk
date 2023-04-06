@@ -7,7 +7,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -32,6 +31,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -89,12 +89,12 @@ class CompanyAppointmentControllerITest {
                 .accept(MediaType.APPLICATION_JSON));
 
         //then
-        result.andExpect(status().isOk())
-                .andExpect(jsonPath("$.name", is("NOSURNAME, Noname1 Noname2")))
-                .andExpect(jsonPath("$.appointed_on", is("2020-08-26")))
-                .andExpect(jsonPath("$.date_of_birth", not(contains("day"))))
-                .andExpect(jsonPath("$.date_of_birth.year", is(1980)))
-                .andExpect(jsonPath("$.date_of_birth.month", is(1)));
+        result.andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.name", is("NOSURNAME, Noname1 Noname2")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.appointed_on", is("2020-08-26")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.date_of_birth", not(contains("day"))))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.date_of_birth.year", is(1980)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.date_of_birth.month", is(1)));
     }
 
     @Test
@@ -106,7 +106,7 @@ class CompanyAppointmentControllerITest {
                         .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON));
 
         // then
-        result.andExpect(status().isNotFound());
+        result.andExpect(MockMvcResultMatchers.status().isNotFound());
     }
     
     @Test
@@ -118,7 +118,7 @@ class CompanyAppointmentControllerITest {
                         .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON));
 
         // then
-        result.andExpect(status().isUnauthorized());
+        result.andExpect(MockMvcResultMatchers.status().isUnauthorized());
     }
 
     @Test
@@ -131,12 +131,12 @@ class CompanyAppointmentControllerITest {
                 .accept(MediaType.APPLICATION_JSON));
 
         //then
-        result.andExpect(status().isOk())
-                .andExpect(jsonPath("$.items.[0].name", is("Doe, John Forename")))
-                .andExpect(jsonPath("$.items.[1].name", is("NOSURNAME, Noname1 Noname2")))
-                .andExpect(jsonPath("$.active_count", is(1)))
-                .andExpect(jsonPath("$.resigned_count", is(1)))
-                .andExpect(jsonPath("$.total_results", is(2)));
+        result.andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.items.[0].name", is("Doe, John Forename")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.items.[1].name", is("NOSURNAME, Noname1 Noname2")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.active_count", is(1)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.resigned_count", is(1)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.total_results", is(2)));
     }
     @Test
     void testReturn404IfOfficersForCompanyIsNotFound() throws Exception {
@@ -147,7 +147,7 @@ class CompanyAppointmentControllerITest {
                         .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON));
 
         // then
-        result.andExpect(status().isNotFound());
+        result.andExpect(MockMvcResultMatchers.status().isNotFound());
     }
 
     @Test
@@ -160,11 +160,11 @@ class CompanyAppointmentControllerITest {
                 .accept(MediaType.APPLICATION_JSON));
 
         //then
-        result.andExpect(status().isOk())
-                .andExpect(jsonPath("$.items.[0].name", is("NOSURNAME, Noname1 Noname2")))
-                .andExpect(jsonPath("$.active_count", is(1)))
-                .andExpect(jsonPath("$.resigned_count", is(0)))
-                .andExpect(jsonPath("$.total_results", is(1)));
+        result.andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.items.[0].name", is("NOSURNAME, Noname1 Noname2")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.active_count", is(1)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.resigned_count", is(0)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.total_results", is(1)));
     }
 
     @Test
@@ -175,9 +175,9 @@ class CompanyAppointmentControllerITest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON));
 
-        result.andExpect(status().isOk())
-                .andExpect(jsonPath("$.items.[0].name", is("NOSURNAME, Noname1 Noname2")))
-                .andExpect(jsonPath("$.items.[1].name", is("Doe, John Forename")));
+        result.andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.items.[0].name", is("NOSURNAME, Noname1 Noname2")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.items.[1].name", is("Doe, John Forename")));
     }
 
     @Test
@@ -188,9 +188,9 @@ class CompanyAppointmentControllerITest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON));
 
-        result.andExpect(status().isOk())
-                .andExpect(jsonPath("$.items.[0].name", is("Doe, John Forename")))
-                .andExpect(jsonPath("$.items.[1].name", is("NOSURNAME, Noname1 Noname2")));
+        result.andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.items.[0].name", is("Doe, John Forename")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.items.[1].name", is("NOSURNAME, Noname1 Noname2")));
     }
 
     @Test
@@ -201,7 +201,7 @@ class CompanyAppointmentControllerITest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON));
 
-        result.andExpect(status().isBadRequest());
+        result.andExpect(MockMvcResultMatchers.status().isBadRequest());
     }
 
     @Test
@@ -218,8 +218,8 @@ class CompanyAppointmentControllerITest {
                     .header(ERIC_IDENTITY_TYPE, "key")
                     .header(ERIC_AUTHORISED_KEY_PRIVILEGES, "internal-app")
                     .content(objectMapper.writeValueAsString(requestBody)))
-                .andExpect(status().isOk())
-                .andExpect(header().string(HttpHeaders.LOCATION, String.format("/company/%s/appointments/%s", COMPANY_NUMBER, APPOINTMENT_ID)));
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.header().string(HttpHeaders.LOCATION, String.format("/company/%s/appointments/%s", COMPANY_NUMBER, APPOINTMENT_ID)));
     }
 
     @Test
@@ -232,7 +232,7 @@ class CompanyAppointmentControllerITest {
                 .header(ERIC_IDENTITY_TYPE, "key")
                 .header(ERIC_AUTHORISED_KEY_PRIVILEGES, "internal-app")
                 .content(objectMapper.writeValueAsString(new PatchAppointmentNameStatusApi())))
-                .andExpect(status().isBadRequest());
+                .andExpect(MockMvcResultMatchers.status().isBadRequest());
     }
 
     @Test
@@ -249,7 +249,7 @@ class CompanyAppointmentControllerITest {
                 .header(ERIC_IDENTITY_TYPE, "key")
                 .header(ERIC_AUTHORISED_KEY_PRIVILEGES, "internal-app")
                 .content(objectMapper.writeValueAsString(requestBody)))
-                .andExpect(status().isBadRequest());
+                .andExpect(MockMvcResultMatchers.status().isBadRequest());
     }
 
     @Test
@@ -261,7 +261,7 @@ class CompanyAppointmentControllerITest {
                 .header(ERIC_IDENTITY, "SOME_IDENTITY")
                 .header(ERIC_IDENTITY_TYPE, "key")
                 .header(ERIC_AUTHORISED_KEY_PRIVILEGES, "invalid"))
-                .andExpect(status().isForbidden());
+                .andExpect(MockMvcResultMatchers.status().isForbidden());
     }
 
     @Test
@@ -278,7 +278,7 @@ class CompanyAppointmentControllerITest {
                 .header(ERIC_IDENTITY_TYPE, "key")
                 .header(ERIC_AUTHORISED_KEY_PRIVILEGES, "internal-app")
                 .content(objectMapper.writeValueAsString(requestBody)))
-                .andExpect(status().isNotFound());
+                .andExpect(MockMvcResultMatchers.status().isNotFound());
     }
 
     @Test
@@ -298,7 +298,7 @@ class CompanyAppointmentControllerITest {
                 .header(ERIC_IDENTITY_TYPE, "key")
                 .header(ERIC_AUTHORISED_KEY_PRIVILEGES, "internal-app")
                 .content(objectMapper.writeValueAsString(requestBody)))
-                .andExpect(status().isServiceUnavailable());
+                .andExpect(MockMvcResultMatchers.status().isServiceUnavailable());
     }
 
     @Test
@@ -318,6 +318,6 @@ class CompanyAppointmentControllerITest {
                         .header(ERIC_IDENTITY_TYPE, "key")
                         .header(ERIC_AUTHORISED_KEY_PRIVILEGES, "internal-app")
                         .content(objectMapper.writeValueAsString(requestBody)))
-                .andExpect(status().isServiceUnavailable());
+                .andExpect(MockMvcResultMatchers.status().isServiceUnavailable());
     }
 }
