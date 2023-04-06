@@ -45,7 +45,7 @@ class DeltaAppointmentTransformerTest {
         // then
         assertThat(result.getData(), is(expectedDeltaApi.getData()));
         assertThat(result.getDeltaAt(), is(expectedDeltaApi.getDeltaAt()));
-        assertThat(result.getUpdatedAt(), is(expectedDeltaApi.getUpdatedAt()));
+        assertThat(result.getUpdated(), is(expectedDeltaApi.getUpdated()));
         assertThat(result.getUpdatedBy(), is(expectedDeltaApi.getUpdatedBy()));
     }
 

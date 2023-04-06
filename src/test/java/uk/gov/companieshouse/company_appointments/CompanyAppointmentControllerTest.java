@@ -15,11 +15,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import uk.gov.companieshouse.api.appointment.PatchAppointmentNameStatusApi;
 import uk.gov.companieshouse.company_appointments.controller.CompanyAppointmentController;
 import uk.gov.companieshouse.company_appointments.exception.BadRequestException;
 import uk.gov.companieshouse.company_appointments.exception.NotFoundException;
 import uk.gov.companieshouse.company_appointments.exception.ServiceUnavailableException;
-import uk.gov.companieshouse.company_appointments.model.data.PatchAppointmentNameStatusApi;
 import uk.gov.companieshouse.company_appointments.model.view.AllCompanyAppointmentsView;
 import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentView;
 import uk.gov.companieshouse.company_appointments.service.CompanyAppointmentService;
@@ -42,6 +42,7 @@ public class CompanyAppointmentControllerTest {
 
     private final static String COMPANY_NUMBER = "123456";
     private final static String APPOINTMENT_ID = "345678";
+    private final static String CONTEXT_ID = "ABC123";
 
     @BeforeEach
     void setUp() {
@@ -116,6 +117,7 @@ public class CompanyAppointmentControllerTest {
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         verify(companyAppointmentService).fetchAppointmentsForCompany(COMPANY_NUMBER, "false", "invalid", null, null, null, null);
     }
+
     @Test
     void testFetchAppointmentForCompanyWithIndexAndItemsReturns200Status() throws Exception {
 
@@ -150,7 +152,7 @@ public class CompanyAppointmentControllerTest {
         // When
         ResponseEntity<Void> response = companyAppointmentController.patchCompanyNameStatus(
                 COMPANY_NUMBER, new PatchAppointmentNameStatusApi()
-                .companyName(COMPANY_NAME).companyStatus(COMPANY_STATUS_ACTIVE), "contextId");
+                        .companyName(COMPANY_NAME).companyStatus(COMPANY_STATUS_ACTIVE), CONTEXT_ID);
         // Then
         verify(companyAppointmentService).patchCompanyNameStatus(COMPANY_NUMBER, COMPANY_NAME,
                 COMPANY_STATUS_ACTIVE);
@@ -166,10 +168,85 @@ public class CompanyAppointmentControllerTest {
         // When
         ResponseEntity<Void> response = companyAppointmentController.patchCompanyNameStatus(
                 COMPANY_NUMBER, new PatchAppointmentNameStatusApi()
-                        .companyName(COMPANY_NAME).companyStatus(COMPANY_STATUS_ACTIVE), "contextId");
+                        .companyName(COMPANY_NAME).companyStatus(COMPANY_STATUS_ACTIVE), CONTEXT_ID);
         // Then
         verify(companyAppointmentService).patchCompanyNameStatus(COMPANY_NUMBER, COMPANY_NAME,
                 COMPANY_STATUS_ACTIVE);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+    }
+
+    @Test
+    void patchNewAppointmentCompanyNameStatusReturnsOKStatus() throws Exception {
+        // given
+
+        // when
+        ResponseEntity<Void> response = companyAppointmentController.patchNewAppointmentCompanyNameStatus(
+                COMPANY_NUMBER, APPOINTMENT_ID,
+                new PatchAppointmentNameStatusApi().companyName(COMPANY_NAME).companyStatus(COMPANY_STATUS_ACTIVE),
+                CONTEXT_ID);
+
+        // then
+        verify(companyAppointmentService).patchNewAppointmentCompanyNameStatus(COMPANY_NUMBER, APPOINTMENT_ID,
+                COMPANY_NAME, COMPANY_STATUS_ACTIVE, CONTEXT_ID);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getHeaders().getLocation()).hasToString(String.format("/company/%s/appointments/%s", COMPANY_NUMBER, APPOINTMENT_ID));
+
+    }
+
+    @Test
+    void patchNewAppointmentCompanyNameStatusReturnsBadRequestStatus() throws Exception {
+        // given
+        doThrow(BadRequestException.class)
+                .when(companyAppointmentService).patchNewAppointmentCompanyNameStatus(any(), any(), any(), any(), any());
+
+        // when
+        ResponseEntity<Void> response = companyAppointmentController.patchNewAppointmentCompanyNameStatus(
+                COMPANY_NUMBER, APPOINTMENT_ID,
+                new PatchAppointmentNameStatusApi().companyName(COMPANY_NAME).companyStatus(COMPANY_STATUS_ACTIVE),
+                CONTEXT_ID);
+
+        // then
+        verify(companyAppointmentService).patchNewAppointmentCompanyNameStatus(COMPANY_NUMBER, APPOINTMENT_ID,
+                COMPANY_NAME, COMPANY_STATUS_ACTIVE, CONTEXT_ID);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(response.getHeaders().getLocation()).isNull();
+    }
+
+    @Test
+    void patchNewAppointmentCompanyNameStatusReturnsNotFoundStatus() throws Exception {
+        // given
+        doThrow(NotFoundException.class)
+                .when(companyAppointmentService).patchNewAppointmentCompanyNameStatus(any(), any(), any(), any(), any());
+
+        // when
+        ResponseEntity<Void> response = companyAppointmentController.patchNewAppointmentCompanyNameStatus(
+                COMPANY_NUMBER, APPOINTMENT_ID,
+                new PatchAppointmentNameStatusApi().companyName(COMPANY_NAME).companyStatus(COMPANY_STATUS_ACTIVE),
+                CONTEXT_ID);
+
+        // then
+        verify(companyAppointmentService).patchNewAppointmentCompanyNameStatus(COMPANY_NUMBER, APPOINTMENT_ID,
+                COMPANY_NAME, COMPANY_STATUS_ACTIVE, CONTEXT_ID);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(response.getHeaders().getLocation()).isNull();
+    }
+
+    @Test
+    void patchNewAppointmentCompanyNameStatusReturnsInternalServerErrorStatus() throws Exception {
+        // given
+        doThrow(ServiceUnavailableException.class)
+                .when(companyAppointmentService).patchNewAppointmentCompanyNameStatus(any(), any(), any(), any(), any());
+
+        // when
+        ResponseEntity<Void> response = companyAppointmentController.patchNewAppointmentCompanyNameStatus(
+                COMPANY_NUMBER, APPOINTMENT_ID,
+                new PatchAppointmentNameStatusApi().companyName(COMPANY_NAME).companyStatus(COMPANY_STATUS_ACTIVE),
+                CONTEXT_ID);
+
+        // then
+        verify(companyAppointmentService).patchNewAppointmentCompanyNameStatus(COMPANY_NUMBER, APPOINTMENT_ID,
+                COMPANY_NAME, COMPANY_STATUS_ACTIVE, CONTEXT_ID);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.SERVICE_UNAVAILABLE);
+        assertThat(response.getHeaders().getLocation()).isNull();
     }
 }

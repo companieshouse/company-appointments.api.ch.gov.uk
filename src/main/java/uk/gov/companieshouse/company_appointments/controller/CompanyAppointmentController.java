@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.company_appointments.controller;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -10,16 +11,18 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import uk.gov.companieshouse.api.appointment.PatchAppointmentNameStatusApi;
 import uk.gov.companieshouse.company_appointments.CompanyAppointmentsApplication;
 import uk.gov.companieshouse.company_appointments.exception.BadRequestException;
 import uk.gov.companieshouse.company_appointments.exception.NotFoundException;
 import uk.gov.companieshouse.company_appointments.exception.ServiceUnavailableException;
-import uk.gov.companieshouse.company_appointments.model.data.PatchAppointmentNameStatusApi;
 import uk.gov.companieshouse.company_appointments.model.view.AllCompanyAppointmentsView;
 import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentView;
 import uk.gov.companieshouse.company_appointments.service.CompanyAppointmentService;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.logging.LoggerFactory;
+
+import javax.validation.Valid;
 
 @Controller
 @RequestMapping(path = "/company/{company_number}", produces = "application/json")
@@ -55,10 +58,10 @@ public class CompanyAppointmentController {
 
         try {
             return ResponseEntity.ok(companyAppointmentService.fetchAppointmentsForCompany(companyNumber, filter, orderBy, startIndex, itemsPerPage, registerView, registerType));
-        } catch(NotFoundException e) {
+        } catch (NotFoundException e) {
             LOGGER.info(e.getMessage());
             return ResponseEntity.notFound().build();
-        } catch(BadRequestException e) {
+        } catch (BadRequestException e) {
             LOGGER.info(e.getMessage());
             return ResponseEntity.badRequest().build();
         } catch (ServiceUnavailableException e) {
@@ -80,6 +83,30 @@ public class CompanyAppointmentController {
             LOGGER.info(String.format("No appointments found for companyNumber %s, contextId %s",
                     companyNumber, contextId));
             return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PatchMapping(path = "/appointments/{appointment_id}")
+    public ResponseEntity<Void> patchNewAppointmentCompanyNameStatus(
+            @PathVariable("company_number") String companyNumber,
+            @PathVariable("appointment_id") String appointmentId,
+            @Valid @RequestBody PatchAppointmentNameStatusApi requestBody,
+            @RequestHeader("x-request-id") String contextId) {
+        try {
+            companyAppointmentService.patchNewAppointmentCompanyNameStatus(companyNumber, appointmentId,
+                    requestBody.getCompanyName(), requestBody.getCompanyStatus(), contextId);
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.LOCATION, String.format("/company/%s/appointments/%s", companyNumber, appointmentId))
+                    .build();
+        } catch (BadRequestException e) {
+            LOGGER.info(e.getMessage());
+            return ResponseEntity.badRequest().build();
+        } catch (NotFoundException e) {
+            LOGGER.info(e.getMessage());
+            return ResponseEntity.notFound().build();
+        } catch (ServiceUnavailableException e) {
+            LOGGER.info(e.getMessage());
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();
         }
     }
 }
