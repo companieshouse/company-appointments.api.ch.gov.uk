@@ -10,6 +10,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.SimpleMongoClientDatabaseFactory;
@@ -84,7 +85,7 @@ class CompanyAppointmentFullRecordControllerMongoUnavailableITest {
     @Test
     @DisplayName("Put endpoint returns 503 service unavailable when MongoDB is unavailable")
     void testPutNewAppointmentCompanyNameStatusMongoUnavailable() throws Exception {
-        when(fullRecordRepository.insertOrUpdate(any())).thenThrow(DataAccessResourceFailureException.class);
+        when(fullRecordRepository.insertOrUpdate(any())).thenThrow(new DataAccessException("..."){ });
 
         FullRecordCompanyOfficerApi requestBody = new  FullRecordCompanyOfficerApi();
 
@@ -101,7 +102,7 @@ class CompanyAppointmentFullRecordControllerMongoUnavailableITest {
     @Test
     @DisplayName("Delete endpoint returns 503 service unavailable when MongoDB is unavailable")
     void testDeleteNewAppointmentCompanyNameStatusMongoUnavailable() throws Exception {
-        when(fullRecordRepository.readByCompanyNumberAndID(any(), any())).thenThrow(DataAccessResourceFailureException.class);
+        when(fullRecordRepository.readByCompanyNumberAndID(any(), any())).thenThrow(new DataAccessException("..."){ });
         
         mockMvc.perform(delete(FULL_RECORD_DELETE_ENDPOINT, COMPANY_NUMBER, APPOINTMENT_ID)
                         .contentType(MediaType.APPLICATION_JSON)

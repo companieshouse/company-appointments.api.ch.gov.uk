@@ -57,8 +57,6 @@ public class CompanyAppointmentFullRecordService {
     }
 
     public void upsertAppointmentDelta(String contextId, final FullRecordCompanyOfficerApi requestBody) throws ServiceUnavailableException {
-
-            // TODO should one big try catch or two try catch blocks be used?
             DeltaAppointmentTransformer deltaAppointmentTransformer = new DeltaAppointmentTransformer();
             DeltaAppointmentApi deltaAppointmentApi;
             try {

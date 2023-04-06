@@ -11,7 +11,7 @@ Feature: Delete full record officer information
 
     Scenario: Record not found in database
       Given the user is authenticated and authorised with internal app privileges
-      And the record is not present in the database
+      And the record is not present in the delta_appointment database
       When a request is sent to the DELETE endpoint to delete an officer
       Then I should receive a 404 status code
 

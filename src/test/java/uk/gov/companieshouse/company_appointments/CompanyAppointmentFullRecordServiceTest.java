@@ -13,6 +13,7 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.verification.VerificationMode;
+import org.springframework.dao.DataAccessException;
 import uk.gov.companieshouse.api.appointment.Data;
 import uk.gov.companieshouse.api.appointment.DateOfBirth;
 import uk.gov.companieshouse.api.appointment.ExternalData;
@@ -31,7 +32,6 @@ import uk.gov.companieshouse.company_appointments.model.data.DeltaAppointmentApi
 import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentFullRecordView;
 import uk.gov.companieshouse.company_appointments.repository.CompanyAppointmentFullRecordRepository;
 import uk.gov.companieshouse.company_appointments.service.CompanyAppointmentFullRecordService;
-import uk.gov.companieshouse.company_appointments.util.DeltaDateValidator;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -70,8 +70,6 @@ class CompanyAppointmentFullRecordServiceTest {
 
     private FullRecordCompanyOfficerApi fullRecordCompanyOfficerApi = buildFullRecordOfficer();;
 
-    @Mock
-    private DeltaDateValidator deltaDateValidator;
 
     private final static String COMPANY_NUMBER = "123456";
     private final static String APPOINTMENT_ID = "345678";
@@ -144,6 +142,19 @@ class CompanyAppointmentFullRecordServiceTest {
         assertNotNull(captor.getValue().getEtag());
     }
 
+    @Test
+    void testPutAppointmentDataThrowsServiceUnavailableException() throws ServiceUnavailableException {
+        // given
+        when(companyAppointmentRepository.readByCompanyNumberAndID(any(),
+                any())).thenThrow(new DataAccessException("..."){ });
+
+        // When
+        Executable executable = () -> companyAppointmentService.upsertAppointmentDelta(CONTEXT_ID, fullRecordCompanyOfficerApi);
+
+        // then
+        assertThrows(ServiceUnavailableException.class, executable);
+    }
+
     @ParameterizedTest
     @MethodSource("deltaAtTestCases")
     void testRejectStaleDelta(
@@ -211,6 +222,19 @@ class CompanyAppointmentFullRecordServiceTest {
         Executable executable = () -> companyAppointmentService.deleteAppointmentDelta(CONTEXT_ID, COMPANY_NUMBER, APPOINTMENT_ID);
 
         assertThrows(NotFoundException.class, executable);
+    }
+
+    @Test
+    void testDeleteAppointmentDataThrowsServiceUnavailableException() {
+        // given
+        when(companyAppointmentRepository.readByCompanyNumberAndID(any(),
+                any())).thenThrow(new DataAccessException("..."){ });
+
+        // When
+        Executable executable = () -> companyAppointmentService.deleteAppointmentDelta(CONTEXT_ID, COMPANY_NUMBER, APPOINTMENT_ID);
+
+        // then
+        assertThrows(ServiceUnavailableException.class, executable);
     }
 
     private FullRecordCompanyOfficerApi buildFullRecordOfficer() {
