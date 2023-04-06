@@ -436,7 +436,7 @@ class CompanyAppointmentServiceTest {
 
     @Test
     @DisplayName("Should update appointment with no exceptions thrown")
-    void testEndpointSuccessfulUpdate() throws ServiceUnavailableException {
+    void patchNewAppointmentNameStatusSuccessfulUpdate() throws ServiceUnavailableException {
         // given
         when(companyStatusValidator.isValidCompanyStatus(anyString())).thenReturn(true);
         when(fullRecordAppointmentRepository.patchAppointmentNameStatus(anyString(), anyString(), anyString(), any(), anyString())).thenReturn(1L);
@@ -453,7 +453,7 @@ class CompanyAppointmentServiceTest {
 
     @Test
     @DisplayName("Should throw bad request exception when company name is missing from request")
-    void testEndpointMissingCompanyName() {
+    void patchNewAppointmentNameStatusMissingCompanyName() {
         // given
 
         // when
@@ -469,7 +469,7 @@ class CompanyAppointmentServiceTest {
 
     @Test
     @DisplayName("Should throw bad request exception when company status is missing from request")
-    void testEndpointMissingCompanyStatus() {
+    void patchNewAppointmentNameStatusMissingCompanyStatus() {
         // given
 
         // when
@@ -485,7 +485,7 @@ class CompanyAppointmentServiceTest {
 
     @Test
     @DisplayName("Should throw bad request exception when invalid company status is provided from request")
-    void testEndpointInvalidCompanyStatus() {
+    void patchNewAppointmentNameStatusInvalidCompanyStatus() {
         // given
         when(companyStatusValidator.isValidCompanyStatus(FAKE_STATUS)).thenReturn(false);
 
@@ -502,7 +502,7 @@ class CompanyAppointmentServiceTest {
 
     @Test
     @DisplayName("Should throw service unavailable exception when resource changed endpoint is unavailable")
-    void testEndpointResourceChangedUnavailable() throws ServiceUnavailableException {
+    void patchNewAppointmentNameStatusResourceChangedUnavailable() throws ServiceUnavailableException {
         // given
         when(companyStatusValidator.isValidCompanyStatus(anyString())).thenReturn(true);
         when(resourceChangedApiService.invokeChsKafkaApi(any())).thenThrow(ServiceUnavailableException.class);
@@ -519,7 +519,7 @@ class CompanyAppointmentServiceTest {
 
     @Test
     @DisplayName("Should throw service unavailable exception when cannot connect to CHS Kafka API")
-    void testEndpointChsKafkaError() throws ServiceUnavailableException {
+    void patchNewAppointmentNameStatusChsKafkaError() throws ServiceUnavailableException {
         // given
         when(companyStatusValidator.isValidCompanyStatus(anyString())).thenReturn(true);
         when(resourceChangedApiService.invokeChsKafkaApi(any())).thenThrow(IllegalArgumentException.class);
@@ -536,7 +536,7 @@ class CompanyAppointmentServiceTest {
 
     @Test
     @DisplayName("Should throw not found exception when cannot locate existing appointment")
-    void testEndpointMissingAppointment() throws ServiceUnavailableException {
+    void patchNewAppointmentNameStatusMissingAppointment() throws ServiceUnavailableException {
         // given
         when(companyStatusValidator.isValidCompanyStatus(OPEN_STATUS)).thenReturn(true);
         when(fullRecordAppointmentRepository.patchAppointmentNameStatus(anyString(), anyString(), anyString(), any(), anyString())).thenReturn(0L);
@@ -554,7 +554,7 @@ class CompanyAppointmentServiceTest {
 
     @Test
     @DisplayName("Should throw service unavailable exception when MongoDB is unavailable")
-    void testEndpointMongoUnavailable() throws ServiceUnavailableException {
+    void patchNewAppointmentNameStatusMongoUnavailable() throws ServiceUnavailableException {
         // given
         when(companyStatusValidator.isValidCompanyStatus(anyString())).thenReturn(true);
         when(fullRecordAppointmentRepository.patchAppointmentNameStatus(any(), any(), any(), any(), any())).thenThrow(DataAccessResourceFailureException.class);
