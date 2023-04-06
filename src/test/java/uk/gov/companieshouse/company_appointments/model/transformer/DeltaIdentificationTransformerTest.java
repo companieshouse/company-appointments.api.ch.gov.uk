@@ -1,11 +1,9 @@
 package uk.gov.companieshouse.company_appointments.model.transformer;
 
-import static org.junit.jupiter.api.Assertions.fail;
-import static uk.gov.companieshouse.api.appointment.Identification.IdentificationTypeEnum.UK_LIMITED;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 import org.junit.jupiter.api.Test;
 import uk.gov.companieshouse.api.appointment.Identification;
-import uk.gov.companieshouse.company_appointments.exception.FailedToTransformException;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaIdentification;
 
 class DeltaIdentificationTransformerTest {
@@ -13,9 +11,9 @@ class DeltaIdentificationTransformerTest {
     private final DeltaIdentificationTransformer transformer = new DeltaIdentificationTransformer();
 
     @Test
-    void shouldTransformValidIdentification() throws FailedToTransformException {
+    void shouldTransformValidIdentification() throws Exception {
         Identification identification = new Identification()
-                .identificationType(UK_LIMITED)
+                .identificationType(Identification.IdentificationTypeEnum.UK_LIMITED)
                 .legalAuthority("legalAuthority")
                 .legalForm("legalForm")
                 .placeRegistered("placeRegistered")
@@ -23,17 +21,28 @@ class DeltaIdentificationTransformerTest {
 
         DeltaIdentification result = transformer.transform(identification);
 
-        // TODO
-        //assertThat()
+        assertThat(result.getIdentificationType()).isEqualTo(
+                DeltaIdentification.IdentificationTypeEnum.UK_LIMITED);
+        assertThat(result.getLegalAuthority()).isEqualTo("legalAuthority");
+        assertThat(result.getLegalForm()).isEqualTo("legalForm");
+        assertThat(result.getPlaceRegistered()).isEqualTo("placeRegistered");
+        assertThat(result.getRegistrationNumber()).isEqualTo("registrationNumber");
     }
 
     @Test
-    void shouldTransformWithNullIdentificationType() {
-        fail();
-    }
+    void shouldTransformWithNullIdentificationType() throws Exception {
+        Identification identification = new Identification()
+                .legalAuthority("legalAuthority")
+                .legalForm("legalForm")
+                .placeRegistered("placeRegistered")
+                .registrationNumber("registrationNumber");
 
-    @Test
-    void shouldTransformWithInvalidIdentificationType() {
-        fail();
+        DeltaIdentification result = transformer.transform(identification);
+
+        assertThat(result.getIdentificationType()).isNull();
+        assertThat(result.getLegalAuthority()).isEqualTo("legalAuthority");
+        assertThat(result.getLegalForm()).isEqualTo("legalForm");
+        assertThat(result.getPlaceRegistered()).isEqualTo("placeRegistered");
+        assertThat(result.getRegistrationNumber()).isEqualTo("registrationNumber");
     }
 }
