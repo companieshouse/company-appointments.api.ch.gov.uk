@@ -23,7 +23,7 @@ import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import uk.gov.companieshouse.company_appointments.CompanyAppointmentsApplication;
-import uk.gov.companieshouse.company_appointments.model.data.DeltaAppointmentApiEntity;
+import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentDocument;
 import uk.gov.companieshouse.company_appointments.repository.CompanyAppointmentFullRecordRepository;
 
 @Testcontainers
@@ -61,7 +61,7 @@ class CompanyAppointmentFullRecordRepositoryITest {
         // then
         try {
             assertEquals(1L, result);
-            Optional<DeltaAppointmentApiEntity> actual = repository.findById(APPOINTMENT_ID);
+            Optional<CompanyAppointmentDocument> actual = repository.findById(APPOINTMENT_ID);
             assertTrue(actual.isPresent());
             assertEquals("test name", actual.get().getCompanyName());
             assertEquals("test status", actual.get().getCompanyStatus());

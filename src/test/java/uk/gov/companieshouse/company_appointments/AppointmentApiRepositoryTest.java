@@ -13,8 +13,7 @@ import org.mockito.Captor;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaOfficerData;
-import uk.gov.companieshouse.company_appointments.model.data.DeltaAppointmentApi;
-import uk.gov.companieshouse.company_appointments.model.data.DeltaAppointmentApiEntity;
+import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentDocument;
 import uk.gov.companieshouse.company_appointments.model.data.InstantAPI;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaSensitiveData;
 import uk.gov.companieshouse.company_appointments.repository.CompanyAppointmentFullRecordRepository;
@@ -27,7 +26,7 @@ class AppointmentApiRepositoryTest {
     private CompanyAppointmentFullRecordRepository testRepository;
 
     @Captor
-    private ArgumentCaptor<DeltaAppointmentApiEntity> captor;
+    private ArgumentCaptor<CompanyAppointmentDocument> captor;
 
     private final static Instant CREATED_AT = Instant.parse("2021-08-01T00:00:00.000Z");
     private final static Instant UPDATED_AT = Instant.parse("2021-08-01T00:00:00.000Z");
@@ -38,23 +37,27 @@ class AppointmentApiRepositoryTest {
 
     @Test
     void insertOrUpdate() {
-        final DeltaAppointmentApi appointment = new DeltaAppointmentApi("id", "etag",
-                new DeltaOfficerData(),
-                new DeltaSensitiveData(),
-                "internalId",
-                "appointmentId",
-                "officerId",
-                "previousOfficerId",
-                "companyNumber",
-                new InstantAPI(UPDATED_AT),
-                "updateBy",
-                new InstantAPI(CREATED_AT),
-                "deltaAt",
-                22);
-        final DeltaAppointmentApiEntity expected = new DeltaAppointmentApiEntity(appointment);
-        testRepository.insertOrUpdate(appointment);
+        final CompanyAppointmentDocument document = CompanyAppointmentDocument.Builder.builder()
+                .withId("id")
+                .withEtag("etag")
+                .withData(new DeltaOfficerData())
+                .withSensitiveData(new DeltaSensitiveData())
+                .withInternalId("internalId")
+                .withAppointmentId("appointmentId")
+                .withOfficerId("officerId")
+                .withPreviousOfficerId("previousOfficerId")
+                .withCompanyNumber("companyNumber")
+                .withUpdated(new InstantAPI(UPDATED_AT))
+                .withUpdatedBy("updatedBy")
+                .withCreated(new InstantAPI(CREATED_AT))
+                .withDeltaAt("deltaAt")
+                .withOfficerRoleSortOrder(22)
+                .withCompanyName("company name")
+                .withCompanyStatus("company status")
+                .build();
+        testRepository.insertOrUpdate(document);
 
         verify(testRepository).save(captor.capture());
-        assertThat(captor.getValue(), is(equalTo(expected)));
+        assertThat(captor.getValue(), is(equalTo(document)));
     }
 }

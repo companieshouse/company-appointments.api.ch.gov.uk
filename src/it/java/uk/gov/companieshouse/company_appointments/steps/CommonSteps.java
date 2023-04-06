@@ -1,13 +1,9 @@
 package uk.gov.companieshouse.company_appointments.steps;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.cucumber.java.BeforeAll;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -16,7 +12,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.*;
 import uk.gov.companieshouse.company_appointments.config.CucumberContext;
-import uk.gov.companieshouse.company_appointments.model.data.DeltaAppointmentApiEntity;
+import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentDocument;
 import uk.gov.companieshouse.company_appointments.util.FileReader;
 import uk.gov.companieshouse.company_appointments.util.JSONMatcher;
 
@@ -28,11 +24,10 @@ import static uk.gov.companieshouse.company_appointments.config.AbstractMongoCon
 
 public class CommonSteps {
 
-    private static String COMPANY_NUMBER = "12345678";
-    private static String HASHED_APPOINTMENT_ID = "EcEKO1YhIKexb0cSDZsn_OHsFw4";
+    private static final String HASHED_APPOINTMENT_ID = "EcEKO1YhIKexb0cSDZsn_OHsFw4";
 
-    private static MongoTemplate mongoTemplate =
-            new MongoTemplate(new SimpleMongoClientDatabaseFactory(mongoDBContainer.getReplicaSetUrl()));;
+    private static final MongoTemplate mongoTemplate =
+            new MongoTemplate(new SimpleMongoClientDatabaseFactory(mongoDBContainer.getReplicaSetUrl()));
 
     @Autowired
     protected TestRestTemplate restTemplate;
@@ -65,6 +60,7 @@ public class CommonSteps {
         headers.set("ERIC-Authorised-Key-Privileges", "internal-app");
 
         HttpEntity<String> request = new HttpEntity<>(data, headers);
+        String COMPANY_NUMBER = "12345678";
         String uri = "/company/" + COMPANY_NUMBER + "/appointments/" + HASHED_APPOINTMENT_ID + "/full_record";
 
         ResponseEntity<Void> response = restTemplate.exchange(uri, HttpMethod.PUT, request, Void.class);
@@ -83,8 +79,8 @@ public class CommonSteps {
         Query query = new Query();
         query.addCriteria(Criteria.where("_id").is(HASHED_APPOINTMENT_ID));
 
-        List<DeltaAppointmentApiEntity> appointments = mongoTemplate.find(query, DeltaAppointmentApiEntity.class);
+        List<CompanyAppointmentDocument> appointments = mongoTemplate.find(query, CompanyAppointmentDocument.class);
 
-        assertThat(appointments.size()).isEqualTo(1);
+        assertThat(appointments).hasSize(1);
     }
 }

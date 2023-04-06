@@ -12,7 +12,7 @@ import uk.gov.companieshouse.company_appointments.model.data.DeltaServiceAddress
 import uk.gov.companieshouse.company_appointments.model.data.DeltaUsualResidentialAddress;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaContactDetails;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaPrincipalOfficeAddress;
-import uk.gov.companieshouse.company_appointments.model.data.DeltaAppointmentApi;
+import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentDocument;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -202,7 +202,7 @@ public class CompanyAppointmentFullRecordView {
             buildSteps = new ArrayList<>();
         }
 
-        public static Builder view(DeltaAppointmentApi api) {
+        public static Builder view(CompanyAppointmentDocument api) {
 
             Builder builder = new Builder();
 
@@ -417,7 +417,7 @@ public class CompanyAppointmentFullRecordView {
             return view;
         }
 
-        private String individualOfficerName(DeltaAppointmentApi api) {
+        private String individualOfficerName(CompanyAppointmentDocument api) {
             if (api.getData().getCompanyName() != null) {
                 return api.getData().getCompanyName();
             }

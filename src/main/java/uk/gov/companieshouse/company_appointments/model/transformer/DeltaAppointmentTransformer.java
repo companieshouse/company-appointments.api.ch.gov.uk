@@ -5,10 +5,10 @@ import uk.gov.companieshouse.api.appointment.ExternalData;
 import uk.gov.companieshouse.api.appointment.FullRecordCompanyOfficerApi;
 import uk.gov.companieshouse.api.appointment.InternalData;
 import uk.gov.companieshouse.company_appointments.exception.FailedToTransformException;
-import uk.gov.companieshouse.company_appointments.model.data.DeltaAppointmentApi;
+import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentDocument;
 
 @Component
-public class DeltaAppointmentTransformer implements Transformative<FullRecordCompanyOfficerApi, DeltaAppointmentApi> {
+public class DeltaAppointmentTransformer implements Transformative<FullRecordCompanyOfficerApi, CompanyAppointmentDocument> {
 
     private final DeltaOfficerDataTransformer officerDataTransformer;
     private final DeltaSensitiveDataTransformer sensitiveDataTransformer;
@@ -21,11 +21,11 @@ public class DeltaAppointmentTransformer implements Transformative<FullRecordCom
     }
 
     @Override
-    public DeltaAppointmentApi factory() {
-        return new DeltaAppointmentApi();
+    public CompanyAppointmentDocument factory() {
+        return new CompanyAppointmentDocument();
     }
 
-    public DeltaAppointmentApi transform(FullRecordCompanyOfficerApi api, DeltaAppointmentApi entity) throws FailedToTransformException {
+    public CompanyAppointmentDocument transform(FullRecordCompanyOfficerApi api, CompanyAppointmentDocument entity) throws FailedToTransformException {
 
         try {
             ExternalData externalData = api.getExternalData();
@@ -46,7 +46,7 @@ public class DeltaAppointmentTransformer implements Transformative<FullRecordCom
         }
     }
 
-    private void populateInternalFields(DeltaAppointmentApi entity, InternalData internalData) {
+    private void populateInternalFields(CompanyAppointmentDocument entity, InternalData internalData) {
         entity.setDeltaAt(internalData.getDeltaAt().toString());
         entity.setUpdatedBy(internalData.getUpdatedBy());
         entity.setOfficerRoleSortOrder(internalData.getOfficerRoleSortOrder());

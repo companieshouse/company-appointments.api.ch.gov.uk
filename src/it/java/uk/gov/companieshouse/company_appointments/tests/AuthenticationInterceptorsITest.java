@@ -19,7 +19,7 @@ import uk.gov.companieshouse.company_appointments.controller.CompanyAppointmentC
 import uk.gov.companieshouse.company_appointments.controller.CompanyAppointmentFullRecordController;
 import uk.gov.companieshouse.company_appointments.interceptor.AuthenticationHelperImpl;
 import uk.gov.companieshouse.company_appointments.interceptor.AuthenticationInterceptor;
-import uk.gov.companieshouse.company_appointments.model.data.DeltaAppointmentApi;
+import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentDocument;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaDateOfBirth;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaItemLinkTypes;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaOfficerData;
@@ -69,11 +69,11 @@ class AuthenticationInterceptorsITest {
         data.setLinks(linkItem);
         DeltaSensitiveData sensitiveData = new DeltaSensitiveData();
         sensitiveData.setDateOfBirth(new DeltaDateOfBirth());
-        DeltaAppointmentApi deltaAppointmentApi = new DeltaAppointmentApi();
-        deltaAppointmentApi.setData(data);
-        deltaAppointmentApi.setSensitiveData(sensitiveData);
+        CompanyAppointmentDocument companyAppointmentDocument = new CompanyAppointmentDocument();
+        companyAppointmentDocument.setData(data);
+        companyAppointmentDocument.setSensitiveData(sensitiveData);
         companyAppointmentFullRecordView =
-                CompanyAppointmentFullRecordView.Builder.view(deltaAppointmentApi).withName(NAME)
+                CompanyAppointmentFullRecordView.Builder.view(companyAppointmentDocument).withName(NAME)
                         .build();
     }
 

@@ -18,7 +18,7 @@ import uk.gov.companieshouse.company_appointments.model.data.DeltaServiceAddress
 import uk.gov.companieshouse.company_appointments.model.data.DeltaUsualResidentialAddress;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaContactDetails;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaPrincipalOfficeAddress;
-import uk.gov.companieshouse.company_appointments.model.data.DeltaAppointmentApi;
+import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentDocument;
 
 import java.time.LocalDate;
 import java.util.Collections;
@@ -45,34 +45,34 @@ class CompanyAppointmentFullRecordViewTest {
     @BeforeEach
     void setUp() {
 
-        DeltaAppointmentApi deltaAppointmentApi = new DeltaAppointmentApi();
-        deltaAppointmentApi.setData(new DeltaOfficerData());
-        deltaAppointmentApi.setSensitiveData(new DeltaSensitiveData());
+        CompanyAppointmentDocument companyAppointmentDocument = new CompanyAppointmentDocument();
+        companyAppointmentDocument.setData(new DeltaOfficerData());
+        companyAppointmentDocument.setSensitiveData(new DeltaSensitiveData());
 
-        deltaAppointmentApi.getData().setServiceAddress(createServiceAddress("service"));
-        deltaAppointmentApi.getSensitiveData().setUsualResidentialAddress(createUsualResidentialAddress("usualResidential"));
-        deltaAppointmentApi.getData().setAppointedOn(INSTANT_ONE);
-        deltaAppointmentApi.getData().setAppointedBefore(INSTANT_THREE);
-        deltaAppointmentApi.getData().setCountryOfResidence("countryOfResidence");
-        deltaAppointmentApi.getSensitiveData().setDateOfBirth(INSTANT_DOB);
-        deltaAppointmentApi.getData().setFormerNames(formerNames);;
-        deltaAppointmentApi.getData().setIdentification(identification);
-        deltaAppointmentApi.getData().setLinks(buildLinksItem());
-        deltaAppointmentApi.getData().setSurname("Davies");
-        deltaAppointmentApi.getData().setForename("James");
-        deltaAppointmentApi.getData().setTitle("Sir");
-        deltaAppointmentApi.getData().setNationality("Welsh");
-        deltaAppointmentApi.getData().setOccupation("occupation");
-        deltaAppointmentApi.getData().setOfficerRole(DeltaOfficerData.OfficerRoleEnum.DIRECTOR);
-        deltaAppointmentApi.getData().setResignedOn(INSTANT_TWO);
-        deltaAppointmentApi.setEtag("etag");
-        deltaAppointmentApi.getData().setPersonNumber("1234");
-        deltaAppointmentApi.getData().setPre1992Appointment(Boolean.TRUE);
-        deltaAppointmentApi.getData().setContactDetails(contactDetails);
-        deltaAppointmentApi.getData().setResponsibilities("responsibilities");
-        deltaAppointmentApi.getData().setPrincipalOfficeAddress(createPrincipalOfficeAddress("principleOffice"));
+        companyAppointmentDocument.getData().setServiceAddress(createServiceAddress("service"));
+        companyAppointmentDocument.getSensitiveData().setUsualResidentialAddress(createUsualResidentialAddress("usualResidential"));
+        companyAppointmentDocument.getData().setAppointedOn(INSTANT_ONE);
+        companyAppointmentDocument.getData().setAppointedBefore(INSTANT_THREE);
+        companyAppointmentDocument.getData().setCountryOfResidence("countryOfResidence");
+        companyAppointmentDocument.getSensitiveData().setDateOfBirth(INSTANT_DOB);
+        companyAppointmentDocument.getData().setFormerNames(formerNames);;
+        companyAppointmentDocument.getData().setIdentification(identification);
+        companyAppointmentDocument.getData().setLinks(buildLinksItem());
+        companyAppointmentDocument.getData().setSurname("Davies");
+        companyAppointmentDocument.getData().setForename("James");
+        companyAppointmentDocument.getData().setTitle("Sir");
+        companyAppointmentDocument.getData().setNationality("Welsh");
+        companyAppointmentDocument.getData().setOccupation("occupation");
+        companyAppointmentDocument.getData().setOfficerRole(DeltaOfficerData.OfficerRoleEnum.DIRECTOR);
+        companyAppointmentDocument.getData().setResignedOn(INSTANT_TWO);
+        companyAppointmentDocument.setEtag("etag");
+        companyAppointmentDocument.getData().setPersonNumber("1234");
+        companyAppointmentDocument.getData().setPre1992Appointment(Boolean.TRUE);
+        companyAppointmentDocument.getData().setContactDetails(contactDetails);
+        companyAppointmentDocument.getData().setResponsibilities("responsibilities");
+        companyAppointmentDocument.getData().setPrincipalOfficeAddress(createPrincipalOfficeAddress("principleOffice"));
 
-        testView = CompanyAppointmentFullRecordView.Builder.view(deltaAppointmentApi).build();
+        testView = CompanyAppointmentFullRecordView.Builder.view(companyAppointmentDocument).build();
     }
 
     @Test

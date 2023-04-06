@@ -19,7 +19,7 @@ import uk.gov.companieshouse.api.appointment.FullRecordCompanyOfficerApi;
 import uk.gov.companieshouse.api.appointment.InternalData;
 import uk.gov.companieshouse.api.appointment.SensitiveData;
 import uk.gov.companieshouse.company_appointments.exception.FailedToTransformException;
-import uk.gov.companieshouse.company_appointments.model.data.DeltaAppointmentApi;
+import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentDocument;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaOfficerData;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaSensitiveData;
 
@@ -44,7 +44,7 @@ class DeltaAppointmentTransformerTest {
     @Test
     void testDeltaIsTransformedSuccessfully() throws FailedToTransformException {
         // given
-        DeltaAppointmentApi expectedDeltaApi = new DeltaAppointmentApi()
+        CompanyAppointmentDocument expected = new CompanyAppointmentDocument()
                 .setId("id")
                 .setData(deltaOfficerData)
                 .setSensitiveData(deltaSensitiveData)
@@ -65,11 +65,11 @@ class DeltaAppointmentTransformerTest {
                 .thenReturn(deltaSensitiveData);
 
         // when
-        DeltaAppointmentApi result = deltaAppointmentTransformer.transform(
+        CompanyAppointmentDocument result = deltaAppointmentTransformer.transform(
                 fullRecordCompanyOfficerApi);
 
         // then
-        assertThat(result).isEqualTo(expectedDeltaApi);
+        assertThat(result).isEqualTo(expected);
         verify(officerDataTransformer).transform(
                 fullRecordCompanyOfficerApi.getExternalData().getData());
         verify(sensitiveDataTransformer).transform(

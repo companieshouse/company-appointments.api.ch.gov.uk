@@ -9,8 +9,7 @@ import uk.gov.companieshouse.company_appointments.CompanyAppointmentsApplication
 import uk.gov.companieshouse.company_appointments.exception.FailedToTransformException;
 import uk.gov.companieshouse.company_appointments.exception.NotFoundException;
 import uk.gov.companieshouse.company_appointments.exception.ServiceUnavailableException;
-import uk.gov.companieshouse.company_appointments.model.data.DeltaAppointmentApi;
-import uk.gov.companieshouse.company_appointments.model.data.DeltaAppointmentApiEntity;
+import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentDocument;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaOfficerData;
 import uk.gov.companieshouse.company_appointments.model.data.InstantAPI;
 import uk.gov.companieshouse.company_appointments.model.transformer.DeltaAppointmentTransformer;
@@ -31,10 +30,8 @@ public class CompanyAppointmentFullRecordService {
     private static final Logger LOGGER = LoggerFactory.getLogger(CompanyAppointmentsApplication.APPLICATION_NAMESPACE);
 
     private final DeltaAppointmentTransformer deltaAppointmentTransformer;
-
-    private CompanyAppointmentFullRecordRepository companyAppointmentRepository;
-
-    private Clock clock;
+    private final CompanyAppointmentFullRecordRepository companyAppointmentRepository;
+    private final Clock clock;
 
     @Autowired
     public CompanyAppointmentFullRecordService(
@@ -47,7 +44,7 @@ public class CompanyAppointmentFullRecordService {
 
     public CompanyAppointmentFullRecordView getAppointment(String companyNumber, String appointmentID) throws NotFoundException {
         LOGGER.debug(String.format("Fetching appointment [%s] for company [%s]", appointmentID, companyNumber));
-        Optional<DeltaAppointmentApiEntity> appointmentData = companyAppointmentRepository.readByCompanyNumberAndID(companyNumber, appointmentID);
+        Optional<CompanyAppointmentDocument> appointmentData = companyAppointmentRepository.readByCompanyNumberAndID(companyNumber, appointmentID);
         appointmentData.ifPresent(appt -> LOGGER.debug(String.format("Found appointment [%s] for company [%s]", appointmentID, companyNumber)));
 
         return appointmentData.map(app -> CompanyAppointmentFullRecordView.Builder.view(app).build())
@@ -57,46 +54,45 @@ public class CompanyAppointmentFullRecordService {
 
     public void insertAppointmentDelta(final FullRecordCompanyOfficerApi appointmentApi) throws ServiceUnavailableException {
 
-        DeltaAppointmentApi deltaAppointmentApi;
+        CompanyAppointmentDocument companyAppointmentDocument;
         try {
-            deltaAppointmentApi = deltaAppointmentTransformer.transform(appointmentApi);
+            companyAppointmentDocument = deltaAppointmentTransformer.transform(appointmentApi);
         } catch(FailedToTransformException e) {
             throw new ServiceUnavailableException(String.format("Failed to transform payload: %s", e.getMessage()));
         }
 
         InstantAPI instant = new InstantAPI(Instant.now(clock));
-        DeltaOfficerData officer = deltaAppointmentApi.getData();
+        DeltaOfficerData officer = companyAppointmentDocument.getData();
 
         if (officer != null) {
-            deltaAppointmentApi.setUpdated(instant);
-            deltaAppointmentApi.setEtag(GenerateEtagUtil.generateEtag());
+            companyAppointmentDocument.setUpdated(instant);
+            companyAppointmentDocument.setEtag(GenerateEtagUtil.generateEtag());
         }
 
-        Optional<DeltaAppointmentApiEntity> existingAppointment = getExistingDelta(deltaAppointmentApi);
+        Optional<CompanyAppointmentDocument> existingAppointment = getExistingDelta(companyAppointmentDocument);
 
         if (existingAppointment.isPresent()) {
-            updateAppointment(deltaAppointmentApi, existingAppointment.get());
+            updateAppointment(companyAppointmentDocument, existingAppointment.get());
         } else {
-            saveAppointment(deltaAppointmentApi, instant);
+            saveAppointment(companyAppointmentDocument, instant);
         }
     }
 
     public void deleteOfficer(String companyNumber, String appointmentId) throws NotFoundException {
         LOGGER.debug(String.format("Deleting appointment [%s] for company [%s]", appointmentId, companyNumber));
-        Optional<DeltaAppointmentApiEntity> deleted = companyAppointmentRepository.deleteByCompanyNumberAndID(companyNumber, appointmentId);
+        Optional<CompanyAppointmentDocument> deleted = companyAppointmentRepository.deleteByCompanyNumberAndID(companyNumber, appointmentId);
 
-        if (!deleted.isPresent()) {
+        if (deleted.isEmpty()) {
             throw new NotFoundException(String.format("Appointment [%s] for company [%s] not found", appointmentId, companyNumber));
         }
     }
 
-    private void saveAppointment(DeltaAppointmentApi appointmentApi, InstantAPI instant) {
-        appointmentApi.setCreated(instant);
-        DeltaAppointmentApiEntity saveRecord = new DeltaAppointmentApiEntity(appointmentApi);
-        companyAppointmentRepository.insertOrUpdate(saveRecord);
+    private void saveAppointment(CompanyAppointmentDocument document, InstantAPI instant) {
+        document.setCreated(instant);
+        companyAppointmentRepository.insertOrUpdate(document);
     }
 
-    private void updateAppointment(DeltaAppointmentApi appointmentApi, DeltaAppointmentApiEntity existingAppointment) {
+    private void updateAppointment(CompanyAppointmentDocument appointmentApi, CompanyAppointmentDocument existingAppointment) {
 
         if (isDeltaStale(appointmentApi.getDeltaAt(), existingAppointment.getDeltaAt())) {
             logStaleIncomingDelta(appointmentApi, existingAppointment.getDeltaAt());
@@ -109,7 +105,7 @@ public class CompanyAppointmentFullRecordService {
         return StringUtils.compare(incomingDelta, existingDelta) <= 0;
     }
 
-    private Optional<DeltaAppointmentApiEntity> getExistingDelta(final DeltaAppointmentApi incomingAppointment) {
+    private Optional<CompanyAppointmentDocument> getExistingDelta(final CompanyAppointmentDocument incomingAppointment) {
 
         final String id = incomingAppointment.getId();
         final String companyNumber = incomingAppointment.getCompanyNumber();
@@ -117,7 +113,7 @@ public class CompanyAppointmentFullRecordService {
         return companyAppointmentRepository.readByCompanyNumberAndID(companyNumber, id);
     }
 
-    private void logStaleIncomingDelta(final DeltaAppointmentApi appointmentAPI, final String existingDelta) {
+    private void logStaleIncomingDelta(final CompanyAppointmentDocument appointmentAPI, final String existingDelta) {
 
         Map<String, Object> logInfo = new HashMap<>();
         logInfo.put("incomingDeltaAt", appointmentAPI.getDeltaAt());
