@@ -22,8 +22,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.dao.DataAccessException;
-import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.SimpleMongoClientDatabaseFactory;
 import org.springframework.http.HttpHeaders;
@@ -39,7 +37,6 @@ import uk.gov.companieshouse.api.appointment.PatchAppointmentNameStatusApi;
 import uk.gov.companieshouse.company_appointments.CompanyAppointmentsApplication;
 import uk.gov.companieshouse.company_appointments.api.ResourceChangedApiService;
 import uk.gov.companieshouse.company_appointments.exception.ServiceUnavailableException;
-import uk.gov.companieshouse.company_appointments.repository.CompanyAppointmentFullRecordRepository;
 
 @Testcontainers
 @AutoConfigureMockMvc
@@ -302,7 +299,7 @@ class CompanyAppointmentControllerITest {
     }
 
     @Test
-    @DisplayName("Patch endpoint returns 503 service unavailable when resource changed endpoint cannot connect to CHS Kafka Api")
+    @DisplayName("Patch endpoint returns 503 service unavailable when illegal argument exception is thrown")
     void testPatchNewAppointmentCompanyNameStatusApiIllegalArgumentException() throws Exception {
 
         when(resourceChangedApiService.invokeChsKafkaApi(any())).thenThrow(IllegalArgumentException.class);

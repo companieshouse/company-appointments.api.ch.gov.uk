@@ -33,6 +33,7 @@ import uk.gov.companieshouse.company_appointments.repository.CompanyAppointmentF
 class CompanyAppointmentFullRecordRepositoryITest {
 
     private static final String APPOINTMENT_ID = "7IjxamNGLlqtIingmTZJJ42Hw9Q";
+    private static final String FAKE_APPOINTMENT_ID = "aBCdIdonotexistCD";
 
     @Autowired
     private CompanyAppointmentFullRecordRepository repository;
@@ -66,5 +67,20 @@ class CompanyAppointmentFullRecordRepositoryITest {
         assertEquals("test status", actual.get().getCompanyStatus());
         assertEquals(at, actual.get().getUpdated().getAt());
         assertEquals("etag", actual.get().getEtag());
+    }
+
+    @DisplayName("Repository unable to retrieve an existing appointment")
+    @Test
+    void patchAppointmentNameStatusMissingAppointment() {
+        // given
+        Instant at = Instant.now().truncatedTo(ChronoUnit.SECONDS);
+
+        // when
+        long result = repository.patchAppointmentNameStatus(FAKE_APPOINTMENT_ID, "test name", "test status", at, "etag");
+
+        // then
+        assertEquals(0L, result);
+        Optional<DeltaAppointmentApiEntity> actual = repository.findById(FAKE_APPOINTMENT_ID);
+        assertTrue(actual.isEmpty());
     }
 }

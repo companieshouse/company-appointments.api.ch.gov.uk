@@ -35,6 +35,7 @@ import java.util.stream.Collectors;
 public class CompanyAppointmentService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CompanyAppointmentsApplication.APPLICATION_NAMESPACE);
+    private static final String ERROR_MESSAGE = "Request failed for company [%s] with appointment [%s]: ";
 
     private final CompanyAppointmentRepository companyAppointmentRepository;
     private final CompanyAppointmentMapper companyAppointmentMapper;
@@ -123,10 +124,10 @@ public class CompanyAppointmentService {
     public void patchNewAppointmentCompanyNameStatus(String companyNumber, String appointmentId, String companyName,
             String companyStatus, String contextId) throws BadRequestException, NotFoundException, ServiceUnavailableException {
         if (isBlank(companyName) || isBlank(companyStatus)) {
-            throw new BadRequestException("Request missing mandatory fields: company name and/or company status");
+            throw new BadRequestException(String.format(ERROR_MESSAGE + "company name and/or company status missing.", companyNumber, appointmentId));
         }
         if (!companyStatusValidator.isValidCompanyStatus(companyStatus)) {
-            throw new BadRequestException("Non-valid company status provided");
+            throw new BadRequestException(String.format(ERROR_MESSAGE + "invalid company status provided.", companyNumber, appointmentId));
         }
 
         LOGGER.debug(String.format("Patching company name: [%s] and company status [%s] for company [%s] with appointment [%s]",
@@ -143,9 +144,9 @@ public class CompanyAppointmentService {
             }
             LOGGER.debug(String.format("Appointment [%s] for company [%s] updated successfully", appointmentId, companyNumber));
         } catch (IllegalArgumentException ex) {
-            throw new ServiceUnavailableException("Error calling CHS Kafka Api");
+            throw new ServiceUnavailableException(String.format(ERROR_MESSAGE + "error calling CHS Kafka API.", companyNumber, appointmentId));
         } catch (DataAccessException ex) {
-            throw new ServiceUnavailableException("Error connecting to MongoDB");
+            throw new ServiceUnavailableException(String.format(ERROR_MESSAGE + "error connecting to MongoDB.", companyNumber, appointmentId));
         }
     }
 
