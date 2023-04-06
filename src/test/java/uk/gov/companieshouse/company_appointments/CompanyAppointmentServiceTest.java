@@ -461,7 +461,8 @@ class CompanyAppointmentServiceTest {
 
         // then
         BadRequestException exception = assertThrows(BadRequestException.class, executable);
-        assertEquals("Request missing mandatory fields: company name and/or company status", exception.getMessage());
+        assertEquals(
+                "Request failed for company [123456] with appointment [345678]: company name and/or company status missing.", exception.getMessage());
         verifyNoInteractions(companyStatusValidator);
         verifyNoInteractions(resourceChangedApiService);
         verifyNoInteractions(fullRecordAppointmentRepository);
@@ -477,7 +478,7 @@ class CompanyAppointmentServiceTest {
 
         // then
         BadRequestException exception = assertThrows(BadRequestException.class, executable);
-        assertEquals("Request missing mandatory fields: company name and/or company status", exception.getMessage());
+        assertEquals("Request failed for company [123456] with appointment [345678]: company name and/or company status missing.", exception.getMessage());
         verifyNoInteractions(companyStatusValidator);
         verifyNoInteractions(resourceChangedApiService);
         verifyNoInteractions(fullRecordAppointmentRepository);
@@ -494,7 +495,7 @@ class CompanyAppointmentServiceTest {
 
         // then
         BadRequestException exception = assertThrows(BadRequestException.class, executable);
-        assertEquals("Non-valid company status provided", exception.getMessage());
+        assertEquals("Request failed for company [123456] with appointment [345678]: invalid company status provided.", exception.getMessage());
         verify(companyStatusValidator).isValidCompanyStatus(FAKE_STATUS);
         verifyNoInteractions(resourceChangedApiService);
         verifyNoInteractions(fullRecordAppointmentRepository);
@@ -528,7 +529,8 @@ class CompanyAppointmentServiceTest {
         Executable executable = () -> companyAppointmentService.patchNewAppointmentCompanyNameStatus(COMPANY_NUMBER, APPOINTMENT_ID, COMPANY_NAME, OPEN_STATUS, CONTEXT_ID);
 
         // then
-        assertThrows(ServiceUnavailableException.class, executable);
+        ServiceUnavailableException exception = assertThrows(ServiceUnavailableException.class, executable);
+        assertEquals("Request failed for company [123456] with appointment [345678]: error calling CHS Kafka API.", exception.getMessage());
         verify(companyStatusValidator).isValidCompanyStatus(OPEN_STATUS);
         verify(resourceChangedApiService).invokeChsKafkaApi(new ResourceChangedRequest(CONTEXT_ID, COMPANY_NUMBER, APPOINTMENT_ID, null, false));
         verifyNoInteractions(fullRecordAppointmentRepository);
@@ -563,7 +565,8 @@ class CompanyAppointmentServiceTest {
         Executable executable = () -> companyAppointmentService.patchNewAppointmentCompanyNameStatus(COMPANY_NUMBER, APPOINTMENT_ID, COMPANY_NAME, OPEN_STATUS, CONTEXT_ID);
 
         // then
-        assertThrows(ServiceUnavailableException.class, executable);
+        ServiceUnavailableException exception = assertThrows(ServiceUnavailableException.class, executable);
+        assertEquals("Request failed for company [123456] with appointment [345678]: error connecting to MongoDB.", exception.getMessage());
         verify(companyStatusValidator).isValidCompanyStatus(OPEN_STATUS);
         verify(resourceChangedApiService).invokeChsKafkaApi(new ResourceChangedRequest(CONTEXT_ID, COMPANY_NUMBER, APPOINTMENT_ID, null, false));
         verify(fullRecordAppointmentRepository).patchAppointmentNameStatus(any(), any(), any(), any(), any());
