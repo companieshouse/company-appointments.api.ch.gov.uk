@@ -87,17 +87,20 @@ public class CompanyAppointmentFullRecordService {
 
     public void deleteAppointmentDelta(String contextId, String companyNumber, String appointmentId) throws NotFoundException, ServiceUnavailableException {
         LOGGER.debug(String.format("Deleting appointment [%s] for company [%s]", appointmentId, companyNumber));
-        Optional<DeltaAppointmentApiEntity> appointmentData = companyAppointmentRepository.readByCompanyNumberAndID(companyNumber, appointmentId);
+        try {
+            Optional<DeltaAppointmentApiEntity> appointmentData = companyAppointmentRepository.readByCompanyNumberAndID(companyNumber, appointmentId);
+            if (appointmentData.isEmpty()) {
+                throw new NotFoundException(String.format("Appointment [%s] for company [%s] not found", appointmentId, companyNumber));
+            }
 
-        resourceChangedApiService.invokeChsKafkaApi(new ResourceChangedRequest(contextId, companyNumber, appointmentId, appointmentData, true));
-        LOGGER.info(String.format("ChsKafka api DELETED invoked updated successfully for context id: %s and company number: %s",
-                contextId,
-                companyNumber));
+            resourceChangedApiService.invokeChsKafkaApi(new ResourceChangedRequest(contextId, companyNumber, appointmentId, appointmentData, true));
+            LOGGER.info(String.format("ChsKafka api DELETED invoked updated successfully for context id: %s and company number: %s",
+                    contextId,
+                    companyNumber));
 
-        Optional<DeltaAppointmentApiEntity> delete = companyAppointmentRepository.deleteByCompanyNumberAndID(companyNumber, appointmentId);
-
-        if (delete.isEmpty()) {
-            throw new NotFoundException(String.format("Appointment [%s] for company [%s] not found", appointmentId, companyNumber));
+            companyAppointmentRepository.deleteByCompanyNumberAndID(companyNumber, appointmentId);
+        } catch (DataAccessException e) {
+            throw new ServiceUnavailableException("Error connecting to MongoDB");
         }
     }
 

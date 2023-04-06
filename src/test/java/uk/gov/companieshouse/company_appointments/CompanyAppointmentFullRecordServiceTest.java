@@ -189,7 +189,7 @@ class CompanyAppointmentFullRecordServiceTest {
 
     @Test
     void deleteOfficer() throws Exception {
-        when(companyAppointmentRepository.deleteByCompanyNumberAndID(COMPANY_NUMBER, APPOINTMENT_ID))
+        when(companyAppointmentRepository.readByCompanyNumberAndID(COMPANY_NUMBER, APPOINTMENT_ID))
                 .thenReturn(Optional.of(deltaAppointmentApiEntity));
 
         companyAppointmentService.deleteAppointmentDelta(CONTEXT_ID, COMPANY_NUMBER, APPOINTMENT_ID);
@@ -205,12 +205,12 @@ class CompanyAppointmentFullRecordServiceTest {
 
     @Test
     void deleteOfficerThrowsNotFound() {
-        when(companyAppointmentRepository.deleteByCompanyNumberAndID(COMPANY_NUMBER, APPOINTMENT_ID))
+        when(companyAppointmentRepository.readByCompanyNumberAndID(COMPANY_NUMBER, APPOINTMENT_ID))
                 .thenReturn(Optional.empty());
 
-        Executable result = () -> companyAppointmentService.deleteAppointmentDelta(CONTEXT_ID, COMPANY_NUMBER, APPOINTMENT_ID);
+        Executable executable = () -> companyAppointmentService.deleteAppointmentDelta(CONTEXT_ID, COMPANY_NUMBER, APPOINTMENT_ID);
 
-        assertThrows(NotFoundException.class, result);
+        assertThrows(NotFoundException.class, executable);
     }
 
     private FullRecordCompanyOfficerApi buildFullRecordOfficer() {

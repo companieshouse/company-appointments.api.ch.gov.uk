@@ -101,7 +101,7 @@ class CompanyAppointmentFullRecordControllerMongoUnavailableITest {
     @Test
     @DisplayName("Delete endpoint returns 503 service unavailable when MongoDB is unavailable")
     void testDeleteNewAppointmentCompanyNameStatusMongoUnavailable() throws Exception {
-        when(fullRecordRepository.deleteByCompanyNumberAndID(any(), any())).thenThrow(DataAccessResourceFailureException.class);
+        when(fullRecordRepository.readByCompanyNumberAndID(any(), any())).thenThrow(DataAccessResourceFailureException.class);
         
         mockMvc.perform(delete(FULL_RECORD_DELETE_ENDPOINT, COMPANY_NUMBER, APPOINTMENT_ID)
                         .contentType(MediaType.APPLICATION_JSON)

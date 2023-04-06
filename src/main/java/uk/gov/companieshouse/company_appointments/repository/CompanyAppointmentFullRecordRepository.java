@@ -19,5 +19,5 @@ public interface CompanyAppointmentFullRecordRepository extends MongoRepository<
     Optional<DeltaAppointmentApiEntity> readByCompanyNumberAndID(String companyNumber, String appointmentId);
 
     @Query(value="{'company_number' : '?0', '_id' : '?1'}", delete = true)
-    Optional<DeltaAppointmentApiEntity> deleteByCompanyNumberAndID(String companyNumber, String appointmentId);
+    void deleteByCompanyNumberAndID(String companyNumber, String appointmentId);
 }
