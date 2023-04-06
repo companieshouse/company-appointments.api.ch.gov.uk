@@ -1,8 +1,10 @@
 package uk.gov.companieshouse.company_appointments.service;
 
+import static org.apache.commons.lang3.StringUtils.isBlank;
+
 import java.time.Clock;
 import java.time.Instant;
-import org.apache.commons.lang3.StringUtils;
+import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import uk.gov.companieshouse.GenerateEtagUtil;
@@ -33,6 +35,7 @@ import java.util.stream.Collectors;
 public class CompanyAppointmentService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CompanyAppointmentsApplication.APPLICATION_NAMESPACE);
+    private static final String ERROR_MESSAGE = "Request failed for company [%s] with appointment [%s]: ";
 
     private final CompanyAppointmentRepository companyAppointmentRepository;
     private final CompanyAppointmentMapper companyAppointmentMapper;
@@ -114,32 +117,37 @@ public class CompanyAppointmentService {
 
     public void patchCompanyNameStatus(String companyNumber, String companyName,
             String companyStatus) throws NotFoundException {
-
+        // Implementation started as part of pair programming session, to be implemented in DSND-1531
+        throw new UnsupportedOperationException("Method not implemented");
     }
 
     public void patchNewAppointmentCompanyNameStatus(String companyNumber, String appointmentId, String companyName,
             String companyStatus, String contextId) throws BadRequestException, NotFoundException, ServiceUnavailableException {
-        if (isRequestFieldEmpty(companyName) || isRequestFieldEmpty(companyStatus)) {
-            throw new BadRequestException("Request missing mandatory fields: company name and/or company status");
+        if (isBlank(companyName) || isBlank(companyStatus)) {
+            throw new BadRequestException(String.format(ERROR_MESSAGE + "company name and/or company status missing.", companyNumber, appointmentId));
         }
         if (!companyStatusValidator.isValidCompanyStatus(companyStatus)) {
-            throw new BadRequestException("Non-valid company status provided");
+            throw new BadRequestException(String.format(ERROR_MESSAGE + "invalid company status provided.", companyNumber, appointmentId));
         }
 
         LOGGER.debug(String.format("Patching company name: [%s] and company status [%s] for company [%s] with appointment [%s]",
                 companyName, companyNumber, companyNumber, appointmentId));
+        try {
+            resourceChangedApiService.invokeChsKafkaApi(new ResourceChangedRequest(contextId, companyNumber, appointmentId, null, false));
+            LOGGER.debug(String.format("ChsKafka api CHANGED invoked updated successfully for context id: %s and company number: %s",
+                    contextId,
+                    companyNumber));
 
-        resourceChangedApiService.invokeChsKafkaApi(new ResourceChangedRequest(contextId, companyNumber, appointmentId, null, false));
-        LOGGER.debug(String.format("ChsKafka api CHANGED invoked updated successfully for context id: %s and company number: %s",
-                contextId,
-                companyNumber));
-
-        boolean isUpdated = fullRecordAppointmentRepository.patchAppointmentNameStatus(appointmentId, companyName, companyStatus, Instant.now(clock), GenerateEtagUtil.generateEtag()) == 1L;
-
-        if (!isUpdated) {
-            throw new NotFoundException(String.format("Appointment [%s] for company [%s] not found", appointmentId, companyNumber));
+            boolean isUpdated = fullRecordAppointmentRepository.patchAppointmentNameStatus(appointmentId, companyName, companyStatus, Instant.now(clock), GenerateEtagUtil.generateEtag()) == 1L;
+            if (!isUpdated) {
+                throw new NotFoundException(String.format("Appointment [%s] for company [%s] not found during PATCH request", appointmentId, companyNumber));
+            }
+            LOGGER.debug(String.format("Appointment [%s] for company [%s] updated successfully", appointmentId, companyNumber));
+        } catch (IllegalArgumentException ex) {
+            throw new ServiceUnavailableException(String.format(ERROR_MESSAGE + "error calling CHS Kafka API.", companyNumber, appointmentId));
+        } catch (DataAccessException ex) {
+            throw new ServiceUnavailableException(String.format(ERROR_MESSAGE + "error connecting to MongoDB.", companyNumber, appointmentId));
         }
-        LOGGER.debug(String.format("Appointment [%s] for company [%s] updated successfully", appointmentId, companyNumber));
     }
 
     private List<CompanyAppointmentView> addPagingAndStartIndex(List<CompanyAppointmentView> companyAppointmentViews, Integer startIndex, Integer itemsPerPage) throws NotFoundException {
@@ -169,9 +177,5 @@ public class CompanyAppointmentService {
         }
 
         return companyAppointmentViews;
-    }
-
-    private boolean isRequestFieldEmpty(String field) {
-        return StringUtils.isBlank(field);
     }
 }

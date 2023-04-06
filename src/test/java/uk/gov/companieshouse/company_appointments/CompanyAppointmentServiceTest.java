@@ -8,6 +8,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.function.Executable;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.data.domain.Sort;
 
 import uk.gov.companieshouse.company_appointments.api.ResourceChangedApiService;
@@ -422,8 +423,20 @@ class CompanyAppointmentServiceTest {
     }
 
     @Test
+    @DisplayName("Test patchCompanyNameStatus throws UnsupportedOperationException")
+    void testUnsupportedOperationException() {
+        // given
+
+        // when
+        Executable executable = () -> companyAppointmentService.patchCompanyNameStatus(COMPANY_NUMBER, COMPANY_NAME, OPEN_STATUS);
+
+        // then
+        assertThrows(UnsupportedOperationException.class, executable);
+    }
+
+    @Test
     @DisplayName("Should update appointment with no exceptions thrown")
-    void testSuccessfulUpdate() throws ServiceUnavailableException {
+    void patchNewAppointmentNameStatusSuccessfulUpdate() throws ServiceUnavailableException {
         // given
         when(companyStatusValidator.isValidCompanyStatus(anyString())).thenReturn(true);
         when(fullRecordAppointmentRepository.patchAppointmentNameStatus(anyString(), anyString(), anyString(), any(), anyString())).thenReturn(1L);
@@ -439,7 +452,8 @@ class CompanyAppointmentServiceTest {
     }
 
     @Test
-    void testBadRequestExceptionThrownWhenCompanyNameIsMissing() {
+    @DisplayName("Should throw bad request exception when company name is missing from request")
+    void patchNewAppointmentNameStatusMissingCompanyName() {
         // given
 
         // when
@@ -447,14 +461,16 @@ class CompanyAppointmentServiceTest {
 
         // then
         BadRequestException exception = assertThrows(BadRequestException.class, executable);
-        assertEquals("Request missing mandatory fields: company name and/or company status", exception.getMessage());
+        assertEquals(
+                "Request failed for company [123456] with appointment [345678]: company name and/or company status missing.", exception.getMessage());
         verifyNoInteractions(companyStatusValidator);
         verifyNoInteractions(resourceChangedApiService);
         verifyNoInteractions(fullRecordAppointmentRepository);
     }
 
     @Test
-    void testBadRequestExceptionThrownWhenCompanyStatusIsMissing() {
+    @DisplayName("Should throw bad request exception when company status is missing from request")
+    void patchNewAppointmentNameStatusMissingCompanyStatus() {
         // given
 
         // when
@@ -462,14 +478,15 @@ class CompanyAppointmentServiceTest {
 
         // then
         BadRequestException exception = assertThrows(BadRequestException.class, executable);
-        assertEquals("Request missing mandatory fields: company name and/or company status", exception.getMessage());
+        assertEquals("Request failed for company [123456] with appointment [345678]: company name and/or company status missing.", exception.getMessage());
         verifyNoInteractions(companyStatusValidator);
         verifyNoInteractions(resourceChangedApiService);
         verifyNoInteractions(fullRecordAppointmentRepository);
     }
 
     @Test
-    void testBadRequestExceptionThrownWhenInvalidStatusPassedToValidator() {
+    @DisplayName("Should throw bad request exception when invalid company status is provided from request")
+    void patchNewAppointmentNameStatusInvalidCompanyStatus() {
         // given
         when(companyStatusValidator.isValidCompanyStatus(FAKE_STATUS)).thenReturn(false);
 
@@ -478,7 +495,7 @@ class CompanyAppointmentServiceTest {
 
         // then
         BadRequestException exception = assertThrows(BadRequestException.class, executable);
-        assertEquals("Non-valid company status provided", exception.getMessage());
+        assertEquals("Request failed for company [123456] with appointment [345678]: invalid company status provided.", exception.getMessage());
         verify(companyStatusValidator).isValidCompanyStatus(FAKE_STATUS);
         verifyNoInteractions(resourceChangedApiService);
         verifyNoInteractions(fullRecordAppointmentRepository);
@@ -486,7 +503,7 @@ class CompanyAppointmentServiceTest {
 
     @Test
     @DisplayName("Should throw service unavailable exception when resource changed endpoint is unavailable")
-    void testServiceUnavailableException() throws ServiceUnavailableException {
+    void patchNewAppointmentNameStatusResourceChangedUnavailable() throws ServiceUnavailableException {
         // given
         when(companyStatusValidator.isValidCompanyStatus(anyString())).thenReturn(true);
         when(resourceChangedApiService.invokeChsKafkaApi(any())).thenThrow(ServiceUnavailableException.class);
@@ -502,7 +519,26 @@ class CompanyAppointmentServiceTest {
     }
 
     @Test
-    void testNotFoundExceptionThrownWhenAppointmentIsNotPresent() throws ServiceUnavailableException {
+    @DisplayName("Should throw service unavailable exception when cannot connect to CHS Kafka API")
+    void patchNewAppointmentNameStatusChsKafkaError() throws ServiceUnavailableException {
+        // given
+        when(companyStatusValidator.isValidCompanyStatus(anyString())).thenReturn(true);
+        when(resourceChangedApiService.invokeChsKafkaApi(any())).thenThrow(IllegalArgumentException.class);
+
+        // when
+        Executable executable = () -> companyAppointmentService.patchNewAppointmentCompanyNameStatus(COMPANY_NUMBER, APPOINTMENT_ID, COMPANY_NAME, OPEN_STATUS, CONTEXT_ID);
+
+        // then
+        ServiceUnavailableException exception = assertThrows(ServiceUnavailableException.class, executable);
+        assertEquals("Request failed for company [123456] with appointment [345678]: error calling CHS Kafka API.", exception.getMessage());
+        verify(companyStatusValidator).isValidCompanyStatus(OPEN_STATUS);
+        verify(resourceChangedApiService).invokeChsKafkaApi(new ResourceChangedRequest(CONTEXT_ID, COMPANY_NUMBER, APPOINTMENT_ID, null, false));
+        verifyNoInteractions(fullRecordAppointmentRepository);
+    }
+
+    @Test
+    @DisplayName("Should throw not found exception when cannot locate existing appointment")
+    void patchNewAppointmentNameStatusMissingAppointment() throws ServiceUnavailableException {
         // given
         when(companyStatusValidator.isValidCompanyStatus(OPEN_STATUS)).thenReturn(true);
         when(fullRecordAppointmentRepository.patchAppointmentNameStatus(anyString(), anyString(), anyString(), any(), anyString())).thenReturn(0L);
@@ -512,7 +548,25 @@ class CompanyAppointmentServiceTest {
 
         // then
         NotFoundException exception = assertThrows(NotFoundException.class, executable);
-        assertEquals("Appointment [345678] for company [123456] not found", exception.getMessage());
+        assertEquals("Appointment [345678] for company [123456] not found during PATCH request", exception.getMessage());
+        verify(companyStatusValidator).isValidCompanyStatus(OPEN_STATUS);
+        verify(resourceChangedApiService).invokeChsKafkaApi(new ResourceChangedRequest(CONTEXT_ID, COMPANY_NUMBER, APPOINTMENT_ID, null, false));
+        verify(fullRecordAppointmentRepository).patchAppointmentNameStatus(any(), any(), any(), any(), any());
+    }
+
+    @Test
+    @DisplayName("Should throw service unavailable exception when MongoDB is unavailable")
+    void patchNewAppointmentNameStatusMongoUnavailable() throws ServiceUnavailableException {
+        // given
+        when(companyStatusValidator.isValidCompanyStatus(anyString())).thenReturn(true);
+        when(fullRecordAppointmentRepository.patchAppointmentNameStatus(any(), any(), any(), any(), any())).thenThrow(DataAccessResourceFailureException.class);
+
+        // when
+        Executable executable = () -> companyAppointmentService.patchNewAppointmentCompanyNameStatus(COMPANY_NUMBER, APPOINTMENT_ID, COMPANY_NAME, OPEN_STATUS, CONTEXT_ID);
+
+        // then
+        ServiceUnavailableException exception = assertThrows(ServiceUnavailableException.class, executable);
+        assertEquals("Request failed for company [123456] with appointment [345678]: error connecting to MongoDB.", exception.getMessage());
         verify(companyStatusValidator).isValidCompanyStatus(OPEN_STATUS);
         verify(resourceChangedApiService).invokeChsKafkaApi(new ResourceChangedRequest(CONTEXT_ID, COMPANY_NUMBER, APPOINTMENT_ID, null, false));
         verify(fullRecordAppointmentRepository).patchAppointmentNameStatus(any(), any(), any(), any(), any());
