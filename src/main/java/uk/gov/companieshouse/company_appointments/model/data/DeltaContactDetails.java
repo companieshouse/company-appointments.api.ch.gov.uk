@@ -3,21 +3,17 @@ package uk.gov.companieshouse.company_appointments.model.data;
 import java.util.Objects;
 import org.springframework.data.mongodb.core.mapping.Field;
 
-public class ContactDetails   {
+public class DeltaContactDetails {
   @Field("contact_name")
   private String contactName;
-
-  public ContactDetails contactName(String contactName) {
-    this.contactName = contactName;
-    return this;
-  }
 
   public String getContactName() {
     return contactName;
   }
 
-  public void setContactName(String contactName) {
+  public DeltaContactDetails setContactName(String contactName) {
     this.contactName = contactName;
+    return this;
   }
 
   @Override
@@ -28,7 +24,7 @@ public class ContactDetails   {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    ContactDetails contactDetails = (ContactDetails) o;
+    DeltaContactDetails contactDetails = (DeltaContactDetails) o;
     return Objects.equals(this.contactName, contactDetails.contactName);
   }
 

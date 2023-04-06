@@ -4,7 +4,7 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.api.appointment.Data;
 import uk.gov.companieshouse.company_appointments.exception.FailedToTransformException;
-import uk.gov.companieshouse.company_appointments.model.data.ContactDetails;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaContactDetails;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaFormerNames;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaOfficerData;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaOfficerData.OfficerRoleEnum;
@@ -64,8 +64,8 @@ public class DeltaOfficerDataTransformer implements Transformative<Data, DeltaOf
             entity.setTitle(source.getTitle());
             entity.setCompanyNumber(source.getCompanyNumber());
             entity.setContactDetails(source.getContactDetails() != null?
-                    new ContactDetails()
-                            .contactName(source.getContactDetails().getContactName()) : null);
+                    new DeltaContactDetails()
+                            .setContactName(source.getContactDetails().getContactName()) : null);
             entity.setPrincipalOfficeAddress(source.getPrincipalOfficeAddress() != null?
                     principalOfficeAddressTransformer.transform(source.getPrincipalOfficeAddress())
                     : null);
@@ -74,8 +74,8 @@ public class DeltaOfficerDataTransformer implements Transformative<Data, DeltaOf
             entity.setFormerNames(source.getFormerNames() != null?
                     source.getFormerNames().stream()
                     .map(formerNames -> new DeltaFormerNames()
-                            .surname(formerNames.getSurname())
-                            .forenames(formerNames.getForenames()))
+                            .setSurname(formerNames.getSurname())
+                            .setForenames(formerNames.getForenames()))
                     .collect(Collectors.toList()) : null);
 
             return entity;

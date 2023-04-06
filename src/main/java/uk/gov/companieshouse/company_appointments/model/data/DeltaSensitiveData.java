@@ -2,35 +2,21 @@ package uk.gov.companieshouse.company_appointments.model.data;
 
 import java.util.Objects;
 import org.springframework.data.mongodb.core.mapping.Field;
-import javax.validation.Valid;
 
 public class DeltaSensitiveData {
   @Field("usual_residential_address")
   private DeltaUsualResidentialAddress usualResidentialAddress;
-
   @Field("residential_address_same_as_service_address")
   private Boolean residentialAddressSameAsServiceAddress;
-
   @Field("date_of_birth")
   private DeltaDateOfBirth dateOfBirth;
 
-  public DeltaSensitiveData usualResidentialAddress(
-          DeltaUsualResidentialAddress usualResidentialAddress) {
-    this.usualResidentialAddress = usualResidentialAddress;
-    return this;
-  }
-
-  @Valid
   public DeltaUsualResidentialAddress getUsualResidentialAddress() {
     return usualResidentialAddress;
   }
 
-  public void setUsualResidentialAddress(DeltaUsualResidentialAddress usualResidentialAddress) {
+  public DeltaSensitiveData setUsualResidentialAddress(DeltaUsualResidentialAddress usualResidentialAddress) {
     this.usualResidentialAddress = usualResidentialAddress;
-  }
-
-  public DeltaSensitiveData residentialAddressSameAsServiceAddress(Boolean residentialAddressSameAsServiceAddress) {
-    this.residentialAddressSameAsServiceAddress = residentialAddressSameAsServiceAddress;
     return this;
   }
 
@@ -38,12 +24,8 @@ public class DeltaSensitiveData {
     return residentialAddressSameAsServiceAddress;
   }
 
-  public void setResidentialAddressSameAsServiceAddress(Boolean residentialAddressSameAsServiceAddress) {
+  public DeltaSensitiveData setResidentialAddressSameAsServiceAddress(Boolean residentialAddressSameAsServiceAddress) {
     this.residentialAddressSameAsServiceAddress = residentialAddressSameAsServiceAddress;
-  }
-
-  public DeltaSensitiveData dateOfBirth(DeltaDateOfBirth dateOfBirth) {
-    this.dateOfBirth = dateOfBirth;
     return this;
   }
 
@@ -51,8 +33,9 @@ public class DeltaSensitiveData {
     return dateOfBirth;
   }
 
-  public void setDateOfBirth(DeltaDateOfBirth dateOfBirth) {
+  public DeltaSensitiveData setDateOfBirth(DeltaDateOfBirth dateOfBirth) {
     this.dateOfBirth = dateOfBirth;
+    return this;
   }
 
   @Override

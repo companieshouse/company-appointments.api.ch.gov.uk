@@ -113,7 +113,7 @@ class CompanyAppointmentFullRecordServiceTest {
         linkItem.setSelf("self");
         data.setLinks(linkItem);
         DeltaSensitiveData sensitiveData = new DeltaSensitiveData()
-                .dateOfBirth(new DeltaDateOfBirth());
+                .setDateOfBirth(new DeltaDateOfBirth());
         DeltaAppointmentApiEntity deltaAppointmentDocument = buildDeltaAppointmentDocument(
                 "2022-01-12T00:00Z", data, sensitiveData);
 
@@ -147,7 +147,7 @@ class CompanyAppointmentFullRecordServiceTest {
         DeltaOfficerData data = new DeltaOfficerData()
                 .setOfficerRole(DeltaOfficerData.OfficerRoleEnum.DIRECTOR);
         DeltaSensitiveData sensitiveData = new DeltaSensitiveData()
-                .dateOfBirth(new DeltaDateOfBirth());
+                .setDateOfBirth(new DeltaDateOfBirth());
         DeltaAppointmentApiEntity deltaAppointmentDocument = buildDeltaAppointmentDocument(
                 "2022-01-12T00:00Z", data, sensitiveData);
         DeltaAppointmentApi transformedAppointmentApi = builtDeltaAppointmentApi(

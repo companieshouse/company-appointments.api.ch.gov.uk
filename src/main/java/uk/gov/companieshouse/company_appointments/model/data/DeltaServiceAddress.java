@@ -1,7 +1,6 @@
 package uk.gov.companieshouse.company_appointments.model.data;
 
 import java.util.Objects;
-import javax.validation.constraints.*;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 /**
@@ -10,40 +9,25 @@ import org.springframework.data.mongodb.core.mapping.Field;
 public class DeltaServiceAddress {
   @Field("address_line_1")
   private String addressLine1;
-
   @Field("address_line_2")
   private String addressLine2;
-
   @Field("country")
   private String country;
-
   @Field("locality")
   private String locality;
-
   @Field("postal_code")
   private String postalCode;
-
   @Field("premises")
   private String premises;
-
   @Field("region")
   private String region;
-
-  public DeltaServiceAddress addressLine1(String addressLine1) {
-    this.addressLine1 = addressLine1;
-    return this;
-  }
 
   public String getAddressLine1() {
     return addressLine1;
   }
 
-  public void setAddressLine1(String addressLine1) {
+  public DeltaServiceAddress setAddressLine1(String addressLine1) {
     this.addressLine1 = addressLine1;
-  }
-
-  public DeltaServiceAddress addressLine2(String addressLine2) {
-    this.addressLine2 = addressLine2;
     return this;
   }
 
@@ -51,12 +35,8 @@ public class DeltaServiceAddress {
     return addressLine2;
   }
 
-  public void setAddressLine2(String addressLine2) {
+  public DeltaServiceAddress setAddressLine2(String addressLine2) {
     this.addressLine2 = addressLine2;
-  }
-
-  public DeltaServiceAddress country(String country) {
-    this.country = country;
     return this;
   }
 
@@ -64,26 +44,17 @@ public class DeltaServiceAddress {
     return country;
   }
 
-  public void setCountry(String country) {
+  public DeltaServiceAddress setCountry(String country) {
     this.country = country;
-  }
-
-  public DeltaServiceAddress locality(String locality) {
-    this.locality = locality;
     return this;
   }
 
-  @NotNull
   public String getLocality() {
     return locality;
   }
 
-  public void setLocality(String locality) {
+  public DeltaServiceAddress setLocality(String locality) {
     this.locality = locality;
-  }
-
-  public DeltaServiceAddress postalCode(String postalCode) {
-    this.postalCode = postalCode;
     return this;
   }
 
@@ -91,12 +62,8 @@ public class DeltaServiceAddress {
     return postalCode;
   }
 
-  public void setPostalCode(String postalCode) {
+  public DeltaServiceAddress setPostalCode(String postalCode) {
     this.postalCode = postalCode;
-  }
-
-  public DeltaServiceAddress premises(String premises) {
-    this.premises = premises;
     return this;
   }
 
@@ -104,12 +71,8 @@ public class DeltaServiceAddress {
     return premises;
   }
 
-  public void setPremises(String premises) {
+  public DeltaServiceAddress setPremises(String premises) {
     this.premises = premises;
-  }
-
-  public DeltaServiceAddress region(String region) {
-    this.region = region;
     return this;
   }
 
@@ -117,8 +80,9 @@ public class DeltaServiceAddress {
     return region;
   }
 
-  public void setRegion(String region) {
+  public DeltaServiceAddress setRegion(String region) {
     this.region = region;
+    return this;
   }
 
   @Override

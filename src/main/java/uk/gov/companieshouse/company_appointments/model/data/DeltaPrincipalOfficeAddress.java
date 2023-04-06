@@ -6,35 +6,22 @@ import org.springframework.data.mongodb.core.mapping.Field;
 public class DeltaPrincipalOfficeAddress {
   @Field("address_line_1")
   private String addressLine1;
-
   @Field("address_line_2")
   private String addressLine2;
-
   @Field("care_of")
   private String careOf;
-
   @Field("country")
   private String country;
-
   @Field("locality")
   private String locality;
-
   @Field("po_box")
   private String poBox;
-
   @Field("postal_code")
   private String postalCode;
-
   @Field("premises")
   private String premises;
-
   @Field("region")
   private String region;
-
-  public DeltaPrincipalOfficeAddress addressLine1(String addressLine1) {
-    this.addressLine1 = addressLine1;
-    return this;
-  }
 
   public String getAddressLine1() {
     return addressLine1;

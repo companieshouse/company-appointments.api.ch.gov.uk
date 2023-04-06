@@ -6,29 +6,18 @@ import org.springframework.data.mongodb.core.mapping.Field;
 /**
  * OfficerLinkTypes
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.SpringCodegen")
 public class DeltaOfficerLinkTypes {
   @Field("self")
   private String self;
-
   @Field("appointments")
   private String appointments;
-
-  public DeltaOfficerLinkTypes self(String self) {
-    this.self = self;
-    return this;
-  }
 
   public String getSelf() {
     return self;
   }
 
-  public void setSelf(String self) {
+  public DeltaOfficerLinkTypes setSelf(String self) {
     this.self = self;
-  }
-
-  public DeltaOfficerLinkTypes appointments(String appointments) {
-    this.appointments = appointments;
     return this;
   }
 
@@ -36,8 +25,9 @@ public class DeltaOfficerLinkTypes {
     return appointments;
   }
 
-  public void setAppointments(String appointments) {
+  public DeltaOfficerLinkTypes setAppointments(String appointments) {
     this.appointments = appointments;
+    return this;
   }
 
   @Override

@@ -61,21 +61,12 @@ public class DeltaIdentification {
   @Field("registration_number")
   private String registrationNumber;
 
-  public DeltaIdentification identificationType(IdentificationTypeEnum identificationType) {
-    this.identificationType = identificationType;
-    return this;
-  }
-
   public IdentificationTypeEnum getIdentificationType() {
     return identificationType;
   }
 
-  public void setIdentificationType(IdentificationTypeEnum identificationType) {
+  public DeltaIdentification setIdentificationType(IdentificationTypeEnum identificationType) {
     this.identificationType = identificationType;
-  }
-
-  public DeltaIdentification legalAuthority(String legalAuthority) {
-    this.legalAuthority = legalAuthority;
     return this;
   }
 
@@ -83,12 +74,8 @@ public class DeltaIdentification {
     return legalAuthority;
   }
 
-  public void setLegalAuthority(String legalAuthority) {
+  public DeltaIdentification setLegalAuthority(String legalAuthority) {
     this.legalAuthority = legalAuthority;
-  }
-
-  public DeltaIdentification legalForm(String legalForm) {
-    this.legalForm = legalForm;
     return this;
   }
 
@@ -96,12 +83,8 @@ public class DeltaIdentification {
     return legalForm;
   }
 
-  public void setLegalForm(String legalForm) {
+  public DeltaIdentification setLegalForm(String legalForm) {
     this.legalForm = legalForm;
-  }
-
-  public DeltaIdentification placeRegistered(String placeRegistered) {
-    this.placeRegistered = placeRegistered;
     return this;
   }
 
@@ -109,12 +92,8 @@ public class DeltaIdentification {
     return placeRegistered;
   }
 
-  public void setPlaceRegistered(String placeRegistered) {
+  public DeltaIdentification setPlaceRegistered(String placeRegistered) {
     this.placeRegistered = placeRegistered;
-  }
-
-  public DeltaIdentification registrationNumber(String registrationNumber) {
-    this.registrationNumber = registrationNumber;
     return this;
   }
 
@@ -122,8 +101,9 @@ public class DeltaIdentification {
     return registrationNumber;
   }
 
-  public void setRegistrationNumber(String registrationNumber) {
+  public DeltaIdentification setRegistrationNumber(String registrationNumber) {
     this.registrationNumber = registrationNumber;
+    return this;
   }
 
   @Override

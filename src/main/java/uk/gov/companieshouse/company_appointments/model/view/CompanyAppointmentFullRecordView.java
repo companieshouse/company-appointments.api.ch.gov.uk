@@ -10,7 +10,7 @@ import uk.gov.companieshouse.company_appointments.model.data.DeltaItemLinkTypes;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaSensitiveData;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaServiceAddress;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaUsualResidentialAddress;
-import uk.gov.companieshouse.company_appointments.model.data.ContactDetails;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaContactDetails;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaPrincipalOfficeAddress;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaAppointmentApi;
 import java.time.LocalDate;
@@ -92,7 +92,7 @@ public class CompanyAppointmentFullRecordView {
     private Boolean isPre1992Appointment;
 
     @JsonProperty("contact_details")
-    private ContactDetails contactDetails;
+    private DeltaContactDetails contactDetails;
 
     @JsonProperty("principal_office_address")
     private DeltaPrincipalOfficeAddress principalOfficeAddress;
@@ -180,7 +180,7 @@ public class CompanyAppointmentFullRecordView {
         return isPre1992Appointment;
     }
 
-    public ContactDetails getContactDetails() {
+    public DeltaContactDetails getContactDetails() {
         return contactDetails;
     }
 
@@ -388,7 +388,7 @@ public class CompanyAppointmentFullRecordView {
             return this;
         }
 
-        public Builder withContactDetails(ContactDetails contactDetails) {
+        public Builder withContactDetails(DeltaContactDetails contactDetails) {
 
             buildSteps.add(view -> view.contactDetails = contactDetails);
 

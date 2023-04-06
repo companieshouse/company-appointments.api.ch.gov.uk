@@ -9,25 +9,15 @@ import org.springframework.data.mongodb.core.mapping.Field;
 public class DeltaFormerNames {
   @Field("forenames")
   private String forenames;
-
   @Field("surname")
   private String surname;
-
-  public DeltaFormerNames forenames(String forenames) {
-    this.forenames = forenames;
-    return this;
-  }
 
   public String getForenames() {
     return forenames;
   }
 
-  public void setForenames(String forenames) {
+  public DeltaFormerNames setForenames(String forenames) {
     this.forenames = forenames;
-  }
-
-  public DeltaFormerNames surname(String surname) {
-    this.surname = surname;
     return this;
   }
 
@@ -35,8 +25,9 @@ public class DeltaFormerNames {
     return surname;
   }
 
-  public void setSurname(String surname) {
+  public DeltaFormerNames setSurname(String surname) {
     this.surname = surname;
+    return this;
   }
 
   @Override

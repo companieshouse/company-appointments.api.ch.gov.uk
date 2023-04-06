@@ -16,7 +16,7 @@ import uk.gov.companieshouse.company_appointments.model.data.DeltaOfficerLinkTyp
 import uk.gov.companieshouse.company_appointments.model.data.DeltaSensitiveData;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaServiceAddress;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaUsualResidentialAddress;
-import uk.gov.companieshouse.company_appointments.model.data.ContactDetails;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaContactDetails;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaPrincipalOfficeAddress;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaAppointmentApi;
 
@@ -37,7 +37,7 @@ class CompanyAppointmentFullRecordViewTest {
     private DeltaIdentification identification = buildIdentification();
     private DeltaDateOfBirth INSTANT_DOB = buildDateOfBirth(12,1,1989);
     private DeltaItemLinkTypes links = buildLinksItem();
-    private ContactDetails contactDetails = buildContactDetails();
+    private DeltaContactDetails contactDetails = buildContactDetails();
     private DateOfBirthView dob = new DateOfBirthView(12,1,1989);
 
     private CompanyAppointmentFullRecordView testView;
@@ -312,8 +312,8 @@ class CompanyAppointmentFullRecordViewTest {
         return linksItem;
     }
 
-    private ContactDetails buildContactDetails() {
-        ContactDetails contactDetails = new ContactDetails();
+    private DeltaContactDetails buildContactDetails() {
+        DeltaContactDetails contactDetails = new DeltaContactDetails();
         contactDetails.setContactName("John Smith");
         return contactDetails;
     }

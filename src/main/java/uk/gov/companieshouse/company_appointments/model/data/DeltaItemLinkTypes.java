@@ -10,35 +10,25 @@ import org.springframework.data.mongodb.core.mapping.Field;
 public class DeltaItemLinkTypes {
   @Field("self")
   private String self;
-
   @Field("officer")
   private DeltaOfficerLinkTypes officer;
-
-  public DeltaItemLinkTypes self(String self) {
-    this.self = self;
-    return this;
-  }
 
   public String getSelf() {
     return self;
   }
 
-  public void setSelf(String self) {
+  public DeltaItemLinkTypes setSelf(String self) {
     this.self = self;
-  }
-
-  public DeltaItemLinkTypes officer(DeltaOfficerLinkTypes officer) {
-    this.officer = officer;
     return this;
   }
 
-  @Valid
   public DeltaOfficerLinkTypes getOfficer() {
     return officer;
   }
 
-  public void setOfficer(DeltaOfficerLinkTypes officer) {
+  public DeltaItemLinkTypes setOfficer(DeltaOfficerLinkTypes officer) {
     this.officer = officer;
+    return this;
   }
 
   @Override

@@ -4,26 +4,15 @@ import java.util.Objects;
 
 public class DeltaDateOfBirth {
   private Integer day;
-
   private Integer month;
-
   private Integer year;
-
-  public DeltaDateOfBirth day(Integer day) {
-    this.day = day;
-    return this;
-  }
 
   public Integer getDay() {
     return day;
   }
 
-  public void setDay(Integer day) {
+  public DeltaDateOfBirth setDay(Integer day) {
     this.day = day;
-  }
-
-  public DeltaDateOfBirth month(Integer month) {
-    this.month = month;
     return this;
   }
 
@@ -31,12 +20,8 @@ public class DeltaDateOfBirth {
     return month;
   }
 
-  public void setMonth(Integer month) {
+  public DeltaDateOfBirth setMonth(Integer month) {
     this.month = month;
-  }
-
-  public DeltaDateOfBirth year(Integer year) {
-    this.year = year;
     return this;
   }
 
@@ -44,8 +29,9 @@ public class DeltaDateOfBirth {
     return year;
   }
 
-  public void setYear(Integer year) {
+  public DeltaDateOfBirth setYear(Integer year) {
     this.year = year;
+    return this;
   }
 
   @Override

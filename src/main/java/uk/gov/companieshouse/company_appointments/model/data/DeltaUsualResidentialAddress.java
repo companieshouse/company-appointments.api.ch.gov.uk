@@ -9,46 +9,29 @@ import org.springframework.data.mongodb.core.mapping.Field;
 public class DeltaUsualResidentialAddress {
   @Field("address_line_1")
   private String addressLine1;
-
   @Field("address_line_2")
   private String addressLine2;
-
   @Field("care_of")
   private String careOf;
-
   @Field("country")
   private String country;
-
   @Field("locality")
   private String locality;
-
   @Field("po_box")
   private String poBox;
-
   @Field("postal_code")
   private String postalCode;
-
   @Field("premises")
   private String premises;
-
   @Field("region")
   private String region;
-
-  public DeltaUsualResidentialAddress addressLine1(String addressLine1) {
-    this.addressLine1 = addressLine1;
-    return this;
-  }
 
   public String getAddressLine1() {
     return addressLine1;
   }
 
-  public void setAddressLine1(String addressLine1) {
+  public DeltaUsualResidentialAddress setAddressLine1(String addressLine1) {
     this.addressLine1 = addressLine1;
-  }
-
-  public DeltaUsualResidentialAddress addressLine2(String addressLine2) {
-    this.addressLine2 = addressLine2;
     return this;
   }
 
@@ -56,12 +39,8 @@ public class DeltaUsualResidentialAddress {
     return addressLine2;
   }
 
-  public void setAddressLine2(String addressLine2) {
+  public DeltaUsualResidentialAddress setAddressLine2(String addressLine2) {
     this.addressLine2 = addressLine2;
-  }
-
-  public DeltaUsualResidentialAddress careOf(String careOf) {
-    this.careOf = careOf;
     return this;
   }
 
@@ -69,12 +48,8 @@ public class DeltaUsualResidentialAddress {
     return careOf;
   }
 
-  public void setCareOf(String careOf) {
+  public DeltaUsualResidentialAddress setCareOf(String careOf) {
     this.careOf = careOf;
-  }
-
-  public DeltaUsualResidentialAddress country(String country) {
-    this.country = country;
     return this;
   }
 
@@ -82,12 +57,8 @@ public class DeltaUsualResidentialAddress {
     return country;
   }
 
-  public void setCountry(String country) {
+  public DeltaUsualResidentialAddress setCountry(String country) {
     this.country = country;
-  }
-
-  public DeltaUsualResidentialAddress locality(String locality) {
-    this.locality = locality;
     return this;
   }
 
@@ -95,12 +66,8 @@ public class DeltaUsualResidentialAddress {
     return locality;
   }
 
-  public void setLocality(String locality) {
+  public DeltaUsualResidentialAddress setLocality(String locality) {
     this.locality = locality;
-  }
-
-  public DeltaUsualResidentialAddress poBox(String poBox) {
-    this.poBox = poBox;
     return this;
   }
 
@@ -108,12 +75,8 @@ public class DeltaUsualResidentialAddress {
     return poBox;
   }
 
-  public void setPoBox(String poBox) {
+  public DeltaUsualResidentialAddress setPoBox(String poBox) {
     this.poBox = poBox;
-  }
-
-  public DeltaUsualResidentialAddress postalCode(String postalCode) {
-    this.postalCode = postalCode;
     return this;
   }
 
@@ -121,12 +84,8 @@ public class DeltaUsualResidentialAddress {
     return postalCode;
   }
 
-  public void setPostalCode(String postalCode) {
+  public DeltaUsualResidentialAddress setPostalCode(String postalCode) {
     this.postalCode = postalCode;
-  }
-
-  public DeltaUsualResidentialAddress premises(String premises) {
-    this.premises = premises;
     return this;
   }
 
@@ -134,12 +93,8 @@ public class DeltaUsualResidentialAddress {
     return premises;
   }
 
-  public void setPremises(String premises) {
+  public DeltaUsualResidentialAddress setPremises(String premises) {
     this.premises = premises;
-  }
-
-  public DeltaUsualResidentialAddress region(String region) {
-    this.region = region;
     return this;
   }
 
@@ -147,8 +102,9 @@ public class DeltaUsualResidentialAddress {
     return region;
   }
 
-  public void setRegion(String region) {
+  public DeltaUsualResidentialAddress setRegion(String region) {
     this.region = region;
+    return this;
   }
 
   @Override

@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.util.List;
 import org.springframework.data.mongodb.core.mapping.Field;
 import javax.validation.Valid;
+import org.springframework.format.annotation.DateTimeFormat;
 
 public class DeltaOfficerData {
   @Field("person_number")
@@ -20,11 +21,11 @@ public class DeltaOfficerData {
   private String countryOfResidence;
 
   @Field("appointed_on")
-  @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE)
+  @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
   private LocalDate appointedOn;
 
   @Field("appointed_before")
-  @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE)
+  @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
   private LocalDate appointedBefore;
 
   @Field("is_pre_1992_appointment")
@@ -160,13 +161,13 @@ public class DeltaOfficerData {
   private String companyNumber;
 
   @Field("contact_details")
-  private ContactDetails contactDetails;
+  private DeltaContactDetails contactDetails;
 
   @Field("principal_office_address")
   private DeltaPrincipalOfficeAddress principalOfficeAddress;
 
   @Field("resigned_on")
-  @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE)
+  @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
   private LocalDate resignedOn;
 
   @Field("responsibilities")
@@ -358,11 +359,11 @@ public class DeltaOfficerData {
     return this;
   }
 
-  public ContactDetails getContactDetails() {
+  public DeltaContactDetails getContactDetails() {
     return contactDetails;
   }
 
-  public DeltaOfficerData setContactDetails(ContactDetails contactDetails) {
+  public DeltaOfficerData setContactDetails(DeltaContactDetails contactDetails) {
     this.contactDetails = contactDetails;
     return this;
   }

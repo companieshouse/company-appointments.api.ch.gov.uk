@@ -26,8 +26,8 @@ public class DeltaItemLinkTypesTransformer implements
             OfficerLinkTypes officerLinkTypes = source.getOfficer();
             if (officerLinkTypes != null) {
                 entity.setOfficer(new DeltaOfficerLinkTypes()
-                        .self(officerLinkTypes.getSelf())
-                        .appointments(officerLinkTypes.getAppointments()));
+                        .setSelf(officerLinkTypes.getSelf())
+                        .setAppointments(officerLinkTypes.getAppointments()));
             }
 
             return entity;
