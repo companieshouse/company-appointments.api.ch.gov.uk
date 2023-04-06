@@ -24,6 +24,5 @@ public class AbstractMongoConfig {
                 .withStartupTimeout(Duration.of(300, SECONDS)));
         registry.add("spring.data.mongodb.uri", (() -> mongoDBContainer.getReplicaSetUrl() +
                 "?serverSelectionTimeoutMS=100&connectTimeoutMS=100"));
-        mongoDBContainer.start();
     }
 }

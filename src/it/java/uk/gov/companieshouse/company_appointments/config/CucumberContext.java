@@ -24,4 +24,9 @@ public enum CucumberContext {
                 .put(name, object);
         return object;
     }
+
+    public void clear() {
+        testContexts.get()
+                .clear();
+    }
 }

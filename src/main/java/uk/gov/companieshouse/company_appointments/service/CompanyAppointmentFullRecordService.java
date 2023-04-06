@@ -2,6 +2,7 @@ package uk.gov.companieshouse.company_appointments.service;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import uk.gov.companieshouse.GenerateEtagUtil;
 import uk.gov.companieshouse.api.appointment.Data;
@@ -18,14 +19,11 @@ import uk.gov.companieshouse.company_appointments.model.data.ResourceChangedRequ
 import uk.gov.companieshouse.company_appointments.model.transformer.DeltaAppointmentTransformer;
 import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentFullRecordView;
 import uk.gov.companieshouse.company_appointments.repository.CompanyAppointmentFullRecordRepository;
-import uk.gov.companieshouse.company_appointments.util.DeltaDateValidator;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.logging.LoggerFactory;
 
 import java.time.Clock;
 import java.time.Instant;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -33,22 +31,18 @@ import java.util.Optional;
 @Service
 public class CompanyAppointmentFullRecordService {
 
-    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSSSSS").withZone(ZoneId.of("Z"));
     private static final Logger LOGGER = LoggerFactory.getLogger(CompanyAppointmentsApplication.APPLICATION_NAMESPACE);
 
     private final CompanyAppointmentFullRecordRepository companyAppointmentRepository;
 
     private final ResourceChangedApiService resourceChangedApiService;
 
-    private final DeltaDateValidator deltaDateValidator;
-
     private final Clock clock;
 
     @Autowired
-    public CompanyAppointmentFullRecordService(CompanyAppointmentFullRecordRepository companyAppointmentRepository, ResourceChangedApiService resourceChangedApiService, DeltaDateValidator deltaDateValidator, Clock clock) {
+    public CompanyAppointmentFullRecordService(CompanyAppointmentFullRecordRepository companyAppointmentRepository, ResourceChangedApiService resourceChangedApiService, Clock clock) {
         this.companyAppointmentRepository = companyAppointmentRepository;
         this.resourceChangedApiService = resourceChangedApiService;
-        this.deltaDateValidator = deltaDateValidator;
         this.clock = clock;
     }
 
@@ -64,6 +58,7 @@ public class CompanyAppointmentFullRecordService {
 
     public void upsertAppointmentDelta(String contextId, final FullRecordCompanyOfficerApi requestBody) throws ServiceUnavailableException {
 
+            // TODO should one big try catch or two try catch blocks be used?
             DeltaAppointmentTransformer deltaAppointmentTransformer = new DeltaAppointmentTransformer();
             DeltaAppointmentApi deltaAppointmentApi;
             try {
@@ -78,12 +73,15 @@ public class CompanyAppointmentFullRecordService {
                 deltaAppointmentApi.setUpdatedAt(instant);
                 deltaAppointmentApi.setEtag(GenerateEtagUtil.generateEtag());
             }
-
-            Optional<DeltaAppointmentApiEntity> existingAppointment = getExistingDelta(deltaAppointmentApi);
-            if (existingAppointment.isPresent()) {
-                updateAppointment(contextId, deltaAppointmentApi, existingAppointment.get());
-            } else {
-                saveAppointment(contextId, deltaAppointmentApi, instant);
+            try {
+                Optional<DeltaAppointmentApiEntity> existingAppointment = getExistingDelta(deltaAppointmentApi);
+                if (existingAppointment.isPresent()) {
+                    updateAppointment(contextId, deltaAppointmentApi, existingAppointment.get());
+                } else {
+                    saveAppointment(contextId, deltaAppointmentApi, instant);
+                }
+            } catch (DataAccessException e) {
+                throw new ServiceUnavailableException("Error connecting to MongoDB");
             }
     }
 
@@ -92,7 +90,7 @@ public class CompanyAppointmentFullRecordService {
         Optional<DeltaAppointmentApiEntity> appointmentData = companyAppointmentRepository.readByCompanyNumberAndID(companyNumber, appointmentId);
 
         resourceChangedApiService.invokeChsKafkaApi(new ResourceChangedRequest(contextId, companyNumber, appointmentId, appointmentData, true));
-        LOGGER.info(String.format("ChsKafka api CHANGED invoked updated successfully for context id: %s and company number: %s",
+        LOGGER.info(String.format("ChsKafka api DELETED invoked updated successfully for context id: %s and company number: %s",
                 contextId,
                 companyNumber));
 

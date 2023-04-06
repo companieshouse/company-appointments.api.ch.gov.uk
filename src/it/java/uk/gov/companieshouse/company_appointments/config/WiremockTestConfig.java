@@ -24,8 +24,18 @@ public class WiremockTestConfig {
             wireMockServer.start();
             configureFor("localhost", wireMockServer.port());
         } else {
-            wireMockServer.resetAll();
+            resetWiremock();
         }
+    }
+
+    public static void resetWiremock() {
+        if (wireMockServer == null) {
+            throw new RuntimeException("Wiremock not initialised");
+        }
+        wireMockServer.resetRequests();
+        wireMockServer.resetAll();
+        wireMockServer.stop();
+        wireMockServer.start();
     }
 
     public static void stubKafkaApi(Integer responseCode) {

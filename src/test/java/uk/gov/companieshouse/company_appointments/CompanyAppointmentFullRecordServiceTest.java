@@ -85,7 +85,7 @@ class CompanyAppointmentFullRecordServiceTest {
     @BeforeEach
     void setUp() {
         companyAppointmentService =
-                new CompanyAppointmentFullRecordService(companyAppointmentRepository, resourceChangedApiService, deltaDateValidator, CLOCK);
+                new CompanyAppointmentFullRecordService(companyAppointmentRepository, resourceChangedApiService, CLOCK);
     }
 
     @Test

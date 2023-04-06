@@ -10,8 +10,11 @@ import org.springframework.http.ResponseEntity;
 import uk.gov.companieshouse.api.appointment.FullRecordCompanyOfficerApi;
 import uk.gov.companieshouse.company_appointments.controller.CompanyAppointmentFullRecordController;
 import uk.gov.companieshouse.company_appointments.exception.NotFoundException;
+import uk.gov.companieshouse.company_appointments.exception.ServiceUnavailableException;
 import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentFullRecordView;
 import uk.gov.companieshouse.company_appointments.service.CompanyAppointmentFullRecordService;
+
+import java.rmi.server.ServerCloneException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -80,6 +83,19 @@ class CompanyAppointmentFullRecordControllerTest {
     }
 
     @Test
+    void testControllerReturns503StatusWhenPutEndpointIsCalled() throws ServiceUnavailableException {
+        // given
+        doThrow(ServiceUnavailableException.class)
+                .when(companyAppointmentService).upsertAppointmentDelta(any(), any());
+
+        // when
+        ResponseEntity<Void> response = companyAppointmentFullRecordController.submitOfficerData(CONTEXT_ID, appointment);
+
+        // then
+        assertEquals(HttpStatus.SERVICE_UNAVAILABLE, response.getStatusCode());
+    }
+
+    @Test
     void testControllerReturns200WhenOfficerDeleted() {
 
         ResponseEntity<Void> response = companyAppointmentFullRecordController.deleteOfficerData(CONTEXT_ID, COMPANY_NUMBER, APPOINTMENT_ID);
@@ -94,5 +110,18 @@ class CompanyAppointmentFullRecordControllerTest {
         ResponseEntity<Void> response = companyAppointmentFullRecordController.deleteOfficerData(CONTEXT_ID, COMPANY_NUMBER, APPOINTMENT_ID);
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+    }
+
+    @Test
+    void testControllerReturns503StatusWhenDeleteEndpointIsCalled() throws ServiceUnavailableException, NotFoundException {
+        // given
+        doThrow(ServiceUnavailableException.class)
+                .when(companyAppointmentService).deleteAppointmentDelta(any(), any(), any());
+
+        // when
+        ResponseEntity<Void> response = companyAppointmentFullRecordController.deleteOfficerData(CONTEXT_ID, COMPANY_NUMBER, APPOINTMENT_ID);
+
+        // then
+        assertEquals(HttpStatus.SERVICE_UNAVAILABLE, response.getStatusCode());
     }
 }

@@ -20,6 +20,8 @@ import uk.gov.companieshouse.company_appointments.service.CompanyAppointmentFull
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.logging.LoggerFactory;
 
+import javax.validation.Valid;
+
 @Controller
 @RequestMapping(path = "/company/{company_number}/appointments/{appointment_id}/full_record", produces = "application/json")
 public class CompanyAppointmentFullRecordController {
@@ -48,13 +50,13 @@ public class CompanyAppointmentFullRecordController {
     @PutMapping(consumes = "application/json")
     public ResponseEntity<Void> submitOfficerData(
             @RequestHeader("x-request-id") String contextId,
-            @RequestBody final FullRecordCompanyOfficerApi companyAppointmentData) {
+            @Valid @RequestBody final FullRecordCompanyOfficerApi companyAppointmentData) {
         try {
             companyAppointmentService.upsertAppointmentDelta(contextId, companyAppointmentData);
             return ResponseEntity.ok().build();
         } catch (ServiceUnavailableException e) {
             LOGGER.info(e.getMessage());
-            return ResponseEntity.internalServerError().build();
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();
         }
     }
 

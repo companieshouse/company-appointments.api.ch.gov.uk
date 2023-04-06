@@ -23,7 +23,7 @@ import uk.gov.companieshouse.company_appointments.model.view.LinksView;
 import uk.gov.companieshouse.company_appointments.model.view.ServiceAddressView;
 import uk.gov.companieshouse.company_appointments.roles.SecretarialRoles;
 
-public class CompanyAppointmentMapperTest {
+class CompanyAppointmentMapperTest {
 
     private CompanyAppointmentMapper companyAppointmentMapper;
 

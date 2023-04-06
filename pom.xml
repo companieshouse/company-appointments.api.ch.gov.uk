@@ -169,6 +169,24 @@
             <artifactId>wiremock-jre8</artifactId>
             <version>${wiremock.version}</version>
             <scope>test</scope>
+        <exclusions>
+            <exclusion>
+                <groupId>org.conscrypt</groupId>
+                <artifactId>conscrypt-openjdk-uber</artifactId>
+            </exclusion>
+            <exclusion>
+                <groupId>net.javacrumbs.json-unit</groupId>
+                <artifactId>json-unit-core</artifactId>
+            </exclusion>
+            <exclusion>
+                <groupId>com.github.jknack</groupId>
+                <artifactId>handlebars</artifactId>
+            </exclusion>
+            <exclusion>
+                <groupId>com.github.jknack</groupId>
+                <artifactId>handlebars-helpers</artifactId>
+            </exclusion>
+        </exclusions>
         </dependency>
     </dependencies>
 
@@ -299,14 +317,14 @@
                     </environmentVariables>
                 </configuration>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>11</source>
-                    <target>11</target>
-                </configuration>
-            </plugin>
+<!--            <plugin>-->
+<!--                <groupId>org.apache.maven.plugins</groupId>-->
+<!--                <artifactId>maven-compiler-plugin</artifactId>-->
+<!--                <configuration>-->
+<!--                    <source>11</source>-->
+<!--                    <target>11</target>-->
+<!--                </configuration>-->
+<!--            </plugin>-->
         </plugins>
     </build>
 </project>

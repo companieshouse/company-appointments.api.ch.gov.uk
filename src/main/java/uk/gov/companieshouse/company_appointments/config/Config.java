@@ -8,7 +8,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import uk.gov.companieshouse.company_appointments.interceptor.AuthenticationInterceptor;
 import uk.gov.companieshouse.company_appointments.interceptor.FullRecordAuthenticationInterceptor;
 import uk.gov.companieshouse.company_appointments.interceptor.RequestLoggingInterceptor;
-import uk.gov.companieshouse.company_appointments.util.DeltaDateValidator;
 
 import java.time.Clock;
 import java.time.OffsetDateTime;
