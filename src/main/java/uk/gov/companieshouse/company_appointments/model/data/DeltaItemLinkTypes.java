@@ -1,7 +1,6 @@
 package uk.gov.companieshouse.company_appointments.model.data;
 
 import java.util.Objects;
-import javax.validation.Valid;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 /**

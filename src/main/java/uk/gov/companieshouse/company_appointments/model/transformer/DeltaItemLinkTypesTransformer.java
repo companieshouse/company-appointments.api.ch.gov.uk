@@ -33,7 +33,7 @@ public class DeltaItemLinkTypesTransformer implements
             return entity;
         } catch (Exception e) {
             throw new FailedToTransformException(
-                    String.format("Failed to transform DeltaItemLinkTypes: %s", e.getMessage()));
+                    String.format("Failed to transform ItemLinkTypes: %s", e.getMessage()));
         }
     }
 }
