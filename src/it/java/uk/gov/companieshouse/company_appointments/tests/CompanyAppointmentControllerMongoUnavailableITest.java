@@ -1,5 +1,10 @@
 package uk.gov.companieshouse.company_appointments.tests;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -21,11 +26,6 @@ import uk.gov.companieshouse.api.appointment.PatchAppointmentNameStatusApi;
 import uk.gov.companieshouse.company_appointments.CompanyAppointmentsApplication;
 import uk.gov.companieshouse.company_appointments.api.ResourceChangedApiService;
 import uk.gov.companieshouse.company_appointments.repository.CompanyAppointmentFullRecordRepository;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @Testcontainers
 @AutoConfigureMockMvc
@@ -66,6 +66,7 @@ class CompanyAppointmentControllerMongoUnavailableITest {
     @Test
     @DisplayName("Patch endpoint returns 503 service unavailable when MongoDB is unavailable")
     void testPatchNewAppointmentCompanyNameStatusMongoUnavailable() throws Exception {
+        when(fullRecordRepository.existsById(any())).thenReturn(true);
         when(fullRecordRepository.patchAppointmentNameStatus(any(), any(), any(), any(), any())).thenThrow(DataAccessResourceFailureException.class);
 
         PatchAppointmentNameStatusApi requestBody = new PatchAppointmentNameStatusApi()

@@ -1,6 +1,7 @@
 package uk.gov.companieshouse.company_appointments.tests;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
@@ -23,7 +24,7 @@ import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import uk.gov.companieshouse.company_appointments.CompanyAppointmentsApplication;
-import uk.gov.companieshouse.company_appointments.model.data.DeltaAppointmentApiEntity;
+import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentDocument;
 import uk.gov.companieshouse.company_appointments.repository.CompanyAppointmentFullRecordRepository;
 
 @Testcontainers
@@ -60,13 +61,17 @@ class CompanyAppointmentFullRecordRepositoryITest {
         long result = repository.patchAppointmentNameStatus(APPOINTMENT_ID, "test name", "test status", at, "etag");
 
         // then
-        assertEquals(1L, result);
-        Optional<DeltaAppointmentApiEntity> actual = repository.findById(APPOINTMENT_ID);
-        assertTrue(actual.isPresent());
-        assertEquals("test name", actual.get().getCompanyName());
-        assertEquals("test status", actual.get().getCompanyStatus());
-        assertEquals(at, actual.get().getUpdated().getAt());
-        assertEquals("etag", actual.get().getEtag());
+        try {
+            assertEquals(1L, result);
+            Optional<CompanyAppointmentDocument> actual = repository.findById(APPOINTMENT_ID);
+            assertTrue(actual.isPresent());
+            assertEquals("test name", actual.get().getCompanyName());
+            assertEquals("test status", actual.get().getCompanyStatus());
+            assertEquals(at, actual.get().getUpdated().getAt());
+            assertEquals("etag", actual.get().getEtag());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @DisplayName("Repository unable to retrieve an existing appointment")
@@ -80,7 +85,29 @@ class CompanyAppointmentFullRecordRepositoryITest {
 
         // then
         assertEquals(0L, result);
-        Optional<DeltaAppointmentApiEntity> actual = repository.findById(FAKE_APPOINTMENT_ID);
+        Optional<CompanyAppointmentDocument> actual = repository.findById(FAKE_APPOINTMENT_ID);
         assertTrue(actual.isEmpty());
+    }
+
+    @DisplayName("Repository returns true when appointment exists")
+    @Test
+    void existsByIdTrue() {
+        // given
+        // when
+        boolean actual = repository.existsById(APPOINTMENT_ID);
+
+        // then
+        assertTrue(actual);
+    }
+
+    @DisplayName("Repository returns false when appointment does not exist")
+    @Test
+    void existsByIdFalse() {
+        // given
+        // when
+        boolean actual = repository.existsById(FAKE_APPOINTMENT_ID);
+
+        // then
+        assertFalse(actual);
     }
 }

@@ -10,6 +10,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import org.jetbrains.annotations.NotNull;
 import org.junit.Assert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,18 +25,21 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.verification.VerificationMode;
 import uk.gov.companieshouse.api.appointment.Data;
-import uk.gov.companieshouse.api.appointment.FullRecordCompanyOfficerApi;
 import uk.gov.companieshouse.api.appointment.DateOfBirth;
 import uk.gov.companieshouse.api.appointment.ExternalData;
+import uk.gov.companieshouse.api.appointment.FullRecordCompanyOfficerApi;
 import uk.gov.companieshouse.api.appointment.InternalData;
-import uk.gov.companieshouse.api.appointment.ItemLinkTypes;
-import uk.gov.companieshouse.api.appointment.OfficerLinkTypes;
 import uk.gov.companieshouse.api.appointment.SensitiveData;
-import uk.gov.companieshouse.api.model.delta.officers.DeltaAppointmentApi;
-import uk.gov.companieshouse.api.model.delta.officers.InstantAPI;
+import uk.gov.companieshouse.company_appointments.exception.FailedToTransformException;
 import uk.gov.companieshouse.company_appointments.exception.NotFoundException;
 import uk.gov.companieshouse.company_appointments.exception.ServiceUnavailableException;
-import uk.gov.companieshouse.company_appointments.model.data.DeltaAppointmentApiEntity;
+import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentDocument;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaDateOfBirth;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaItemLinkTypes;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaOfficerData;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaOfficerLinkTypes;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaSensitiveData;
+import uk.gov.companieshouse.company_appointments.model.transformer.DeltaAppointmentTransformer;
 import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentFullRecordView;
 import uk.gov.companieshouse.company_appointments.repository.CompanyAppointmentFullRecordRepository;
 import uk.gov.companieshouse.company_appointments.service.CompanyAppointmentFullRecordService;
@@ -44,7 +48,6 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
-import java.util.Collections;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -54,60 +57,67 @@ class CompanyAppointmentFullRecordServiceTest {
     private CompanyAppointmentFullRecordService companyAppointmentService;
 
     @Mock
+    private DeltaAppointmentTransformer deltaAppointmentTransformer;
+
+    @Mock
     private CompanyAppointmentFullRecordRepository companyAppointmentRepository;
 
     @Captor
-    private ArgumentCaptor<DeltaAppointmentApiEntity> captor;
+    private ArgumentCaptor<CompanyAppointmentDocument> captor;
 
-    @Mock
-    private DeltaAppointmentApiEntity deltaAppointmentApiEntity;
-
-    private FullRecordCompanyOfficerApi fullRecordCompanyOfficerApi = buildFullRecordOfficer();;
+    private final FullRecordCompanyOfficerApi fullRecordCompanyOfficerApi = buildFullRecordOfficer();
 
     private final static String COMPANY_NUMBER = "123456";
 
     private final static String APPOINTMENT_ID = "345678";
 
-    private final static Instant CREATED_AT = Instant.parse("2021-08-01T00:00:00.000Z");
-    private final static OffsetDateTime DELTA_AT_LATER = OffsetDateTime.parse("2022-01-14T00:00:00.000Z");
-    private final static OffsetDateTime DELTA_AT_STALE = OffsetDateTime.parse("2022-01-12T00:00:00.000Z");
+    private final static OffsetDateTime DELTA_AT_LATER = OffsetDateTime.parse(
+            "2022-01-14T00:00:00.000Z");
+    private final static OffsetDateTime DELTA_AT_STALE = OffsetDateTime.parse(
+            "2022-01-12T00:00:00.000Z");
 
-    private final static InstantAPI instantAPI = new InstantAPI(CREATED_AT);
-
-    private final static Clock CLOCK = Clock.fixed(CREATED_AT, ZoneId.of("UTC"));
+    private final static Clock CLOCK = Clock.fixed(Instant.parse("2021-08-01T00:00:00.000Z"),
+            ZoneId.of("UTC"));
 
     private static Stream<Arguments> deltaAtTestCases() {
         return Stream.of(
                 // existingDelta, incomingDelta, deltaExists, shouldBeStale
-                Arguments.of("2022-01-13T00:00Z", DELTA_AT_LATER, false, false), // delta does not exist
-                Arguments.of("2022-01-13T00:00Z", DELTA_AT_LATER, true, false), // Newer timestamp not stale
-                Arguments.of("2022-01-13T00:00:000Z", DELTA_AT_STALE, true, true), // shorter string is considered less than
-                Arguments.of("2022-01-13T00:00Z", DELTA_AT_STALE, true, true), // Older timestamp stale
-                Arguments.of("2022-01-12T00:00Z", DELTA_AT_STALE, true, true) // 1 == 1 so delta should be stale
+                Arguments.of("2022-01-13T00:00Z", DELTA_AT_LATER, false, false),
+                // delta does not exist
+                Arguments.of("2022-01-13T00:00Z", DELTA_AT_LATER, true, false),
+                // Newer timestamp not stale
+                Arguments.of("2022-01-13T00:00:000Z", DELTA_AT_STALE, true, true),
+                // shorter string is considered less than
+                Arguments.of("2022-01-13T00:00Z", DELTA_AT_STALE, true, true),
+                // Older timestamp stale
+                Arguments.of("2022-01-12T00:00Z", DELTA_AT_STALE, true, true)
+                // 1 == 1 so delta should be stale
         );
     }
 
     @BeforeEach
     void setUp() {
         companyAppointmentService =
-                new CompanyAppointmentFullRecordService(companyAppointmentRepository, CLOCK);
+                new CompanyAppointmentFullRecordService(deltaAppointmentTransformer,
+                        companyAppointmentRepository, CLOCK);
     }
 
     @Test
     void testFetchAppointmentReturnsMappedAppointmentData() throws NotFoundException {
         // given
-        Data data = new Data();
-        data.setOfficerRole(Data.OfficerRoleEnum.DIRECTOR);
-        ItemLinkTypes linkItem = new ItemLinkTypes();
-        linkItem.setOfficer(new OfficerLinkTypes());
+        DeltaOfficerData data = new DeltaOfficerData();
+        data.setOfficerRole("director");
+        DeltaItemLinkTypes linkItem = new DeltaItemLinkTypes();
+        linkItem.setOfficer(new DeltaOfficerLinkTypes());
         linkItem.setSelf("self");
-        data.setLinks(Collections.singletonList(linkItem));
-        deltaAppointmentApiEntity = new DeltaAppointmentApiEntity(
-                new DeltaAppointmentApi("id", "etag", data, new SensitiveData(), "internalId",
-                        "appointmentId", "officerId", "previousOfficerId", "companyNumber",
-                        instantAPI, "updatedBy", instantAPI, "deltaAt", 22));
+        data.setLinks(linkItem);
+        DeltaSensitiveData sensitiveData = new DeltaSensitiveData()
+                .setDateOfBirth(new DeltaDateOfBirth());
+        CompanyAppointmentDocument deltaAppointmentDocument = buildDeltaAppointmentDocument(
+                "2022-01-12T00:00Z", data, sensitiveData);
 
-        when(companyAppointmentRepository.readByCompanyNumberAndID(COMPANY_NUMBER, APPOINTMENT_ID)).thenReturn(Optional.of(deltaAppointmentApiEntity));
+        when(companyAppointmentRepository.readByCompanyNumberAndID(COMPANY_NUMBER,
+                APPOINTMENT_ID)).thenReturn(Optional.of(deltaAppointmentDocument));
 
         // when
         CompanyAppointmentFullRecordView result =
@@ -115,7 +125,8 @@ class CompanyAppointmentFullRecordServiceTest {
 
         // then
         assertThat(result, isA(CompanyAppointmentFullRecordView.class));
-        verify(companyAppointmentRepository).readByCompanyNumberAndID(COMPANY_NUMBER, APPOINTMENT_ID);
+        verify(companyAppointmentRepository).readByCompanyNumberAndID(COMPANY_NUMBER,
+                APPOINTMENT_ID);
     }
 
     @Test
@@ -123,23 +134,30 @@ class CompanyAppointmentFullRecordServiceTest {
         when(companyAppointmentRepository.readByCompanyNumberAndID(any(), any()))
                 .thenReturn(Optional.empty());
 
-        Executable result = () -> companyAppointmentService.getAppointment(COMPANY_NUMBER, APPOINTMENT_ID);
+        Executable result = () -> companyAppointmentService.getAppointment(COMPANY_NUMBER,
+                APPOINTMENT_ID);
 
         assertThrows(NotFoundException.class, result);
     }
 
     @Test
-    void testPutAppointmentData() throws ServiceUnavailableException {
+    void testPutAppointmentData() throws Exception {
         // given
-        Data data = new Data();
-        data.setOfficerRole(Data.OfficerRoleEnum.DIRECTOR);
-        SensitiveData sensitiveData = new SensitiveData();
-        sensitiveData.setDateOfBirth(new DateOfBirth());
-        deltaAppointmentApiEntity = new DeltaAppointmentApiEntity(
-                new DeltaAppointmentApi("id", "etag", data, sensitiveData, "internalId", "id", "officerId",
-                        "previousOfficerId", "companyNumber", null,"updatedBy", null, "2022-01-12T00:00Z", 22));
-        when(companyAppointmentRepository.readByCompanyNumberAndID(deltaAppointmentApiEntity.getCompanyNumber(),
-                deltaAppointmentApiEntity.getId())).thenReturn(Optional.of(deltaAppointmentApiEntity));
+        DeltaOfficerData data = new DeltaOfficerData()
+                .setOfficerRole("director");
+        DeltaSensitiveData sensitiveData = new DeltaSensitiveData()
+                .setDateOfBirth(new DeltaDateOfBirth());
+        CompanyAppointmentDocument deltaAppointmentDocument = buildDeltaAppointmentDocument(
+                "2022-01-12T00:00Z", data, sensitiveData);
+        CompanyAppointmentDocument transformedAppointmentApi = builtDeltaAppointmentApi(
+                data, sensitiveData, "2022-01-13T00:00Z");
+
+        when(companyAppointmentRepository.readByCompanyNumberAndID(
+                transformedAppointmentApi.getCompanyNumber(),
+                transformedAppointmentApi.getId())).thenReturn(
+                Optional.of(deltaAppointmentDocument));
+        when(deltaAppointmentTransformer.transform(any(FullRecordCompanyOfficerApi.class)))
+                .thenReturn(transformedAppointmentApi);
 
         // When
         companyAppointmentService.insertAppointmentDelta(fullRecordCompanyOfficerApi);
@@ -155,59 +173,73 @@ class CompanyAppointmentFullRecordServiceTest {
             final String existingDeltaAt,
             final OffsetDateTime incomingDeltaAt,
             boolean deltaExists,
-            boolean shouldBeStale) throws ServiceUnavailableException {
+            boolean shouldBeStale) throws Exception {
 
         // given
         fullRecordCompanyOfficerApi.getInternalData().setDeltaAt(incomingDeltaAt);
 
-        Data data = new Data();
-        SensitiveData sensitiveData = new SensitiveData();
+        DeltaOfficerData data = new DeltaOfficerData();
+        DeltaSensitiveData sensitiveData = new DeltaSensitiveData();
         String expectedCompanyNumber = "companyNumber";
         String expectedId = "id";
 
-        DeltaAppointmentApiEntity appointmentEntity = new DeltaAppointmentApiEntity(
-                new DeltaAppointmentApi("id", "etag", data, sensitiveData, "internalId", "id", "officerId",
-                        "previousOfficerId", "companyNumber", null,"updatedBy", null, existingDeltaAt, 22));
+        CompanyAppointmentDocument deltaAppointmentDocument = buildDeltaAppointmentDocument(
+                existingDeltaAt, data, sensitiveData);
+        CompanyAppointmentDocument transformedAppointmentApi = builtDeltaAppointmentApi(
+                data, sensitiveData, incomingDeltaAt.toString());
+
+        when(deltaAppointmentTransformer.transform(any(FullRecordCompanyOfficerApi.class)))
+                .thenReturn(transformedAppointmentApi);
 
         when(companyAppointmentRepository.readByCompanyNumberAndID(expectedCompanyNumber,
-                expectedId)).thenReturn(deltaExists ? Optional.of(appointmentEntity) : Optional.empty());
+                expectedId)).thenReturn(deltaExists ? Optional.of(deltaAppointmentDocument)
+                : Optional.empty());
 
         // When
         companyAppointmentService.insertAppointmentDelta(fullRecordCompanyOfficerApi);
 
         // then
         VerificationMode expectedTimes = (deltaExists && shouldBeStale) ? never() : times(1);
-        verify(companyAppointmentRepository, expectedTimes).insertOrUpdate(any(DeltaAppointmentApi.class));
+        verify(companyAppointmentRepository, expectedTimes).insertOrUpdate(
+                any(CompanyAppointmentDocument.class));
     }
 
     @Test
     void deleteOfficer() throws Exception {
-        when(companyAppointmentRepository.deleteByCompanyNumberAndID(COMPANY_NUMBER, APPOINTMENT_ID))
-                .thenReturn(Optional.of(deltaAppointmentApiEntity));
+        when(companyAppointmentRepository.deleteByCompanyNumberAndID(COMPANY_NUMBER,
+                APPOINTMENT_ID))
+                .thenReturn(Optional.of(new CompanyAppointmentDocument()));
 
         companyAppointmentService.deleteOfficer(COMPANY_NUMBER, APPOINTMENT_ID);
 
-        verify(companyAppointmentRepository).deleteByCompanyNumberAndID(COMPANY_NUMBER, APPOINTMENT_ID);
+        verify(companyAppointmentRepository).deleteByCompanyNumberAndID(COMPANY_NUMBER,
+                APPOINTMENT_ID);
     }
 
     @Test
-    void testServiceThrows500WhenTransformFails() {
+    void testServiceThrows500WhenTransformFails() throws Exception {
+        when(deltaAppointmentTransformer.transform(any(FullRecordCompanyOfficerApi.class)))
+                .thenThrow(new FailedToTransformException("message"));
+
         Assert.assertThrows(ServiceUnavailableException.class, () ->
-                companyAppointmentService.insertAppointmentDelta(new FullRecordCompanyOfficerApi()));
+                companyAppointmentService.insertAppointmentDelta(
+                        new FullRecordCompanyOfficerApi()));
     }
 
     @Test
     void deleteOfficerThrowsNotFound() {
-        when(companyAppointmentRepository.deleteByCompanyNumberAndID(COMPANY_NUMBER, APPOINTMENT_ID))
+        when(companyAppointmentRepository.deleteByCompanyNumberAndID(COMPANY_NUMBER,
+                APPOINTMENT_ID))
                 .thenReturn(Optional.empty());
 
-        Executable result = () -> companyAppointmentService.deleteOfficer(COMPANY_NUMBER, APPOINTMENT_ID);
+        Executable result = () -> companyAppointmentService.deleteOfficer(COMPANY_NUMBER,
+                APPOINTMENT_ID);
 
         assertThrows(NotFoundException.class, result);
     }
 
     private FullRecordCompanyOfficerApi buildFullRecordOfficer() {
-        FullRecordCompanyOfficerApi output  = new FullRecordCompanyOfficerApi();
+        FullRecordCompanyOfficerApi output = new FullRecordCompanyOfficerApi();
 
         ExternalData externalData = new ExternalData();
         Data data = new Data();
@@ -229,4 +261,43 @@ class CompanyAppointmentFullRecordServiceTest {
         return output;
     }
 
+    @NotNull
+    private static CompanyAppointmentDocument buildDeltaAppointmentDocument(String existingDeltaAt,
+            DeltaOfficerData data, DeltaSensitiveData sensitiveData) {
+        return CompanyAppointmentDocument.Builder.builder()
+                .withId("id")
+                .withEtag("etag")
+                .withData(data)
+                .withSensitiveData(sensitiveData)
+                .withInternalId("internalId")
+                .withAppointmentId("appointmentId")
+                .withOfficerId("officerId")
+                .withPreviousOfficerId("previousOfficerId")
+                .withCompanyNumber("companyNumber")
+                .withUpdated(null)
+                .withUpdatedBy("updatedBy")
+                .withCreated(null)
+                .withDeltaAt(existingDeltaAt)
+                .withOfficerRoleSortOrder(22)
+                .withCompanyName("company name")
+                .withCompanyStatus("company status")
+                .build();
+    }
+
+    private static CompanyAppointmentDocument builtDeltaAppointmentApi(DeltaOfficerData data,
+            DeltaSensitiveData sensitiveData, String deltaAt) {
+        return new CompanyAppointmentDocument()
+                .setId("id")
+                .setEtag("etag")
+                .setData(data)
+                .setSensitiveData(sensitiveData)
+                .setInternalId("internalId")
+                .setAppointmentId("id")
+                .setOfficerId("officerId")
+                .setPreviousOfficerId("previousOfficerId")
+                .setCompanyNumber("companyNumber")
+                .setUpdatedBy("updatedBy")
+                .setDeltaAt(deltaAt)
+                .setOfficerRoleSortOrder(22);
+    }
 }
