@@ -14,7 +14,7 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaOfficerData;
 import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentDocument;
-import uk.gov.companieshouse.company_appointments.model.data.InstantAPI;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaTimestamp;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaSensitiveData;
 import uk.gov.companieshouse.company_appointments.repository.CompanyAppointmentFullRecordRepository;
 
@@ -47,9 +47,9 @@ class AppointmentApiRepositoryTest {
                 .withOfficerId("officerId")
                 .withPreviousOfficerId("previousOfficerId")
                 .withCompanyNumber("companyNumber")
-                .withUpdated(new InstantAPI(UPDATED_AT))
+                .withUpdated(new DeltaTimestamp(UPDATED_AT))
                 .withUpdatedBy("updatedBy")
-                .withCreated(new InstantAPI(CREATED_AT))
+                .withCreated(new DeltaTimestamp(CREATED_AT))
                 .withDeltaAt("deltaAt")
                 .withOfficerRoleSortOrder(22)
                 .withCompanyName("company name")

@@ -3,11 +3,11 @@ package uk.gov.companieshouse.company_appointments.model.data;
 import java.time.Instant;
 import java.util.Objects;
 
-public class InstantAPI {
+public class DeltaTimestamp {
 
     private Instant at;
 
-    public InstantAPI(Instant at) {
+    public DeltaTimestamp(Instant at) {
         this.at = at;
     }
 
@@ -23,7 +23,7 @@ public class InstantAPI {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        InstantAPI that = (InstantAPI) o;
+        DeltaTimestamp that = (DeltaTimestamp) o;
         return Objects.equals(getAt(), that.getAt());
     }
 

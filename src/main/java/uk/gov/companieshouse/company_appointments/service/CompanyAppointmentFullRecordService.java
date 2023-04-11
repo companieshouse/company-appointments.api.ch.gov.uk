@@ -11,7 +11,7 @@ import uk.gov.companieshouse.company_appointments.exception.NotFoundException;
 import uk.gov.companieshouse.company_appointments.exception.ServiceUnavailableException;
 import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentDocument;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaOfficerData;
-import uk.gov.companieshouse.company_appointments.model.data.InstantAPI;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaTimestamp;
 import uk.gov.companieshouse.company_appointments.model.transformer.DeltaAppointmentTransformer;
 import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentFullRecordView;
 import uk.gov.companieshouse.company_appointments.repository.CompanyAppointmentFullRecordRepository;
@@ -61,7 +61,7 @@ public class CompanyAppointmentFullRecordService {
             throw new ServiceUnavailableException(String.format("Failed to transform payload: %s", e.getMessage()));
         }
 
-        InstantAPI instant = new InstantAPI(Instant.now(clock));
+        DeltaTimestamp instant = new DeltaTimestamp(Instant.now(clock));
         DeltaOfficerData officer = companyAppointmentDocument.getData();
 
         if (officer != null) {
@@ -87,7 +87,7 @@ public class CompanyAppointmentFullRecordService {
         }
     }
 
-    private void saveAppointment(CompanyAppointmentDocument document, InstantAPI instant) {
+    private void saveAppointment(CompanyAppointmentDocument document, DeltaTimestamp instant) {
         document.setCreated(instant);
         companyAppointmentRepository.insertOrUpdate(document);
     }

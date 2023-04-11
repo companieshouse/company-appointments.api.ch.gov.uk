@@ -26,11 +26,11 @@ public class CompanyAppointmentDocument {
     @Field("company_number")
     private String companyNumber;
     @Field("updated")
-    private InstantAPI updated;
+    private DeltaTimestamp updated;
     @Field("updated_by")
     private String updatedBy;
     @Field("created")
-    private InstantAPI created;
+    private DeltaTimestamp created;
     @Field("delta_at")
     private String deltaAt;
     @Field("officer_role_sort_order")
@@ -143,11 +143,11 @@ public class CompanyAppointmentDocument {
         return this;
     }
 
-    public InstantAPI getUpdated() {
+    public DeltaTimestamp getUpdated() {
         return updated;
     }
 
-    public CompanyAppointmentDocument setUpdated(InstantAPI updated) {
+    public CompanyAppointmentDocument setUpdated(DeltaTimestamp updated) {
         this.updated = updated;
         return this;
     }
@@ -161,11 +161,11 @@ public class CompanyAppointmentDocument {
         return this;
     }
 
-    public InstantAPI getCreated() {
+    public DeltaTimestamp getCreated() {
         return created;
     }
 
-    public CompanyAppointmentDocument setCreated(InstantAPI created) {
+    public CompanyAppointmentDocument setCreated(DeltaTimestamp created) {
         this.created = created;
         return this;
     }
@@ -216,9 +216,9 @@ public class CompanyAppointmentDocument {
         private String officerId;
         private String previousOfficerId;
         private String companyNumber;
-        private InstantAPI updated;
+        private DeltaTimestamp updated;
         private String updatedBy;
-        private InstantAPI created;
+        private DeltaTimestamp created;
         private String deltaAt;
         private int officerRoleSortOrder;
         private String companyName;
@@ -276,7 +276,7 @@ public class CompanyAppointmentDocument {
             return this;
         }
 
-        public Builder withUpdated(InstantAPI updated) {
+        public Builder withUpdated(DeltaTimestamp updated) {
             this.updated = updated;
             return this;
         }
@@ -286,7 +286,7 @@ public class CompanyAppointmentDocument {
             return this;
         }
 
-        public Builder withCreated(InstantAPI created) {
+        public Builder withCreated(DeltaTimestamp created) {
             this.created = created;
             return this;
         }
