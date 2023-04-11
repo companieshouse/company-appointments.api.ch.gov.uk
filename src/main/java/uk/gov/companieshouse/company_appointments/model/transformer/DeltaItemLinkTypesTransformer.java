@@ -2,7 +2,6 @@ package uk.gov.companieshouse.company_appointments.model.transformer;
 
 import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.api.appointment.ItemLinkTypes;
-import uk.gov.companieshouse.api.appointment.OfficerLinkTypes;
 import uk.gov.companieshouse.company_appointments.exception.FailedToTransformException;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaItemLinkTypes;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaOfficerLinkTypes;
