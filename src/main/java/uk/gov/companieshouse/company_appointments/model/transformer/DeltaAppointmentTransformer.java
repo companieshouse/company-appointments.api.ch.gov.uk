@@ -28,7 +28,7 @@ public class DeltaAppointmentTransformer implements Transformative<FullRecordCom
     public CompanyAppointmentDocument transform(FullRecordCompanyOfficerApi api, CompanyAppointmentDocument entity) throws FailedToTransformException {
 
         try {
-            ExternalData externalData = api.getExternalData();
+            var externalData = api.getExternalData();
             entity.setData(officerDataTransformer.transform(externalData.getData()));
             entity.setSensitiveData(externalData.getSensitiveData() != null?
                     sensitiveDataTransformer.transform(externalData.getSensitiveData()) : null);
