@@ -35,12 +35,9 @@ public class DeltaContactDetails {
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append("class ContactDetails {\n");
-    
-    sb.append("    contactName: ").append(toIndentedString(contactName)).append("\n");
-    sb.append("}");
-    return sb.toString();
+    return "class ContactDetails {\n"
+            + "    contactName: " + toIndentedString(contactName) + "\n"
+            + "}";
   }
 
   /**

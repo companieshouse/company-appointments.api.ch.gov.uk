@@ -5,6 +5,7 @@ import org.springframework.data.mongodb.core.mapping.Field;
 
 public class ContactDetailsData {
 
+    @Field("contact_name")
     private String contactName;
 
     public ContactDetailsData(String contactName) {

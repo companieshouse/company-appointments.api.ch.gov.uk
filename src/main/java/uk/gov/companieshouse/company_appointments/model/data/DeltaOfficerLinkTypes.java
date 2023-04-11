@@ -50,13 +50,10 @@ public class DeltaOfficerLinkTypes {
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append("class OfficerLinkTypes {\n");
-    
-    sb.append("    self: ").append(toIndentedString(self)).append("\n");
-    sb.append("    appointments: ").append(toIndentedString(appointments)).append("\n");
-    sb.append("}");
-    return sb.toString();
+    return "class OfficerLinkTypes {\n"
+            + "    self: " + toIndentedString(self) + "\n"
+            + "    appointments: " + toIndentedString(appointments) + "\n"
+            + "}";
   }
 
   /**

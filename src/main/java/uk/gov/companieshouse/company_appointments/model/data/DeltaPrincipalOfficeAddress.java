@@ -131,20 +131,17 @@ public class DeltaPrincipalOfficeAddress {
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append("class PrincipalOfficeAddress {\n");
-    
-    sb.append("    addressLine1: ").append(toIndentedString(addressLine1)).append("\n");
-    sb.append("    addressLine2: ").append(toIndentedString(addressLine2)).append("\n");
-    sb.append("    careOf: ").append(toIndentedString(careOf)).append("\n");
-    sb.append("    country: ").append(toIndentedString(country)).append("\n");
-    sb.append("    locality: ").append(toIndentedString(locality)).append("\n");
-    sb.append("    poBox: ").append(toIndentedString(poBox)).append("\n");
-    sb.append("    postalCode: ").append(toIndentedString(postalCode)).append("\n");
-    sb.append("    premises: ").append(toIndentedString(premises)).append("\n");
-    sb.append("    region: ").append(toIndentedString(region)).append("\n");
-    sb.append("}");
-    return sb.toString();
+    return "class PrincipalOfficeAddress {\n"
+            + "    addressLine1: " + toIndentedString(addressLine1) + "\n"
+            + "    addressLine2: " + toIndentedString(addressLine2) + "\n"
+            + "    careOf: " + toIndentedString(careOf) + "\n"
+            + "    country: " + toIndentedString(country) + "\n"
+            + "    locality: " + toIndentedString(locality) + "\n"
+            + "    poBox: " + toIndentedString(poBox) + "\n"
+            + "    postalCode: " + toIndentedString(postalCode) + "\n"
+            + "    premises: " + toIndentedString(premises) + "\n"
+            + "    region: " + toIndentedString(region) + "\n"
+            + "}";
   }
 
   /**

@@ -86,16 +86,13 @@ public class DeltaIdentification {
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append("class Identification {\n");
-    
-    sb.append("    identificationType: ").append(toIndentedString(identificationType)).append("\n");
-    sb.append("    legalAuthority: ").append(toIndentedString(legalAuthority)).append("\n");
-    sb.append("    legalForm: ").append(toIndentedString(legalForm)).append("\n");
-    sb.append("    placeRegistered: ").append(toIndentedString(placeRegistered)).append("\n");
-    sb.append("    registrationNumber: ").append(toIndentedString(registrationNumber)).append("\n");
-    sb.append("}");
-    return sb.toString();
+    return "class Identification {\n"
+            + "    identificationType: " + toIndentedString(identificationType) + "\n"
+            + "    legalAuthority: " + toIndentedString(legalAuthority) + "\n"
+            + "    legalForm: " + toIndentedString(legalForm) + "\n"
+            + "    placeRegistered: " + toIndentedString(placeRegistered) + "\n"
+            + "    registrationNumber: " + toIndentedString(registrationNumber) + "\n"
+            + "}";
   }
 
   /**

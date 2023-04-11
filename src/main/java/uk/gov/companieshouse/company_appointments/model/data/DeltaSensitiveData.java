@@ -59,14 +59,11 @@ public class DeltaSensitiveData {
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append("class SensitiveData {\n");
-    
-    sb.append("    usualResidentialAddress: ").append(toIndentedString(usualResidentialAddress)).append("\n");
-    sb.append("    residentialAddressSameAsServiceAddress: ").append(toIndentedString(residentialAddressSameAsServiceAddress)).append("\n");
-    sb.append("    dateOfBirth: ").append(toIndentedString(dateOfBirth)).append("\n");
-    sb.append("}");
-    return sb.toString();
+    return "class SensitiveData {\n"
+            + "    usualResidentialAddress: " + toIndentedString(usualResidentialAddress) + "\n"
+            + "    residentialAddressSameAsServiceAddress: " + toIndentedString(residentialAddressSameAsServiceAddress) + "\n"
+            + "    dateOfBirth: " + toIndentedString(dateOfBirth) + "\n"
+            + "}";
   }
 
   /**

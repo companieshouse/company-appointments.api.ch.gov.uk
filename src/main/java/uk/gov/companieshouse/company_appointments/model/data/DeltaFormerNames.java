@@ -50,13 +50,10 @@ public class DeltaFormerNames {
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append("class FormerNames {\n");
-    
-    sb.append("    forenames: ").append(toIndentedString(forenames)).append("\n");
-    sb.append("    surname: ").append(toIndentedString(surname)).append("\n");
-    sb.append("}");
-    return sb.toString();
+    return "class FormerNames {\n"
+            + "    forenames: " + toIndentedString(forenames) + "\n"
+            + "    surname: " + toIndentedString(surname) + "\n"
+            + "}";
   }
 
   /**

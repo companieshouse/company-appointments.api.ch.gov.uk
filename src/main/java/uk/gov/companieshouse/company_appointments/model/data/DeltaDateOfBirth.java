@@ -55,14 +55,11 @@ public class DeltaDateOfBirth {
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append("class DateOfBirth {\n");
-    
-    sb.append("    day: ").append(toIndentedString(day)).append("\n");
-    sb.append("    month: ").append(toIndentedString(month)).append("\n");
-    sb.append("    year: ").append(toIndentedString(year)).append("\n");
-    sb.append("}");
-    return sb.toString();
+    return "class DateOfBirth {\n"
+            + "    day: " + toIndentedString(day) + "\n"
+            + "    month: " + toIndentedString(month) + "\n"
+            + "    year: " + toIndentedString(year) + "\n"
+            + "}";
   }
 
   /**

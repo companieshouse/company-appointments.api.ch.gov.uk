@@ -359,36 +359,33 @@ public class DeltaOfficerData {
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append("class Data {\n");
-
-    sb.append("    personNumber: ").append(toIndentedString(personNumber)).append("\n");
-    sb.append("    serviceAddress: ").append(toIndentedString(serviceAddress)).append("\n");
-    sb.append("    serviceAddressSameAsRegisteredOfficeAddress: ").append(toIndentedString(serviceAddressSameAsRegisteredOfficeAddress)).append("\n");
-    sb.append("    countryOfResidence: ").append(toIndentedString(countryOfResidence)).append("\n");
-    sb.append("    appointedOn: ").append(toIndentedString(appointedOn)).append("\n");
-    sb.append("    appointedBefore: ").append(toIndentedString(appointedBefore)).append("\n");
-    sb.append("    isPre1992Appointment: ").append(toIndentedString(isPre1992Appointment)).append("\n");
-    sb.append("    links: ").append(toIndentedString(links)).append("\n");
-    sb.append("    nationality: ").append(toIndentedString(nationality)).append("\n");
-    sb.append("    occupation: ").append(toIndentedString(occupation)).append("\n");
-    sb.append("    officerRole: ").append(toIndentedString(officerRole)).append("\n");
-    sb.append("    isSecureOfficer: ").append(toIndentedString(isSecureOfficer)).append("\n");
-    sb.append("    identification: ").append(toIndentedString(identification)).append("\n");
-    sb.append("    companyName: ").append(toIndentedString(companyName)).append("\n");
-    sb.append("    surname: ").append(toIndentedString(surname)).append("\n");
-    sb.append("    forename: ").append(toIndentedString(forename)).append("\n");
-    sb.append("    honours: ").append(toIndentedString(honours)).append("\n");
-    sb.append("    otherForenames: ").append(toIndentedString(otherForenames)).append("\n");
-    sb.append("    title: ").append(toIndentedString(title)).append("\n");
-    sb.append("    companyNumber: ").append(toIndentedString(companyNumber)).append("\n");
-    sb.append("    contactDetails: ").append(toIndentedString(contactDetails)).append("\n");
-    sb.append("    principalOfficeAddress: ").append(toIndentedString(principalOfficeAddress)).append("\n");
-    sb.append("    resignedOn: ").append(toIndentedString(resignedOn)).append("\n");
-    sb.append("    responsibilities: ").append(toIndentedString(responsibilities)).append("\n");
-    sb.append("    formerNames: ").append(toIndentedString(formerNames)).append("\n");
-    sb.append("}");
-    return sb.toString();
+    return "class Data {\n"
+            + "    personNumber: " + toIndentedString(personNumber) + "\n"
+            + "    serviceAddress: " + toIndentedString(serviceAddress) + "\n"
+            + "    serviceAddressSameAsRegisteredOfficeAddress: " + toIndentedString(serviceAddressSameAsRegisteredOfficeAddress) + "\n"
+            + "    countryOfResidence: " + toIndentedString(countryOfResidence) + "\n"
+            + "    appointedOn: " + toIndentedString(appointedOn) + "\n"
+            + "    appointedBefore: " + toIndentedString(appointedBefore) + "\n"
+            + "    isPre1992Appointment: " + toIndentedString(isPre1992Appointment) + "\n"
+            + "    links: " + toIndentedString(links) + "\n"
+            + "    nationality: " + toIndentedString(nationality) + "\n"
+            + "    occupation: " + toIndentedString(occupation) + "\n"
+            + "    officerRole: " + toIndentedString(officerRole) + "\n"
+            + "    isSecureOfficer: " + toIndentedString(isSecureOfficer) + "\n"
+            + "    identification: " + toIndentedString(identification) + "\n"
+            + "    companyName: " + toIndentedString(companyName) + "\n"
+            + "    surname: " + toIndentedString(surname) + "\n"
+            + "    forename: " + toIndentedString(forename) + "\n"
+            + "    honours: " + toIndentedString(honours) + "\n"
+            + "    otherForenames: " + toIndentedString(otherForenames) + "\n"
+            + "    title: " + toIndentedString(title) + "\n"
+            + "    companyNumber: " + toIndentedString(companyNumber) + "\n"
+            + "    contactDetails: " + toIndentedString(contactDetails) + "\n"
+            + "    principalOfficeAddress: " + toIndentedString(principalOfficeAddress) + "\n"
+            + "    resignedOn: " + toIndentedString(resignedOn) + "\n"
+            + "    responsibilities: " + toIndentedString(responsibilities) + "\n"
+            + "    formerNames: " + toIndentedString(formerNames) + "\n"
+            + "}";
   }
 
   /**
