@@ -23,7 +23,7 @@ public class DeltaItemLinkTypesTransformer implements
         try {
             entity.setSelf(source.getSelf());
 
-            OfficerLinkTypes officerLinkTypes = source.getOfficer();
+            var officerLinkTypes = source.getOfficer();
             if (officerLinkTypes != null) { // NOSONAR
                 entity.setOfficer(new DeltaOfficerLinkTypes()
                         .setSelf(officerLinkTypes.getSelf())

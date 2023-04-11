@@ -61,7 +61,7 @@ public class CompanyAppointmentFullRecordService {
             throw new ServiceUnavailableException(String.format("Failed to transform payload: %s", e.getMessage()));
         }
 
-        DeltaTimestamp instant = new DeltaTimestamp(Instant.now(clock));
+        var instant = new DeltaTimestamp(Instant.now(clock));
         DeltaOfficerData officer = companyAppointmentDocument.getData();
 
         if (officer != null) {
