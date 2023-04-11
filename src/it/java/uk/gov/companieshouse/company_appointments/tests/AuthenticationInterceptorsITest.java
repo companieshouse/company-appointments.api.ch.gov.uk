@@ -142,7 +142,7 @@ class AuthenticationInterceptorsITest {
         addApiKeyHeaders(false);
         mockMvc.perform(get(URL_TEMPLATE_FULL_RECORD, COMPANY_NUMBER, APP_ID).headers(httpHeaders))
                 .andDo(print())
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isForbidden());
     }
 
     @Test

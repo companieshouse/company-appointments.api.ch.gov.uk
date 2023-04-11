@@ -65,6 +65,14 @@ public class FullRecordAppointmentSteps {
         headers.set(ERIC_AUTHORISED_KEY_PRIVILEGES, "");
     }
 
+    @Given("the user is authenticated but not authorised")
+    public void userIsAuthenticatedButNotAuthorised() {
+        headers.set(ERIC_IDENTITY, "TEST_IDENTITY");
+        headers.set(ERIC_IDENTITY_TYPE, IDENTITY_TYPE_KEY);
+        headers.set(ERIC_AUTHORISED_KEY_PRIVILEGES, "");
+    }
+
+
     @Given("the record does not already exist in the database")
     public void noRecordsInDatabase() {
         companyAppointmentFullRecordRepository.deleteAll();

@@ -54,7 +54,7 @@ public class FullRecordAuthenticationInterceptor implements HandlerInterceptor {
                     "User not authorised. API key does not have sufficient privileges.",
                     logMap);
 
-            response.setStatus(HttpStatus.SC_UNAUTHORIZED);
+            response.setStatus(HttpStatus.SC_FORBIDDEN);
             return false;
         }
 

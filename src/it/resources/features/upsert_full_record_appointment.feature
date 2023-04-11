@@ -65,13 +65,27 @@ Feature: Upsert full record officer information
       | natural_officer_full_record_PUT    | 7IjxamNGLlqtIingmTZJJ42Hw9Q |
       | corporate_officer_full_record_PUT  | 7IjxamNGLlqtIingmTZJJ42Hw9Q |
 
-  Scenario Outline: User not authorised
+  Scenario Outline: User not authorised or authenticated
 
     Given CHS kafka is available
     And the user is not authenticated or authorised
     And the delta for payload "<payloadFile>" is the most recent delta for "<appointmentId>"
     When a request is sent to the PUT endpoint to upsert an officers delta
     Then I should receive a 401 status code
+    And a request should NOT be sent to the resource changed endpoint
+    And the changes within the delta for "<appointmentId>" should NOT be persisted in the database
+
+    Examples:
+      | payloadFile                        | appointmentId               |
+      | natural_officer_full_record_PUT    | 7IjxamNGLlqtIingmTZJJ42Hw9Q |
+      | corporate_officer_full_record_PUT  | 7IjxamNGLlqtIingmTZJJ42Hw9Q |
+
+  Scenario Outline: User authenticated but not authorised so forbidden
+    Given CHS kafka is available
+    And the user is authenticated but not authorised
+    And the delta for payload "<payloadFile>" is the most recent delta for "<appointmentId>"
+    When a request is sent to the PUT endpoint to upsert an officers delta
+    Then I should receive a 403 status code
     And a request should NOT be sent to the resource changed endpoint
     And the changes within the delta for "<appointmentId>" should NOT be persisted in the database
 

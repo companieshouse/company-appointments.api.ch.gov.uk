@@ -92,7 +92,7 @@ public class CompanyAppointmentFullRecordService {
             }
 
             resourceChangedApiService.invokeChsKafkaApi(new ResourceChangedRequest(contextId, companyNumber, appointmentId, appointmentData, true));
-            LOGGER.info(String.format("ChsKafka api DELETED invoked updated successfully for context id: %s and company number: %s",
+            LOGGER.debug(String.format("ChsKafka api DELETED invoked updated successfully for context id: %s and company number: %s",
                     contextId,
                     companyNumber));
 
@@ -105,7 +105,7 @@ public class CompanyAppointmentFullRecordService {
     private void saveAppointment(String contextId, DeltaAppointmentApi appointmentApi, InstantAPI instant) throws ServiceUnavailableException {
         resourceChangedApiService.invokeChsKafkaApi(
                 new ResourceChangedRequest(contextId, appointmentApi.getCompanyNumber(), appointmentApi.getAppointmentId(), null, false));
-        LOGGER.info(String.format("ChsKafka api CHANGED invoked updated successfully for context id: %s and company number: %s",
+        LOGGER.debug(String.format("ChsKafka api CHANGED invoked updated successfully for context id: %s and company number: %s",
                 contextId,
                 appointmentApi.getCompanyNumber()));
         appointmentApi.setCreated(instant);
