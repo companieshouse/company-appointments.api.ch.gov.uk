@@ -1,6 +1,7 @@
 package uk.gov.companieshouse.company_appointments.tests;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
@@ -86,5 +87,27 @@ class CompanyAppointmentFullRecordRepositoryITest {
         assertEquals(0L, result);
         Optional<CompanyAppointmentDocument> actual = repository.findById(FAKE_APPOINTMENT_ID);
         assertTrue(actual.isEmpty());
+    }
+
+    @DisplayName("Repository returns true when appointment exists")
+    @Test
+    void existsByIdTrue() {
+        // given
+        // when
+        boolean actual = repository.existsById(APPOINTMENT_ID);
+
+        // then
+        assertTrue(actual);
+    }
+
+    @DisplayName("Repository returns false when appointment does not exist")
+    @Test
+    void existsByIdFalse() {
+        // given
+        // when
+        boolean actual = repository.existsById(FAKE_APPOINTMENT_ID);
+
+        // then
+        assertFalse(actual);
     }
 }

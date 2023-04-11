@@ -2,7 +2,6 @@ package uk.gov.companieshouse.company_appointments.repository;
 
 import java.time.Instant;
 import java.util.Optional;
-
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.data.mongodb.repository.Update;
@@ -25,4 +24,6 @@ public interface CompanyAppointmentFullRecordRepository extends MongoRepository<
     @Query("{ '_id': ?0 }")
     @Update("{ $set: { 'company_name': ?1, 'company_status': ?2, 'updated.at': ?3, 'etag': ?4 } }")
     long patchAppointmentNameStatus(String id, String companyName, String companyStatus, Instant at, String etag);
+
+    boolean existsById(String id);
 }
