@@ -155,6 +155,18 @@ class CompanyAppointmentFullRecordServiceTest {
         assertThrows(ServiceUnavailableException.class, executable);
     }
 
+    @Test
+    void testPutAppointmentDataThrowsServiceUnavailableExceptionWhenIllegalArgumentExceptionCaught() throws ServiceUnavailableException {
+        // given
+        when(resourceChangedApiService.invokeChsKafkaApi(any())).thenThrow(IllegalArgumentException.class);
+
+        // When
+        Executable executable = () -> companyAppointmentService.upsertAppointmentDelta(CONTEXT_ID, fullRecordCompanyOfficerApi);
+
+        // then
+        assertThrows(ServiceUnavailableException.class, executable);
+    }
+
     @ParameterizedTest
     @MethodSource("deltaAtTestCases")
     void testRejectStaleDelta(
@@ -229,6 +241,20 @@ class CompanyAppointmentFullRecordServiceTest {
         // given
         when(companyAppointmentRepository.readByCompanyNumberAndID(any(),
                 any())).thenThrow(new DataAccessException("..."){ });
+
+        // When
+        Executable executable = () -> companyAppointmentService.deleteAppointmentDelta(CONTEXT_ID, COMPANY_NUMBER, APPOINTMENT_ID);
+
+        // then
+        assertThrows(ServiceUnavailableException.class, executable);
+    }
+
+    @Test
+    void testDeleteAppointmentDataThrowsServiceUnavailableExceptionWhenIllegalArgumentExceptionCaught() throws ServiceUnavailableException {
+        // given
+        when(companyAppointmentRepository.readByCompanyNumberAndID(COMPANY_NUMBER, APPOINTMENT_ID))
+                .thenReturn(Optional.of(deltaAppointmentApiEntity));
+        when(resourceChangedApiService.invokeChsKafkaApi(any())).thenThrow(IllegalArgumentException.class);
 
         // When
         Executable executable = () -> companyAppointmentService.deleteAppointmentDelta(CONTEXT_ID, COMPANY_NUMBER, APPOINTMENT_ID);

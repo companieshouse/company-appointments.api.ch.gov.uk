@@ -80,6 +80,8 @@ public class CompanyAppointmentFullRecordService {
                 }
             } catch (DataAccessException e) {
                 throw new ServiceUnavailableException("Error connecting to MongoDB");
+            } catch (IllegalArgumentException e) {
+                throw new ServiceUnavailableException("Error connecting to chs-kafka-api");
             }
     }
 
@@ -99,6 +101,8 @@ public class CompanyAppointmentFullRecordService {
             companyAppointmentRepository.deleteByCompanyNumberAndID(companyNumber, appointmentId);
         } catch (DataAccessException e) {
             throw new ServiceUnavailableException("Error connecting to MongoDB");
+        } catch (IllegalArgumentException e) {
+            throw new ServiceUnavailableException("Error connecting to chs-kafka-api");
         }
     }
 
