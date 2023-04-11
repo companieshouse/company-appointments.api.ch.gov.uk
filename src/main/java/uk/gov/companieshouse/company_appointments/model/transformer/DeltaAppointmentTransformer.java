@@ -1,7 +1,6 @@
 package uk.gov.companieshouse.company_appointments.model.transformer;
 
 import org.springframework.stereotype.Component;
-import uk.gov.companieshouse.api.appointment.ExternalData;
 import uk.gov.companieshouse.api.appointment.FullRecordCompanyOfficerApi;
 import uk.gov.companieshouse.api.appointment.InternalData;
 import uk.gov.companieshouse.company_appointments.exception.FailedToTransformException;
