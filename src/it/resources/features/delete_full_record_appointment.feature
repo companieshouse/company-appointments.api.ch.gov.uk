@@ -22,6 +22,14 @@ Feature: Delete full record officer information
       And I should receive a 401 status code
       And the record should NOT be deleted
 
+   Scenario: User authenticated but not authorised so forbidden
+      Given CHS kafka is available
+      And the user is authenticated but not authorised
+      When a request is sent to the DELETE endpoint to delete an officer
+      Then a request should NOT be sent to the resource changed endpoint
+      And I should receive a 403 status code
+      And the record should NOT be deleted
+
     Scenario: CHS kafka api unavailable
       Given CHS kafka is unavailable
       And the user is authenticated and authorised with internal app privileges
