@@ -41,7 +41,7 @@ public class ResourceChangedApiService {
      * @return The service status of the response from chs kafka api
      */
     public ApiResponse<Void> invokeChsKafkaApi(ResourceChangedRequest resourceChangedRequest) throws ServiceUnavailableException {
-        InternalApiClient internalApiClient = apiClientService.getInternalApiClient();
+        InternalApiClient internalApiClient = apiClientService.getInternalApiClient(); //NOSONAR
         internalApiClient.setBasePath(chsKafkaUrl);
 
         PrivateChangedResourcePost changedResourcePost =

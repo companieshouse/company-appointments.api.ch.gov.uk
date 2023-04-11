@@ -14,25 +14,22 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.web.servlet.MockMvc;
-import uk.gov.companieshouse.api.appointment.Data;
-import uk.gov.companieshouse.api.appointment.DateOfBirth;
-import uk.gov.companieshouse.api.appointment.ItemLinkTypes;
-import uk.gov.companieshouse.api.appointment.OfficerLinkTypes;
-import uk.gov.companieshouse.api.appointment.SensitiveData;
-import uk.gov.companieshouse.api.model.delta.officers.DeltaAppointmentApi;
 import uk.gov.companieshouse.company_appointments.config.LoggingConfig;
 import uk.gov.companieshouse.company_appointments.controller.CompanyAppointmentController;
 import uk.gov.companieshouse.company_appointments.controller.CompanyAppointmentFullRecordController;
 import uk.gov.companieshouse.company_appointments.interceptor.AuthenticationHelperImpl;
 import uk.gov.companieshouse.company_appointments.interceptor.AuthenticationInterceptor;
+import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentDocument;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaDateOfBirth;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaItemLinkTypes;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaOfficerData;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaOfficerLinkTypes;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaSensitiveData;
 import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentFullRecordView;
 import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentView;
 import uk.gov.companieshouse.company_appointments.service.CompanyAppointmentFullRecordService;
 import uk.gov.companieshouse.company_appointments.service.CompanyAppointmentService;
 import uk.gov.companieshouse.logging.Logger;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @WebMvcTest(controllers = {CompanyAppointmentController.class, CompanyAppointmentFullRecordController.class})
 @Import({LoggingConfig.class, AuthenticationHelperImpl.class})
@@ -64,21 +61,19 @@ class AuthenticationInterceptorsITest {
         httpHeaders = new HttpHeaders();
         companyAppointmentView = CompanyAppointmentView.builder().withName(NAME)
                 .build();
-        Data data = new Data();
-        data.setOfficerRole(Data.OfficerRoleEnum.DIRECTOR);
-        List<ItemLinkTypes> links = new ArrayList<>();
-        ItemLinkTypes linkItem = new ItemLinkTypes();
-        linkItem.setOfficer(new OfficerLinkTypes());
+        DeltaOfficerData data = new DeltaOfficerData();
+        data.setOfficerRole("director");
+        DeltaItemLinkTypes linkItem = new DeltaItemLinkTypes();
+        linkItem.setOfficer(new DeltaOfficerLinkTypes());
         linkItem.setSelf("self");
-        links.add(linkItem);
-        data.setLinks(links);
-        SensitiveData sensitiveData = new SensitiveData();
-        sensitiveData.setDateOfBirth(new DateOfBirth());
-        DeltaAppointmentApi deltaAppointmentApi = new DeltaAppointmentApi();
-        deltaAppointmentApi.setData(data);
-        deltaAppointmentApi.setSensitiveData(sensitiveData);
+        data.setLinks(linkItem);
+        DeltaSensitiveData sensitiveData = new DeltaSensitiveData();
+        sensitiveData.setDateOfBirth(new DeltaDateOfBirth());
+        CompanyAppointmentDocument companyAppointmentDocument = new CompanyAppointmentDocument();
+        companyAppointmentDocument.setData(data);
+        companyAppointmentDocument.setSensitiveData(sensitiveData);
         companyAppointmentFullRecordView =
-                CompanyAppointmentFullRecordView.Builder.view(deltaAppointmentApi).withName(NAME)
+                CompanyAppointmentFullRecordView.Builder.view(companyAppointmentDocument).withName(NAME)
                         .build();
     }
 

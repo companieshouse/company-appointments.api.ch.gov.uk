@@ -1,40 +1,49 @@
 package uk.gov.companieshouse.company_appointments;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
+
+import java.time.Clock;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.function.Executable;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.data.domain.Sort;
-
+import uk.gov.companieshouse.company_appointments.api.ResourceChangedApiService;
+import uk.gov.companieshouse.company_appointments.exception.BadRequestException;
 import uk.gov.companieshouse.company_appointments.exception.NotFoundException;
+import uk.gov.companieshouse.company_appointments.exception.ServiceUnavailableException;
 import uk.gov.companieshouse.company_appointments.mapper.CompanyAppointmentMapper;
 import uk.gov.companieshouse.company_appointments.mapper.SortMapper;
 import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentData;
 import uk.gov.companieshouse.company_appointments.model.data.ContactDetailsData;
 import uk.gov.companieshouse.company_appointments.model.data.LinksData;
 import uk.gov.companieshouse.company_appointments.model.data.OfficerData;
+import uk.gov.companieshouse.company_appointments.model.data.ResourceChangedRequest;
 import uk.gov.companieshouse.company_appointments.model.data.ServiceAddressData;
 import uk.gov.companieshouse.company_appointments.model.view.AllCompanyAppointmentsView;
 import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentView;
+import uk.gov.companieshouse.company_appointments.repository.CompanyAppointmentFullRecordRepository;
 import uk.gov.companieshouse.company_appointments.repository.CompanyAppointmentRepository;
 import uk.gov.companieshouse.company_appointments.service.CompanyAppointmentService;
 import uk.gov.companieshouse.company_appointments.service.CompanyRegisterService;
-
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import uk.gov.companieshouse.company_appointments.util.CompanyStatusValidator;
 
 @ExtendWith(MockitoExtension.class)
 class CompanyAppointmentServiceTest {
@@ -47,30 +56,37 @@ class CompanyAppointmentServiceTest {
     @Mock
     private CompanyRegisterService companyRegisterService;
 
-    private CompanyAppointmentMapper companyAppointmentMapper;
+    @Mock
+    private CompanyStatusValidator companyStatusValidator;
+
+    @Mock
+    private CompanyAppointmentFullRecordRepository fullRecordAppointmentRepository;
+
+    @Mock
+    private ResourceChangedApiService resourceChangedApiService;
+
+    @Mock
+    private Clock clock;
 
     @Mock
     private SortMapper sortMapper;
 
     private final static String COMPANY_NUMBER = "123456";
-
     private final static String APPOINTMENT_ID = "345678";
-
     private final static String FILTER = "active";
-
     private final static String ORDER_BY = "surname";
-
     private final static Sort SORT = Sort.by("test");
-
     private final static String REGISTER_TYPE = "directors";
-
-    @Captor
-    private ArgumentCaptor<Sort> sortCaptor;
+    private final static String COMPANY_NAME = "ACME LTD";
+    private final static String OPEN_STATUS = "open";
+    private final static String FAKE_STATUS = "fake";
+    private final static String CONTEXT_ID = "ABC123";
 
     @BeforeEach
-    void setUp() throws Exception {
-        companyAppointmentMapper = new CompanyAppointmentMapper();
-        companyAppointmentService = new CompanyAppointmentService(companyAppointmentRepository, companyAppointmentMapper, sortMapper, companyRegisterService);
+    void setUp() {
+        CompanyAppointmentMapper companyAppointmentMapper = new CompanyAppointmentMapper();
+        companyAppointmentService = new CompanyAppointmentService(companyAppointmentRepository, companyAppointmentMapper, sortMapper,
+                companyRegisterService, companyStatusValidator, fullRecordAppointmentRepository, resourceChangedApiService, clock);
     }
 
     @Test
@@ -285,10 +301,8 @@ class CompanyAppointmentServiceTest {
                 .thenReturn(allAppointmentData);
 
         assertThrows(NotFoundException.class,
-                () -> {
-                    AllCompanyAppointmentsView result = companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER,
-                            "false", ORDER_BY, 300, null, null, null);
-                });
+                () -> companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER,
+                            "false", ORDER_BY, 300, null, null, null));
     }
 
     @Test
@@ -341,7 +355,7 @@ class CompanyAppointmentServiceTest {
         when(companyAppointmentRepository.readAllByCompanyNumber(COMPANY_NUMBER, SORT))
                 .thenReturn(allAppointmentData);
 
-        AllCompanyAppointmentsView result = companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER, null, null,
+        companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER, null, null,
                 null, null, false, null);
 
         verify(companyRegisterService, times(0)).isRegisterHeldInCompaniesHouse(any(), any());
@@ -358,7 +372,7 @@ class CompanyAppointmentServiceTest {
         when(companyAppointmentRepository.readAllByCompanyNumber(COMPANY_NUMBER, SORT))
                 .thenReturn(allAppointmentData);
 
-        AllCompanyAppointmentsView result = companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER, null, null,
+        companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER, null, null,
                 null, null, null, null);
 
         verify(companyRegisterService, times(0)).isRegisterHeldInCompaniesHouse(any(), any());
@@ -368,10 +382,8 @@ class CompanyAppointmentServiceTest {
         when(companyRegisterService.isRegisterHeldInCompaniesHouse(REGISTER_TYPE, COMPANY_NUMBER)).thenReturn(false);
 
         assertThrows(NotFoundException.class,
-                () -> {
-                    AllCompanyAppointmentsView result = companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER, null, null,
-                            null, null, true, REGISTER_TYPE);
-                });
+                () -> companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER, null, null,
+                            null, null, true, REGISTER_TYPE));
     }
 
     @Test
@@ -387,10 +399,8 @@ class CompanyAppointmentServiceTest {
         when(companyRegisterService.isRegisterHeldInCompaniesHouse("secretaries", COMPANY_NUMBER)).thenReturn(true);
 
         assertThrows(NotFoundException.class,
-                () -> {
-                    AllCompanyAppointmentsView result = companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER, null, null,
-                            null, null, true, "secretaries");
-                });
+                () -> companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER, null, null,
+                            null, null, true, "secretaries"));
     }
 
     @Test
@@ -409,6 +419,204 @@ class CompanyAppointmentServiceTest {
                 null, null, true, REGISTER_TYPE);
 
         assertEquals(1, result.getItems().size());
+    }
+
+    @Test
+    @DisplayName("Test patchCompanyNameStatus throws UnsupportedOperationException")
+    void testUnsupportedOperationException() {
+        // given
+
+        // when
+        Executable executable = () -> companyAppointmentService.patchCompanyNameStatus(COMPANY_NUMBER, COMPANY_NAME, OPEN_STATUS);
+
+        // then
+        assertThrows(UnsupportedOperationException.class, executable);
+    }
+
+    @Test
+    @DisplayName("Should update appointment with no exceptions thrown")
+    void patchNewAppointmentNameStatusSuccessfulUpdate() throws ServiceUnavailableException {
+        // given
+        when(companyStatusValidator.isValidCompanyStatus(anyString())).thenReturn(true);
+        when(fullRecordAppointmentRepository.existsById(anyString())).thenReturn(true);
+        when(fullRecordAppointmentRepository.patchAppointmentNameStatus(anyString(), anyString(), anyString(), any(), anyString())).thenReturn(1L);
+
+        // when
+        Executable executable = () -> companyAppointmentService.patchNewAppointmentCompanyNameStatus(COMPANY_NUMBER, APPOINTMENT_ID, COMPANY_NAME, OPEN_STATUS, CONTEXT_ID);
+
+        // then
+        assertDoesNotThrow(executable);
+        verify(companyStatusValidator).isValidCompanyStatus(OPEN_STATUS);
+        verify(fullRecordAppointmentRepository).existsById(APPOINTMENT_ID);
+        verify(resourceChangedApiService).invokeChsKafkaApi(new ResourceChangedRequest(CONTEXT_ID, COMPANY_NUMBER, APPOINTMENT_ID, null, false));
+        verify(fullRecordAppointmentRepository).patchAppointmentNameStatus(any(), any(), any(), any(), any());
+    }
+
+    @Test
+    @DisplayName("Should throw bad request exception when company name is missing from request")
+    void patchNewAppointmentNameStatusMissingCompanyName() {
+        // given
+
+        // when
+        Executable executable = () -> companyAppointmentService.patchNewAppointmentCompanyNameStatus(COMPANY_NUMBER, APPOINTMENT_ID, "", OPEN_STATUS, CONTEXT_ID);
+
+        // then
+        BadRequestException exception = assertThrows(BadRequestException.class, executable);
+        assertEquals(
+                "Request failed for company [123456] with appointment [345678]: company name and/or company status missing.", exception.getMessage());
+        verifyNoInteractions(companyStatusValidator);
+        verifyNoInteractions(resourceChangedApiService);
+        verifyNoInteractions(fullRecordAppointmentRepository);
+    }
+
+    @Test
+    @DisplayName("Should throw bad request exception when company status is missing from request")
+    void patchNewAppointmentNameStatusMissingCompanyStatus() {
+        // given
+
+        // when
+        Executable executable = () -> companyAppointmentService.patchNewAppointmentCompanyNameStatus(COMPANY_NUMBER, APPOINTMENT_ID, COMPANY_NAME, "", CONTEXT_ID);
+
+        // then
+        BadRequestException exception = assertThrows(BadRequestException.class, executable);
+        assertEquals("Request failed for company [123456] with appointment [345678]: company name and/or company status missing.", exception.getMessage());
+        verifyNoInteractions(companyStatusValidator);
+        verifyNoInteractions(resourceChangedApiService);
+        verifyNoInteractions(fullRecordAppointmentRepository);
+    }
+
+    @Test
+    @DisplayName("Should throw bad request exception when invalid company status is provided from request")
+    void patchNewAppointmentNameStatusInvalidCompanyStatus() {
+        // given
+        when(companyStatusValidator.isValidCompanyStatus(FAKE_STATUS)).thenReturn(false);
+
+        // when
+        Executable executable = () -> companyAppointmentService.patchNewAppointmentCompanyNameStatus(COMPANY_NUMBER, APPOINTMENT_ID, COMPANY_NAME, FAKE_STATUS, CONTEXT_ID);
+
+        // then
+        BadRequestException exception = assertThrows(BadRequestException.class, executable);
+        assertEquals("Request failed for company [123456] with appointment [345678]: invalid company status provided.", exception.getMessage());
+        verify(companyStatusValidator).isValidCompanyStatus(FAKE_STATUS);
+        verifyNoInteractions(resourceChangedApiService);
+        verifyNoInteractions(fullRecordAppointmentRepository);
+    }
+
+    @Test
+    @DisplayName("Should throw service unavailable exception when resource changed endpoint is unavailable")
+    void patchNewAppointmentNameStatusResourceChangedUnavailable() throws ServiceUnavailableException {
+        // given
+        when(companyStatusValidator.isValidCompanyStatus(anyString())).thenReturn(true);
+        when(fullRecordAppointmentRepository.existsById(anyString())).thenReturn(true);
+        when(resourceChangedApiService.invokeChsKafkaApi(any())).thenThrow(ServiceUnavailableException.class);
+
+        // when
+        Executable executable = () -> companyAppointmentService.patchNewAppointmentCompanyNameStatus(COMPANY_NUMBER, APPOINTMENT_ID, COMPANY_NAME, OPEN_STATUS, CONTEXT_ID);
+
+        // then
+        assertThrows(ServiceUnavailableException.class, executable);
+        verify(companyStatusValidator).isValidCompanyStatus(OPEN_STATUS);
+        verify(fullRecordAppointmentRepository).existsById(APPOINTMENT_ID);
+        verify(resourceChangedApiService).invokeChsKafkaApi(new ResourceChangedRequest(CONTEXT_ID, COMPANY_NUMBER, APPOINTMENT_ID, null, false));
+        verifyNoMoreInteractions(fullRecordAppointmentRepository);
+    }
+
+    @Test
+    @DisplayName("Should throw service unavailable exception when cannot connect to CHS Kafka API")
+    void patchNewAppointmentNameStatusChsKafkaError() throws ServiceUnavailableException {
+        // given
+        when(companyStatusValidator.isValidCompanyStatus(anyString())).thenReturn(true);
+        when(fullRecordAppointmentRepository.existsById(anyString())).thenReturn(true);
+        when(resourceChangedApiService.invokeChsKafkaApi(any())).thenThrow(IllegalArgumentException.class);
+
+        // when
+        Executable executable = () -> companyAppointmentService.patchNewAppointmentCompanyNameStatus(COMPANY_NUMBER, APPOINTMENT_ID, COMPANY_NAME, OPEN_STATUS, CONTEXT_ID);
+
+        // then
+        ServiceUnavailableException exception = assertThrows(ServiceUnavailableException.class, executable);
+        assertEquals("Request failed for company [123456] with appointment [345678]: error calling CHS Kafka API.", exception.getMessage());
+        verify(companyStatusValidator).isValidCompanyStatus(OPEN_STATUS);
+        verify(fullRecordAppointmentRepository).existsById(APPOINTMENT_ID);
+        verify(resourceChangedApiService).invokeChsKafkaApi(new ResourceChangedRequest(CONTEXT_ID, COMPANY_NUMBER, APPOINTMENT_ID, null, false));
+        verifyNoMoreInteractions(fullRecordAppointmentRepository);
+    }
+
+    @Test
+    @DisplayName("Should throw not found exception when cannot locate existing appointment before resource changed call")
+    void patchNewAppointmentNameStatusMissingAppointment() {
+        // given
+        when(companyStatusValidator.isValidCompanyStatus(OPEN_STATUS)).thenReturn(true);
+        when(fullRecordAppointmentRepository.existsById(anyString())).thenReturn(false);
+
+        // when
+        Executable executable = () -> companyAppointmentService.patchNewAppointmentCompanyNameStatus(COMPANY_NUMBER, APPOINTMENT_ID, COMPANY_NAME, OPEN_STATUS, CONTEXT_ID);
+
+        // then
+        NotFoundException exception = assertThrows(NotFoundException.class, executable);
+        assertEquals("Appointment [345678] for company [123456] not found", exception.getMessage());
+        verify(companyStatusValidator).isValidCompanyStatus(OPEN_STATUS);
+        verify(fullRecordAppointmentRepository).existsById(APPOINTMENT_ID);
+        verifyNoInteractions(resourceChangedApiService);
+        verifyNoMoreInteractions(fullRecordAppointmentRepository);
+    }
+
+    @Test
+    @DisplayName("Should throw not found exception when cannot locate existing appointment after resource changed call")
+    void patchNewAppointmentNameStatusMissingAppointmentAfterResourceChanged() throws ServiceUnavailableException {
+        // given
+        when(fullRecordAppointmentRepository.existsById(anyString())).thenReturn(true);
+        when(companyStatusValidator.isValidCompanyStatus(OPEN_STATUS)).thenReturn(true);
+        when(fullRecordAppointmentRepository.patchAppointmentNameStatus(anyString(), anyString(), anyString(), any(), anyString())).thenReturn(0L);
+
+        // when
+        Executable executable = () -> companyAppointmentService.patchNewAppointmentCompanyNameStatus(COMPANY_NUMBER, APPOINTMENT_ID, COMPANY_NAME, OPEN_STATUS, CONTEXT_ID);
+
+        // then
+        NotFoundException exception = assertThrows(NotFoundException.class, executable);
+        assertEquals("Appointment [345678] for company [123456] not found during PATCH request", exception.getMessage());
+        verify(companyStatusValidator).isValidCompanyStatus(OPEN_STATUS);
+        verify(fullRecordAppointmentRepository).existsById(APPOINTMENT_ID);
+        verify(resourceChangedApiService).invokeChsKafkaApi(new ResourceChangedRequest(CONTEXT_ID, COMPANY_NUMBER, APPOINTMENT_ID, null, false));
+        verify(fullRecordAppointmentRepository).patchAppointmentNameStatus(any(), any(), any(), any(), any());
+    }
+
+    @Test
+    @DisplayName("Should throw service unavailable exception when MongoDB is unavailable before resource changed call")
+    void patchNewAppointmentNameStatusMongoUnavailable() {
+        // given
+        when(companyStatusValidator.isValidCompanyStatus(anyString())).thenReturn(true);
+        when(fullRecordAppointmentRepository.existsById(anyString())).thenThrow(DataAccessResourceFailureException.class);
+
+        // when
+        Executable executable = () -> companyAppointmentService.patchNewAppointmentCompanyNameStatus(COMPANY_NUMBER, APPOINTMENT_ID, COMPANY_NAME, OPEN_STATUS, CONTEXT_ID);
+
+        // then
+        ServiceUnavailableException exception = assertThrows(ServiceUnavailableException.class, executable);
+        assertEquals("Request failed for company [123456] with appointment [345678]: error connecting to MongoDB.", exception.getMessage());
+        verify(companyStatusValidator).isValidCompanyStatus(OPEN_STATUS);
+        verify(fullRecordAppointmentRepository).existsById(APPOINTMENT_ID);
+        verifyNoInteractions(resourceChangedApiService);
+        verifyNoMoreInteractions(fullRecordAppointmentRepository);
+    }
+
+    @Test
+    @DisplayName("Should throw service unavailable exception when MongoDB is unavailable after resource changed call")
+    void patchNewAppointmentNameStatusMongoUnavailableAfterResourceChanged() throws ServiceUnavailableException {
+        // given
+        when(companyStatusValidator.isValidCompanyStatus(anyString())).thenReturn(true);
+        when(fullRecordAppointmentRepository.existsById(anyString())).thenReturn(true);
+        when(fullRecordAppointmentRepository.patchAppointmentNameStatus(any(), any(), any(), any(), any())).thenThrow(DataAccessResourceFailureException.class);
+
+        // when
+        Executable executable = () -> companyAppointmentService.patchNewAppointmentCompanyNameStatus(COMPANY_NUMBER, APPOINTMENT_ID, COMPANY_NAME, OPEN_STATUS, CONTEXT_ID);
+
+        // then
+        ServiceUnavailableException exception = assertThrows(ServiceUnavailableException.class, executable);
+        assertEquals("Request failed for company [123456] with appointment [345678]: error connecting to MongoDB.", exception.getMessage());
+        verify(companyStatusValidator).isValidCompanyStatus(OPEN_STATUS);
+        verify(fullRecordAppointmentRepository).existsById(APPOINTMENT_ID);
+        verify(resourceChangedApiService).invokeChsKafkaApi(new ResourceChangedRequest(CONTEXT_ID, COMPANY_NUMBER, APPOINTMENT_ID, null, false));
+        verify(fullRecordAppointmentRepository).patchAppointmentNameStatus(any(), any(), any(), any(), any());
     }
 
     private OfficerData.Builder officerData() {

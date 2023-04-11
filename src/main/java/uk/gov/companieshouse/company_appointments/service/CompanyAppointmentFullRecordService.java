@@ -5,16 +5,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import uk.gov.companieshouse.GenerateEtagUtil;
-import uk.gov.companieshouse.api.appointment.Data;
 import uk.gov.companieshouse.api.appointment.FullRecordCompanyOfficerApi;
-import uk.gov.companieshouse.api.model.delta.officers.DeltaAppointmentApi;
-import uk.gov.companieshouse.api.model.delta.officers.InstantAPI;
 import uk.gov.companieshouse.company_appointments.CompanyAppointmentsApplication;
 import uk.gov.companieshouse.company_appointments.api.ResourceChangedApiService;
 import uk.gov.companieshouse.company_appointments.exception.FailedToTransformException;
 import uk.gov.companieshouse.company_appointments.exception.NotFoundException;
 import uk.gov.companieshouse.company_appointments.exception.ServiceUnavailableException;
-import uk.gov.companieshouse.company_appointments.model.data.DeltaAppointmentApiEntity;
+import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentDocument;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaOfficerData;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaTimestamp;
 import uk.gov.companieshouse.company_appointments.model.data.ResourceChangedRequest;
 import uk.gov.companieshouse.company_appointments.model.transformer.DeltaAppointmentTransformer;
 import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentFullRecordView;
@@ -30,17 +29,19 @@ import java.util.Optional;
 
 @Service
 public class CompanyAppointmentFullRecordService {
-
+    
     private static final Logger LOGGER = LoggerFactory.getLogger(CompanyAppointmentsApplication.APPLICATION_NAMESPACE);
 
+    private final DeltaAppointmentTransformer deltaAppointmentTransformer;
     private final CompanyAppointmentFullRecordRepository companyAppointmentRepository;
-
     private final ResourceChangedApiService resourceChangedApiService;
-
     private final Clock clock;
-
+    
     @Autowired
-    public CompanyAppointmentFullRecordService(CompanyAppointmentFullRecordRepository companyAppointmentRepository, ResourceChangedApiService resourceChangedApiService, Clock clock) {
+    public CompanyAppointmentFullRecordService(
+            DeltaAppointmentTransformer deltaAppointmentTransformer,
+            CompanyAppointmentFullRecordRepository companyAppointmentRepository, ResourceChangedApiService resourceChangedApiService, Clock clock) {
+        this.deltaAppointmentTransformer = deltaAppointmentTransformer;
         this.companyAppointmentRepository = companyAppointmentRepository;
         this.resourceChangedApiService = resourceChangedApiService;
         this.clock = clock;
@@ -48,7 +49,7 @@ public class CompanyAppointmentFullRecordService {
 
     public CompanyAppointmentFullRecordView getAppointment(String companyNumber, String appointmentID) throws NotFoundException {
         LOGGER.debug(String.format("Fetching appointment [%s] for company [%s]", appointmentID, companyNumber));
-        Optional<DeltaAppointmentApiEntity> appointmentData = companyAppointmentRepository.readByCompanyNumberAndID(companyNumber, appointmentID);
+        Optional<CompanyAppointmentDocument> appointmentData = companyAppointmentRepository.readByCompanyNumberAndID(companyNumber, appointmentID);
         appointmentData.ifPresent(appt -> LOGGER.debug(String.format("Found appointment [%s] for company [%s]", appointmentID, companyNumber)));
 
         return appointmentData.map(app -> CompanyAppointmentFullRecordView.Builder.view(app).build())
@@ -57,26 +58,25 @@ public class CompanyAppointmentFullRecordService {
     }
 
     public void upsertAppointmentDelta(String contextId, final FullRecordCompanyOfficerApi requestBody) throws ServiceUnavailableException {
-            DeltaAppointmentTransformer deltaAppointmentTransformer = new DeltaAppointmentTransformer();
-            DeltaAppointmentApi deltaAppointmentApi;
+            CompanyAppointmentDocument companyAppointmentDocument;
             try {
-                deltaAppointmentApi = deltaAppointmentTransformer.transform(requestBody);
+                companyAppointmentDocument = deltaAppointmentTransformer.transform(requestBody);
             } catch (FailedToTransformException e) {
                 throw new ServiceUnavailableException(String.format("Failed to transform payload: %s", e.getMessage()));
             }
-            InstantAPI instant = new InstantAPI(Instant.now(clock));
-            Data officer = deltaAppointmentApi.getData();
+            var instant = new DeltaTimestamp(Instant.now(clock));
+            DeltaOfficerData officer = companyAppointmentDocument.getData();
 
             if (officer != null) {
-                deltaAppointmentApi.setUpdatedAt(instant);
-                deltaAppointmentApi.setEtag(GenerateEtagUtil.generateEtag());
+                companyAppointmentDocument.setUpdated(instant);
+                companyAppointmentDocument.setEtag(GenerateEtagUtil.generateEtag());
             }
             try {
-                Optional<DeltaAppointmentApiEntity> existingAppointment = getExistingDelta(deltaAppointmentApi);
+                Optional<CompanyAppointmentDocument> existingAppointment = getExistingDelta(companyAppointmentDocument);
                 if (existingAppointment.isPresent()) {
-                    updateAppointment(contextId, deltaAppointmentApi, existingAppointment.get());
+                    updateAppointment(contextId, companyAppointmentDocument, existingAppointment.get());
                 } else {
-                    saveAppointment(contextId, deltaAppointmentApi, instant);
+                    saveAppointment(contextId, companyAppointmentDocument, instant);
                 }
             } catch (DataAccessException e) {
                 throw new ServiceUnavailableException("Error connecting to MongoDB");
@@ -88,7 +88,7 @@ public class CompanyAppointmentFullRecordService {
     public void deleteAppointmentDelta(String contextId, String companyNumber, String appointmentId) throws NotFoundException, ServiceUnavailableException {
         LOGGER.debug(String.format("Deleting appointment [%s] for company [%s]", appointmentId, companyNumber));
         try {
-            Optional<DeltaAppointmentApiEntity> appointmentData = companyAppointmentRepository.readByCompanyNumberAndID(companyNumber, appointmentId);
+            Optional<CompanyAppointmentDocument> appointmentData = companyAppointmentRepository.readByCompanyNumberAndID(companyNumber, appointmentId);
             if (appointmentData.isEmpty()) {
                 throw new NotFoundException(String.format("Appointment [%s] for company [%s] not found", appointmentId, companyNumber));
             }
@@ -106,23 +106,22 @@ public class CompanyAppointmentFullRecordService {
         }
     }
 
-    private void saveAppointment(String contextId, DeltaAppointmentApi appointmentApi, InstantAPI instant) throws ServiceUnavailableException {
+    private void saveAppointment(String contextId, CompanyAppointmentDocument document, DeltaTimestamp instant) throws ServiceUnavailableException {
         resourceChangedApiService.invokeChsKafkaApi(
-                new ResourceChangedRequest(contextId, appointmentApi.getCompanyNumber(), appointmentApi.getAppointmentId(), null, false));
+                new ResourceChangedRequest(contextId, document.getCompanyNumber(), document.getAppointmentId(), null, false));
         LOGGER.debug(String.format("ChsKafka api CHANGED invoked updated successfully for context id: %s and company number: %s",
                 contextId,
-                appointmentApi.getCompanyNumber()));
-        appointmentApi.setCreated(instant);
-        DeltaAppointmentApiEntity saveRecord = new DeltaAppointmentApiEntity(appointmentApi);
-        companyAppointmentRepository.insertOrUpdate(saveRecord);
+                document.getCompanyNumber()));
+        document.setCreated(instant);
+        companyAppointmentRepository.insertOrUpdate(document);
     }
 
-    private void updateAppointment(String contextId, DeltaAppointmentApi appointmentApi, DeltaAppointmentApiEntity existingAppointment) throws ServiceUnavailableException {
+    private void updateAppointment(String contextId, CompanyAppointmentDocument document, CompanyAppointmentDocument existingAppointment) throws ServiceUnavailableException {
 
-        if (isDeltaStale(appointmentApi.getDeltaAt(), existingAppointment.getDeltaAt())) {
-            logStaleIncomingDelta(appointmentApi, existingAppointment.getDeltaAt());
+        if (isDeltaStale(document.getDeltaAt(), existingAppointment.getDeltaAt())) {
+            logStaleIncomingDelta(document, existingAppointment.getDeltaAt());
         } else {
-            saveAppointment(contextId, appointmentApi, existingAppointment.getCreated());
+            saveAppointment(contextId, document, existingAppointment.getCreated());
         }
     }
 
@@ -130,7 +129,7 @@ public class CompanyAppointmentFullRecordService {
         return StringUtils.compare(incomingDelta, existingDelta) <= 0;
     }
 
-    private Optional<DeltaAppointmentApiEntity> getExistingDelta(final DeltaAppointmentApi incomingAppointment) {
+    private Optional<CompanyAppointmentDocument> getExistingDelta(final CompanyAppointmentDocument incomingAppointment) {
 
         final String id = incomingAppointment.getId();
         final String companyNumber = incomingAppointment.getCompanyNumber();
@@ -138,7 +137,7 @@ public class CompanyAppointmentFullRecordService {
         return companyAppointmentRepository.readByCompanyNumberAndID(companyNumber, id);
     }
 
-    private void logStaleIncomingDelta(final DeltaAppointmentApi appointmentAPI, final String existingDelta) {
+    private void logStaleIncomingDelta(final CompanyAppointmentDocument appointmentAPI, final String existingDelta) {
 
         Map<String, Object> logInfo = new HashMap<>();
         logInfo.put("incomingDeltaAt", appointmentAPI.getDeltaAt());

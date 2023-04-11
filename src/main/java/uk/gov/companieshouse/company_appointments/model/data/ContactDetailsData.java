@@ -4,6 +4,7 @@ import java.util.Objects;
 
 public class ContactDetailsData {
 
+    @Field("contact_name")
     private String contactName;
 
     public ContactDetailsData(String contactName) {

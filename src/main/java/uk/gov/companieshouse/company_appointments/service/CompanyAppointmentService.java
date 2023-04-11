@@ -1,43 +1,63 @@
 package uk.gov.companieshouse.company_appointments.service;
 
+import static org.apache.commons.lang3.StringUtils.isBlank;
+
+import java.time.Clock;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import uk.gov.companieshouse.company_appointments.*;
+import uk.gov.companieshouse.GenerateEtagUtil;
+import uk.gov.companieshouse.company_appointments.CompanyAppointmentsApplication;
+import uk.gov.companieshouse.company_appointments.api.ResourceChangedApiService;
 import uk.gov.companieshouse.company_appointments.exception.BadRequestException;
 import uk.gov.companieshouse.company_appointments.exception.NotFoundException;
 import uk.gov.companieshouse.company_appointments.exception.ServiceUnavailableException;
 import uk.gov.companieshouse.company_appointments.mapper.CompanyAppointmentMapper;
 import uk.gov.companieshouse.company_appointments.mapper.SortMapper;
 import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentData;
+import uk.gov.companieshouse.company_appointments.model.data.ResourceChangedRequest;
 import uk.gov.companieshouse.company_appointments.model.view.AllCompanyAppointmentsView;
 import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentView;
+import uk.gov.companieshouse.company_appointments.repository.CompanyAppointmentFullRecordRepository;
 import uk.gov.companieshouse.company_appointments.repository.CompanyAppointmentRepository;
 import uk.gov.companieshouse.company_appointments.roles.RoleHelper;
+import uk.gov.companieshouse.company_appointments.util.CompanyStatusValidator;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.logging.LoggerFactory;
-
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class CompanyAppointmentService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CompanyAppointmentsApplication.APPLICATION_NAMESPACE);
+    private static final String ERROR_MESSAGE = "Request failed for company [%s] with appointment [%s]: ";
 
     private final CompanyAppointmentRepository companyAppointmentRepository;
     private final CompanyAppointmentMapper companyAppointmentMapper;
     private final SortMapper sortMapper;
-
+    private final CompanyStatusValidator companyStatusValidator;
     private final CompanyRegisterService companyRegisterService;
+    private final CompanyAppointmentFullRecordRepository fullRecordAppointmentRepository;
+    private final ResourceChangedApiService resourceChangedApiService;
+    private final Clock clock;
 
     public CompanyAppointmentService(CompanyAppointmentRepository companyAppointmentRepository,
-            CompanyAppointmentMapper companyAppointmentMapper, SortMapper sortMapper, CompanyRegisterService companyRegisterService) {
+            CompanyAppointmentMapper companyAppointmentMapper, SortMapper sortMapper,
+            CompanyRegisterService companyRegisterService, CompanyStatusValidator companyStatusValidator,
+            CompanyAppointmentFullRecordRepository fullRecordAppointmentRepository,
+            ResourceChangedApiService resourceChangedApiService, Clock clock) {
         this.companyAppointmentRepository = companyAppointmentRepository;
         this.companyAppointmentMapper = companyAppointmentMapper;
         this.sortMapper = sortMapper;
         this.companyRegisterService = companyRegisterService;
+        this.companyStatusValidator = companyStatusValidator;
+        this.fullRecordAppointmentRepository = fullRecordAppointmentRepository;
+        this.resourceChangedApiService = resourceChangedApiService;
+        this.clock = clock;
     }
 
     public CompanyAppointmentView fetchAppointment(String companyNumber, String appointmentID) throws NotFoundException {
@@ -96,7 +116,40 @@ public class CompanyAppointmentService {
 
     public void patchCompanyNameStatus(String companyNumber, String companyName,
             String companyStatus) throws NotFoundException {
+        // Implementation started as part of pair programming session, to be implemented in DSND-1531
+        throw new UnsupportedOperationException("Method not implemented");
+    }
 
+    public void patchNewAppointmentCompanyNameStatus(String companyNumber, String appointmentId, String companyName,
+            String companyStatus, String contextId) throws BadRequestException, NotFoundException, ServiceUnavailableException {
+        if (isBlank(companyName) || isBlank(companyStatus)) {
+            throw new BadRequestException(String.format(ERROR_MESSAGE + "company name and/or company status missing.", companyNumber, appointmentId));
+        }
+        if (!companyStatusValidator.isValidCompanyStatus(companyStatus)) {
+            throw new BadRequestException(String.format(ERROR_MESSAGE + "invalid company status provided.", companyNumber, appointmentId));
+        }
+
+        LOGGER.debug(String.format("Patching company name: [%s] and company status [%s] for company [%s] with appointment [%s]",
+                companyName, companyStatus, companyNumber, appointmentId));
+        try {
+            if (!fullRecordAppointmentRepository.existsById(appointmentId)) {
+                throw new NotFoundException(String.format("Appointment [%s] for company [%s] not found", appointmentId, companyNumber));
+            }
+            resourceChangedApiService.invokeChsKafkaApi(new ResourceChangedRequest(contextId, companyNumber, appointmentId, null, false));
+            LOGGER.debug(String.format("ChsKafka api CHANGED invoked updated successfully for context id: %s and company number: %s",
+                    contextId,
+                    companyNumber));
+
+            boolean isUpdated = fullRecordAppointmentRepository.patchAppointmentNameStatus(appointmentId, companyName, companyStatus, Instant.now(clock), GenerateEtagUtil.generateEtag()) == 1L;
+            if (!isUpdated) {
+                throw new NotFoundException(String.format("Appointment [%s] for company [%s] not found during PATCH request", appointmentId, companyNumber));
+            }
+            LOGGER.debug(String.format("Appointment [%s] for company [%s] updated successfully", appointmentId, companyNumber));
+        } catch (IllegalArgumentException ex) {
+            throw new ServiceUnavailableException(String.format(ERROR_MESSAGE + "error calling CHS Kafka API.", companyNumber, appointmentId));
+        } catch (DataAccessException ex) {
+            throw new ServiceUnavailableException(String.format(ERROR_MESSAGE + "error connecting to MongoDB.", companyNumber, appointmentId));
+        }
     }
 
     private List<CompanyAppointmentView> addPagingAndStartIndex(List<CompanyAppointmentView> companyAppointmentViews, Integer startIndex, Integer itemsPerPage) throws NotFoundException {
