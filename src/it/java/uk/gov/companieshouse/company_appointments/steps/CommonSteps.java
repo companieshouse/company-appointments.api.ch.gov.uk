@@ -2,22 +2,24 @@ package uk.gov.companieshouse.company_appointments.steps;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
+import io.cucumber.java.Before;
 import io.cucumber.java.BeforeAll;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import org.apache.commons.io.IOUtils;
+import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.SimpleMongoClientDatabaseFactory;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.HttpStatus;
-import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentDocument;
+import uk.gov.companieshouse.api.chskafka.ChangedResource;
+import uk.gov.companieshouse.company_appointments.config.WiremockTestConfig;
+import uk.gov.companieshouse.company_appointments.repository.CompanyAppointmentFullRecordRepository;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.lessThanOrExactly;
 import static com.github.tomakehurst.wiremock.client.WireMock.moreThanOrExactly;
@@ -35,11 +37,7 @@ public class CommonSteps {
     @Autowired
     private ObjectMapper objectMapper;
 
-    private static final String HASHED_APPOINTMENT_ID = "EcEKO1YhIKexb0cSDZsn_OHsFw4";
-
-    private static final MongoTemplate mongoTemplate =
-            new MongoTemplate(new SimpleMongoClientDatabaseFactory(mongoDBContainer.getReplicaSetUrl()));
-
+    private static MongoTemplate mongoTemplate;
 
     @Autowired
     protected TestRestTemplate restTemplate;
@@ -115,16 +113,6 @@ public class CommonSteps {
     @Then("a request should NOT be sent to the resource changed endpoint")
     public void noRequestsSentToResourceChangedEndpoint() {
         verify(lessThanOrExactly(0), postRequestedFor(urlEqualTo("/resource-changed")));
-    }
-
-    @Then("the record should be saved")
-    public void hasRecordSaved() {
-        Query query = new Query();
-        query.addCriteria(Criteria.where("_id").is(HASHED_APPOINTMENT_ID));
-
-        List<CompanyAppointmentDocument> appointments = mongoTemplate.find(query, CompanyAppointmentDocument.class);
-
-        assertThat(appointments).hasSize(1);
     }
 
     private ChangedResource getPayloadFromWiremock() {

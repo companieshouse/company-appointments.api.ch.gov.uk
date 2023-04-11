@@ -168,8 +168,9 @@ class CompanyAppointmentFullRecordServiceTest {
     }
 
     @Test
-    void testPutAppointmentDataThrowsServiceUnavailableException() throws ServiceUnavailableException {
+    void testPutAppointmentDataThrowsServiceUnavailableException() throws Exception {
         // given
+        when(deltaAppointmentTransformer.transform(any(FullRecordCompanyOfficerApi.class))).thenReturn(new CompanyAppointmentDocument());
         when(companyAppointmentRepository.readByCompanyNumberAndID(any(),
                 any())).thenThrow(new DataAccessException("..."){ });
 
@@ -181,8 +182,9 @@ class CompanyAppointmentFullRecordServiceTest {
     }
 
     @Test
-    void testPutAppointmentDataThrowsServiceUnavailableExceptionWhenIllegalArgumentExceptionCaught() throws ServiceUnavailableException {
+    void testPutAppointmentDataThrowsServiceUnavailableExceptionWhenIllegalArgumentExceptionCaught() throws Exception {
         // given
+        when(deltaAppointmentTransformer.transform(any(FullRecordCompanyOfficerApi.class))).thenReturn(new CompanyAppointmentDocument());
         when(resourceChangedApiService.invokeChsKafkaApi(any())).thenThrow(IllegalArgumentException.class);
 
         // When
