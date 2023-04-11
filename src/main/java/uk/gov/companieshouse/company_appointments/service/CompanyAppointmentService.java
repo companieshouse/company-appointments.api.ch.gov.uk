@@ -130,7 +130,7 @@ public class CompanyAppointmentService {
         }
 
         LOGGER.debug(String.format("Patching company name: [%s] and company status [%s] for company [%s] with appointment [%s]",
-                companyName, companyNumber, companyNumber, appointmentId));
+                companyName, companyStatus, companyNumber, appointmentId));
         try {
             if (!fullRecordAppointmentRepository.existsById(appointmentId)) {
                 throw new NotFoundException(String.format("Appointment [%s] for company [%s] not found", appointmentId, companyNumber));
