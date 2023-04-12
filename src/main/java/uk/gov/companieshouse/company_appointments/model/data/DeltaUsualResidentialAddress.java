@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.company_appointments.model.data;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Objects;
 import org.springframework.data.mongodb.core.mapping.Field;
 
@@ -7,18 +8,23 @@ import org.springframework.data.mongodb.core.mapping.Field;
  * UsualResidentialAddress
  */
 public class DeltaUsualResidentialAddress {
+  @JsonProperty("address_line_1")
   @Field("address_line_1")
   private String addressLine1;
+  @JsonProperty("address_line_2")
   @Field("address_line_2")
   private String addressLine2;
+  @JsonProperty("care_of")
   @Field("care_of")
   private String careOf;
   @Field("country")
   private String country;
   @Field("locality")
   private String locality;
+  @JsonProperty("po_box")
   @Field("po_box")
   private String poBox;
+  @JsonProperty("postal_code")
   @Field("postal_code")
   private String postalCode;
   @Field("premises")

@@ -1,5 +1,17 @@
 package uk.gov.companieshouse.company_appointments.tests;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
 import org.apache.commons.io.IOUtils;
 import org.bson.Document;
 import org.junit.jupiter.api.BeforeAll;
@@ -18,17 +30,7 @@ import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import uk.gov.companieshouse.company_appointments.CompanyAppointmentsApplication;
-
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
 import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentDocument;
-
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.empty;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @Testcontainers
 @AutoConfigureMockMvc
@@ -72,6 +74,34 @@ class CompanyAppointmentFullRecordControllerITest {
         query.addCriteria(Criteria.where("_id").is("7IjxamNGLlqtIingmTZJJ42Hw9Q"));
         List<CompanyAppointmentDocument> appointments = mongoTemplate.find(query, CompanyAppointmentDocument.class);
         assertThat(appointments, is(empty()));
+    }
+
+    @Test
+    void testReturnFullRecordGetMapsFieldNamesCorrectly() throws Exception{
+        mockMvc.perform(get("/company/{company_number}/appointments/{appointment_id}/full_record", COMPANY_NUMBER, OFFICER_ID)
+                        .header("ERIC-Identity", "123")
+                        .header("ERIC-Identity-Type", "key")
+                        .header("ERIC-authorised-key-privileges", "sensitive-data"))
+                .andExpect(jsonPath("$.service_address.address_line_1", notNullValue()))
+                .andExpect(jsonPath("$.service_address.address_line_2", notNullValue()))
+                .andExpect(jsonPath("$.service_address.postal_code", notNullValue()))
+                .andExpect(jsonPath("$.usual_residential_address.address_line_1", notNullValue()))
+                .andExpect(jsonPath("$.usual_residential_address.address_line_2", notNullValue()))
+                .andExpect(jsonPath("$.usual_residential_address.care_of", notNullValue()))
+                .andExpect(jsonPath("$.usual_residential_address.po_box", notNullValue()))
+                .andExpect(jsonPath("$.usual_residential_address.postal_code", notNullValue()))
+                .andExpect(jsonPath("$.identification.identification_type", notNullValue()))
+                .andExpect(jsonPath("$.identification.legal_authority", notNullValue()))
+                .andExpect(jsonPath("$.identification.legal_form", notNullValue()))
+                .andExpect(jsonPath("$.identification.place_registered", notNullValue()))
+                .andExpect(jsonPath("$.identification.registration_number", notNullValue()))
+                .andExpect(jsonPath("$.contact_details.contact_name", notNullValue()))
+                .andExpect(jsonPath("$.principal_office_address.address_line_1", notNullValue()))
+                .andExpect(jsonPath("$.principal_office_address.address_line_2", notNullValue()))
+                .andExpect(jsonPath("$.principal_office_address.care_of", notNullValue()))
+                .andExpect(jsonPath("$.principal_office_address.po_box", notNullValue()))
+                .andExpect(jsonPath("$.principal_office_address.postal_code", notNullValue()))
+                .andExpect(status().isOk());
     }
 
     @Test
