@@ -37,7 +37,21 @@
     "forename" : "PHIL",
     "other_forenames" : "Peter",
     "title" : "Mr",
-    "company_number" : "12345678"
+    "company_number" : "12345678",
+    "contact_details": {
+      "contact_name": "contact me"
+    },
+    "principal_office_address" : {
+      "address_line_1" : "pca_line1",
+      "address_line_2" : "pca_line2",
+      "care_of" : "pca_care_of",
+      "country" : "United Kingdom",
+      "locality" : "Cardiff",
+      "po_box" : "pca_po",
+      "postal_code" : "CF2 1B6",
+      "premises" : "PCA",
+      "region" : "pca_region"
+    }
   },
   "sensitive_data" : {
     "usual_residential_address" : {
