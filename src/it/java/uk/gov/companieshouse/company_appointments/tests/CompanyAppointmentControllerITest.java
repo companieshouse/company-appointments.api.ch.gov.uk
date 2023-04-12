@@ -1,6 +1,14 @@
 package uk.gov.companieshouse.company_appointments.tests;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.Matchers.contains;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import org.apache.commons.io.IOUtils;
 import org.bson.Document;
 import org.junit.jupiter.api.BeforeAll;
@@ -9,7 +17,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.SimpleMongoClientDatabaseFactory;
 import org.springframework.http.HttpHeaders;
@@ -23,19 +30,6 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import uk.gov.companieshouse.api.appointment.PatchAppointmentNameStatusApi;
 import uk.gov.companieshouse.company_appointments.CompanyAppointmentsApplication;
-import uk.gov.companieshouse.company_appointments.api.ResourceChangedApiService;
-import uk.gov.companieshouse.company_appointments.exception.ServiceUnavailableException;
-
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.Matchers.contains;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 
 @Testcontainers
 @AutoConfigureMockMvc
@@ -51,9 +45,6 @@ class CompanyAppointmentControllerITest {
     private static final String ERIC_AUTHORISED_KEY_PRIVILEGES = "ERIC-Authorised-Key-Privileges";
     @Autowired
     private MockMvc mockMvc;
-
-    @MockBean
-    private ResourceChangedApiService resourceChangedApiService;
 
     @Container
     private static final MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:4.4");
@@ -275,45 +266,5 @@ class CompanyAppointmentControllerITest {
                 .header(ERIC_AUTHORISED_KEY_PRIVILEGES, "internal-app")
                 .content(objectMapper.writeValueAsString(requestBody)))
                 .andExpect(MockMvcResultMatchers.status().isNotFound());
-    }
-
-    @Test
-    @DisplayName("Patch endpoint returns 503 service unavailable when resource changed endpoint unavailable")
-    void testPatchNewAppointmentCompanyNameStatusApiServiceUnavailable() throws Exception {
-
-        when(resourceChangedApiService.invokeChsKafkaApi(any())).thenThrow(ServiceUnavailableException.class);
-
-        PatchAppointmentNameStatusApi requestBody = new PatchAppointmentNameStatusApi()
-                .companyName("company name")
-                .companyStatus("active");
-
-        mockMvc.perform(patch("/company/{company_number}/appointments/{appointment_id}", COMPANY_NUMBER, APPOINTMENT_ID)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header(X_REQUEST_ID, "5342342")
-                .header(ERIC_IDENTITY, "SOME_IDENTITY")
-                .header(ERIC_IDENTITY_TYPE, "key")
-                .header(ERIC_AUTHORISED_KEY_PRIVILEGES, "internal-app")
-                .content(objectMapper.writeValueAsString(requestBody)))
-                .andExpect(MockMvcResultMatchers.status().isServiceUnavailable());
-    }
-
-    @Test
-    @DisplayName("Patch endpoint returns 503 service unavailable when illegal argument exception is thrown")
-    void testPatchNewAppointmentCompanyNameStatusApiIllegalArgumentException() throws Exception {
-
-        when(resourceChangedApiService.invokeChsKafkaApi(any())).thenThrow(IllegalArgumentException.class);
-
-        PatchAppointmentNameStatusApi requestBody = new PatchAppointmentNameStatusApi()
-                .companyName("company name")
-                .companyStatus("active");
-
-        mockMvc.perform(patch("/company/{company_number}/appointments/{appointment_id}", COMPANY_NUMBER, APPOINTMENT_ID)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header(X_REQUEST_ID, "5342342")
-                        .header(ERIC_IDENTITY, "SOME_IDENTITY")
-                        .header(ERIC_IDENTITY_TYPE, "key")
-                        .header(ERIC_AUTHORISED_KEY_PRIVILEGES, "internal-app")
-                        .content(objectMapper.writeValueAsString(requestBody)))
-                .andExpect(MockMvcResultMatchers.status().isServiceUnavailable());
     }
 }

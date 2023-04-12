@@ -24,6 +24,4 @@ public interface CompanyAppointmentFullRecordRepository extends MongoRepository<
     @Query("{ '_id': ?0 }")
     @Update("{ $set: { 'company_name': ?1, 'company_status': ?2, 'updated.at': ?3, 'etag': ?4 } }")
     long patchAppointmentNameStatus(String id, String companyName, String companyStatus, Instant at, String etag);
-
-    boolean existsById(String id);
 }
