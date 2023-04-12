@@ -14,8 +14,6 @@ import uk.gov.companieshouse.company_appointments.exception.ServiceUnavailableEx
 import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentFullRecordView;
 import uk.gov.companieshouse.company_appointments.service.CompanyAppointmentFullRecordService;
 
-import java.rmi.server.ServerCloneException;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
