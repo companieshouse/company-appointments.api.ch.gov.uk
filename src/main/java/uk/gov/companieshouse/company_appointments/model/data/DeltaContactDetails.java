@@ -1,9 +1,11 @@
 package uk.gov.companieshouse.company_appointments.model.data;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Objects;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 public class DeltaContactDetails {
+  @JsonProperty("contact_name")
   @Field("contact_name")
   private String contactName;
 

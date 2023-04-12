@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.company_appointments.model.data;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Objects;
 import org.springframework.data.mongodb.core.mapping.Field;
 
@@ -7,14 +8,19 @@ import org.springframework.data.mongodb.core.mapping.Field;
  * Identification
  */
 public class DeltaIdentification {
+  @JsonProperty("identification_type")
   @Field("identification_type")
   private String identificationType;
+  @JsonProperty("legal_authority")
   @Field("legal_authority")
   private String legalAuthority;
+  @JsonProperty("legal_form")
   @Field("legal_form")
   private String legalForm;
+  @JsonProperty("place_registered")
   @Field("place_registered")
   private String placeRegistered;
+  @JsonProperty("registration_number")
   @Field("registration_number")
   private String registrationNumber;
 
