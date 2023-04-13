@@ -1,5 +1,20 @@
 package uk.gov.companieshouse.company_appointments;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.time.Clock;
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.util.Optional;
+import java.util.stream.Stream;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Assert;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,23 +50,6 @@ import uk.gov.companieshouse.company_appointments.model.transformer.DeltaAppoint
 import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentFullRecordView;
 import uk.gov.companieshouse.company_appointments.repository.CompanyAppointmentFullRecordRepository;
 import uk.gov.companieshouse.company_appointments.service.CompanyAppointmentFullRecordService;
-
-import java.time.Clock;
-import java.time.Instant;
-import java.time.OffsetDateTime;
-import java.time.ZoneId;
-import java.util.Optional;
-import java.util.stream.Stream;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.isA;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class CompanyAppointmentFullRecordServiceTest {
@@ -124,7 +122,7 @@ class CompanyAppointmentFullRecordServiceTest {
                 companyAppointmentService.getAppointment(COMPANY_NUMBER, APPOINTMENT_ID);
 
         // then
-        assertThat(result, isA(CompanyAppointmentFullRecordView.class));
+        assertThat(result).isInstanceOf(CompanyAppointmentFullRecordView.class);
         verify(companyAppointmentRepository).readByCompanyNumberAndID(COMPANY_NUMBER,
                 APPOINTMENT_ID);
     }
