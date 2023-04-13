@@ -90,11 +90,10 @@ public class CompanyAppointmentController {
     public ResponseEntity<Void> patchNewAppointmentCompanyNameStatus(
             @PathVariable("company_number") String companyNumber,
             @PathVariable("appointment_id") String appointmentId,
-            @Valid @RequestBody PatchAppointmentNameStatusApi requestBody,
-            @RequestHeader("x-request-id") String contextId) {
+            @Valid @RequestBody PatchAppointmentNameStatusApi requestBody) {
         try {
             companyAppointmentService.patchNewAppointmentCompanyNameStatus(companyNumber, appointmentId,
-                    requestBody.getCompanyName(), requestBody.getCompanyStatus(), contextId);
+                    requestBody.getCompanyName(), requestBody.getCompanyStatus());
             return ResponseEntity.ok()
                     .header(HttpHeaders.LOCATION, String.format("/company/%s/appointments/%s", companyNumber, appointmentId))
                     .build();
