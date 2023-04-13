@@ -1,26 +1,5 @@
 package uk.gov.companieshouse.company_appointments.steps;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
-import io.cucumber.java.Before;
-import io.cucumber.java.BeforeAll;
-import io.cucumber.java.en.Given;
-import io.cucumber.java.en.Then;
-import org.apache.commons.io.IOUtils;
-import org.bson.Document;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.SimpleMongoClientDatabaseFactory;
-import org.springframework.http.HttpStatus;
-import uk.gov.companieshouse.api.chskafka.ChangedResource;
-import uk.gov.companieshouse.company_appointments.config.WiremockTestConfig;
-import uk.gov.companieshouse.company_appointments.repository.CompanyAppointmentFullRecordRepository;
-
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-
 import static com.github.tomakehurst.wiremock.client.WireMock.lessThanOrExactly;
 import static com.github.tomakehurst.wiremock.client.WireMock.moreThanOrExactly;
 import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
@@ -31,6 +10,26 @@ import static uk.gov.companieshouse.company_appointments.config.AbstractMongoCon
 import static uk.gov.companieshouse.company_appointments.config.CucumberContext.CONTEXT;
 import static uk.gov.companieshouse.company_appointments.config.WiremockTestConfig.getServeEvents;
 import static uk.gov.companieshouse.company_appointments.config.WiremockTestConfig.setupWiremock;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
+import io.cucumber.java.Before;
+import io.cucumber.java.BeforeAll;
+import io.cucumber.java.en.Given;
+import io.cucumber.java.en.Then;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import org.apache.commons.io.IOUtils;
+import org.bson.Document;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.SimpleMongoClientDatabaseFactory;
+import org.springframework.http.HttpStatus;
+import uk.gov.companieshouse.api.chskafka.ChangedResource;
+import uk.gov.companieshouse.company_appointments.config.WiremockTestConfig;
+import uk.gov.companieshouse.company_appointments.repository.CompanyAppointmentFullRecordRepository;
 
 public class CommonSteps {
 

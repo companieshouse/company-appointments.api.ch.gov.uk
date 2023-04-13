@@ -1,9 +1,19 @@
 package uk.gov.companieshouse.company_appointments.steps;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static uk.gov.companieshouse.company_appointments.config.CucumberContext.CONTEXT;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import java.io.File;
+import java.io.IOException;
+import java.time.OffsetDateTime;
+import java.util.Collections;
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.core.io.ClassPathResource;
@@ -15,17 +25,6 @@ import org.springframework.http.ResponseEntity;
 import uk.gov.companieshouse.api.appointment.FullRecordCompanyOfficerApi;
 import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentDocument;
 import uk.gov.companieshouse.company_appointments.repository.CompanyAppointmentFullRecordRepository;
-
-import java.io.File;
-import java.io.IOException;
-import java.time.OffsetDateTime;
-import java.util.Collections;
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static uk.gov.companieshouse.company_appointments.config.CucumberContext.CONTEXT;
 
 public class FullRecordAppointmentSteps {
 
