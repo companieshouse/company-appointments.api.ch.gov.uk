@@ -19,7 +19,7 @@ public interface CompanyAppointmentFullRecordRepository extends MongoRepository<
     Optional<CompanyAppointmentDocument> readByCompanyNumberAndID(String companyNumber, String appointmentId);
 
     @Query(value="{'company_number' : '?0', '_id' : '?1'}", delete = true)
-    Optional<CompanyAppointmentDocument> deleteByCompanyNumberAndID(String companyNumber, String appointmentId);
+    void deleteByCompanyNumberAndID(String companyNumber, String appointmentId);
 
     @Query("{ '_id': ?0 }")
     @Update("{ $set: { 'company_name': ?1, 'company_status': ?2, 'updated.at': ?3, 'etag': ?4 } }")

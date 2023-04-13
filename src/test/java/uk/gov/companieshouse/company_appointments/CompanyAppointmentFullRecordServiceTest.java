@@ -1,7 +1,6 @@
 package uk.gov.companieshouse.company_appointments;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.isA;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -10,6 +9,12 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.Clock;
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.util.Optional;
+import java.util.stream.Stream;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Assert;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,12 +29,14 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.verification.VerificationMode;
+import org.springframework.dao.DataAccessException;
 import uk.gov.companieshouse.api.appointment.Data;
 import uk.gov.companieshouse.api.appointment.DateOfBirth;
 import uk.gov.companieshouse.api.appointment.ExternalData;
 import uk.gov.companieshouse.api.appointment.FullRecordCompanyOfficerApi;
 import uk.gov.companieshouse.api.appointment.InternalData;
 import uk.gov.companieshouse.api.appointment.SensitiveData;
+import uk.gov.companieshouse.company_appointments.api.ResourceChangedApiService;
 import uk.gov.companieshouse.company_appointments.exception.FailedToTransformException;
 import uk.gov.companieshouse.company_appointments.exception.NotFoundException;
 import uk.gov.companieshouse.company_appointments.exception.ServiceUnavailableException;
@@ -44,13 +51,6 @@ import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentF
 import uk.gov.companieshouse.company_appointments.repository.CompanyAppointmentFullRecordRepository;
 import uk.gov.companieshouse.company_appointments.service.CompanyAppointmentFullRecordService;
 
-import java.time.Clock;
-import java.time.Instant;
-import java.time.OffsetDateTime;
-import java.time.ZoneId;
-import java.util.Optional;
-import java.util.stream.Stream;
-
 @ExtendWith(MockitoExtension.class)
 class CompanyAppointmentFullRecordServiceTest {
 
@@ -61,21 +61,19 @@ class CompanyAppointmentFullRecordServiceTest {
 
     @Mock
     private CompanyAppointmentFullRecordRepository companyAppointmentRepository;
-
+    @Mock
+    private ResourceChangedApiService resourceChangedApiService;
     @Captor
     private ArgumentCaptor<CompanyAppointmentDocument> captor;
 
     private final FullRecordCompanyOfficerApi fullRecordCompanyOfficerApi = buildFullRecordOfficer();
 
+
     private final static String COMPANY_NUMBER = "123456";
-
     private final static String APPOINTMENT_ID = "345678";
-
-    private final static OffsetDateTime DELTA_AT_LATER = OffsetDateTime.parse(
-            "2022-01-14T00:00:00.000Z");
-    private final static OffsetDateTime DELTA_AT_STALE = OffsetDateTime.parse(
-            "2022-01-12T00:00:00.000Z");
-
+    private final static String CONTEXT_ID = "contextId";
+    private final static OffsetDateTime DELTA_AT_LATER = OffsetDateTime.parse("2022-01-14T00:00:00.000Z");
+    private final static OffsetDateTime DELTA_AT_STALE = OffsetDateTime.parse("2022-01-12T00:00:00.000Z");
     private final static Clock CLOCK = Clock.fixed(Instant.parse("2021-08-01T00:00:00.000Z"),
             ZoneId.of("UTC"));
 
@@ -99,7 +97,7 @@ class CompanyAppointmentFullRecordServiceTest {
     void setUp() {
         companyAppointmentService =
                 new CompanyAppointmentFullRecordService(deltaAppointmentTransformer,
-                        companyAppointmentRepository, CLOCK);
+                        companyAppointmentRepository, resourceChangedApiService, CLOCK);
     }
 
     @Test
@@ -124,7 +122,7 @@ class CompanyAppointmentFullRecordServiceTest {
                 companyAppointmentService.getAppointment(COMPANY_NUMBER, APPOINTMENT_ID);
 
         // then
-        assertThat(result, isA(CompanyAppointmentFullRecordView.class));
+        assertThat(result).isInstanceOf(CompanyAppointmentFullRecordView.class);
         verify(companyAppointmentRepository).readByCompanyNumberAndID(COMPANY_NUMBER,
                 APPOINTMENT_ID);
     }
@@ -160,11 +158,38 @@ class CompanyAppointmentFullRecordServiceTest {
                 .thenReturn(transformedAppointmentApi);
 
         // When
-        companyAppointmentService.insertAppointmentDelta(fullRecordCompanyOfficerApi);
+        companyAppointmentService.upsertAppointmentDelta(CONTEXT_ID, fullRecordCompanyOfficerApi);
 
         // then
         verify(companyAppointmentRepository).insertOrUpdate(captor.capture());
         assertNotNull(captor.getValue().getEtag());
+    }
+
+    @Test
+    void testPutAppointmentDataThrowsServiceUnavailableException() throws Exception {
+        // given
+        when(deltaAppointmentTransformer.transform(any(FullRecordCompanyOfficerApi.class))).thenReturn(new CompanyAppointmentDocument());
+        when(companyAppointmentRepository.readByCompanyNumberAndID(any(),
+                any())).thenThrow(new DataAccessException("..."){ });
+
+        // When
+        Executable executable = () -> companyAppointmentService.upsertAppointmentDelta(CONTEXT_ID, fullRecordCompanyOfficerApi);
+
+        // then
+        assertThrows(ServiceUnavailableException.class, executable);
+    }
+
+    @Test
+    void testPutAppointmentDataThrowsServiceUnavailableExceptionWhenIllegalArgumentExceptionCaught() throws Exception {
+        // given
+        when(deltaAppointmentTransformer.transform(any(FullRecordCompanyOfficerApi.class))).thenReturn(new CompanyAppointmentDocument());
+        when(resourceChangedApiService.invokeChsKafkaApi(any())).thenThrow(IllegalArgumentException.class);
+
+        // When
+        Executable executable = () -> companyAppointmentService.upsertAppointmentDelta(CONTEXT_ID, fullRecordCompanyOfficerApi);
+
+        // then
+        assertThrows(ServiceUnavailableException.class, executable);
     }
 
     @ParameterizedTest
@@ -196,7 +221,7 @@ class CompanyAppointmentFullRecordServiceTest {
                 : Optional.empty());
 
         // When
-        companyAppointmentService.insertAppointmentDelta(fullRecordCompanyOfficerApi);
+        companyAppointmentService.upsertAppointmentDelta(CONTEXT_ID, fullRecordCompanyOfficerApi);
 
         // then
         VerificationMode expectedTimes = (deltaExists && shouldBeStale) ? never() : times(1);
@@ -206,11 +231,11 @@ class CompanyAppointmentFullRecordServiceTest {
 
     @Test
     void deleteOfficer() throws Exception {
-        when(companyAppointmentRepository.deleteByCompanyNumberAndID(COMPANY_NUMBER,
+        when(companyAppointmentRepository.readByCompanyNumberAndID(COMPANY_NUMBER,
                 APPOINTMENT_ID))
                 .thenReturn(Optional.of(new CompanyAppointmentDocument()));
 
-        companyAppointmentService.deleteOfficer(COMPANY_NUMBER, APPOINTMENT_ID);
+        companyAppointmentService.deleteAppointmentDelta(CONTEXT_ID, COMPANY_NUMBER, APPOINTMENT_ID);
 
         verify(companyAppointmentRepository).deleteByCompanyNumberAndID(COMPANY_NUMBER,
                 APPOINTMENT_ID);
@@ -222,20 +247,46 @@ class CompanyAppointmentFullRecordServiceTest {
                 .thenThrow(new FailedToTransformException("message"));
 
         Assert.assertThrows(ServiceUnavailableException.class, () ->
-                companyAppointmentService.insertAppointmentDelta(
-                        new FullRecordCompanyOfficerApi()));
+                companyAppointmentService.upsertAppointmentDelta(CONTEXT_ID, new FullRecordCompanyOfficerApi()));
     }
 
     @Test
     void deleteOfficerThrowsNotFound() {
-        when(companyAppointmentRepository.deleteByCompanyNumberAndID(COMPANY_NUMBER,
+        when(companyAppointmentRepository.readByCompanyNumberAndID(COMPANY_NUMBER,
                 APPOINTMENT_ID))
                 .thenReturn(Optional.empty());
 
-        Executable result = () -> companyAppointmentService.deleteOfficer(COMPANY_NUMBER,
+        Executable executable = () -> companyAppointmentService.deleteAppointmentDelta(CONTEXT_ID, COMPANY_NUMBER,
                 APPOINTMENT_ID);
 
-        assertThrows(NotFoundException.class, result);
+        assertThrows(NotFoundException.class, executable);
+    }
+
+    @Test
+    void testDeleteAppointmentDataThrowsServiceUnavailableException() {
+        // given
+        when(companyAppointmentRepository.readByCompanyNumberAndID(any(),
+                any())).thenThrow(new DataAccessException("..."){ });
+
+        // When
+        Executable executable = () -> companyAppointmentService.deleteAppointmentDelta(CONTEXT_ID, COMPANY_NUMBER, APPOINTMENT_ID);
+
+        // then
+        assertThrows(ServiceUnavailableException.class, executable);
+    }
+
+    @Test
+    void testDeleteAppointmentDataThrowsServiceUnavailableExceptionWhenIllegalArgumentExceptionCaught() throws ServiceUnavailableException {
+        // given
+        when(companyAppointmentRepository.readByCompanyNumberAndID(COMPANY_NUMBER, APPOINTMENT_ID))
+                .thenReturn(Optional.of(new CompanyAppointmentDocument()));
+        when(resourceChangedApiService.invokeChsKafkaApi(any())).thenThrow(IllegalArgumentException.class);
+
+        // When
+        Executable executable = () -> companyAppointmentService.deleteAppointmentDelta(CONTEXT_ID, COMPANY_NUMBER, APPOINTMENT_ID);
+
+        // then
+        assertThrows(ServiceUnavailableException.class, executable);
     }
 
     private FullRecordCompanyOfficerApi buildFullRecordOfficer() {

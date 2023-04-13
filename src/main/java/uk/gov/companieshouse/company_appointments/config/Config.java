@@ -1,7 +1,5 @@
 package uk.gov.companieshouse.company_appointments.config;
 
-import java.time.OffsetDateTime;
-import java.util.function.Supplier;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,6 +10,8 @@ import uk.gov.companieshouse.company_appointments.interceptor.FullRecordAuthenti
 import uk.gov.companieshouse.company_appointments.interceptor.RequestLoggingInterceptor;
 
 import java.time.Clock;
+import java.time.OffsetDateTime;
+import java.util.function.Supplier;
 
 @Configuration
 public class Config implements WebMvcConfigurer {

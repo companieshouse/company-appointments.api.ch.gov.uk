@@ -9,7 +9,7 @@ import uk.gov.companieshouse.company_appointments.mapper.SortMapper;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class SortMapperTest {
+class SortMapperTest {
 
     private SortMapper sortMapper;
 

@@ -8,7 +8,8 @@ import uk.gov.companieshouse.company_appointments.config.AbstractIntegrationTest
 
 @RunWith(Cucumber.class)
 @CucumberOptions(features = "src/it/resources/features",
-        plugin = {"pretty", "json:target/cucumber-report.json"})
+        plugin = {"pretty", "json:target/cucumber-report.json"},
+        glue = {"uk.gov.companieshouse.company_appointments"})
 @CucumberContextConfiguration
 public class CucumberFeaturesRunnerITest extends AbstractIntegrationTest {
 }

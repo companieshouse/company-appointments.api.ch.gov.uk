@@ -1,48 +1,74 @@
 package uk.gov.companieshouse.company_appointments.steps;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.lessThanOrExactly;
+import static com.github.tomakehurst.wiremock.client.WireMock.moreThanOrExactly;
+import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.verify;
+import static org.assertj.core.api.Assertions.assertThat;
+import static uk.gov.companieshouse.company_appointments.config.AbstractMongoConfig.mongoDBContainer;
+import static uk.gov.companieshouse.company_appointments.config.CucumberContext.CONTEXT;
+import static uk.gov.companieshouse.company_appointments.config.WiremockTestConfig.getServeEvents;
+import static uk.gov.companieshouse.company_appointments.config.WiremockTestConfig.setupWiremock;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
+import io.cucumber.java.Before;
 import io.cucumber.java.BeforeAll;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
-import io.cucumber.java.en.When;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import org.apache.commons.io.IOUtils;
+import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.SimpleMongoClientDatabaseFactory;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import uk.gov.companieshouse.company_appointments.config.CucumberContext;
-import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentDocument;
-import uk.gov.companieshouse.company_appointments.util.FileReader;
-import uk.gov.companieshouse.company_appointments.util.JSONMatcher;
-
-import java.util.Collections;
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static uk.gov.companieshouse.company_appointments.config.AbstractMongoConfig.mongoDBContainer;
+import uk.gov.companieshouse.api.chskafka.ChangedResource;
+import uk.gov.companieshouse.company_appointments.config.WiremockTestConfig;
+import uk.gov.companieshouse.company_appointments.repository.CompanyAppointmentFullRecordRepository;
 
 public class CommonSteps {
 
-    private static final String HASHED_APPOINTMENT_ID = "EcEKO1YhIKexb0cSDZsn_OHsFw4";
+    @Autowired
+    private ObjectMapper objectMapper;
 
-    private static final MongoTemplate mongoTemplate =
-            new MongoTemplate(new SimpleMongoClientDatabaseFactory(mongoDBContainer.getReplicaSetUrl()));
+    private static MongoTemplate mongoTemplate;
 
     @Autowired
     protected TestRestTemplate restTemplate;
 
     @Autowired
-    private JSONMatcher jsonMatcher;
+    private CompanyAppointmentFullRecordRepository companyAppointmentFullRecordRepository;
 
     @BeforeAll
-    static void dbSetUp(){
+    public static void setup() throws IOException {
+        mongoDBContainer.start();
+        mongoTemplate = new MongoTemplate(new SimpleMongoClientDatabaseFactory(mongoDBContainer.getReplicaSetUrl()));
         mongoTemplate.createCollection("delta_appointments");
+    }
+
+    @Before
+    public void beforeEachTest() throws IOException {
+        CONTEXT.clear();
+        setupWiremock();
+        companyAppointmentFullRecordRepository.deleteAll();
+        mongoTemplate.insert(Document.parse(
+                        IOUtils.resourceToString("/delta-appointment-data.json", StandardCharsets.UTF_8)),
+                "delta_appointments");
+    }
+
+    @Given("CHS kafka is available")
+    public void theChsKafkaApiIsAvailable() {
+        WiremockTestConfig.stubKafkaApi(HttpStatus.OK.value());
+    }
+
+    @Given("CHS kafka is unavailable")
+    public void theChsKafkaApiIsUnavailable() {
+        WiremockTestConfig.stubKafkaApi(HttpStatus.SERVICE_UNAVAILABLE.value());
     }
 
     @Given("the company appointments api is running")
@@ -51,41 +77,52 @@ public class CommonSteps {
         assertThat(mongoDBContainer.isRunning()).isTrue();
     }
 
-    @When("I send a PUT request with payload {string}")
-    public void sendPutRequest(String payloadFile) {
-        String data = FileReader.readInputFile(payloadFile);
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-
-        headers.set("x-request-id", "5234234234");
-        headers.set("ERIC-Identity", "TEST-IDENTITY");
-        headers.set("ERIC-Identity-Type", "key");
-        headers.set("ERIC-Authorised-Key-Privileges", "internal-app");
-
-        HttpEntity<String> request = new HttpEntity<>(data, headers);
-        String COMPANY_NUMBER = "12345678";
-        String uri = "/company/" + COMPANY_NUMBER + "/appointments/" + HASHED_APPOINTMENT_ID + "/full_record";
-
-        ResponseEntity<Void> response = restTemplate.exchange(uri, HttpMethod.PUT, request, Void.class);
-
-        CucumberContext.CONTEXT.set("statusCode", response.getStatusCode());
-    }
-
     @Then("I should receive a {int} status code")
     public void receiveStatusCode(int code) {
-        HttpStatus statusCode = CucumberContext.CONTEXT.get("statusCode");
+        HttpStatus statusCode = CONTEXT.get("statusCode");
         assertThat(statusCode).isEqualTo(HttpStatus.valueOf(code));
     }
 
-    @Then("the record should be saved")
-    public void hasRecordSaved() {
-        Query query = new Query();
-        query.addCriteria(Criteria.where("_id").is(HASHED_APPOINTMENT_ID));
+    @Then("a request is sent to the resource changed endpoint")
+    public void CHSKafkaInvokedSuccessFully() {
+        verify(moreThanOrExactly(1), postRequestedFor(urlEqualTo("/resource-changed")));
+    }
 
-        List<CompanyAppointmentDocument> appointments = mongoTemplate.find(query, CompanyAppointmentDocument.class);
+    @Then("the event type is {string}")
+    public void eventTypeIs(String eventType) {
+        ChangedResource payload = getPayloadFromWiremock();
+        assertThat(payload).isNotNull();
+        assertThat(payload.getEvent().getType()).isEqualTo(eventType);
+    }
 
-        assertThat(appointments).hasSize(1);
+
+    @Then("the request body is a valid resource changed request")
+    public void requestBodySentToResourceChangedIsValidPut() {
+        ChangedResource payload = getPayloadFromWiremock();
+        assertThat(payload).isInstanceOf(ChangedResource.class);
+        assertThat(payload.getEvent().getType()).isEqualTo("changed");
+    }
+    @Then("the request body is a valid resource deleted request")
+    public void requestBodySentToResourceChangedISValidDelete() {
+        ChangedResource payload = getPayloadFromWiremock();
+        assertThat(payload).isInstanceOf(ChangedResource.class);
+        assertThat(payload.getEvent().getType()).isEqualTo("deleted");
+    }
+
+    @Then("a request should NOT be sent to the resource changed endpoint")
+    public void noRequestsSentToResourceChangedEndpoint() {
+        verify(lessThanOrExactly(0), postRequestedFor(urlEqualTo("/resource-changed")));
+    }
+
+    private ChangedResource getPayloadFromWiremock() {
+        ServeEvent serverEvent = getServeEvents().get(0);
+        String body = new String (serverEvent.getRequest().getBody());
+        ChangedResource payload = null;
+        try {
+            payload = objectMapper.readValue(body, ChangedResource.class);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        return payload;
     }
 }

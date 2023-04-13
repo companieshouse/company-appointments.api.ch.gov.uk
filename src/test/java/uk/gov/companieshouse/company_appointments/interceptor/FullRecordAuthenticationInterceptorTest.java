@@ -69,7 +69,8 @@ class FullRecordAuthenticationInterceptorTest {
         boolean actual = authenticationInterceptor.preHandle(request, response, handler);
 
         // then
-        checkUnauthorised(actual);
+        assertThat(actual, is(false));
+        verify(response).setStatus(HttpStatus.SC_FORBIDDEN);
     }
 
     @ParameterizedTest(name = "invalid identityType: {0}")

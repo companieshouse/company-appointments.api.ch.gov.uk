@@ -8,10 +8,9 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.IOUtils;
 import org.bson.Document;
 import org.junit.jupiter.api.BeforeAll;
@@ -104,7 +103,7 @@ class CompanyAppointmentControllerITest {
         // then
         result.andExpect(MockMvcResultMatchers.status().isNotFound());
     }
-    
+
     @Test
     void testReturn401IfUserNotAuthenticated() throws Exception {
         // when
