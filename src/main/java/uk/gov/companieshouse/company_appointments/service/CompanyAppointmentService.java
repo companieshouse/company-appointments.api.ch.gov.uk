@@ -1,6 +1,7 @@
 package uk.gov.companieshouse.company_appointments.service;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
+import static uk.gov.companieshouse.logging.util.LogContextProperties.REQUEST_ID;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -8,6 +9,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.slf4j.MDC;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -31,8 +33,10 @@ import uk.gov.companieshouse.logging.LoggerFactory;
 @Service
 public class CompanyAppointmentService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(CompanyAppointmentsApplication.APPLICATION_NAMESPACE);
-    private static final String ERROR_MESSAGE = "Request failed for company [%s] with appointment [%s]: ";
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+            CompanyAppointmentsApplication.APPLICATION_NAMESPACE);
+    private static final String PATCH_APPOINTMENT_ERROR_MESSAGE = "Request failed for company [%s] with appointment [%s], contextId: [%s]: ";
+    private static final String PATCH_APPOINTMENTS_ERROR_MESSAGE = "Request failed for company [%s], contextId: [%s]: ";
 
     private final CompanyAppointmentRepository companyAppointmentRepository;
     private final CompanyAppointmentMapper companyAppointmentMapper;
@@ -110,18 +114,51 @@ public class CompanyAppointmentService {
     }
 
     public void patchCompanyNameStatus(String companyNumber, String companyName,
-            String companyStatus) throws NotFoundException {
-        // Implementation started as part of pair programming session, to be implemented in DSND-1531
-        throw new UnsupportedOperationException("Method not implemented");
+            String companyStatus)
+            throws BadRequestException, NotFoundException, ServiceUnavailableException {
+        if (isBlank(companyName) || isBlank(companyStatus)) {
+            throw new BadRequestException(String.format(PATCH_APPOINTMENTS_ERROR_MESSAGE +
+                    "company name and/or company status missing.", companyNumber, getContextId()));
+        }
+        if (!companyStatusValidator.isValidCompanyStatus(companyStatus)) {
+            throw new BadRequestException(String.format(PATCH_APPOINTMENTS_ERROR_MESSAGE +
+                    "invalid company status provided.", companyNumber, getContextId()));
+        }
+
+        LOGGER.debug(String.format(
+                "Patching company name: [%s] and company status [%s] for appointments in company [%s], contextID [%s]",
+                companyName, companyStatus, companyNumber, getContextId()));
+
+        try {
+            long updatedCount = fullRecordAppointmentRepository.patchAppointmentNameStatusInCompany(
+                    companyNumber,
+                    companyName, companyStatus, Instant.now(clock),
+                    GenerateEtagUtil.generateEtag());
+            if (updatedCount == 0) {
+                throw new NotFoundException(
+                        String.format("No appointments found for company [%s] during PATCH request",
+                                companyNumber));
+            }
+            LOGGER.debug(String.format("Appointments for company [%s] updated successfully",
+                    companyNumber));
+        } catch (DataAccessException ex) {
+            throw new ServiceUnavailableException(
+                    String.format(PATCH_APPOINTMENTS_ERROR_MESSAGE + "error connecting to MongoDB.",
+                            companyNumber, getContextId()));
+        }
     }
 
     public void patchNewAppointmentCompanyNameStatus(String companyNumber, String appointmentId, String companyName,
             String companyStatus) throws BadRequestException, NotFoundException, ServiceUnavailableException {
         if (isBlank(companyName) || isBlank(companyStatus)) {
-            throw new BadRequestException(String.format(ERROR_MESSAGE + "company name and/or company status missing.", companyNumber, appointmentId));
+            throw new BadRequestException(String.format(PATCH_APPOINTMENT_ERROR_MESSAGE +
+                            "company name and/or company status missing.", companyNumber, appointmentId,
+                    getContextId()));
         }
         if (!companyStatusValidator.isValidCompanyStatus(companyStatus)) {
-            throw new BadRequestException(String.format(ERROR_MESSAGE + "invalid company status provided.", companyNumber, appointmentId));
+            throw new BadRequestException(String.format(PATCH_APPOINTMENT_ERROR_MESSAGE +
+                            "invalid company status provided.", companyNumber, appointmentId,
+                    getContextId()));
         }
 
         LOGGER.debug(String.format("Patching company name: [%s] and company status [%s] for company [%s] with appointment [%s]",
@@ -132,10 +169,10 @@ public class CompanyAppointmentService {
                 throw new NotFoundException(String.format("Appointment [%s] for company [%s] not found during PATCH request", appointmentId, companyNumber));
             }
             LOGGER.debug(String.format("Appointment [%s] for company [%s] updated successfully", appointmentId, companyNumber));
-        } catch (IllegalArgumentException ex) {
-            throw new ServiceUnavailableException(String.format(ERROR_MESSAGE + "error calling CHS Kafka API.", companyNumber, appointmentId));
         } catch (DataAccessException ex) {
-            throw new ServiceUnavailableException(String.format(ERROR_MESSAGE + "error connecting to MongoDB.", companyNumber, appointmentId));
+            throw new ServiceUnavailableException(
+                    String.format(PATCH_APPOINTMENT_ERROR_MESSAGE + "error connecting to MongoDB.",
+                            companyNumber, appointmentId, getContextId()));
         }
     }
 
@@ -160,11 +197,17 @@ public class CompanyAppointmentService {
         }
 
         if (firstItem + lastItem <= companyAppointmentViews.size()) {
-            companyAppointmentViews = companyAppointmentViews.subList(firstItem, firstItem + lastItem);
+            companyAppointmentViews = companyAppointmentViews.subList(firstItem,
+                    firstItem + lastItem);
         } else {
-            companyAppointmentViews = companyAppointmentViews.subList(firstItem, companyAppointmentViews.size());
+            companyAppointmentViews = companyAppointmentViews.subList(firstItem,
+                    companyAppointmentViews.size());
         }
 
         return companyAppointmentViews;
+    }
+
+    private String getContextId() {
+        return MDC.get(REQUEST_ID.value());
     }
 }

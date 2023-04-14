@@ -16,21 +16,21 @@
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
-        <spring-boot-dependencies.version>2.7.9</spring-boot-dependencies.version>
-        <testcontainers.version>1.16.2</testcontainers.version>
-        <commons-io.version>2.6</commons-io.version>
-        <commons-lang.version>2.6</commons-lang.version>
-        <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
-        <maven-failsafe-plugin.version>2.22.2</maven-failsafe-plugin.version>
-        <jacoco-maven-plugin.version>0.8.5</jacoco-maven-plugin.version>
+        <spring-boot-dependencies.version>2.7.10</spring-boot-dependencies.version>
+        <testcontainers.version>1.18.0</testcontainers.version>
+        <maven-surefire-plugin.version>3.0.0</maven-surefire-plugin.version>
+        <maven-failsafe-plugin.version>3.0.0</maven-failsafe-plugin.version>
+        <jacoco-maven-plugin.version>0.8.9</jacoco-maven-plugin.version>
+        <jib-maven-plugin.version>3.3.1</jib-maven-plugin.version>
+
         <skip.integration.tests>false</skip.integration.tests>
         <skip.unit.tests>false</skip.unit.tests>
 
         <structured-logging.version>1.9.11</structured-logging.version>
-        <sdk-manager-java.version>1.5.1</sdk-manager-java.version>
-        <api-sdk-manager-java-library.version>1.0.4</api-sdk-manager-java-library.version>
+        <sdk-manager-java.version>1.5.16</sdk-manager-java.version>
+        <api-sdk-manager-java-library.version>1.0.6</api-sdk-manager-java-library.version>
         <private-api-sdk-java.version>2.0.241</private-api-sdk-java.version>
-        <io-cucumber.version>7.2.3</io-cucumber.version>
+        <io-cucumber.version>7.11.2</io-cucumber.version>
         <wiremock.version>2.35.0</wiremock.version>
 
         <api-helper-java-library.version>1.4.5</api-helper-java-library.version>
@@ -69,17 +69,6 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-tomcat</artifactId>
-            <version>${spring-boot-dependencies.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-            <version>${commons-io.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>commons-lang</groupId>
-            <artifactId>commons-lang</artifactId>
-            <version>${commons-lang.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -124,6 +113,12 @@
             <groupId>uk.gov.companieshouse</groupId>
             <artifactId>sdk-manager-java</artifactId>
             <version>${sdk-manager-java.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.nimbusds</groupId>
+                    <artifactId>nimbus-jose-jwt</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>uk.gov.companieshouse</groupId>
@@ -186,6 +181,10 @@
                 <groupId>com.github.jknack</groupId>
                 <artifactId>handlebars-helpers</artifactId>
             </exclusion>
+            <exclusion>
+                <groupId>commons-fileupload</groupId>
+                <artifactId>commons-fileupload</artifactId>
+            </exclusion>
         </exclusions>
         </dependency>
     </dependencies>
@@ -207,7 +206,7 @@
             <plugin>
                 <groupId>com.google.cloud.tools</groupId>
                 <artifactId>jib-maven-plugin</artifactId>
-                <version>3.1.1</version>
+                <version>${jib-maven-plugin.version}</version>
             </plugin>
             <plugin>
                 <groupId>org.jacoco</groupId>
