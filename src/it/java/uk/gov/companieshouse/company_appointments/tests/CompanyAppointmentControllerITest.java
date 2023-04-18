@@ -283,7 +283,8 @@ class CompanyAppointmentControllerITest {
                         .header(ERIC_AUTHORISED_KEY_PRIVILEGES, "internal-app")
                         .content(objectMapper.writeValueAsString(requestBody)))
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.header().string(HttpHeaders.LOCATION, String.format("/company/%s/appointments", COMPANY_NUMBER)));
+                .andExpect(MockMvcResultMatchers.header().string(HttpHeaders.LOCATION,
+                        String.format("/company/%s/officers", COMPANY_NUMBER)));
     }
 
     @Test
