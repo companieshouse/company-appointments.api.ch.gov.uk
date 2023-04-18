@@ -76,7 +76,9 @@ public class CompanyAppointmentController {
         try {
             companyAppointmentService.patchCompanyNameStatus(companyNumber,
                     requestBody.getCompanyName(), requestBody.getCompanyStatus());
-            return ResponseEntity.ok().build();
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.LOCATION, String.format("/company/%s/officers", companyNumber))
+                    .build();
         } catch (BadRequestException e) {
             LOGGER.info(e.getMessage());
             return ResponseEntity.badRequest().build();
