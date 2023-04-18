@@ -267,4 +267,64 @@ class CompanyAppointmentControllerITest {
                 .content(objectMapper.writeValueAsString(requestBody)))
                 .andExpect(MockMvcResultMatchers.status().isNotFound());
     }
+
+    @Test
+    @DisplayName("Returns 200 ok when PATCH existing appointments request handled successfully")
+    void testPatchExistingAppointmentCompanyNameStatus() throws Exception {
+        PatchAppointmentNameStatusApi requestBody = new PatchAppointmentNameStatusApi()
+                .companyName("company name")
+                .companyStatus("active");
+
+        mockMvc.perform(patch("/company/{company_number}/appointments", COMPANY_NUMBER)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(X_REQUEST_ID, "5342342")
+                        .header(ERIC_IDENTITY, "SOME_IDENTITY")
+                        .header(ERIC_IDENTITY_TYPE, "key")
+                        .header(ERIC_AUTHORISED_KEY_PRIVILEGES, "internal-app")
+                        .content(objectMapper.writeValueAsString(requestBody)))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.header().string(HttpHeaders.LOCATION, String.format("/company/%s/appointments", COMPANY_NUMBER)));
+    }
+
+    @Test
+    @DisplayName("Patch existing appointments endpoint returns 400 bad request when company name is missing")
+    void testPatchExistingAppointmentCompanyNameStatusMissingRequestFields() throws Exception {
+        mockMvc.perform(patch("/company/{company_number}/appointments", COMPANY_NUMBER)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(X_REQUEST_ID, "5342342")
+                        .header(ERIC_IDENTITY, "SOME_IDENTITY")
+                        .header(ERIC_IDENTITY_TYPE, "key")
+                        .header(ERIC_AUTHORISED_KEY_PRIVILEGES, "internal-app")
+                        .content(objectMapper.writeValueAsString(new PatchAppointmentNameStatusApi())))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("Patch existing appointments endpoint returns 400 when invalid company status provided")
+    void testPatchExistingAppointmentCompanyNameStatusInvalidStatus() throws Exception {
+        PatchAppointmentNameStatusApi requestBody = new PatchAppointmentNameStatusApi()
+                .companyName("company name")
+                .companyStatus("fake");
+
+        mockMvc.perform(patch("/company/{company_number}/appointments", COMPANY_NUMBER)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(X_REQUEST_ID, "5342342")
+                        .header(ERIC_IDENTITY, "SOME_IDENTITY")
+                        .header(ERIC_IDENTITY_TYPE, "key")
+                        .header(ERIC_AUTHORISED_KEY_PRIVILEGES, "internal-app")
+                        .content(objectMapper.writeValueAsString(requestBody)))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("Patch existing appointments endpoint returns 403 forbidden when internal app privileges is missing")
+    void testPatchExistingAppointmentCompanyNameStatusAppPrivilegesMissing() throws Exception {
+        mockMvc.perform(patch("/company/{company_number}/appointments", COMPANY_NUMBER)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(X_REQUEST_ID, "5342342")
+                        .header(ERIC_IDENTITY, "SOME_IDENTITY")
+                        .header(ERIC_IDENTITY_TYPE, "key")
+                        .header(ERIC_AUTHORISED_KEY_PRIVILEGES, "invalid"))
+                .andExpect(MockMvcResultMatchers.status().isForbidden());
+    }
 }
