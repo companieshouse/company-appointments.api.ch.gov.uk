@@ -158,7 +158,7 @@ public class CompanyAppointmentControllerTest {
     }
 
     @Test
-    void shouldReturnNotFoundForMissingCompanyNumberWhenPatchingNameAndStatus() throws Exception {
+    void shouldThrowNotFoundForMissingCompanyNumberWhenPatchingNameAndStatus() throws Exception {
         // Given
         doThrow(NotFoundException.class)
                 .when(companyAppointmentService).patchCompanyNameStatus(any(), any(), any());
@@ -174,7 +174,7 @@ public class CompanyAppointmentControllerTest {
     }
 
     @Test
-    void shouldReturnNotFoundForMissingCompanyNameWhenPatchingNameAndStatus() throws Exception {
+    void shouldThrowBadRequestForMissingCompanyNameWhenPatchingNameAndStatus() throws Exception {
         // Given
         doThrow(BadRequestException.class)
                 .when(companyAppointmentService).patchCompanyNameStatus(any(), any(), any());
@@ -190,7 +190,7 @@ public class CompanyAppointmentControllerTest {
     }
 
     @Test
-    void shouldReturnServiceUnavailableForWhenPatchingNameAndStatusAndMongoUnavailable()
+    void shouldThrowServiceUnavailableForWhenPatchingNameAndStatusAndMongoUnavailable()
             throws Exception {
         // Given
         doThrow(ServiceUnavailableException.class)

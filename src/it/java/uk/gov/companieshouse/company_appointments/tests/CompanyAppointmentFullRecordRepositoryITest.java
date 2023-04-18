@@ -115,7 +115,7 @@ class CompanyAppointmentFullRecordRepositoryITest {
         assertTrue(actual.isEmpty());
     }
 
-    @DisplayName("Repository successfully updates the company name and status of an appointment")
+    @DisplayName("Repository successfully updates the company name and status for all appointments in company")
     @Test
     void shouldPatchAllAppointmentsNameStatusInCompany() {
         // given

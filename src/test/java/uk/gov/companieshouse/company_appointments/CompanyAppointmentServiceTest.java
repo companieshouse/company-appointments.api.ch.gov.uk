@@ -473,7 +473,7 @@ class CompanyAppointmentServiceTest {
         verifyNoInteractions(fullRecordAppointmentRepository);
     }
 
-    @DisplayName("Test throw BadRequestException when updating a companies appointments when missing company status")
+    @DisplayName("Test throw BadRequestException when updating a companies appointments with invalid company status")
     @Test
     void shouldThrowBadRequestExceptionWhenUpdatingCompanyAppointmentsWithInvalidCompanyStatus() {
         // given
