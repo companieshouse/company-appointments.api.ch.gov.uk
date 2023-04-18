@@ -41,7 +41,6 @@ public class CompanyAppointmentControllerTest {
 
     private final static String COMPANY_NUMBER = "123456";
     private final static String APPOINTMENT_ID = "345678";
-    private final static String CONTEXT_ID = "ABC123";
 
     @BeforeEach
     void setUp() {
@@ -145,13 +144,13 @@ public class CompanyAppointmentControllerTest {
     }
 
     @Test
-    void shouldReturnOKForValidRequest() throws Exception {
+    void shouldReturnOKForValidRequestWhenPatchingNameAndStatus() throws Exception {
         // Given
 
         // When
         ResponseEntity<Void> response = companyAppointmentController.patchCompanyNameStatus(
                 COMPANY_NUMBER, new PatchAppointmentNameStatusApi()
-                        .companyName(COMPANY_NAME).companyStatus(COMPANY_STATUS_ACTIVE), CONTEXT_ID);
+                        .companyName(COMPANY_NAME).companyStatus(COMPANY_STATUS_ACTIVE));
         // Then
         verify(companyAppointmentService).patchCompanyNameStatus(COMPANY_NUMBER, COMPANY_NAME,
                 COMPANY_STATUS_ACTIVE);
@@ -159,7 +158,7 @@ public class CompanyAppointmentControllerTest {
     }
 
     @Test
-    void shouldReturnNotFoundForMissingCompanyNumber() throws Exception {
+    void shouldThrowNotFoundForMissingCompanyNumberWhenPatchingNameAndStatus() throws Exception {
         // Given
         doThrow(NotFoundException.class)
                 .when(companyAppointmentService).patchCompanyNameStatus(any(), any(), any());
@@ -167,11 +166,45 @@ public class CompanyAppointmentControllerTest {
         // When
         ResponseEntity<Void> response = companyAppointmentController.patchCompanyNameStatus(
                 COMPANY_NUMBER, new PatchAppointmentNameStatusApi()
-                        .companyName(COMPANY_NAME).companyStatus(COMPANY_STATUS_ACTIVE), CONTEXT_ID);
+                        .companyName(COMPANY_NAME).companyStatus(COMPANY_STATUS_ACTIVE));
         // Then
         verify(companyAppointmentService).patchCompanyNameStatus(COMPANY_NUMBER, COMPANY_NAME,
                 COMPANY_STATUS_ACTIVE);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+    }
+
+    @Test
+    void shouldThrowBadRequestForMissingCompanyNameWhenPatchingNameAndStatus() throws Exception {
+        // Given
+        doThrow(BadRequestException.class)
+                .when(companyAppointmentService).patchCompanyNameStatus(any(), any(), any());
+
+        // When
+        ResponseEntity<Void> response = companyAppointmentController.patchCompanyNameStatus(
+                COMPANY_NUMBER, new PatchAppointmentNameStatusApi()
+                        .companyStatus(COMPANY_STATUS_ACTIVE));
+        // Then
+        verify(companyAppointmentService).patchCompanyNameStatus(COMPANY_NUMBER, null,
+                COMPANY_STATUS_ACTIVE);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+    }
+
+    @Test
+    void shouldThrowServiceUnavailableForWhenPatchingNameAndStatusAndMongoUnavailable()
+            throws Exception {
+        // Given
+        doThrow(ServiceUnavailableException.class)
+                .when(companyAppointmentService).patchCompanyNameStatus(any(), any(), any());
+
+        // When
+        ResponseEntity<Void> response = companyAppointmentController.patchCompanyNameStatus(
+                COMPANY_NUMBER, new PatchAppointmentNameStatusApi()
+                        .companyName(COMPANY_NAME)
+                        .companyStatus(COMPANY_STATUS_ACTIVE));
+        // Then
+        verify(companyAppointmentService).patchCompanyNameStatus(COMPANY_NUMBER, COMPANY_NAME,
+                COMPANY_STATUS_ACTIVE);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.SERVICE_UNAVAILABLE);
     }
 
     @Test
@@ -181,7 +214,8 @@ public class CompanyAppointmentControllerTest {
         // when
         ResponseEntity<Void> response = companyAppointmentController.patchNewAppointmentCompanyNameStatus(
                 COMPANY_NUMBER, APPOINTMENT_ID,
-                new PatchAppointmentNameStatusApi().companyName(COMPANY_NAME).companyStatus(COMPANY_STATUS_ACTIVE));
+                new PatchAppointmentNameStatusApi().companyName(COMPANY_NAME)
+                        .companyStatus(COMPANY_STATUS_ACTIVE));
 
         // then
         verify(companyAppointmentService).patchNewAppointmentCompanyNameStatus(COMPANY_NUMBER, APPOINTMENT_ID,

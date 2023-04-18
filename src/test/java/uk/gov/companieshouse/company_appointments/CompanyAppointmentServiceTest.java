@@ -5,10 +5,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
+import static uk.gov.companieshouse.logging.util.LogContextProperties.REQUEST_ID;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
@@ -22,6 +24,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.function.Executable;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.slf4j.MDC;
 import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.data.domain.Sort;
 import uk.gov.companieshouse.company_appointments.exception.BadRequestException;
@@ -79,8 +82,11 @@ class CompanyAppointmentServiceTest {
     @BeforeEach
     void setUp() {
         CompanyAppointmentMapper companyAppointmentMapper = new CompanyAppointmentMapper();
-        companyAppointmentService = new CompanyAppointmentService(companyAppointmentRepository, companyAppointmentMapper, sortMapper,
-                companyRegisterService, companyStatusValidator, fullRecordAppointmentRepository, clock);
+        companyAppointmentService = new CompanyAppointmentService(companyAppointmentRepository,
+                companyAppointmentMapper, sortMapper,
+                companyRegisterService, companyStatusValidator, fullRecordAppointmentRepository,
+                clock);
+        MDC.put(REQUEST_ID.value(), CONTEXT_ID);
     }
 
     @Test
@@ -416,15 +422,118 @@ class CompanyAppointmentServiceTest {
     }
 
     @Test
-    @DisplayName("Test patchCompanyNameStatus throws UnsupportedOperationException")
-    void testUnsupportedOperationException() {
+    @DisplayName("Test update a companies appointments")
+    void shouldUpdateCompanyAppointments() throws Exception {
         // given
+        when(companyStatusValidator.isValidCompanyStatus(anyString())).thenReturn(true);
+        when(fullRecordAppointmentRepository.patchAppointmentNameStatusInCompany(anyString(),
+                anyString(), anyString(), any(), anyString())).thenReturn(2L);
 
         // when
-        Executable executable = () -> companyAppointmentService.patchCompanyNameStatus(COMPANY_NUMBER, COMPANY_NAME, OPEN_STATUS);
+        companyAppointmentService.patchCompanyNameStatus(COMPANY_NUMBER, COMPANY_NAME, OPEN_STATUS);
 
         // then
-        assertThrows(UnsupportedOperationException.class, executable);
+        verify(companyStatusValidator).isValidCompanyStatus(OPEN_STATUS);
+        verify(fullRecordAppointmentRepository).patchAppointmentNameStatusInCompany(
+                eq(COMPANY_NUMBER),
+                eq(COMPANY_NAME), eq(OPEN_STATUS), any(), anyString());
+    }
+
+    @DisplayName("Test throw BadRequestException when updating a companies appointments when missing company name")
+    @Test
+    void shouldThrowBadRequestExceptionWhenUpdatingAppointmentsWhenMissingCompanyName() {
+        // given
+        // when
+        Executable executable = () -> companyAppointmentService.patchCompanyNameStatus(
+                COMPANY_NUMBER, "", OPEN_STATUS);
+
+        // then
+        BadRequestException exception = assertThrows(BadRequestException.class, executable);
+        assertEquals(
+                "Request failed for company [123456], contextId: [ABC123]: company name and/or company status missing.",
+                exception.getMessage());
+        verifyNoInteractions(companyStatusValidator);
+        verifyNoInteractions(fullRecordAppointmentRepository);
+    }
+
+    @DisplayName("Test throw BadRequestException when updating a companies appointments when missing company status")
+    @Test
+    void shouldThrowBadRequestExceptionWhenUpdatingCompanyAppointmentsWhenMissingCompanyStatus() {
+        // given
+        // when
+        Executable executable = () -> companyAppointmentService.patchCompanyNameStatus(
+                COMPANY_NUMBER, COMPANY_NAME, "");
+
+        // then
+        BadRequestException exception = assertThrows(BadRequestException.class, executable);
+        assertEquals(
+                "Request failed for company [123456], contextId: [ABC123]: company name and/or company status missing.",
+                exception.getMessage());
+        verifyNoInteractions(companyStatusValidator);
+        verifyNoInteractions(fullRecordAppointmentRepository);
+    }
+
+    @DisplayName("Test throw BadRequestException when updating a companies appointments with invalid company status")
+    @Test
+    void shouldThrowBadRequestExceptionWhenUpdatingCompanyAppointmentsWithInvalidCompanyStatus() {
+        // given
+        when(companyStatusValidator.isValidCompanyStatus(anyString())).thenReturn(false);
+        // when
+        Executable executable = () -> companyAppointmentService.patchCompanyNameStatus(
+                COMPANY_NUMBER, COMPANY_NAME, FAKE_STATUS);
+
+        // then
+        BadRequestException exception = assertThrows(BadRequestException.class, executable);
+        assertEquals(
+                "Request failed for company [123456], contextId: [ABC123]: invalid company status provided.",
+                exception.getMessage());
+        verify(companyStatusValidator).isValidCompanyStatus(FAKE_STATUS);
+        verifyNoInteractions(fullRecordAppointmentRepository);
+    }
+
+    @DisplayName("Test throw ServiceUnavailableException when updating a companies appointments when and Mongo is down")
+    @Test
+    void shouldThrowServiceUnavailableExceptionWhenUpdatingCompanyAppointmentsAndMongoDown() {
+        // given
+        when(companyStatusValidator.isValidCompanyStatus(anyString())).thenReturn(true);
+        when(fullRecordAppointmentRepository.patchAppointmentNameStatusInCompany(anyString(),
+                anyString(), anyString(), any(), anyString()))
+                .thenThrow(new DataAccessResourceFailureException(""));
+        // when
+        Executable executable = () -> companyAppointmentService.patchCompanyNameStatus(
+                COMPANY_NUMBER, COMPANY_NAME, OPEN_STATUS);
+
+        // then
+        ServiceUnavailableException exception = assertThrows(ServiceUnavailableException.class,
+                executable);
+        assertEquals(
+                "Request failed for company [123456], contextId: [ABC123]: error connecting to MongoDB.",
+                exception.getMessage());
+        verify(companyStatusValidator).isValidCompanyStatus(OPEN_STATUS);
+        verify(fullRecordAppointmentRepository).patchAppointmentNameStatusInCompany(
+                eq(COMPANY_NUMBER),
+                eq(COMPANY_NAME), eq(OPEN_STATUS), any(), anyString());
+    }
+
+    @DisplayName("Test throw NotFoundException when updating a companies appointments when company number not found")
+    @Test
+    void shouldThrowNotFoundExceptionWhenUpdatingCompanyAppointmentsWhenCompanyNumberNotFound() {
+        // given
+        when(companyStatusValidator.isValidCompanyStatus(anyString())).thenReturn(true);
+        when(fullRecordAppointmentRepository.patchAppointmentNameStatusInCompany(anyString(),
+                anyString(), anyString(), any(), anyString())).thenReturn(0L);
+        // when
+        Executable executable = () -> companyAppointmentService.patchCompanyNameStatus(
+                COMPANY_NUMBER, COMPANY_NAME, OPEN_STATUS);
+
+        // then
+        NotFoundException exception = assertThrows(NotFoundException.class, executable);
+        assertEquals("No appointments found for company [123456] during PATCH request",
+                exception.getMessage());
+        verify(companyStatusValidator).isValidCompanyStatus(OPEN_STATUS);
+        verify(fullRecordAppointmentRepository).patchAppointmentNameStatusInCompany(
+                eq(COMPANY_NUMBER),
+                eq(COMPANY_NAME), eq(OPEN_STATUS), any(), anyString());
     }
 
     @Test
@@ -432,15 +541,18 @@ class CompanyAppointmentServiceTest {
     void patchNewAppointmentNameStatusSuccessfulUpdate() {
         // given
         when(companyStatusValidator.isValidCompanyStatus(anyString())).thenReturn(true);
-        when(fullRecordAppointmentRepository.patchAppointmentNameStatus(anyString(), anyString(), anyString(), any(), anyString())).thenReturn(1L);
+        when(fullRecordAppointmentRepository.patchAppointmentNameStatus(anyString(), anyString(),
+                anyString(), any(), anyString())).thenReturn(1L);
 
         // when
-        Executable executable = () -> companyAppointmentService.patchNewAppointmentCompanyNameStatus(COMPANY_NUMBER, APPOINTMENT_ID, COMPANY_NAME, OPEN_STATUS);
+        Executable executable = () -> companyAppointmentService.patchNewAppointmentCompanyNameStatus(
+                COMPANY_NUMBER, APPOINTMENT_ID, COMPANY_NAME, OPEN_STATUS);
 
         // then
         assertDoesNotThrow(executable);
         verify(companyStatusValidator).isValidCompanyStatus(OPEN_STATUS);
-        verify(fullRecordAppointmentRepository).patchAppointmentNameStatus(any(), any(), any(), any(), any());
+        verify(fullRecordAppointmentRepository).patchAppointmentNameStatus(any(), any(), any(),
+                any(), any());
     }
 
     @Test
@@ -454,7 +566,8 @@ class CompanyAppointmentServiceTest {
         // then
         BadRequestException exception = assertThrows(BadRequestException.class, executable);
         assertEquals(
-                "Request failed for company [123456] with appointment [345678]: company name and/or company status missing.", exception.getMessage());
+                "Request failed for company [123456] with appointment [345678], contextId: [ABC123]: company name and/or company status missing.",
+                exception.getMessage());
         verifyNoInteractions(companyStatusValidator);
         verifyNoInteractions(fullRecordAppointmentRepository);
     }
@@ -465,11 +578,14 @@ class CompanyAppointmentServiceTest {
         // given
 
         // when
-        Executable executable = () -> companyAppointmentService.patchNewAppointmentCompanyNameStatus(COMPANY_NUMBER, APPOINTMENT_ID, COMPANY_NAME, "");
+        Executable executable = () -> companyAppointmentService.patchNewAppointmentCompanyNameStatus(
+                COMPANY_NUMBER, APPOINTMENT_ID, COMPANY_NAME, "");
 
         // then
         BadRequestException exception = assertThrows(BadRequestException.class, executable);
-        assertEquals("Request failed for company [123456] with appointment [345678]: company name and/or company status missing.", exception.getMessage());
+        assertEquals(
+                "Request failed for company [123456] with appointment [345678], contextId: [ABC123]: company name and/or company status missing.",
+                exception.getMessage());
         verifyNoInteractions(companyStatusValidator);
         verifyNoInteractions(fullRecordAppointmentRepository);
     }
@@ -481,11 +597,14 @@ class CompanyAppointmentServiceTest {
         when(companyStatusValidator.isValidCompanyStatus(FAKE_STATUS)).thenReturn(false);
 
         // when
-        Executable executable = () -> companyAppointmentService.patchNewAppointmentCompanyNameStatus(COMPANY_NUMBER, APPOINTMENT_ID, COMPANY_NAME, FAKE_STATUS);
+        Executable executable = () -> companyAppointmentService.patchNewAppointmentCompanyNameStatus(
+                COMPANY_NUMBER, APPOINTMENT_ID, COMPANY_NAME, FAKE_STATUS);
 
         // then
         BadRequestException exception = assertThrows(BadRequestException.class, executable);
-        assertEquals("Request failed for company [123456] with appointment [345678]: invalid company status provided.", exception.getMessage());
+        assertEquals(
+                "Request failed for company [123456] with appointment [345678], contextId: [ABC123]: invalid company status provided.",
+                exception.getMessage());
         verify(companyStatusValidator).isValidCompanyStatus(FAKE_STATUS);
         verifyNoInteractions(fullRecordAppointmentRepository);
     }
@@ -512,16 +631,22 @@ class CompanyAppointmentServiceTest {
     void patchNewAppointmentNameStatusMongoUnavailableAfterResourceChanged() {
         // given
         when(companyStatusValidator.isValidCompanyStatus(anyString())).thenReturn(true);
-        when(fullRecordAppointmentRepository.patchAppointmentNameStatus(any(), any(), any(), any(), any())).thenThrow(DataAccessResourceFailureException.class);
+        when(fullRecordAppointmentRepository.patchAppointmentNameStatus(any(), any(), any(), any(),
+                any())).thenThrow(DataAccessResourceFailureException.class);
 
         // when
-        Executable executable = () -> companyAppointmentService.patchNewAppointmentCompanyNameStatus(COMPANY_NUMBER, APPOINTMENT_ID, COMPANY_NAME, OPEN_STATUS);
+        Executable executable = () -> companyAppointmentService.patchNewAppointmentCompanyNameStatus(
+                COMPANY_NUMBER, APPOINTMENT_ID, COMPANY_NAME, OPEN_STATUS);
 
         // then
-        ServiceUnavailableException exception = assertThrows(ServiceUnavailableException.class, executable);
-        assertEquals("Request failed for company [123456] with appointment [345678]: error connecting to MongoDB.", exception.getMessage());
+        ServiceUnavailableException exception = assertThrows(ServiceUnavailableException.class,
+                executable);
+        assertEquals(
+                "Request failed for company [123456] with appointment [345678], contextId: [ABC123]: error connecting to MongoDB.",
+                exception.getMessage());
         verify(companyStatusValidator).isValidCompanyStatus(OPEN_STATUS);
-        verify(fullRecordAppointmentRepository).patchAppointmentNameStatus(any(), any(), any(), any(), any());
+        verify(fullRecordAppointmentRepository).patchAppointmentNameStatus(any(), any(), any(),
+                any(), any());
     }
 
     private OfficerData.Builder officerData() {

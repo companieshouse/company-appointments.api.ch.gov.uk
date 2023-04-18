@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import uk.gov.companieshouse.api.appointment.PatchAppointmentNameStatusApi;
@@ -73,16 +72,20 @@ public class CompanyAppointmentController {
     @PatchMapping(path = "/appointments")
     public ResponseEntity<Void> patchCompanyNameStatus(
             @PathVariable("company_number") String companyNumber,
-            @RequestBody PatchAppointmentNameStatusApi requestBody,
-            @RequestHeader() String contextId) {
+            @RequestBody PatchAppointmentNameStatusApi requestBody) {
         try {
             companyAppointmentService.patchCompanyNameStatus(companyNumber,
                     requestBody.getCompanyName(), requestBody.getCompanyStatus());
             return ResponseEntity.ok().build();
+        } catch (BadRequestException e) {
+            LOGGER.info(e.getMessage());
+            return ResponseEntity.badRequest().build();
         } catch (NotFoundException e) {
-            LOGGER.info(String.format("No appointments found for companyNumber %s, contextId %s",
-                    companyNumber, contextId));
+            LOGGER.info(e.getMessage());
             return ResponseEntity.notFound().build();
+        } catch (ServiceUnavailableException e) {
+            LOGGER.info(e.getMessage());
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();
         }
     }
 
