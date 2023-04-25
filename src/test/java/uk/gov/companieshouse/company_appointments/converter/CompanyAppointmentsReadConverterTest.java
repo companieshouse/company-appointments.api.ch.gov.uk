@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.company_appointments.converter;
 
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.bson.Document;
@@ -8,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.util.FileCopyUtils;
-import uk.gov.companieshouse.api.appointment.FullRecordCompanyOfficerApi;
+import uk.gov.companieshouse.api.appointment.PatchAppointmentNameStatusApi;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -18,29 +19,30 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(MockitoExtension.class)
-class CompanyAppointmentsFullRecordReadConverterTest {
+class CompanyAppointmentsReadConverterTest {
 
-    private CompanyAppointmentFullRecordReadConverter readConverter;
+    private CompanyAppointmentReadConverter readConverter;
 
     @BeforeEach
     void setup() {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
-        readConverter = new CompanyAppointmentFullRecordReadConverter(objectMapper);
+        readConverter = new CompanyAppointmentReadConverter(objectMapper);
     }
 
     @Test
     void testConverterMethodWorksCorrectly() throws IOException {
-        String inputPath = "fullRecordAppointmentsExamplePut.json";
-        String fullRecordPutRequestData =
+        String inputPath = "patchAppointmentNameStatusApiExamplePut.json";
+        String patchAppointmentsRequestData =
                 FileCopyUtils.copyToString(new InputStreamReader(Objects.requireNonNull(
                         ClassLoader.getSystemClassLoader().getResourceAsStream(inputPath))));
 
-        Document appointmentsBson = Document.parse(fullRecordPutRequestData);
-        FullRecordCompanyOfficerApi fullRecordCompanyOfficerApi = readConverter.convert(appointmentsBson);
-        assertThat(fullRecordCompanyOfficerApi).isNotNull();
-        assertThat(fullRecordCompanyOfficerApi.getInternalData()).isNotNull();
-        assertThat(fullRecordCompanyOfficerApi.getExternalData().getAppointmentId()).isEqualTo("7IjxamNGLlqtIingmTZJJ42Hw9Q");
+        Document appointmentsBson = Document.parse(patchAppointmentsRequestData);
+        PatchAppointmentNameStatusApi patchAppointmentNameStatusApi = readConverter.convert(appointmentsBson);
+        assertThat(patchAppointmentNameStatusApi).isNotNull();
+        assertThat(patchAppointmentNameStatusApi.getCompanyName()).isEqualTo("My_Large_Company");
+        assertThat(patchAppointmentNameStatusApi.getCompanyStatus()).isEqualTo("active");
+
     }
 
     @Test
@@ -54,5 +56,4 @@ class CompanyAppointmentsFullRecordReadConverterTest {
 
         assertThrows(RuntimeException.class, () -> readConverter.convert(appointmentsBson));
     }
-
 }

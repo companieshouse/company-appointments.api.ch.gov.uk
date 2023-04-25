@@ -15,6 +15,7 @@ import uk.gov.companieshouse.company_appointments.util.DateTimeFormatter;
 import java.io.IOException;
 import java.time.LocalDate;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -65,5 +66,12 @@ class LocalDateDeSerializerTest {
         LocalDate localDate = deserializer.deserialize(jsonParser, deserializationContext);
 
         Assertions.assertEquals(DateTimeFormatter.parse(DATE_STRING), localDate);
+    }
+
+    @Test
+    void testDeserializeWithException() {
+        when(jsonNode.get(any())).thenThrow(new IllegalStateException("exception"));
+
+        assertThrows(RuntimeException.class, () -> deserializer.deserialize(jsonParser, deserializationContext));
     }
 }
