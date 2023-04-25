@@ -6,19 +6,38 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Bean;
+import org.springframework.data.mongodb.core.convert.MongoCustomConversions;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import uk.gov.companieshouse.company_appointments.converter.CompanyAppointmentFullRecordReadConverter;
+import uk.gov.companieshouse.company_appointments.converter.CompanyAppointmentFullRecordWriteConverter;
+import uk.gov.companieshouse.company_appointments.converter.CompanyAppointmentReadConverter;
+import uk.gov.companieshouse.company_appointments.converter.CompanyAppointmentWriteConverter;
 import uk.gov.companieshouse.company_appointments.interceptor.AuthenticationInterceptor;
 import uk.gov.companieshouse.company_appointments.interceptor.FullRecordAuthenticationInterceptor;
 import uk.gov.companieshouse.company_appointments.interceptor.RequestLoggingInterceptor;
+import uk.gov.companieshouse.company_appointments.serialization.LocalDateDeSerializer;
+import uk.gov.companieshouse.company_appointments.serialization.LocalDateSerializer;
+import uk.gov.companieshouse.company_appointments.serialization.LocalDateTimeDeSerializer;
+import uk.gov.companieshouse.company_appointments.serialization.LocalDateTimeSerializer;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = Config.class)
