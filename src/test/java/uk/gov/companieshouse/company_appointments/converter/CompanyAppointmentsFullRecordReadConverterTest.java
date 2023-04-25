@@ -1,6 +1,7 @@
 package uk.gov.companieshouse.company_appointments.converter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.bson.Document;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,14 +28,14 @@ import static org.mockito.Mockito.when;
 
 //@ExtendWith(SpringExtension.class)
 @ExtendWith(MockitoExtension.class)
-@Import(TestConfig.class)
+//@Import(TestConfig.class)
 class CompanyAppointmentsFullRecordReadConverterTest {
 
 
     String fullRecordPutRequestData;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    //@Autowired
+    //private ObjectMapper objectMapper;
 
     @Mock
     private LocalDateDeSerializer localDateDeSerializer;
@@ -45,7 +46,10 @@ class CompanyAppointmentsFullRecordReadConverterTest {
 
     @BeforeEach
     void setup() throws IOException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
         readConverter = new CompanyAppointmentFullRecordReadConverter(objectMapper);
+
         String inputPath = "fullRecordAppointmentsExamplePut.json";
         fullRecordPutRequestData =
                 FileCopyUtils.copyToString(new InputStreamReader(Objects.requireNonNull(
@@ -54,7 +58,7 @@ class CompanyAppointmentsFullRecordReadConverterTest {
 
     @Test
     void convert() throws IOException {
-        when(localDateDeSerializer.deserialize(any(), any())).thenReturn(LOCAL_DATE);
+        //when(localDateDeSerializer.deserialize(any(), any())).thenReturn(LOCAL_DATE);
 
         Document appointmentsBson = Document.parse(fullRecordPutRequestData);
         FullRecordCompanyOfficerApi fullRecordCompanyOfficerApi = readConverter.convert(appointmentsBson);
