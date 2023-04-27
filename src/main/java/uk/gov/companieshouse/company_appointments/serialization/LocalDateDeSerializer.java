@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
+import uk.gov.companieshouse.company_appointments.exception.DeserializationException;
 import uk.gov.companieshouse.company_appointments.util.DateTimeFormatter;
 
 import java.io.IOException;
@@ -30,7 +31,7 @@ public class LocalDateDeSerializer extends JsonDeserializer<LocalDate> {
                 return DateTimeFormatter.parse(dateString);
             }
         } catch (Exception ex) {
-            throw new RuntimeException(String.format("Failed while deserializing "
+            throw new DeserializationException(String.format("Failed while deserializing "
                     + "date value for json node: %s", jsonNode), ex);
         }
     }

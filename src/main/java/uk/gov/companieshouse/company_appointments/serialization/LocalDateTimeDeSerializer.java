@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
+import uk.gov.companieshouse.company_appointments.exception.DeserializationException;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.logging.LoggerFactory;
 
@@ -28,7 +29,7 @@ public class LocalDateTimeDeSerializer extends JsonDeserializer<LocalDateTime> {
 
         } catch (Exception exception) {
             LOGGER.error("LocalDateTime Deserialization failed.", exception);
-            throw new RuntimeException("Failed while deserializing "
+            throw new DeserializationException("Failed while deserializing "
                     + "date value for json node.", exception);
         }
     }
