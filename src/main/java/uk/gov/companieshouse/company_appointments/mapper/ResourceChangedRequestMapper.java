@@ -18,7 +18,7 @@ public class ResourceChangedRequestMapper {
     public ChangedResource mapChangedResource(ResourceChangedRequest request) {
         ChangedResourceEvent event = new ChangedResourceEvent().publishedAt(this.timestampGenerator.get());
         ChangedResource changedResource = new ChangedResource() //NOSONAR
-                .resourceUri(String.format("company/%s/appointments/%s", request.getCompanyNumber(),
+                .resourceUri(String.format("/company/%s/appointments/%s", request.getCompanyNumber(),
                         request.getAppointmentId()))
                 .resourceKind("company-officers")
                 .event(event)

@@ -15,8 +15,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.companieshouse.api.chskafka.ChangedResource;
 import uk.gov.companieshouse.api.chskafka.ChangedResourceEvent;
-import uk.gov.companieshouse.api.exemptions.CompanyExemptions;
 import uk.gov.companieshouse.company_appointments.mapper.ResourceChangedRequestMapper;
+import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentDocument;
 import uk.gov.companieshouse.company_appointments.model.data.ResourceChangedRequest;
 
 @ExtendWith(MockitoExtension.class)
@@ -51,7 +51,7 @@ class ResourceChangedRequestMapperTest {
                         ResourceChangedTestArgument.ResourceChangedTestArgumentBuilder()
                                 .withRequest(new ResourceChangedRequest(EXPECTED_CONTEXT_ID, "12345678", "87654321", null, false))
                                 .withContextId(EXPECTED_CONTEXT_ID)
-                                .withResourceUri("company/12345678/appointments/87654321")
+                                .withResourceUri("/company/12345678/appointments/87654321")
                                 .withResourceKind("company-officers")
                                 .withEventType("changed")
                                 .withEventPublishedAt(DATE)
@@ -61,12 +61,12 @@ class ResourceChangedRequestMapperTest {
                 Arguments.of(
                     Named.of("Test resource-changed scenario with event type of deleted",
                     ResourceChangedTestArgument.ResourceChangedTestArgumentBuilder()
-                            .withRequest(new ResourceChangedRequest(EXPECTED_CONTEXT_ID, "12345678", "87654321", new CompanyExemptions(), true))
+                            .withRequest(new ResourceChangedRequest(EXPECTED_CONTEXT_ID, "12345678", "87654321", new CompanyAppointmentDocument(), true))
                             .withContextId(EXPECTED_CONTEXT_ID)
-                            .withResourceUri("company/12345678/appointments/87654321")
+                            .withResourceUri("/company/12345678/appointments/87654321")
                             .withResourceKind("company-officers")
                             .withEventType("deleted")
-                            .withDeletedData(new CompanyExemptions())
+                            .withDeletedData(new CompanyAppointmentDocument())
                             .withEventPublishedAt(DATE)
                             .build()
                     )
