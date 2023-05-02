@@ -8,8 +8,10 @@ import uk.gov.companieshouse.company_appointments.exception.DeserializationExcep
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.logging.LoggerFactory;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 
 public class LocalDateTimeDeSerializer extends JsonDeserializer<LocalDateTime> {
     public static final String APPLICATION_NAME_SPACE = "company-appointments.api.ch.gov.uk";
@@ -27,7 +29,7 @@ public class LocalDateTimeDeSerializer extends JsonDeserializer<LocalDateTime> {
                     dateTimeFormatter) :
                     LocalDateTime.parse(jsonNode.get("$date").textValue(), dateTimeFormatter);
 
-        } catch (Exception exception) {
+        } catch (IOException | DateTimeParseException exception) {
             LOGGER.error("LocalDateTime Deserialization failed.", exception);
             throw new DeserializationException("Failed while deserializing "
                     + "date value for json node.", exception);

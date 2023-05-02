@@ -59,6 +59,7 @@ class CompanyAppointmentControllerITest {
         mongoTemplate.createCollection("appointments");
         mongoTemplate.insert(Document.parse(IOUtils.resourceToString("/appointment-data.json", StandardCharsets.UTF_8)), "appointments");
         mongoTemplate.insert(Document.parse(IOUtils.resourceToString("/appointment-data2.json", StandardCharsets.UTF_8)), "appointments");
+        mongoTemplate.insert(Document.parse(IOUtils.resourceToString("/appointment-data4.json", StandardCharsets.UTF_8)), "appointments");
         mongoTemplate.createCollection("delta_appointments");
         mongoTemplate.insert(Document.parse(
                         IOUtils.resourceToString("/delta-appointment-data.json", StandardCharsets.UTF_8)),
@@ -122,8 +123,8 @@ class CompanyAppointmentControllerITest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.items.[0].name", is("Doe, John Forename")))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.items.[1].name", is("NOSURNAME, Noname1 Noname2")))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.active_count", is(1)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.resigned_count", is(1)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.total_results", is(2)));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.resigned_count", is(2)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.total_results", is(3)));
     }
     @Test
     void testReturn404IfOfficersForCompanyIsNotFound() throws Exception {
@@ -327,5 +328,23 @@ class CompanyAppointmentControllerITest {
                         .header(ERIC_IDENTITY_TYPE, "key")
                         .header(ERIC_AUTHORISED_KEY_PRIVILEGES, "invalid"))
                 .andExpect(MockMvcResultMatchers.status().isForbidden());
+    }
+
+    @Test
+    @DisplayName("Test that get endpoint returns correctly serialised values")
+    void testThatGetEndpointReturnsCorrectlySerialisedValues() throws Exception {
+
+        ResultActions result = mockMvc.perform(get("/company/{company_number}/appointments/{appointment_id}", COMPANY_NUMBER, "resigned_2")
+                .header(ERIC_IDENTITY, "123")
+                .header(ERIC_IDENTITY_TYPE, "key")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON));
+
+        result.andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.appointed_on", is("2017-08-26")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.resigned_on", is("2019-08-26")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.date_of_birth", not(contains("day"))))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.date_of_birth.year", is(1980)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.date_of_birth.month", is(1)));
     }
 }

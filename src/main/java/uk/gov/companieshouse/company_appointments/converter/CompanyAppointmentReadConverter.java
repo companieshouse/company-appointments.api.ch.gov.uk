@@ -1,9 +1,11 @@
 package uk.gov.companieshouse.company_appointments.converter;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.bson.Document;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.convert.ReadingConverter;
+import org.springframework.lang.NonNull;
 import uk.gov.companieshouse.api.appointment.PatchAppointmentNameStatusApi;
 
 @ReadingConverter
@@ -15,17 +17,12 @@ public class CompanyAppointmentReadConverter implements Converter<Document, Patc
         this.objectMapper = objectMapper;
     }
 
-    /**
-     * Write convertor.
-     * @param source source Document.
-     * @return charge BSON object.
-     */
     @Override
-    public PatchAppointmentNameStatusApi convert(Document source) {
+    public PatchAppointmentNameStatusApi convert(@NonNull Document source) {
         try {
             return objectMapper.readValue(source.toJson(), PatchAppointmentNameStatusApi.class);
-        } catch (Exception ex) {
-            throw new RuntimeException(ex);
+        } catch (JsonProcessingException ex) {
+            throw new IllegalArgumentException(ex);
         }
     }
 }

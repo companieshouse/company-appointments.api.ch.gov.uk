@@ -4,13 +4,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.util.List;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.IOUtils;
+import org.assertj.core.api.AssertionsForClassTypes;
 import org.bson.Document;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -18,18 +23,23 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.SimpleMongoClientDatabaseFactory;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import uk.gov.companieshouse.api.appointment.FullRecordCompanyOfficerApi;
 import uk.gov.companieshouse.company_appointments.CompanyAppointmentsApplication;
 import uk.gov.companieshouse.company_appointments.api.ResourceChangedApiService;
 import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentDocument;
+import uk.gov.companieshouse.company_appointments.repository.CompanyAppointmentFullRecordRepository;
 
 @Testcontainers
 @AutoConfigureMockMvc
@@ -38,9 +48,19 @@ class CompanyAppointmentFullRecordControllerITest {
 
     private static final String COMPANY_NUMBER = "12345678";
     private static final String APPOINTMENT_ID = "7IjxamNGLlqtIingmTZJJ42Hw9Q";
+    private static final String X_REQUEST_ID = "x-request-id";
+    private static final String ERIC_IDENTITY = "ERIC-Identity";
+    private static final String ERIC_IDENTITY_TYPE = "ERIC-Identity-Type";
+    private static final String ERIC_AUTHORISED_KEY_PRIVILEGES = "ERIC-Authorised-Key-Privileges";
 
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @Autowired
+    private CompanyAppointmentFullRecordRepository companyAppointmentFullRecordRepository;
 
     @Container
     private static final MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:4.4");
@@ -66,9 +86,10 @@ class CompanyAppointmentFullRecordControllerITest {
         ResultActions result = mockMvc
                 .perform(delete("/company/{company_number}/appointments/{appointment_id}/full_record/delete", COMPANY_NUMBER,
                         APPOINTMENT_ID)
-                        .header("ERIC-Identity", "123").header("ERIC-Identity-Type", "key")
-                        .header("ERIC-authorised-key-privileges", "internal-app")
-                        .header("x-request-id", "contextId"));
+                        .header(ERIC_IDENTITY, "123")
+                        .header(ERIC_IDENTITY_TYPE, "key")
+                        .header(ERIC_AUTHORISED_KEY_PRIVILEGES, "internal-app")
+                        .header(X_REQUEST_ID, "contextId"));
 
         result.andExpect(status().isOk());
 
@@ -81,9 +102,9 @@ class CompanyAppointmentFullRecordControllerITest {
     @Test
     void testReturnFullRecordGetMapsFieldNamesCorrectly() throws Exception{
         mockMvc.perform(get("/company/{company_number}/appointments/{appointment_id}/full_record", COMPANY_NUMBER, APPOINTMENT_ID)
-                        .header("ERIC-Identity", "123")
-                        .header("ERIC-Identity-Type", "key")
-                        .header("ERIC-authorised-key-privileges", "sensitive-data"))
+                        .header(ERIC_IDENTITY, "123")
+                        .header(ERIC_IDENTITY_TYPE, "key")
+                        .header(ERIC_AUTHORISED_KEY_PRIVILEGES, "sensitive-data"))
                 .andExpect(jsonPath("$.service_address.address_line_1", notNullValue()))
                 .andExpect(jsonPath("$.service_address.address_line_2", notNullValue()))
                 .andExpect(jsonPath("$.service_address.postal_code", notNullValue()))
@@ -111,9 +132,10 @@ class CompanyAppointmentFullRecordControllerITest {
         ResultActions result = mockMvc
                 .perform(delete("/company/{company_number}/appointments/{appointment_id}/full_record/delete", COMPANY_NUMBER,
                         "Incorrect")
-                        .header("ERIC-Identity", "123").header("ERIC-Identity-Type", "key")
-                        .header("ERIC-authorised-key-privileges", "internal-app")
-                        .header("x-request-id", "contextId"));
+                        .header(ERIC_IDENTITY, "123")
+                        .header(ERIC_IDENTITY_TYPE, "key")
+                        .header(ERIC_AUTHORISED_KEY_PRIVILEGES, "internal-app")
+                        .header(X_REQUEST_ID, "contextId"));
 
         result.andExpect(status().isNotFound());
 
@@ -121,5 +143,29 @@ class CompanyAppointmentFullRecordControllerITest {
         query.addCriteria(Criteria.where("_id").is("7IjxamNGLlqtIingmTZJJ42Hw9Q"));
         List<CompanyAppointmentDocument> appointments = mongoTemplate.find(query, CompanyAppointmentDocument.class);
         assertThat(appointments).hasSize(1);
+    }
+
+    @Test
+    void testThatDatesAndDateTimeAreSerialisedAndDeSerialisedCorrectly() throws Exception {
+        File file = new ClassPathResource("fullRecordAppointmentsExamplePut.json").getFile();
+        FullRecordCompanyOfficerApi fullRecordCompanyOfficerApi = objectMapper.readValue(file, FullRecordCompanyOfficerApi.class);
+
+        mockMvc.perform(put("/company/{company_number}/appointments/{appointment_id}/full_record",
+                        fullRecordCompanyOfficerApi.getExternalData().getCompanyNumber(),
+                        fullRecordCompanyOfficerApi.getExternalData().getAppointmentId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(X_REQUEST_ID, "5342342")
+                        .header(ERIC_IDENTITY, "SOME_IDENTITY")
+                        .header(ERIC_IDENTITY_TYPE, "key")
+                        .header(ERIC_AUTHORISED_KEY_PRIVILEGES, "internal-app")
+                        .content(objectMapper.writeValueAsString(fullRecordCompanyOfficerApi)))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+
+        CompanyAppointmentDocument appointment = companyAppointmentFullRecordRepository.findById(APPOINTMENT_ID)
+                .orElseThrow(IllegalArgumentException:: new);
+
+        AssertionsForClassTypes.assertThat(appointment.getData().getAppointedOn()).isEqualTo("2011-11-03");
+        AssertionsForClassTypes.assertThat(appointment.getData().getAppointedOn()).isNotInstanceOf(LocalDateTime.class);
+        AssertionsForClassTypes.assertThat(appointment.getDeltaAt()).isEqualTo("2021-04-30T18:25:43.511Z");
     }
 }

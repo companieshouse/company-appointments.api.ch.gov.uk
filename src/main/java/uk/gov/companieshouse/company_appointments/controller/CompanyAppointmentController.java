@@ -36,7 +36,9 @@ public class CompanyAppointmentController {
     }
 
     @GetMapping(path = "/appointments/{appointment_id}")
-    public ResponseEntity<CompanyAppointmentView> fetchAppointment(@PathVariable("company_number") String companyNumber, @PathVariable("appointment_id") String appointmentID) {
+    public ResponseEntity<CompanyAppointmentView> fetchAppointment(
+            @PathVariable("company_number") String companyNumber,
+            @PathVariable("appointment_id") String appointmentID) {
         try {
             return ResponseEntity.ok(companyAppointmentService.fetchAppointment(companyNumber, appointmentID));
         } catch (NotFoundException e) {
@@ -56,7 +58,8 @@ public class CompanyAppointmentController {
             @RequestParam(required = false, name = "register_type") String registerType) {
 
         try {
-            return ResponseEntity.ok(companyAppointmentService.fetchAppointmentsForCompany(companyNumber, filter, orderBy, startIndex, itemsPerPage, registerView, registerType));
+            return ResponseEntity.ok(companyAppointmentService.fetchAppointmentsForCompany(
+                    companyNumber, filter, orderBy, startIndex, itemsPerPage, registerView, registerType));
         } catch (NotFoundException e) {
             LOGGER.info(e.getMessage());
             return ResponseEntity.notFound().build();

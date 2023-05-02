@@ -1,9 +1,11 @@
 package uk.gov.companieshouse.company_appointments.converter;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.BasicDBObject;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.convert.WritingConverter;
+import org.springframework.lang.NonNull;
 import uk.gov.companieshouse.api.appointment.FullRecordCompanyOfficerApi;
 
 @WritingConverter
@@ -15,17 +17,12 @@ public class CompanyAppointmentFullRecordWriteConverter implements Converter<Ful
         this.objectMapper = objectMapper;
     }
 
-    /**
-     * Write convertor.
-     * @param source source Document.
-     * @return charge BSON object.
-     */
     @Override
-    public BasicDBObject convert(FullRecordCompanyOfficerApi source) {
+    public BasicDBObject convert(@NonNull FullRecordCompanyOfficerApi source) {
         try {
             return BasicDBObject.parse(objectMapper.writeValueAsString(source));
-        } catch (Exception ex) {
-            throw new RuntimeException(ex);
+        } catch (JsonProcessingException ex) {
+            throw new IllegalArgumentException(ex);
         }
     }
 }

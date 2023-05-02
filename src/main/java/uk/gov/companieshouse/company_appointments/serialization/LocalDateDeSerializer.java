@@ -10,29 +10,29 @@ import uk.gov.companieshouse.company_appointments.util.DateTimeFormatter;
 import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.Date;
 
 public class LocalDateDeSerializer extends JsonDeserializer<LocalDate> {
 
     @Override
     public LocalDate deserialize(JsonParser jsonParser,
-                                 DeserializationContext deserializationContext) throws IOException {
-        JsonNode jsonNode = jsonParser.readValueAsTree();
+                                 DeserializationContext deserializationContext) {
         try {
-             JsonNode dateJsonNode = jsonNode.get("$date");
+        JsonNode jsonNode = jsonParser.readValueAsTree();
+            JsonNode dateJsonNode = jsonNode.get("$date");
             if (dateJsonNode == null) {
                 return DateTimeFormatter.parse(jsonNode.textValue());
             } else if (dateJsonNode.isTextual()) {
-                String dateString = dateJsonNode.textValue();
-                return DateTimeFormatter.parse(dateString);
+                return DateTimeFormatter.parse(dateJsonNode.textValue());
             } else {
                 long longDate = dateJsonNode.get("$numberLong").asLong();
                 String dateString = Instant.ofEpochMilli(new Date(longDate).getTime()).toString();
                 return DateTimeFormatter.parse(dateString);
             }
-        } catch (Exception ex) {
-            throw new DeserializationException(String.format("Failed while deserializing "
-                    + "date value for json node: %s", jsonNode), ex);
+        } catch (IOException | DateTimeParseException ex) {
+            throw new DeserializationException("Failed while deserializing "
+                    + "date value for json node.", ex);
         }
     }
 }

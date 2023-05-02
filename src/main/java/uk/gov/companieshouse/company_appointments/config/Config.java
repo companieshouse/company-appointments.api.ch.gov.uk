@@ -49,12 +49,6 @@ public class Config implements WebMvcConfigurer {
         registry.addInterceptor(fullRecordAuthenticationInterceptor).addPathPatterns(PATTERN_FULL_RECORD);
     }
 
-    /**
-     * Obtains a clock that returns the current instant using the best available
-     * system clock, converting to date and time using the UTC time-zone.
-     *
-     * @return a clock that uses the best available system clock in the UTC zone, not null
-     */
     @Bean
     public Clock clock() {
         return Clock.systemUTC();
@@ -65,11 +59,6 @@ public class Config implements WebMvcConfigurer {
         return () -> String.valueOf(OffsetDateTime.now());
     }
 
-    /**
-     * mongoCustomConversions.
-     *
-     * @return MongoCustomConversions.
-     */
     @Bean
     public MongoCustomConversions mongoCustomConversions() {
         ObjectMapper objectMapper = mongoDbObjectMapper();
@@ -80,11 +69,6 @@ public class Config implements WebMvcConfigurer {
                 new CompanyAppointmentFullRecordReadConverter(objectMapper)));
     }
 
-    /**
-     * Mongo DB Object Mapper.
-     *
-     * @return ObjectMapper.
-     */
     private ObjectMapper mongoDbObjectMapper() {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
