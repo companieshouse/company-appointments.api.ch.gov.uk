@@ -10,13 +10,15 @@ import java.time.format.DateTimeFormatter;
 
 public class LocalDateTimeSerializer extends JsonSerializer<LocalDateTime> {
 
+    private static DateTimeFormatter dateTimeFormatter;
+
     @Override
     public void serialize(LocalDateTime localDateTime, JsonGenerator jsonGenerator,
                           SerializerProvider serializerProvider) throws IOException {
         if (localDateTime == null) {
             jsonGenerator.writeNull();
         } else {
-            DateTimeFormatter dateTimeFormatter = DateTimeFormatter
+            dateTimeFormatter = DateTimeFormatter
                     .ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
             String format = localDateTime.format(dateTimeFormatter);
             jsonGenerator.writeRawValue("ISODate(\"" + format + "\")");
