@@ -6,12 +6,15 @@ import com.fasterxml.jackson.databind.JsonNode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.function.Executable;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.gov.companieshouse.company_appointments.exception.DeserializationException;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -50,8 +53,13 @@ class LocalDateTimeDeSerializerTest {
     @Test
     void testDeserializeWithException() {
         when(jsonNode.get(any())).thenReturn(jsonNode);
-        when(jsonNode.textValue()).thenThrow(new IllegalStateException("exception"));
+        when(jsonNode.textValue()).thenThrow(DateTimeParseException.class);
 
-        assertThrows(RuntimeException.class, () -> deserializer.deserialize(jsonParser, deserializationContext));
+        Executable executable = () -> deserializer.deserialize(jsonParser, deserializationContext);
+
+        Exception exception = assertThrows(DeserializationException.class, executable);
+
+        assertEquals("Failed while deserializing "
+                + "date value for json node.", exception.getMessage());
     }
 }

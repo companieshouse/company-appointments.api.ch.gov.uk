@@ -7,16 +7,16 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.companieshouse.company_appointments.util.DateTimeFormatter;
 
 import java.io.IOException;
+import java.time.LocalDate;
 
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 class LocalDateSerializerTest {
 
-    private static final String DATE_STRING = "2015-06-26T08:31:35.058Z";
+    private static final String DATE_STRING = "2015-06-26";
 
     @Mock
     private SerializerProvider serializerProvider;
@@ -32,7 +32,7 @@ class LocalDateSerializerTest {
 
     @Test
     void testSerialiseValidValue() throws IOException {
-        serializer.serialize(DateTimeFormatter.parse(DATE_STRING), jsonGenerator, serializerProvider);
+        serializer.serialize(LocalDate.parse(DATE_STRING), jsonGenerator, serializerProvider);
 
         verify(jsonGenerator).writeRawValue("ISODate(\"2015-06-26T00:00:00Z\")");
     }

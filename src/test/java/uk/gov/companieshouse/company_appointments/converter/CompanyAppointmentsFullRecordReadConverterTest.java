@@ -7,6 +7,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.junit.jupiter.api.function.Executable;
 import org.springframework.util.FileCopyUtils;
 import uk.gov.companieshouse.api.appointment.FullRecordCompanyOfficerApi;
 
@@ -52,7 +53,9 @@ class CompanyAppointmentsFullRecordReadConverterTest {
 
         Document appointmentsBson = Document.parse(deltaAppointmentData);
 
-        assertThrows(RuntimeException.class, () -> readConverter.convert(appointmentsBson));
+        Executable executable = () -> readConverter.convert(appointmentsBson);
+
+        assertThrows(IllegalArgumentException.class, executable);
     }
 
 }

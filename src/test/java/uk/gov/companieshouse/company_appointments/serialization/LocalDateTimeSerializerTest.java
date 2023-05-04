@@ -43,5 +43,4 @@ class LocalDateTimeSerializerTest {
 
         verify(jsonGenerator).writeNull();
     }
-
 }

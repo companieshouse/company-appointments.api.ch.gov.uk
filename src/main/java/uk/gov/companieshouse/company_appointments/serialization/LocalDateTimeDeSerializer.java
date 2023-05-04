@@ -15,20 +15,18 @@ import java.time.format.DateTimeParseException;
 
 public class LocalDateTimeDeSerializer extends JsonDeserializer<LocalDateTime> {
     public static final String APPLICATION_NAME_SPACE = "company-appointments.api.ch.gov.uk";
-
     private static final Logger LOGGER = LoggerFactory.getLogger(APPLICATION_NAME_SPACE);
+    private static final DateTimeFormatter dateTimeFormatter = DateTimeFormatter
+            .ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 
     @Override
     public LocalDateTime deserialize(JsonParser jsonParser, DeserializationContext
             deserializationContext) {
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter
-                .ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
         try {
             JsonNode jsonNode = jsonParser.readValueAsTree();
             return jsonNode.get("$date") == null ? LocalDateTime.parse(jsonNode.textValue(),
                     dateTimeFormatter) :
                     LocalDateTime.parse(jsonNode.get("$date").textValue(), dateTimeFormatter);
-
         } catch (IOException | DateTimeParseException exception) {
             LOGGER.error("LocalDateTime Deserialization failed.", exception);
             throw new DeserializationException("Failed while deserializing "

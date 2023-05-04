@@ -60,8 +60,7 @@ public class Config implements WebMvcConfigurer {
     }
 
     @Bean
-    public MongoCustomConversions mongoCustomConversions() {
-        ObjectMapper objectMapper = mongoDbObjectMapper();
+    public MongoCustomConversions mongoCustomConversions(ObjectMapper objectMapper) {
         return new MongoCustomConversions(List.of(
                 new CompanyAppointmentReadConverter(objectMapper),
                 new CompanyAppointmentWriteConverter(objectMapper),
@@ -69,7 +68,8 @@ public class Config implements WebMvcConfigurer {
                 new CompanyAppointmentFullRecordReadConverter(objectMapper)));
     }
 
-    private ObjectMapper mongoDbObjectMapper() {
+    @Bean
+    public ObjectMapper mongoDbObjectMapper() {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
