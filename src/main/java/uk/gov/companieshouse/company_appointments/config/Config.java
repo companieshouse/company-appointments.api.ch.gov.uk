@@ -20,7 +20,7 @@ import uk.gov.companieshouse.company_appointments.interceptor.FullRecordAuthenti
 import uk.gov.companieshouse.company_appointments.interceptor.RequestLoggingInterceptor;
 import uk.gov.companieshouse.company_appointments.serialization.LocalDateDeSerializer;
 import uk.gov.companieshouse.company_appointments.serialization.LocalDateSerializer;
-import uk.gov.companieshouse.company_appointments.serialization.LocalDateTimeDeSerializer;
+import uk.gov.companieshouse.company_appointments.serialization.LocalDateTimeDeserializer;
 import uk.gov.companieshouse.company_appointments.serialization.LocalDateTimeSerializer;
 
 import java.time.Clock;
@@ -29,6 +29,8 @@ import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.function.Supplier;
+import uk.gov.companieshouse.company_appointments.serialization.OffsetDateTimeDeserializer;
+import uk.gov.companieshouse.company_appointments.serialization.OffsetDateTimeSerializer;
 
 @Configuration
 public class Config implements WebMvcConfigurer {
@@ -76,9 +78,11 @@ public class Config implements WebMvcConfigurer {
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
         SimpleModule module = new SimpleModule();
         module.addSerializer(LocalDateTime.class, new LocalDateTimeSerializer());
-        module.addDeserializer(LocalDateTime.class, new LocalDateTimeDeSerializer());
+        module.addDeserializer(LocalDateTime.class, new LocalDateTimeDeserializer());
         module.addSerializer(LocalDate.class, new LocalDateSerializer());
         module.addDeserializer(LocalDate.class, new LocalDateDeSerializer());
+        module.addSerializer(OffsetDateTime.class, new OffsetDateTimeSerializer());
+        module.addDeserializer(OffsetDateTime.class, new OffsetDateTimeDeserializer());
         objectMapper.registerModule(module);
         return objectMapper;
     }

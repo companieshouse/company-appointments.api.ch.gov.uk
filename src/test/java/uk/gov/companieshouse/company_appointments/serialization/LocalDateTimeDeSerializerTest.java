@@ -33,11 +33,11 @@ class LocalDateTimeDeSerializerTest {
     @Mock
     private JsonNode jsonNode;
 
-    private LocalDateTimeDeSerializer deserializer;
+    private LocalDateTimeDeserializer deserializer;
 
     @BeforeEach
     void setUp() throws IOException {
-        deserializer = new LocalDateTimeDeSerializer();
+        deserializer = new LocalDateTimeDeserializer();
         when(jsonParser.readValueAsTree()).thenReturn(jsonNode);
     }
 
