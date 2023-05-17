@@ -27,9 +27,9 @@ class IdentificationMapperTest {
     @Test
     void mapIdentification() {
         // given
-        when(identificationTypeMapper.map(anyString())).thenReturn(IdentificationTypeEnum.UK_LIMITED);
+        when(identificationTypeMapper.map(anyString())).thenReturn(IdentificationTypeEnum.UK_LIMITED_COMPANY);
         IdentificationData identificationData = IdentificationData.builder()
-                .withIdentificationType("uk-limited")
+                .withIdentificationType("uk-limited-company")
                 .withLegalAuthority("legal authority")
                 .withLegalForm("legal form")
                 .withPlaceRegistered("place registered")
@@ -37,7 +37,7 @@ class IdentificationMapperTest {
                 .build();
 
         CorporateIdent expected = new CorporateIdent()
-                .identificationType(IdentificationTypeEnum.UK_LIMITED)
+                .identificationType(IdentificationTypeEnum.UK_LIMITED_COMPANY)
                 .legalAuthority("legal authority")
                 .legalForm("legal form")
                 .placeRegistered("place registered")
@@ -48,7 +48,7 @@ class IdentificationMapperTest {
 
         // then
         assertEquals(expected, actual);
-        verify(identificationTypeMapper).map("uk-limited");
+        verify(identificationTypeMapper).map("uk-limited-company");
     }
 
     @Test
