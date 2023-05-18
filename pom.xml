@@ -16,7 +16,7 @@
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
-        <spring-boot-dependencies.version>2.7.10</spring-boot-dependencies.version>
+        <spring-boot-dependencies.version>2.7.11</spring-boot-dependencies.version>
         <testcontainers.version>1.18.0</testcontainers.version>
         <maven-surefire-plugin.version>3.0.0</maven-surefire-plugin.version>
         <maven-failsafe-plugin.version>3.0.0</maven-failsafe-plugin.version>
@@ -29,7 +29,7 @@
         <structured-logging.version>1.9.11</structured-logging.version>
         <sdk-manager-java.version>1.5.16</sdk-manager-java.version>
         <api-sdk-manager-java-library.version>1.0.6</api-sdk-manager-java-library.version>
-        <private-api-sdk-java.version>2.0.241</private-api-sdk-java.version>
+        <private-api-sdk-java.version>2.0.261</private-api-sdk-java.version>
         <io-cucumber.version>7.11.2</io-cucumber.version>
         <wiremock.version>2.35.0</wiremock.version>
 

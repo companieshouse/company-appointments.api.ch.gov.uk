@@ -3,7 +3,7 @@ package uk.gov.companieshouse.company_appointments.officerappointments;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static uk.gov.companieshouse.api.officer.CorporateIdent.IdentificationTypeEnum.UK_LIMITED;
+import static uk.gov.companieshouse.api.officer.CorporateIdent.IdentificationTypeEnum.UK_LIMITED_COMPANY;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,13 +22,13 @@ class IdentificationTypeMapperTest {
     @Test
     void mapIdentificationType() {
         // given
-        String identificationType = "uk-limited";
+        String identificationType = "uk-limited-company";
 
         // when
         IdentificationTypeEnum actual = mapper.map(identificationType);
 
         // then
-        assertEquals(UK_LIMITED, actual);
+        assertEquals(UK_LIMITED_COMPANY, actual);
     }
 
     @Test
