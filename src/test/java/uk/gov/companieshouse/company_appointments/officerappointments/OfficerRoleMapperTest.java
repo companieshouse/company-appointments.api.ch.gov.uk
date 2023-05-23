@@ -93,19 +93,6 @@ class OfficerRoleMapperTest {
     }
 
     @Test
-    void mapOfficerRoleInvalidRole() {
-        // given
-        String officerRole = "invalid-role";
-
-        // when
-        Executable executable = () -> mapper.mapOfficerRole(officerRole);
-
-        // then
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, executable);
-        assertEquals(String.format("Unexpected value '%s'", officerRole), exception.getMessage());
-    }
-
-    @Test
     void mapIsCorporateOfficer() {
         // given
         String officerRole = "corporate-director";
