@@ -33,6 +33,30 @@ class OfficerRoleMapperTest {
     }
 
     @Test
+    void mapOfficerRoleCorporateMember() {
+        // given
+        String officerRole = "corporate-member-of-a-management-organ";
+
+        // when
+        OfficerRoleEnum actual = mapper.mapOfficerRole(officerRole);
+
+        // then
+        assertEquals(OfficerRoleEnum.CORPORATE_MEMBER_OF_A_MANAGEMENT_ORGAN, actual);
+    }
+
+    @Test
+    void mapOfficerRoleMember() {
+        // given
+        String officerRole = "member-of-a-management-organ";
+
+        // when
+        OfficerRoleEnum actual = mapper.mapOfficerRole(officerRole);
+
+        // then
+        assertEquals(OfficerRoleEnum.MEMBER_OF_A_MANAGEMENT_ORGAN, actual);
+    }
+
+    @Test
     void mapOfficerRoleNull() {
         // given
         // when
@@ -43,9 +67,35 @@ class OfficerRoleMapperTest {
     }
 
     @Test
+    void mapOfficerRoleInvalidCorporateMember() {
+        // given
+        String officerRole = "corporate-member-of-a-management";
+
+        // when
+        Executable executable = () -> mapper.mapOfficerRole(officerRole);
+
+        // then
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, executable);
+        assertEquals(String.format("Unexpected value '%s'", officerRole), exception.getMessage());
+    }
+
+    @Test
+    void mapOfficerRoleInvalidMember() {
+        // given
+        String officerRole = "member-of-a-management";
+
+        // when
+        Executable executable = () -> mapper.mapOfficerRole(officerRole);
+
+        // then
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, executable);
+        assertEquals(String.format("Unexpected value '%s'", officerRole), exception.getMessage());
+    }
+
+    @Test
     void mapOfficerRoleInvalidRole() {
         // given
-        String officerRole = "invalid role";
+        String officerRole = "invalid-role";
 
         // when
         Executable executable = () -> mapper.mapOfficerRole(officerRole);
