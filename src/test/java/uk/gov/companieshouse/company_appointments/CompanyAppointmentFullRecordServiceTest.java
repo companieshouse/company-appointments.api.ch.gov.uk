@@ -142,7 +142,8 @@ class CompanyAppointmentFullRecordServiceTest {
     void testPutAppointmentData() throws Exception {
         // given
         DeltaOfficerData data = new DeltaOfficerData()
-                .setOfficerRole("director");
+                .setOfficerRole("director")
+                .setEtag("etag");
         DeltaSensitiveData sensitiveData = new DeltaSensitiveData()
                 .setDateOfBirth(new DeltaDateOfBirth());
         CompanyAppointmentDocument deltaAppointmentDocument = buildDeltaAppointmentDocument(
@@ -162,7 +163,7 @@ class CompanyAppointmentFullRecordServiceTest {
 
         // then
         verify(companyAppointmentRepository).insertOrUpdate(captor.capture());
-        assertNotNull(captor.getValue().getEtag());
+        assertNotNull(captor.getValue().getData().getEtag());
     }
 
     @Test
@@ -317,7 +318,6 @@ class CompanyAppointmentFullRecordServiceTest {
             DeltaOfficerData data, DeltaSensitiveData sensitiveData) {
         return CompanyAppointmentDocument.Builder.builder()
                 .withId("id")
-                .withEtag("etag")
                 .withData(data)
                 .withSensitiveData(sensitiveData)
                 .withInternalId("internalId")
@@ -339,7 +339,6 @@ class CompanyAppointmentFullRecordServiceTest {
             DeltaSensitiveData sensitiveData, String deltaAt) {
         return new CompanyAppointmentDocument()
                 .setId("id")
-                .setEtag("etag")
                 .setData(data)
                 .setSensitiveData(sensitiveData)
                 .setInternalId("internalId")

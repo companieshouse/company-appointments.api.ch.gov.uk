@@ -93,7 +93,7 @@ class CompanyAppointmentFullRecordRepositoryITest {
             assertEquals("test name", actual.get().getCompanyName());
             assertEquals("test status", actual.get().getCompanyStatus());
             assertEquals(at, actual.get().getUpdated().getAt());
-            assertEquals("etag", actual.get().getEtag());
+            assertEquals("etag", actual.get().getData().getEtag());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -134,12 +134,12 @@ class CompanyAppointmentFullRecordRepositoryITest {
             assertEquals("test name", actual.get().getCompanyName());
             assertEquals("test status", actual.get().getCompanyStatus());
             assertEquals(at, actual.get().getUpdated().getAt());
-            assertEquals("etag", actual.get().getEtag());
+            assertEquals("etag", actual.get().getData().getEtag());
         });
 
         Optional<CompanyAppointmentDocument> actual = repository.findById(APPOINTMENT_ID_3);
         assertTrue(actual.isPresent());
-        assertEquals(INITIAL_APPOINTMENT_ID, actual.get().getEtag());
+        assertEquals(INITIAL_APPOINTMENT_ID, actual.get().getData().getEtag());
     }
 
     @DisplayName("Repository returns true when appointment exists")

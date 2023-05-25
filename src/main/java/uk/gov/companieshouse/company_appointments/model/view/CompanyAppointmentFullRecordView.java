@@ -222,7 +222,7 @@ public class CompanyAppointmentFullRecordView {
                     .withOccupation(api.getData().getOccupation())
                     .withOfficerRole(api.getData().getOfficerRole())
                     .withResignedOn(api.getData().getResignedOn())
-                    .withEtag(api.getEtag())
+                    .withEtag(api.getData().getEtag())
                     .withPersonNumber(api.getData().getPersonNumber())
                     .withIsPre1992Appointment(api.getData().getPre1992Appointment())
                     .withContactDetails(api.getData().getContactDetails())

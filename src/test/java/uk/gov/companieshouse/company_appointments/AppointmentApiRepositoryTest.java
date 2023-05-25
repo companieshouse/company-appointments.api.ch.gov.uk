@@ -39,7 +39,6 @@ class AppointmentApiRepositoryTest {
     void insertOrUpdate() {
         final CompanyAppointmentDocument document = CompanyAppointmentDocument.Builder.builder()
                 .withId("id")
-                .withEtag("etag")
                 .withData(new DeltaOfficerData())
                 .withSensitiveData(new DeltaSensitiveData())
                 .withInternalId("internalId")

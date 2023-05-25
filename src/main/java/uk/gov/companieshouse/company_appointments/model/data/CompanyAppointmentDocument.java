@@ -9,8 +9,6 @@ import org.springframework.data.mongodb.core.mapping.Field;
 public class CompanyAppointmentDocument {
     @Id
     private String id;
-    @Field("etag")
-    private String etag;
     @Field("data")
     private DeltaOfficerData data;
     @Field("sensitive_data")
@@ -45,7 +43,6 @@ public class CompanyAppointmentDocument {
 
     private CompanyAppointmentDocument(Builder builder) {
         id = builder.id;
-        etag = builder.etag;
         data = builder.data;
         sensitiveData = builder.sensitiveData;
         internalId = builder.internalId;
@@ -68,15 +65,6 @@ public class CompanyAppointmentDocument {
 
     public CompanyAppointmentDocument setId(String id) {
         this.id = id;
-        return this;
-    }
-
-    public String getEtag() {
-        return etag;
-    }
-
-    public CompanyAppointmentDocument setEtag(String etag) {
-        this.etag = etag;
         return this;
     }
 
@@ -208,7 +196,6 @@ public class CompanyAppointmentDocument {
 
     public static final class Builder {
         private String id;
-        private String etag;
         private DeltaOfficerData data;
         private DeltaSensitiveData sensitiveData;
         private String internalId;
@@ -233,11 +220,6 @@ public class CompanyAppointmentDocument {
 
         public Builder withId(String id) {
             this.id = id;
-            return this;
-        }
-
-        public Builder withEtag(String etag) {
-            this.etag = etag;
             return this;
         }
 
@@ -327,7 +309,6 @@ public class CompanyAppointmentDocument {
         CompanyAppointmentDocument that = (CompanyAppointmentDocument) o;
         return officerRoleSortOrder == that.officerRoleSortOrder
                 && Objects.equals(id, that.id)
-                && Objects.equals(etag, that.etag)
                 && Objects.equals(data, that.data)
                 && Objects.equals(sensitiveData, that.sensitiveData)
                 && Objects.equals(internalId, that.internalId)
@@ -345,7 +326,7 @@ public class CompanyAppointmentDocument {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, etag, data, sensitiveData, internalId, appointmentId, officerId, previousOfficerId, companyNumber, updated, updatedBy, created, deltaAt, officerRoleSortOrder,
+        return Objects.hash(id, data, sensitiveData, internalId, appointmentId, officerId, previousOfficerId, companyNumber, updated, updatedBy, created, deltaAt, officerRoleSortOrder,
                 companyName,
                 companyStatus);
     }
@@ -354,7 +335,6 @@ public class CompanyAppointmentDocument {
     public String toString() {
         return "CompanyAppointmentDocument{" +
                 "id='" + id + '\'' +
-                ", etag='" + etag + '\'' +
                 ", data=" + data +
                 ", sensitiveData=" + sensitiveData +
                 ", internalId='" + internalId + '\'' +

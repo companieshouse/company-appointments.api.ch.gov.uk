@@ -69,7 +69,6 @@ public class CompanyAppointmentFullRecordService {
 
             if (officer != null) {
                 companyAppointmentDocument.setUpdated(instant);
-                companyAppointmentDocument.setEtag(GenerateEtagUtil.generateEtag());
             }
             try {
                 Optional<CompanyAppointmentDocument> existingAppointment = getExistingDelta(companyAppointmentDocument);
