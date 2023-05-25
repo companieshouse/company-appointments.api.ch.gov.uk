@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.company_appointments.model.data;
 
+import java.time.Instant;
 import java.util.Objects;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -30,7 +31,7 @@ public class CompanyAppointmentDocument {
     @Field("created")
     private DeltaTimestamp created;
     @Field("delta_at")
-    private String deltaAt;
+    private Instant deltaAt;
     @Field("officer_role_sort_order")
     private int officerRoleSortOrder;
     @Field("company_name")
@@ -158,11 +159,11 @@ public class CompanyAppointmentDocument {
         return this;
     }
 
-    public String getDeltaAt() {
+    public Instant getDeltaAt() {
         return deltaAt;
     }
 
-    public CompanyAppointmentDocument setDeltaAt(String deltaAt) {
+    public CompanyAppointmentDocument setDeltaAt(Instant deltaAt) {
         this.deltaAt = deltaAt;
         return this;
     }
@@ -206,7 +207,7 @@ public class CompanyAppointmentDocument {
         private DeltaTimestamp updated;
         private String updatedBy;
         private DeltaTimestamp created;
-        private String deltaAt;
+        private Instant deltaAt;
         private int officerRoleSortOrder;
         private String companyName;
         private String companyStatus;
@@ -273,7 +274,7 @@ public class CompanyAppointmentDocument {
             return this;
         }
 
-        public Builder withDeltaAt(String deltaAt) {
+        public Builder withDeltaAt(Instant deltaAt) {
             this.deltaAt = deltaAt;
             return this;
         }

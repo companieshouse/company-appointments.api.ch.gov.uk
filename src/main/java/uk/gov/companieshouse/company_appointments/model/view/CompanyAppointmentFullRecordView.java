@@ -3,15 +3,6 @@ package uk.gov.companieshouse.company_appointments.model.view;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import uk.gov.companieshouse.company_appointments.model.data.DeltaFormerNames;
-import uk.gov.companieshouse.company_appointments.model.data.DeltaIdentification;
-import uk.gov.companieshouse.company_appointments.model.data.DeltaItemLinkTypes;
-import uk.gov.companieshouse.company_appointments.model.data.DeltaSensitiveData;
-import uk.gov.companieshouse.company_appointments.model.data.DeltaServiceAddress;
-import uk.gov.companieshouse.company_appointments.model.data.DeltaUsualResidentialAddress;
-import uk.gov.companieshouse.company_appointments.model.data.DeltaContactDetails;
-import uk.gov.companieshouse.company_appointments.model.data.DeltaPrincipalOfficeAddress;
-import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentDocument;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -21,6 +12,15 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentDocument;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaContactDetails;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaFormerNames;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaIdentification;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaItemLinkTypes;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaPrincipalOfficeAddress;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaSensitiveData;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaServiceAddress;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaUsualResidentialAddress;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class CompanyAppointmentFullRecordView {

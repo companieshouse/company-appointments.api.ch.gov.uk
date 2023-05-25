@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.Instant;
 import java.time.OffsetDateTime;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -54,7 +55,7 @@ class DeltaAppointmentTransformerTest {
                 .setPreviousOfficerId("previousOfficerId")
                 .setCompanyNumber("companyNumber")
                 .setUpdatedBy("updatedBy")
-                .setDeltaAt("2022-01-12T00:00Z")
+                .setDeltaAt(Instant.parse("2022-01-12T00:00:00.000000Z"))
                 .setOfficerRoleSortOrder(22);
 
         FullRecordCompanyOfficerApi fullRecordCompanyOfficerApi = buildFullRecordOfficer();

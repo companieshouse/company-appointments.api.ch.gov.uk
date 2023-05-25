@@ -1,11 +1,10 @@
 package uk.gov.companieshouse.company_appointments.util;
 
-import org.springframework.util.FileCopyUtils;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
+import org.springframework.util.FileCopyUtils;
 
 public class FileReader {
 

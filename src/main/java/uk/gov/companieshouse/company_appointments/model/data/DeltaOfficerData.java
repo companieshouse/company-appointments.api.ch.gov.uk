@@ -1,10 +1,10 @@
 package uk.gov.companieshouse.company_appointments.model.data;
 
-import java.util.Objects;
 import java.time.LocalDate;
 import java.util.List;
-import org.springframework.data.mongodb.core.mapping.Field;
+import java.util.Objects;
 import javax.validation.Valid;
+import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.format.annotation.DateTimeFormat;
 
 public class DeltaOfficerData {

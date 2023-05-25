@@ -46,7 +46,7 @@ public class DeltaAppointmentTransformer implements Transformative<FullRecordCom
     }
 
     private void populateInternalFields(CompanyAppointmentDocument entity, InternalData internalData) {
-        entity.setDeltaAt(internalData.getDeltaAt().toString());
+        entity.setDeltaAt(internalData.getDeltaAt().toInstant());
         entity.setUpdatedBy(internalData.getUpdatedBy());
         entity.setOfficerRoleSortOrder(internalData.getOfficerRoleSortOrder());
     }
