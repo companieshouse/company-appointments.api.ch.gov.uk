@@ -6,6 +6,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.time.Instant;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +21,6 @@ import uk.gov.companieshouse.company_appointments.controller.CompanyAppointmentF
 import uk.gov.companieshouse.company_appointments.interceptor.AuthenticationHelperImpl;
 import uk.gov.companieshouse.company_appointments.interceptor.AuthenticationInterceptor;
 import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentDocument;
-import uk.gov.companieshouse.company_appointments.model.data.DeltaDateOfBirth;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaItemLinkTypes;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaOfficerData;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaOfficerLinkTypes;
@@ -68,7 +68,7 @@ class AuthenticationInterceptorsITest {
         linkItem.setSelf("self");
         data.setLinks(linkItem);
         DeltaSensitiveData sensitiveData = new DeltaSensitiveData();
-        sensitiveData.setDateOfBirth(new DeltaDateOfBirth());
+        sensitiveData.setDateOfBirth(Instant.parse("1990-01-12T01:02:30.456789Z"));
         CompanyAppointmentDocument companyAppointmentDocument = new CompanyAppointmentDocument();
         companyAppointmentDocument.setData(data);
         companyAppointmentDocument.setSensitiveData(sensitiveData);

@@ -65,11 +65,7 @@
       "premises" : "URA",
       "region" : "ura_region"
     },
-    "date_of_birth" : {
-      "day" : 30,
-      "month" : 6,
-      "year" : 1985
-    }
+    "date_of_birth" : ISODate("1985-06-30T00:00:00.000Z")
   },
   "internal_id" : "0025987375",
   "appointment_id" : "7IjxamNGLlqtIingmTZJJ42Hw9Q",

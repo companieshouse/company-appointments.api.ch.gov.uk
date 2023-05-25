@@ -41,7 +41,6 @@ import uk.gov.companieshouse.company_appointments.exception.FailedToTransformExc
 import uk.gov.companieshouse.company_appointments.exception.NotFoundException;
 import uk.gov.companieshouse.company_appointments.exception.ServiceUnavailableException;
 import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentDocument;
-import uk.gov.companieshouse.company_appointments.model.data.DeltaDateOfBirth;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaItemLinkTypes;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaOfficerData;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaOfficerLinkTypes;
@@ -108,7 +107,7 @@ class CompanyAppointmentFullRecordServiceTest {
         linkItem.setSelf("self");
         data.setLinks(linkItem);
         DeltaSensitiveData sensitiveData = new DeltaSensitiveData()
-                .setDateOfBirth(new DeltaDateOfBirth());
+                .setDateOfBirth(Instant.parse("1990-01-12T01:02:30.456789Z"));
         CompanyAppointmentDocument deltaAppointmentDocument = buildDeltaAppointmentDocument(
                 Instant.parse("2022-01-12T00:00:00.000000Z"), data, sensitiveData);
 
@@ -143,7 +142,7 @@ class CompanyAppointmentFullRecordServiceTest {
                 .setOfficerRole("director")
                 .setEtag("etag");
         DeltaSensitiveData sensitiveData = new DeltaSensitiveData()
-                .setDateOfBirth(new DeltaDateOfBirth());
+                .setDateOfBirth(Instant.parse("1990-01-12T01:02:30.456789Z"));
         CompanyAppointmentDocument deltaAppointmentDocument = buildDeltaAppointmentDocument(
                 Instant.parse("2022-01-12T00:00:00.000000Z"), data, sensitiveData);
         CompanyAppointmentDocument transformedAppointmentApi = builtDeltaAppointmentApi(

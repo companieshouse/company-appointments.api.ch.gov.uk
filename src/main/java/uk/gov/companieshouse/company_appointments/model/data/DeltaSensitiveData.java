@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.company_appointments.model.data;
 
+import java.time.Instant;
 import java.util.Objects;
 import org.springframework.data.mongodb.core.mapping.Field;
 
@@ -9,7 +10,7 @@ public class DeltaSensitiveData {
   @Field("residential_address_same_as_service_address")
   private Boolean residentialAddressSameAsServiceAddress;
   @Field("date_of_birth")
-  private DeltaDateOfBirth dateOfBirth;
+  private Instant dateOfBirth;
 
   public DeltaUsualResidentialAddress getUsualResidentialAddress() {
     return usualResidentialAddress;
@@ -29,11 +30,11 @@ public class DeltaSensitiveData {
     return this;
   }
 
-  public DeltaDateOfBirth getDateOfBirth() {
+  public Instant getDateOfBirth() {
     return dateOfBirth;
   }
 
-  public DeltaSensitiveData setDateOfBirth(DeltaDateOfBirth dateOfBirth) {
+  public DeltaSensitiveData setDateOfBirth(Instant dateOfBirth) {
     this.dateOfBirth = dateOfBirth;
     return this;
   }

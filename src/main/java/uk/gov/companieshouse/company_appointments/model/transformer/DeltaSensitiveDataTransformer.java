@@ -1,5 +1,9 @@
 package uk.gov.companieshouse.company_appointments.model.transformer;
 
+import static java.time.ZoneOffset.UTC;
+
+import java.time.Instant;
+import java.time.LocalDate;
 import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.api.appointment.SensitiveData;
 import uk.gov.companieshouse.company_appointments.exception.FailedToTransformException;
@@ -9,13 +13,10 @@ import uk.gov.companieshouse.company_appointments.model.data.DeltaSensitiveData;
 public class DeltaSensitiveDataTransformer implements Transformative<SensitiveData, DeltaSensitiveData> {
 
     private final DeltaUsualResidentialAddressTransformer usualResidentialAddressTransformer;
-    private final DeltaDateOfBirthTransformer dateOfBirthTransformer;
 
     public DeltaSensitiveDataTransformer(
-            DeltaUsualResidentialAddressTransformer usualResidentialAddressTransformer,
-            DeltaDateOfBirthTransformer dateOfBirthTransformer) {
+            DeltaUsualResidentialAddressTransformer usualResidentialAddressTransformer) {
         this.usualResidentialAddressTransformer = usualResidentialAddressTransformer;
-        this.dateOfBirthTransformer = dateOfBirthTransformer;
     }
 
     @Override
@@ -28,11 +29,15 @@ public class DeltaSensitiveDataTransformer implements Transformative<SensitiveDa
             throws FailedToTransformException {
 
         try {
-            entity.setUsualResidentialAddress(source.getUsualResidentialAddress() != null?
-                    usualResidentialAddressTransformer
-                            .transform(source.getUsualResidentialAddress()) : null);
-            entity.setDateOfBirth(source.getDateOfBirth() != null?
-                    dateOfBirthTransformer.transform(source.getDateOfBirth()) : null);
+            entity.setUsualResidentialAddress(source.getUsualResidentialAddress() != null ?
+                    usualResidentialAddressTransformer.transform(source.getUsualResidentialAddress()) : null);
+            entity.setDateOfBirth(source.getDateOfBirth() != null ?
+                    Instant.from(LocalDate.of(
+                                    source.getDateOfBirth().getYear(),
+                                    source.getDateOfBirth().getMonth(),
+                                    source.getDateOfBirth().getDay())
+                            .atStartOfDay(UTC))
+                    : null);
             entity.setResidentialAddressSameAsServiceAddress(source.getResidentialAddressSameAsServiceAddress());
 
             return entity;
