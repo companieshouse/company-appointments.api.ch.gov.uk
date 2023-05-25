@@ -13,7 +13,7 @@
       "region" : "Cardiff"
     },
     "service_address_same_as_registered_office_address" : true,
-    "appointed_on" : ISODate("2011-11-03T00:00:00.000000Z"),
+    "appointed_on" : ISODate("2011-11-03T00:00:00.000Z"),
     "is_pre_1992_appointment" : false,
     "links" : {
       "self" : "/company/12345678/appointments/7IjxamNGLlqtIingmTZJJ42Hw9Q",

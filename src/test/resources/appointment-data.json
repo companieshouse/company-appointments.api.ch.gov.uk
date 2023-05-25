@@ -10,7 +10,7 @@
   "data" : {
     "officer_role" : "director",
     "title" : "Mrs",
-    "date_of_birth" : ISODate("1980-01-01T00:00:00.000000Z"),
+    "date_of_birth" : ISODate("1980-01-01T00:00:00.000Z"),
     "country_of_residence" : "United Kingdom",
     "links" : {
       "officer" : {
