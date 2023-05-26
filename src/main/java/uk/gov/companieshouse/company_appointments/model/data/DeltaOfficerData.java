@@ -1,11 +1,10 @@
 package uk.gov.companieshouse.company_appointments.model.data;
 
-import java.time.LocalDate;
+import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 import javax.validation.Valid;
 import org.springframework.data.mongodb.core.mapping.Field;
-import org.springframework.format.annotation.DateTimeFormat;
 
 public class DeltaOfficerData {
   @Field("person_number")
@@ -24,12 +23,10 @@ public class DeltaOfficerData {
   private String countryOfResidence;
 
   @Field("appointed_on")
-  @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-  private LocalDate appointedOn;
+  private Instant appointedOn;
 
   @Field("appointed_before")
-  @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-  private LocalDate appointedBefore;
+  private Instant appointedBefore;
 
   @Field("is_pre_1992_appointment")
   private Boolean isPre1992Appointment;
@@ -81,8 +78,7 @@ public class DeltaOfficerData {
   private DeltaPrincipalOfficeAddress principalOfficeAddress;
 
   @Field("resigned_on")
-  @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-  private LocalDate resignedOn;
+  private Instant resignedOn;
 
   @Field("responsibilities")
   private String responsibilities;
@@ -137,20 +133,20 @@ public class DeltaOfficerData {
     return this;
   }
 
-  public LocalDate getAppointedOn() {
+  public Instant getAppointedOn() {
     return appointedOn;
   }
 
-  public DeltaOfficerData setAppointedOn(LocalDate appointedOn) {
+  public DeltaOfficerData setAppointedOn(Instant appointedOn) {
     this.appointedOn = appointedOn;
     return this;
   }
 
-  public LocalDate getAppointedBefore() {
+  public Instant getAppointedBefore() {
     return appointedBefore;
   }
 
-  public DeltaOfficerData setAppointedBefore(LocalDate appointedBefore) {
+  public DeltaOfficerData setAppointedBefore(Instant appointedBefore) {
     this.appointedBefore = appointedBefore;
     return this;
   }
@@ -300,11 +296,11 @@ public class DeltaOfficerData {
     return this;
   }
 
-  public LocalDate getResignedOn() {
+  public Instant getResignedOn() {
     return resignedOn;
   }
 
-  public DeltaOfficerData setResignedOn(LocalDate resignedOn) {
+  public DeltaOfficerData setResignedOn(Instant resignedOn) {
     this.resignedOn = resignedOn;
     return this;
   }
