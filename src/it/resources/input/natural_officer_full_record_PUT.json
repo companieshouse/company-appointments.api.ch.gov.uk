@@ -79,7 +79,7 @@
     "company_number":"12345678"
   },
   "internal_data":{
-    "delta_at":"2000-01-01T00:00:00.000000Z",
+    "delta_at":1.411661403E9,
     "updated_by":null,
     "updated_at":[
       2017,
