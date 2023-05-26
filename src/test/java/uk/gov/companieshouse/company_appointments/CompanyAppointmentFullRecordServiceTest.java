@@ -17,6 +17,7 @@ import java.util.Optional;
 import java.util.stream.Stream;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -102,6 +103,8 @@ class CompanyAppointmentFullRecordServiceTest {
 
     @Test
     void testFetchAppointmentReturnsMappedAppointmentData() throws NotFoundException {
+        Assertions.fail();
+
         // given
         DeltaOfficerData data = new DeltaOfficerData();
         data.setOfficerRole("director");
