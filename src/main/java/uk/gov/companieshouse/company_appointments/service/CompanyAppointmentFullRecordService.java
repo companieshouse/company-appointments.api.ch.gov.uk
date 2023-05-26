@@ -123,7 +123,7 @@ public class CompanyAppointmentFullRecordService {
     }
 
     private boolean isDeltaStale(final Instant incomingDelta, final Instant existingDelta) {
-        return incomingDelta.isBefore(existingDelta) || incomingDelta.equals(existingDelta);
+        return !incomingDelta.isAfter(existingDelta);
     }
 
     private Optional<CompanyAppointmentDocument> getExistingDelta(final CompanyAppointmentDocument incomingAppointment) {
@@ -137,7 +137,7 @@ public class CompanyAppointmentFullRecordService {
     private void logStaleIncomingDelta(final CompanyAppointmentDocument appointmentAPI, final Instant existingDelta) {
 
         Map<String, Object> logInfo = new HashMap<>();
-        logInfo.put("incomingDeltaAt", appointmentAPI.getDeltaAt());
+        logInfo.put("incomingDeltaAt", appointmentAPI.getDeltaAt().toString());
         logInfo.put("existingDeltaAt", StringUtils.defaultString(existingDelta.toString(), "No existing delta"));
         final String context = appointmentAPI.getAppointmentId();
         LOGGER.errorContext(context, "Received stale delta", null, logInfo);
