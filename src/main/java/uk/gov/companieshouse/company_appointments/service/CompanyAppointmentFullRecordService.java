@@ -33,7 +33,7 @@ public class CompanyAppointmentFullRecordService {
     private static final Logger LOGGER = LoggerFactory.getLogger(CompanyAppointmentsApplication.APPLICATION_NAMESPACE);
 
     private final DeltaAppointmentTransformer deltaAppointmentTransformer;
-    private final CompanyAppointmentFullRecordRepository companyAppointmentRepository;
+    //private final CompanyAppointmentFullRecordRepository companyAppointmentRepository;
     private final ResourceChangedApiService resourceChangedApiService;
     private final Clock clock;
     
