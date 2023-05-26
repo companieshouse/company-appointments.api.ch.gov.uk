@@ -103,8 +103,6 @@ class CompanyAppointmentFullRecordServiceTest {
 
     @Test
     void testFetchAppointmentReturnsMappedAppointmentData() throws NotFoundException {
-        Assertions.fail();
-
         // given
         DeltaOfficerData data = new DeltaOfficerData();
         data.setOfficerRole("director");
