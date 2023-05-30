@@ -1,12 +1,11 @@
 package uk.gov.companieshouse.company_appointments.officerappointments;
 
 import java.util.List;
+import java.util.Optional;
 import org.springframework.data.mongodb.repository.Aggregation;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentData;
-
-import java.util.Optional;
 
 /**
  * Correct sorting: A list of, first, active officers sorted by appointed_on date in descending order (or appointed_before

@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.company_appointments.controller;
 
+import javax.validation.Valid;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,8 +21,6 @@ import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentV
 import uk.gov.companieshouse.company_appointments.service.CompanyAppointmentService;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.logging.LoggerFactory;
-
-import javax.validation.Valid;
 
 @Controller
 @RequestMapping(path = "/company/{company_number}", produces = "application/json")

@@ -1,28 +1,28 @@
 package uk.gov.companieshouse.company_appointments.model.view;
 
+import static java.time.ZoneOffset.UTC;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.util.Collections;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.companieshouse.company_appointments.model.data.DeltaOfficerData;
-import uk.gov.companieshouse.company_appointments.model.data.DeltaDateOfBirth;
+import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentDocument;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaContactDetails;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaFormerNames;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaIdentification;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaItemLinkTypes;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaOfficerData;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaOfficerLinkTypes;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaPrincipalOfficeAddress;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaSensitiveData;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaServiceAddress;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaUsualResidentialAddress;
-import uk.gov.companieshouse.company_appointments.model.data.DeltaContactDetails;
-import uk.gov.companieshouse.company_appointments.model.data.DeltaPrincipalOfficeAddress;
-import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentDocument;
-
-import java.time.LocalDate;
-import java.util.Collections;
-import java.util.List;
 
 @ExtendWith(MockitoExtension.class)
 class CompanyAppointmentFullRecordViewTest {
@@ -32,13 +32,13 @@ class CompanyAppointmentFullRecordViewTest {
     private static final LocalDate INSTANT_THREE = LocalDate.parse("1991-01-12");
 
 
-    private List<DeltaFormerNames> formerNames
-            = buildFormerNamesList("John", "Davies");
-    private DeltaIdentification identification = buildIdentification();
-    private DeltaDateOfBirth INSTANT_DOB = buildDateOfBirth(12,1,1989);
-    private DeltaItemLinkTypes links = buildLinksItem();
-    private DeltaContactDetails contactDetails = buildContactDetails();
-    private DateOfBirthView dob = new DateOfBirthView(12,1,1989);
+    private final List<DeltaFormerNames> formerNames
+            = buildFormerNamesList();
+    private final DeltaIdentification identification = buildIdentification();
+    private final Instant INSTANT_DOB = Instant.from(LocalDate.of(1989, 1, 12).atStartOfDay(UTC));
+    private final DeltaItemLinkTypes links = buildLinksItem();
+    private final DeltaContactDetails contactDetails = buildContactDetails();
+    private final DateOfBirthView dob = new DateOfBirthView(12,1,1989);
 
     private CompanyAppointmentFullRecordView testView;
 
@@ -49,13 +49,13 @@ class CompanyAppointmentFullRecordViewTest {
         companyAppointmentDocument.setData(new DeltaOfficerData());
         companyAppointmentDocument.setSensitiveData(new DeltaSensitiveData());
 
-        companyAppointmentDocument.getData().setServiceAddress(createServiceAddress("service"));
-        companyAppointmentDocument.getSensitiveData().setUsualResidentialAddress(createUsualResidentialAddress("usualResidential"));
+        companyAppointmentDocument.getData().setServiceAddress(createServiceAddress());
+        companyAppointmentDocument.getSensitiveData().setUsualResidentialAddress(createUsualResidentialAddress());
         companyAppointmentDocument.getData().setAppointedOn(INSTANT_ONE);
         companyAppointmentDocument.getData().setAppointedBefore(INSTANT_THREE);
         companyAppointmentDocument.getData().setCountryOfResidence("countryOfResidence");
         companyAppointmentDocument.getSensitiveData().setDateOfBirth(INSTANT_DOB);
-        companyAppointmentDocument.getData().setFormerNames(formerNames);;
+        companyAppointmentDocument.getData().setFormerNames(formerNames);
         companyAppointmentDocument.getData().setIdentification(identification);
         companyAppointmentDocument.getData().setLinks(buildLinksItem());
         companyAppointmentDocument.getData().setSurname("Davies");
@@ -65,12 +65,12 @@ class CompanyAppointmentFullRecordViewTest {
         companyAppointmentDocument.getData().setOccupation("occupation");
         companyAppointmentDocument.getData().setOfficerRole("director");
         companyAppointmentDocument.getData().setResignedOn(INSTANT_TWO);
-        companyAppointmentDocument.setEtag("etag");
+        companyAppointmentDocument.getData().setEtag("etag");
         companyAppointmentDocument.getData().setPersonNumber("1234");
         companyAppointmentDocument.getData().setPre1992Appointment(Boolean.TRUE);
         companyAppointmentDocument.getData().setContactDetails(contactDetails);
         companyAppointmentDocument.getData().setResponsibilities("responsibilities");
-        companyAppointmentDocument.getData().setPrincipalOfficeAddress(createPrincipalOfficeAddress("principleOffice"));
+        companyAppointmentDocument.getData().setPrincipalOfficeAddress(createPrincipalOfficeAddress());
 
         testView = CompanyAppointmentFullRecordView.Builder.view(companyAppointmentDocument).build();
     }
@@ -78,56 +78,56 @@ class CompanyAppointmentFullRecordViewTest {
     @Test
     void serviceAddress() {
 
-        checkServiceAddress(testView.getServiceAddress(), "service");
+        checkServiceAddress(testView.getServiceAddress());
     }
 
     @Test
     void usualResidentialAddress() {
 
-        checkUsualResidentialAddress(testView.getUsualResidentialAddress(), "usualResidential");
+        checkUsualResidentialAddress(testView.getUsualResidentialAddress());
     }
 
     @Test
     void principleOfficeAddress() {
 
-        checkPrincipleOfficeAddress(testView.getPrincipalOfficeAddress(), "principleOffice");
+        checkPrincipleOfficeAddress(testView.getPrincipalOfficeAddress());
     }
 
-    private void checkUsualResidentialAddress(DeltaUsualResidentialAddress address, String prefix) {
+    private void checkUsualResidentialAddress(DeltaUsualResidentialAddress address) {
 
-        assertThat(address.getAddressLine1(), is(String.join(" ", prefix, "address1")));
-        assertThat(address.getAddressLine2(), is(String.join(" ", prefix, "address2")));
-        assertThat(address.getCareOf(), is(String.join(" ", prefix, "careOf")));
-        assertThat(address.getCountry(), is(String.join(" ", prefix, "country")));
-        assertThat(address.getLocality(), is(String.join(" ", prefix, "locality")));
-        assertThat(address.getPoBox(), is(String.join(" ", prefix, "poBox")));
-        assertThat(address.getPostalCode(), is(String.join(" ", prefix, "postcode")));
-        assertThat(address.getPremises(), is(String.join(" ", prefix, "premises")));
-        assertThat(address.getRegion(), is(String.join(" ", prefix, "region")));
+        assertThat(address.getAddressLine1(), is(String.join(" ", "usualResidential", "address1")));
+        assertThat(address.getAddressLine2(), is(String.join(" ", "usualResidential", "address2")));
+        assertThat(address.getCareOf(), is(String.join(" ", "usualResidential", "careOf")));
+        assertThat(address.getCountry(), is(String.join(" ", "usualResidential", "country")));
+        assertThat(address.getLocality(), is(String.join(" ", "usualResidential", "locality")));
+        assertThat(address.getPoBox(), is(String.join(" ", "usualResidential", "poBox")));
+        assertThat(address.getPostalCode(), is(String.join(" ", "usualResidential", "postcode")));
+        assertThat(address.getPremises(), is(String.join(" ", "usualResidential", "premises")));
+        assertThat(address.getRegion(), is(String.join(" ", "usualResidential", "region")));
     }
 
-    private void checkServiceAddress(DeltaServiceAddress address, String prefix) {
+    private void checkServiceAddress(DeltaServiceAddress address) {
 
-        assertThat(address.getAddressLine1(), is(String.join(" ", prefix, "address1")));
-        assertThat(address.getAddressLine2(), is(String.join(" ", prefix, "address2")));
-        assertThat(address.getCountry(), is(String.join(" ", prefix, "country")));
-        assertThat(address.getLocality(), is(String.join(" ", prefix, "locality")));
-        assertThat(address.getPostalCode(), is(String.join(" ", prefix, "postcode")));
-        assertThat(address.getPremises(), is(String.join(" ", prefix, "premises")));
-        assertThat(address.getRegion(), is(String.join(" ", prefix, "region")));
+        assertThat(address.getAddressLine1(), is(String.join(" ", "service", "address1")));
+        assertThat(address.getAddressLine2(), is(String.join(" ", "service", "address2")));
+        assertThat(address.getCountry(), is(String.join(" ", "service", "country")));
+        assertThat(address.getLocality(), is(String.join(" ", "service", "locality")));
+        assertThat(address.getPostalCode(), is(String.join(" ", "service", "postcode")));
+        assertThat(address.getPremises(), is(String.join(" ", "service", "premises")));
+        assertThat(address.getRegion(), is(String.join(" ", "service", "region")));
     }
 
-    private void checkPrincipleOfficeAddress(DeltaPrincipalOfficeAddress address, String prefix) {
+    private void checkPrincipleOfficeAddress(DeltaPrincipalOfficeAddress address) {
 
-        assertThat(address.getAddressLine1(), is(String.join(" ", prefix, "address1")));
-        assertThat(address.getAddressLine2(), is(String.join(" ", prefix, "address2")));
-        assertThat(address.getCareOf(), is(String.join(" ", prefix, "careOf")));
-        assertThat(address.getCountry(), is(String.join(" ", prefix, "country")));
-        assertThat(address.getLocality(), is(String.join(" ", prefix, "locality")));
-        assertThat(address.getPoBox(), is(String.join(" ", prefix, "poBox")));
-        assertThat(address.getPostalCode(), is(String.join(" ", prefix, "postcode")));
-        assertThat(address.getPremises(), is(String.join(" ", prefix, "premises")));
-        assertThat(address.getRegion(), is(String.join(" ", prefix, "region")));
+        assertThat(address.getAddressLine1(), is(String.join(" ", "principleOffice", "address1")));
+        assertThat(address.getAddressLine2(), is(String.join(" ", "principleOffice", "address2")));
+        assertThat(address.getCareOf(), is(String.join(" ", "principleOffice", "careOf")));
+        assertThat(address.getCountry(), is(String.join(" ", "principleOffice", "country")));
+        assertThat(address.getLocality(), is(String.join(" ", "principleOffice", "locality")));
+        assertThat(address.getPoBox(), is(String.join(" ", "principleOffice", "poBox")));
+        assertThat(address.getPostalCode(), is(String.join(" ", "principleOffice", "postcode")));
+        assertThat(address.getPremises(), is(String.join(" ", "principleOffice", "premises")));
+        assertThat(address.getRegion(), is(String.join(" ", "principleOffice", "region")));
     }
 
     @Test
@@ -232,65 +232,57 @@ class CompanyAppointmentFullRecordViewTest {
         assertThat(testView.getResponsibilities(), is("responsibilities"));
     }
 
-    private DeltaServiceAddress createServiceAddress(String prefix) {
+    private DeltaServiceAddress createServiceAddress() {
 
         DeltaServiceAddress address = new DeltaServiceAddress();
-        address.setAddressLine1(String.join(" ", prefix, "address1"));
-        address.setAddressLine2(String.join(" ", prefix, "address2"));
-        address.setCountry(String.join(" ", prefix, "country"));
-        address.setLocality(String.join(" ", prefix, "locality"));
-        address.setPostalCode(String.join(" ", prefix, "postcode"));
-        address.setPremises(String.join(" ", prefix, "premises"));
-        address.setRegion(String.join(" ", prefix, "region"));
+        address.setAddressLine1(String.join(" ", "service", "address1"));
+        address.setAddressLine2(String.join(" ", "service", "address2"));
+        address.setCountry(String.join(" ", "service", "country"));
+        address.setLocality(String.join(" ", "service", "locality"));
+        address.setPostalCode(String.join(" ", "service", "postcode"));
+        address.setPremises(String.join(" ", "service", "premises"));
+        address.setRegion(String.join(" ", "service", "region"));
 
         return address;
     }
 
-    private DeltaUsualResidentialAddress createUsualResidentialAddress(String prefix) {
+    private DeltaUsualResidentialAddress createUsualResidentialAddress() {
 
         DeltaUsualResidentialAddress address = new DeltaUsualResidentialAddress();
-        address.setAddressLine1(String.join(" ", prefix, "address1"));
-        address.setAddressLine2(String.join(" ", prefix, "address2"));
-        address.setCareOf(String.join(" ", prefix, "careOf"));
-        address.setCountry(String.join(" ", prefix, "country"));
-        address.setLocality(String.join(" ", prefix, "locality"));
-        address.setPoBox(String.join(" ", prefix, "poBox"));
-        address.setPostalCode(String.join(" ", prefix, "postcode"));
-        address.setPremises(String.join(" ", prefix, "premises"));
-        address.setRegion(String.join(" ", prefix, "region"));
+        address.setAddressLine1(String.join(" ", "usualResidential", "address1"));
+        address.setAddressLine2(String.join(" ", "usualResidential", "address2"));
+        address.setCareOf(String.join(" ", "usualResidential", "careOf"));
+        address.setCountry(String.join(" ", "usualResidential", "country"));
+        address.setLocality(String.join(" ", "usualResidential", "locality"));
+        address.setPoBox(String.join(" ", "usualResidential", "poBox"));
+        address.setPostalCode(String.join(" ", "usualResidential", "postcode"));
+        address.setPremises(String.join(" ", "usualResidential", "premises"));
+        address.setRegion(String.join(" ", "usualResidential", "region"));
 
         return address;
     }
 
-    private DeltaPrincipalOfficeAddress createPrincipalOfficeAddress(String prefix) {
+    private DeltaPrincipalOfficeAddress createPrincipalOfficeAddress() {
 
         DeltaPrincipalOfficeAddress address = new DeltaPrincipalOfficeAddress();
-        address.setAddressLine1(String.join(" ", prefix, "address1"));
-        address.setAddressLine2(String.join(" ", prefix, "address2"));
-        address.setCareOf(String.join(" ", prefix, "careOf"));
-        address.setCountry(String.join(" ", prefix, "country"));
-        address.setLocality(String.join(" ", prefix, "locality"));
-        address.setPoBox(String.join(" ", prefix, "poBox"));
-        address.setPostalCode(String.join(" ", prefix, "postcode"));
-        address.setPremises(String.join(" ", prefix, "premises"));
-        address.setRegion(String.join(" ", prefix, "region"));
+        address.setAddressLine1(String.join(" ", "principleOffice", "address1"));
+        address.setAddressLine2(String.join(" ", "principleOffice", "address2"));
+        address.setCareOf(String.join(" ", "principleOffice", "careOf"));
+        address.setCountry(String.join(" ", "principleOffice", "country"));
+        address.setLocality(String.join(" ", "principleOffice", "locality"));
+        address.setPoBox(String.join(" ", "principleOffice", "poBox"));
+        address.setPostalCode(String.join(" ", "principleOffice", "postcode"));
+        address.setPremises(String.join(" ", "principleOffice", "premises"));
+        address.setRegion(String.join(" ", "principleOffice", "region"));
 
         return address;
     }
 
-    private List<DeltaFormerNames> buildFormerNamesList(String forename, String surname) {
+    private List<DeltaFormerNames> buildFormerNamesList() {
         DeltaFormerNames formerNamesItems = new DeltaFormerNames();
-        formerNamesItems.setForenames(forename);
-        formerNamesItems.setSurname(surname);
+        formerNamesItems.setForenames("John");
+        formerNamesItems.setSurname("Davies");
         return Collections.singletonList(formerNamesItems);
-    }
-
-    private DeltaDateOfBirth buildDateOfBirth(int day, int month, int year) {
-        DeltaDateOfBirth dob = new DeltaDateOfBirth();
-        dob.setDay(day);
-        dob.setMonth(month);
-        dob.setYear(year);
-        return dob;
     }
 
     private DeltaIdentification buildIdentification() {

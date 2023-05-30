@@ -1,15 +1,18 @@
 package uk.gov.companieshouse.company_appointments.model.data;
 
-import java.util.Objects;
 import java.time.LocalDate;
 import java.util.List;
-import org.springframework.data.mongodb.core.mapping.Field;
+import java.util.Objects;
 import javax.validation.Valid;
+import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.format.annotation.DateTimeFormat;
 
 public class DeltaOfficerData {
   @Field("person_number")
   private String personNumber;
+
+  @Field("etag")
+  private String etag;
 
   @Field("service_address")
   private DeltaServiceAddress serviceAddress;
@@ -94,6 +97,15 @@ public class DeltaOfficerData {
 
   public DeltaOfficerData setPersonNumber(String personNumber) {
     this.personNumber = personNumber;
+    return this;
+  }
+
+  public String getEtag() {
+    return etag;
+  }
+
+  public DeltaOfficerData setEtag(String etag) {
+    this.etag = etag;
     return this;
   }
 
@@ -326,6 +338,7 @@ public class DeltaOfficerData {
     }
     DeltaOfficerData data = (DeltaOfficerData) o;
     return Objects.equals(this.personNumber, data.personNumber) &&
+        Objects.equals(this.etag, data.etag) &&
         Objects.equals(this.serviceAddress, data.serviceAddress) &&
         Objects.equals(this.serviceAddressSameAsRegisteredOfficeAddress, data.serviceAddressSameAsRegisteredOfficeAddress) &&
         Objects.equals(this.countryOfResidence, data.countryOfResidence) &&
@@ -354,13 +367,14 @@ public class DeltaOfficerData {
 
   @Override
   public int hashCode() {
-    return Objects.hash(personNumber, serviceAddress, serviceAddressSameAsRegisteredOfficeAddress, countryOfResidence, appointedOn, appointedBefore, isPre1992Appointment, links, nationality, occupation, officerRole, isSecureOfficer, identification, companyName, surname, forename, honours, otherForenames, title, companyNumber, contactDetails, principalOfficeAddress, resignedOn, responsibilities, formerNames);
+    return Objects.hash(personNumber, etag, serviceAddress, serviceAddressSameAsRegisteredOfficeAddress, countryOfResidence, appointedOn, appointedBefore, isPre1992Appointment, links, nationality, occupation, officerRole, isSecureOfficer, identification, companyName, surname, forename, honours, otherForenames, title, companyNumber, contactDetails, principalOfficeAddress, resignedOn, responsibilities, formerNames);
   }
 
   @Override
   public String toString() {
     return "class Data {\n"
             + "    personNumber: " + toIndentedString(personNumber) + "\n"
+            + "    etag: " + toIndentedString(etag) + "\n"
             + "    serviceAddress: " + toIndentedString(serviceAddress) + "\n"
             + "    serviceAddressSameAsRegisteredOfficeAddress: " + toIndentedString(serviceAddressSameAsRegisteredOfficeAddress) + "\n"
             + "    countryOfResidence: " + toIndentedString(countryOfResidence) + "\n"

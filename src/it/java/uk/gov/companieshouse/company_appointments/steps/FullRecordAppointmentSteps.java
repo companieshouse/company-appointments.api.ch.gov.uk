@@ -11,7 +11,9 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import java.io.File;
 import java.io.IOException;
+import java.time.Instant;
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.Collections;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -83,7 +85,7 @@ public class FullRecordAppointmentSteps {
 
         File file = new ClassPathResource("input/" + dataFile + ".json").getFile();
         FullRecordCompanyOfficerApi fullRecordCompanyOfficerApi = objectMapper.readValue(file, FullRecordCompanyOfficerApi.class);
-        OffsetDateTime deltaAt = OffsetDateTime.parse(actual.getDeltaAt());
+        OffsetDateTime deltaAt = actual.getDeltaAt().atOffset(ZoneOffset.UTC);
         fullRecordCompanyOfficerApi.getInternalData().setDeltaAt(deltaAt.plusDays(1L));
 
         CONTEXT.set("getRecord", fullRecordCompanyOfficerApi);
@@ -96,7 +98,7 @@ public class FullRecordAppointmentSteps {
 
         File file = new ClassPathResource("input/" + payloadFile + ".json").getFile();
         FullRecordCompanyOfficerApi fullRecordCompanyOfficerApi = objectMapper.readValue(file, FullRecordCompanyOfficerApi.class);
-        OffsetDateTime deltaAt = OffsetDateTime.parse(actual.getDeltaAt());
+        OffsetDateTime deltaAt = actual.getDeltaAt().atOffset(ZoneOffset.UTC);
         fullRecordCompanyOfficerApi.getInternalData().setDeltaAt(deltaAt.minusDays(1L));
 
         CONTEXT.set("getRecord", fullRecordCompanyOfficerApi);
@@ -171,8 +173,8 @@ public class FullRecordAppointmentSteps {
                 .orElseThrow(IllegalArgumentException:: new);
         FullRecordCompanyOfficerApi fullRecordCompanyOfficerApi = CONTEXT.get("getRecord");
 
-        String requestDeltaAt = String.valueOf(fullRecordCompanyOfficerApi.getInternalData().getDeltaAt());
-        String databaseDeltaAt = appointment.getDeltaAt();
+        Instant requestDeltaAt = fullRecordCompanyOfficerApi.getInternalData().getDeltaAt().toInstant();
+        Instant databaseDeltaAt = appointment.getDeltaAt();
 
         assertEquals(databaseDeltaAt, requestDeltaAt);
     }
@@ -183,8 +185,8 @@ public class FullRecordAppointmentSteps {
                 .orElseThrow(IllegalArgumentException::new);
         FullRecordCompanyOfficerApi fullRecordCompanyOfficerApi = CONTEXT.get("getRecord");
 
-        String requestDeltaAt = String.valueOf(fullRecordCompanyOfficerApi.getInternalData().getDeltaAt());
-        String databaseDeltaAt = appointment.getDeltaAt();
+        Instant requestDeltaAt = fullRecordCompanyOfficerApi.getInternalData().getDeltaAt().toInstant();
+        Instant databaseDeltaAt = appointment.getDeltaAt();
 
         assertNotEquals(databaseDeltaAt, requestDeltaAt);
     }

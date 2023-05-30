@@ -1,10 +1,14 @@
 package uk.gov.companieshouse.company_appointments.service;
 
+import java.time.Clock;
+import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
-import uk.gov.companieshouse.GenerateEtagUtil;
 import uk.gov.companieshouse.api.appointment.FullRecordCompanyOfficerApi;
 import uk.gov.companieshouse.company_appointments.CompanyAppointmentsApplication;
 import uk.gov.companieshouse.company_appointments.api.ResourceChangedApiService;
@@ -20,12 +24,6 @@ import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentF
 import uk.gov.companieshouse.company_appointments.repository.CompanyAppointmentFullRecordRepository;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.logging.LoggerFactory;
-
-import java.time.Clock;
-import java.time.Instant;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
 
 @Service
 public class CompanyAppointmentFullRecordService {
@@ -69,7 +67,6 @@ public class CompanyAppointmentFullRecordService {
 
             if (officer != null) {
                 companyAppointmentDocument.setUpdated(instant);
-                companyAppointmentDocument.setEtag(GenerateEtagUtil.generateEtag());
             }
             try {
                 Optional<CompanyAppointmentDocument> existingAppointment = getExistingDelta(companyAppointmentDocument);
@@ -125,8 +122,8 @@ public class CompanyAppointmentFullRecordService {
         }
     }
 
-    private boolean isDeltaStale(final String incomingDelta, final String existingDelta) {
-        return StringUtils.compare(incomingDelta, existingDelta) <= 0;
+    private boolean isDeltaStale(final Instant incomingDelta, final Instant existingDelta) {
+        return !incomingDelta.isAfter(existingDelta);
     }
 
     private Optional<CompanyAppointmentDocument> getExistingDelta(final CompanyAppointmentDocument incomingAppointment) {
@@ -137,11 +134,11 @@ public class CompanyAppointmentFullRecordService {
         return companyAppointmentRepository.readByCompanyNumberAndID(companyNumber, id);
     }
 
-    private void logStaleIncomingDelta(final CompanyAppointmentDocument appointmentAPI, final String existingDelta) {
+    private void logStaleIncomingDelta(final CompanyAppointmentDocument appointmentAPI, final Instant existingDelta) {
 
         Map<String, Object> logInfo = new HashMap<>();
-        logInfo.put("incomingDeltaAt", appointmentAPI.getDeltaAt());
-        logInfo.put("existingDeltaAt", StringUtils.defaultString(existingDelta, "No existing delta"));
+        logInfo.put("incomingDeltaAt", appointmentAPI.getDeltaAt().toString());
+        logInfo.put("existingDeltaAt", StringUtils.defaultString(existingDelta.toString(), "No existing delta"));
         final String context = appointmentAPI.getAppointmentId();
         LOGGER.errorContext(context, "Received stale delta", null, logInfo);
     }

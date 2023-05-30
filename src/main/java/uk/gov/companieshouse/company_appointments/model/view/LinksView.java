@@ -1,7 +1,6 @@
 package uk.gov.companieshouse.company_appointments.model.view;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-
 import java.util.Objects;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)

@@ -1,14 +1,13 @@
 package uk.gov.companieshouse.company_appointments.interceptor;
 
-import org.apache.commons.lang.ArrayUtils;
-import org.springframework.stereotype.Component;
-
-import javax.servlet.http.HttpServletRequest;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import javax.servlet.http.HttpServletRequest;
+import org.apache.commons.lang.ArrayUtils;
+import org.springframework.stereotype.Component;
 
 /**
  * Helper class for user authentication

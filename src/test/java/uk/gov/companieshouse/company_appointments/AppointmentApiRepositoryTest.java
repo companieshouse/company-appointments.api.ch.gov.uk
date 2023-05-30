@@ -5,6 +5,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.verify;
 
+import java.time.Instant;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,13 +13,11 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.companieshouse.company_appointments.model.data.DeltaOfficerData;
 import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentDocument;
-import uk.gov.companieshouse.company_appointments.model.data.DeltaTimestamp;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaOfficerData;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaSensitiveData;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaTimestamp;
 import uk.gov.companieshouse.company_appointments.repository.CompanyAppointmentFullRecordRepository;
-
-import java.time.Instant;
 
 @ExtendWith(MockitoExtension.class)
 class AppointmentApiRepositoryTest {
@@ -28,8 +27,8 @@ class AppointmentApiRepositoryTest {
     @Captor
     private ArgumentCaptor<CompanyAppointmentDocument> captor;
 
-    private final static Instant CREATED_AT = Instant.parse("2021-08-01T00:00:00.000Z");
-    private final static Instant UPDATED_AT = Instant.parse("2021-08-01T00:00:00.000Z");
+    private final static Instant CREATED_AT = Instant.parse("2021-08-01T00:00:00.000000Z");
+    private final static Instant UPDATED_AT = Instant.parse("2021-08-01T00:00:00.000000Z");
 
     @BeforeEach
     void setUp() {
@@ -39,7 +38,6 @@ class AppointmentApiRepositoryTest {
     void insertOrUpdate() {
         final CompanyAppointmentDocument document = CompanyAppointmentDocument.Builder.builder()
                 .withId("id")
-                .withEtag("etag")
                 .withData(new DeltaOfficerData())
                 .withSensitiveData(new DeltaSensitiveData())
                 .withInternalId("internalId")
@@ -50,7 +48,7 @@ class AppointmentApiRepositoryTest {
                 .withUpdated(new DeltaTimestamp(UPDATED_AT))
                 .withUpdatedBy("updatedBy")
                 .withCreated(new DeltaTimestamp(CREATED_AT))
-                .withDeltaAt("deltaAt")
+                .withDeltaAt(Instant.parse("2022-01-12T00:00:00.000000Z"))
                 .withOfficerRoleSortOrder(22)
                 .withCompanyName("company name")
                 .withCompanyStatus("company status")

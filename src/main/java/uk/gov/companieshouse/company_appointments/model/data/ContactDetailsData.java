@@ -1,8 +1,7 @@
 package uk.gov.companieshouse.company_appointments.model.data;
 
-import org.springframework.data.mongodb.core.mapping.Field;
-
 import java.util.Objects;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 public class ContactDetailsData {
 

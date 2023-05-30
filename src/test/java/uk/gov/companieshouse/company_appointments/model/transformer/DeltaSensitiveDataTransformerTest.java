@@ -7,6 +7,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
+import java.time.Instant;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.function.Executable;
@@ -17,7 +18,6 @@ import uk.gov.companieshouse.api.appointment.DateOfBirth;
 import uk.gov.companieshouse.api.appointment.SensitiveData;
 import uk.gov.companieshouse.api.appointment.UsualResidentialAddress;
 import uk.gov.companieshouse.company_appointments.exception.FailedToTransformException;
-import uk.gov.companieshouse.company_appointments.model.data.DeltaDateOfBirth;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaSensitiveData;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaUsualResidentialAddress;
 
@@ -26,26 +26,24 @@ class DeltaSensitiveDataTransformerTest {
 
     @Mock
     private DeltaUsualResidentialAddressTransformer deltaUsualResidentialAddressTransformer;
-    @Mock
-    private DeltaDateOfBirthTransformer deltaDateOfBirthTransformer;
     @InjectMocks
     private DeltaSensitiveDataTransformer transformer;
-
     @Mock
     private UsualResidentialAddress usualResidentialAddress;
     @Mock
-    private DateOfBirth dateOfBirth;
-
-    @Mock
     private DeltaUsualResidentialAddress deltaUsualResidentialAddress;
-    @Mock
-    private DeltaDateOfBirth deltaDateOfBirth;
+    private final DateOfBirth dateOfBirth = new DateOfBirth()
+            .day(1)
+            .month(8)
+            .year(2021);
+    private final Instant deltaDateOfBirth = Instant.parse("2021-08-01T00:00:00.000000Z");
+
 
     @Test
     void shouldTransformSensitiveData() throws FailedToTransformException {
         // given
-        when(deltaUsualResidentialAddressTransformer.transform(any(UsualResidentialAddress.class))).thenReturn(deltaUsualResidentialAddress);
-        when(deltaDateOfBirthTransformer.transform(any(DateOfBirth.class))).thenReturn(deltaDateOfBirth);
+        when(deltaUsualResidentialAddressTransformer.transform(any(UsualResidentialAddress.class))).thenReturn(
+                deltaUsualResidentialAddress);
 
         // when
         DeltaSensitiveData actual = transformer.transform(buildSource());
@@ -53,7 +51,6 @@ class DeltaSensitiveDataTransformerTest {
         // then
         assertThat(actual).isEqualTo(buildExpected());
         verify(deltaUsualResidentialAddressTransformer).transform(usualResidentialAddress);
-        verify(deltaDateOfBirthTransformer).transform(dateOfBirth);
     }
 
     @Test
@@ -73,13 +70,13 @@ class DeltaSensitiveDataTransformerTest {
         // then
         assertThat(actual).isEqualTo(expected);
         verifyNoInteractions(deltaUsualResidentialAddressTransformer);
-        verifyNoInteractions(deltaDateOfBirthTransformer);
     }
 
     @Test
     void shouldRethrowTransformExceptionWhenCaught() throws FailedToTransformException {
         // given
-        when(deltaUsualResidentialAddressTransformer.transform(any(UsualResidentialAddress.class))).thenThrow(new FailedToTransformException("Failed"));
+        when(deltaUsualResidentialAddressTransformer.transform(any(UsualResidentialAddress.class))).thenThrow(
+                new FailedToTransformException("Failed"));
 
         // when
         Executable executable = () -> transformer.transform(buildSource());

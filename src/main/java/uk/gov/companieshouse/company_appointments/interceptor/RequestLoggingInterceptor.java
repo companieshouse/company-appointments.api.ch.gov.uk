@@ -3,15 +3,14 @@ package uk.gov.companieshouse.company_appointments.interceptor;
 import static uk.gov.companieshouse.logging.util.LogContextProperties.REQUEST_ID;
 
 import java.util.Optional;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.logging.util.RequestLogger;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 public class RequestLoggingInterceptor implements HandlerInterceptor, RequestLogger {
 

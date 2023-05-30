@@ -1,8 +1,8 @@
 {
   "_id" : "7IjxamNGLlqtIingmTZJJ42Hw9Q",
-  "etag" : "fedb91fa70ce4ef335d6d2e24f2f7242c9360a69",
   "data" : {
     "person_number" : "1234567890",
+    "etag" : "fedb91fa70ce4ef335d6d2e24f2f7242c9360a69",
     "service_address" : {
       "address_line_1" : "1 Crown Way",
       "address_line_2" : "Pavement",
@@ -65,11 +65,7 @@
       "premises" : "URA",
       "region" : "ura_region"
     },
-    "date_of_birth" : {
-      "day" : 30,
-      "month" : 6,
-      "year" : 1985
-    }
+    "date_of_birth" : ISODate("1985-06-30T00:00:00.000Z")
   },
   "internal_id" : "0025987375",
   "appointment_id" : "7IjxamNGLlqtIingmTZJJ42Hw9Q",

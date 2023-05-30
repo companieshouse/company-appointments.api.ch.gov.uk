@@ -1,19 +1,12 @@
 package uk.gov.companieshouse.company_appointments.model.view;
 
+import static java.time.ZoneOffset.UTC;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import uk.gov.companieshouse.company_appointments.model.data.DeltaFormerNames;
-import uk.gov.companieshouse.company_appointments.model.data.DeltaIdentification;
-import uk.gov.companieshouse.company_appointments.model.data.DeltaItemLinkTypes;
-import uk.gov.companieshouse.company_appointments.model.data.DeltaSensitiveData;
-import uk.gov.companieshouse.company_appointments.model.data.DeltaServiceAddress;
-import uk.gov.companieshouse.company_appointments.model.data.DeltaUsualResidentialAddress;
-import uk.gov.companieshouse.company_appointments.model.data.DeltaContactDetails;
-import uk.gov.companieshouse.company_appointments.model.data.DeltaPrincipalOfficeAddress;
-import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentDocument;
 import java.time.LocalDate;
-import java.time.ZoneId;
+import java.time.temporal.ChronoField;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -21,6 +14,15 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentDocument;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaContactDetails;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaFormerNames;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaIdentification;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaItemLinkTypes;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaPrincipalOfficeAddress;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaSensitiveData;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaServiceAddress;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaUsualResidentialAddress;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class CompanyAppointmentFullRecordView {
@@ -193,7 +195,6 @@ public class CompanyAppointmentFullRecordView {
 
     public static class Builder {
 
-        public static final ZoneId UTC_ZONE = ZoneId.of("UTC");
         private static final String FULL_RECORD = "/full_record";
         private final List<Consumer<CompanyAppointmentFullRecordView>> buildSteps;
 
@@ -222,7 +223,7 @@ public class CompanyAppointmentFullRecordView {
                     .withOccupation(api.getData().getOccupation())
                     .withOfficerRole(api.getData().getOfficerRole())
                     .withResignedOn(api.getData().getResignedOn())
-                    .withEtag(api.getEtag())
+                    .withEtag(api.getData().getEtag())
                     .withPersonNumber(api.getData().getPersonNumber())
                     .withIsPre1992Appointment(api.getData().getPre1992Appointment())
                     .withContactDetails(api.getData().getContactDetails())
@@ -421,9 +422,10 @@ public class CompanyAppointmentFullRecordView {
 
             String result = api.getData().getSurname();
             if (api.getData().getForename() != null || api.getData().getOtherForenames() != null) {
-                result = String.join(", ", api.getData().getSurname(), Stream.of(api.getData().getForename(), api.getData().getOtherForenames())
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.joining(" ")));
+                result = String.join(", ", api.getData().getSurname(),
+                        Stream.of(api.getData().getForename(), api.getData().getOtherForenames())
+                                .filter(Objects::nonNull)
+                                .collect(Collectors.joining(" ")));
             }
             if (api.getData().getTitle() != null && !api.getData().getTitle().matches(TITLE_REGEX)) {
                 result = String.join(", ", result, api.getData().getTitle());
@@ -433,11 +435,11 @@ public class CompanyAppointmentFullRecordView {
         }
 
         private DateOfBirthView mapDateOfBirth(DeltaSensitiveData sensitiveData) {
-            return Optional.ofNullable(sensitiveData.getDateOfBirth()).
-                    map(dob -> new DateOfBirthView(
-                            dob.getDay(),
-                            dob.getMonth(),
-                            dob.getYear()))
+            return Optional.ofNullable(sensitiveData.getDateOfBirth())
+                    .map(dob -> new DateOfBirthView(
+                            dob.atZone(UTC).get(ChronoField.DAY_OF_MONTH),
+                            dob.atZone(UTC).get(ChronoField.MONTH_OF_YEAR),
+                            dob.atZone(UTC).get(ChronoField.YEAR)))
                     .orElse(null);
         }
     }

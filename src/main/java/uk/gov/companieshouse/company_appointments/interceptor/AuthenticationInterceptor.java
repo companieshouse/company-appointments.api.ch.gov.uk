@@ -1,17 +1,14 @@
 package uk.gov.companieshouse.company_appointments.interceptor;
 
+import java.util.HashMap;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
-
 import uk.gov.companieshouse.logging.Logger;
-
-import java.util.HashMap;
 
 @Component
 public class AuthenticationInterceptor implements HandlerInterceptor {

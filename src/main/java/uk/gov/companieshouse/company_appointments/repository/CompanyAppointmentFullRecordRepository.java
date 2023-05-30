@@ -23,12 +23,12 @@ public interface CompanyAppointmentFullRecordRepository extends MongoRepository<
     void deleteByCompanyNumberAndID(String companyNumber, String appointmentId);
 
     @Query("{ '_id': ?0 }")
-    @Update("{ $set: { 'company_name': ?1, 'company_status': ?2, 'updated.at': ?3, 'etag': ?4 } }")
+    @Update("{ $set: { 'company_name': ?1, 'company_status': ?2, 'updated.at': ?3, 'data.etag': ?4 } }")
     long patchAppointmentNameStatus(String id, String companyName, String companyStatus, Instant at,
             String etag);
 
     @Query("{ 'company_number': ?0 }")
-    @Update("{ $set: { 'company_name': ?1, 'company_status': ?2, 'updated.at': ?3, 'etag': ?4 } }")
+    @Update("{ $set: { 'company_name': ?1, 'company_status': ?2, 'updated.at': ?3, 'data.etag': ?4 } }")
     long patchAppointmentNameStatusInCompany(String companyId, String companyName,
             String companyStatus, Instant at, String etag);
 }

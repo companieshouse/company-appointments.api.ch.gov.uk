@@ -1,10 +1,9 @@
 package uk.gov.companieshouse.company_appointments.model.transformer;
 
-import uk.gov.companieshouse.company_appointments.exception.FailedToTransformException;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import uk.gov.companieshouse.company_appointments.exception.FailedToTransformException;
 
 public interface Transformative<S, T> {
     /**

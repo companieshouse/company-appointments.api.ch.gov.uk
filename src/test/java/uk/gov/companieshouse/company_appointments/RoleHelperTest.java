@@ -1,5 +1,9 @@
 package uk.gov.companieshouse.company_appointments;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -7,13 +11,8 @@ import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentD
 import uk.gov.companieshouse.company_appointments.model.data.OfficerData;
 import uk.gov.companieshouse.company_appointments.roles.DirectorRoles;
 import uk.gov.companieshouse.company_appointments.roles.LlpRoles;
-import uk.gov.companieshouse.company_appointments.roles.SecretarialRoles;
 import uk.gov.companieshouse.company_appointments.roles.RoleHelper;
-
-import java.util.stream.Collectors;
-
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import uk.gov.companieshouse.company_appointments.roles.SecretarialRoles;
 
 @ExtendWith(MockitoExtension.class)
 class RoleHelperTest {
