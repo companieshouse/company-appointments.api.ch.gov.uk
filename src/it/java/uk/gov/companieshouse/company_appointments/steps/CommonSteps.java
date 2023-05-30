@@ -48,6 +48,7 @@ public class CommonSteps {
     public static void setup() throws IOException {
         mongoDBContainer.start();
         mongoTemplate = new MongoTemplate(new SimpleMongoClientDatabaseFactory(mongoDBContainer.getReplicaSetUrl()));
+        mongoTemplate.dropCollection("delta_appointments");
         mongoTemplate.createCollection("delta_appointments");
     }
 

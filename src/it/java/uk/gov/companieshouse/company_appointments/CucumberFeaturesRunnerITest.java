@@ -1,15 +1,13 @@
 package uk.gov.companieshouse.company_appointments;
 
-import io.cucumber.junit.Cucumber;
-import io.cucumber.junit.CucumberOptions;
 import io.cucumber.spring.CucumberContextConfiguration;
-import org.junit.runner.RunWith;
+import org.junit.platform.suite.api.SelectClasspathResource;
+import org.junit.platform.suite.api.Suite;
 import uk.gov.companieshouse.company_appointments.config.AbstractIntegrationTest;
 
-@RunWith(Cucumber.class)
-@CucumberOptions(features = "src/it/resources/features",
-        plugin = {"pretty", "json:target/cucumber-report.json"},
-        glue = {"uk.gov.companieshouse.company_appointments"})
+
+@Suite
+@SelectClasspathResource("features")
 @CucumberContextConfiguration
 public class CucumberFeaturesRunnerITest extends AbstractIntegrationTest {
 }
