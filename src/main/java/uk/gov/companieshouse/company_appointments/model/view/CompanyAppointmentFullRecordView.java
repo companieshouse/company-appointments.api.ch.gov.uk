@@ -208,8 +208,10 @@ public class CompanyAppointmentFullRecordView {
 
             return builder.withServiceAddress(api.getData().getServiceAddress())
                     .withUsualResidentialAddress(api.getSensitiveData().getUsualResidentialAddress())
-                    .withAppointedOn(api.getData().getAppointedOn())
-                    .withAppointedBefore(api.getData().getAppointedBefore())
+                    .withAppointedOn(api.getData().getAppointedOn() != null ?
+                            LocalDate.from(api.getData().getAppointedOn().atZone(UTC)) : null)
+                    .withAppointedBefore(api.getData().getAppointedBefore() != null ?
+                            LocalDate.from(api.getData().getAppointedBefore().atZone(UTC)) : null)
                     .withCountryOfResidence(api.getData().getCountryOfResidence())
                     .withDateOfBirth(builder.mapDateOfBirth(api.getSensitiveData()))
                     .withFormerNames(api.getData().getFormerNames())
@@ -222,7 +224,8 @@ public class CompanyAppointmentFullRecordView {
                     .withNationality(api.getData().getNationality())
                     .withOccupation(api.getData().getOccupation())
                     .withOfficerRole(api.getData().getOfficerRole())
-                    .withResignedOn(api.getData().getResignedOn())
+                    .withResignedOn(api.getData().getResignedOn() != null ?
+                            LocalDate.from(api.getData().getResignedOn().atZone(UTC)) : null)
                     .withEtag(api.getData().getEtag())
                     .withPersonNumber(api.getData().getPersonNumber())
                     .withIsPre1992Appointment(api.getData().getPre1992Appointment())

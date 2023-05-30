@@ -27,15 +27,11 @@ import uk.gov.companieshouse.company_appointments.model.data.DeltaUsualResidenti
 @ExtendWith(MockitoExtension.class)
 class CompanyAppointmentFullRecordViewTest {
 
-    private static final LocalDate INSTANT_ONE = LocalDate.parse("2009-01-12");
-    private static final LocalDate INSTANT_TWO = LocalDate.parse("2019-01-12");
-    private static final LocalDate INSTANT_THREE = LocalDate.parse("1991-01-12");
-
+    private static final Instant INSTANT = Instant.from(LocalDate.of(1989, 1, 12).atStartOfDay(UTC));
 
     private final List<DeltaFormerNames> formerNames
             = buildFormerNamesList();
     private final DeltaIdentification identification = buildIdentification();
-    private final Instant INSTANT_DOB = Instant.from(LocalDate.of(1989, 1, 12).atStartOfDay(UTC));
     private final DeltaItemLinkTypes links = buildLinksItem();
     private final DeltaContactDetails contactDetails = buildContactDetails();
     private final DateOfBirthView dob = new DateOfBirthView(12,1,1989);
@@ -51,10 +47,10 @@ class CompanyAppointmentFullRecordViewTest {
 
         companyAppointmentDocument.getData().setServiceAddress(createServiceAddress());
         companyAppointmentDocument.getSensitiveData().setUsualResidentialAddress(createUsualResidentialAddress());
-        companyAppointmentDocument.getData().setAppointedOn(INSTANT_ONE);
-        companyAppointmentDocument.getData().setAppointedBefore(INSTANT_THREE);
+        companyAppointmentDocument.getData().setAppointedOn(INSTANT);
+        companyAppointmentDocument.getData().setAppointedBefore(INSTANT);
         companyAppointmentDocument.getData().setCountryOfResidence("countryOfResidence");
-        companyAppointmentDocument.getSensitiveData().setDateOfBirth(INSTANT_DOB);
+        companyAppointmentDocument.getSensitiveData().setDateOfBirth(INSTANT);
         companyAppointmentDocument.getData().setFormerNames(formerNames);
         companyAppointmentDocument.getData().setIdentification(identification);
         companyAppointmentDocument.getData().setLinks(buildLinksItem());
@@ -64,7 +60,7 @@ class CompanyAppointmentFullRecordViewTest {
         companyAppointmentDocument.getData().setNationality("Welsh");
         companyAppointmentDocument.getData().setOccupation("occupation");
         companyAppointmentDocument.getData().setOfficerRole("director");
-        companyAppointmentDocument.getData().setResignedOn(INSTANT_TWO);
+        companyAppointmentDocument.getData().setResignedOn(INSTANT);
         companyAppointmentDocument.getData().setEtag("etag");
         companyAppointmentDocument.getData().setPersonNumber("1234");
         companyAppointmentDocument.getData().setPre1992Appointment(Boolean.TRUE);
@@ -133,13 +129,13 @@ class CompanyAppointmentFullRecordViewTest {
     @Test
     void appointedOn() {
 
-        assertThat(testView.getAppointedOn(), is(INSTANT_ONE));
+        assertThat(testView.getAppointedOn(), is(LocalDate.from(INSTANT.atZone(UTC))));
     }
 
     @Test
     void appointedBefore() {
 
-        assertThat(testView.getAppointedBefore(), is(INSTANT_THREE));
+        assertThat(testView.getAppointedBefore(), is(LocalDate.from(INSTANT.atZone(UTC))));
     }
 
     @Test
@@ -199,7 +195,7 @@ class CompanyAppointmentFullRecordViewTest {
     @Test
     void ResignedOn() {
 
-        assertThat(testView.getResignedOn(), is(INSTANT_TWO));
+        assertThat(testView.getResignedOn(), is(LocalDate.from(INSTANT.atZone(UTC))));
     }
 
     @Test

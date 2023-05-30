@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.company_appointments.model.transformer;
 
+import static java.time.ZoneOffset.UTC;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -9,6 +10,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -192,8 +194,8 @@ class DeltaOfficerDataTransformerTest {
                 .setServiceAddress(deltaServiceAddress)
                 .setServiceAddressSameAsRegisteredOfficeAddress(true)
                 .setCountryOfResidence("UK")
-                .setAppointedOn(LOCAL_DATE)
-                .setAppointedBefore(LOCAL_DATE)
+                .setAppointedOn(Instant.from(LOCAL_DATE.atStartOfDay(UTC)))
+                .setAppointedBefore(Instant.from(LOCAL_DATE.atStartOfDay(UTC)))
                 .setPre1992Appointment(false)
                 .setLinks(deltaItemLinkTypes)
                 .setNationality("British")
@@ -211,7 +213,7 @@ class DeltaOfficerDataTransformerTest {
                 .setContactDetails(new DeltaContactDetails()
                         .setContactName("contact name"))
                 .setPrincipalOfficeAddress(deltaPrincipalOfficeAddress)
-                .setResignedOn(LOCAL_DATE)
+                .setResignedOn(Instant.from(LOCAL_DATE.atStartOfDay(UTC)))
                 .setResponsibilities("responsibilities")
                 .setFormerNames(singletonList(new DeltaFormerNames()
                         .setForenames("John Tester")

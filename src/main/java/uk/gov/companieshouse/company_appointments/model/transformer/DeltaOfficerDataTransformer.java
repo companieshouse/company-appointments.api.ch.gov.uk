@@ -1,5 +1,8 @@
 package uk.gov.companieshouse.company_appointments.model.transformer;
 
+import static java.time.ZoneOffset.UTC;
+
+import java.time.Instant;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.api.appointment.Data;
@@ -42,8 +45,10 @@ public class DeltaOfficerDataTransformer implements Transformative<Data, DeltaOf
             entity.setServiceAddressSameAsRegisteredOfficeAddress(
                     source.getServiceAddressSameAsRegisteredOfficeAddress());
             entity.setCountryOfResidence(source.getCountryOfResidence());
-            entity.setAppointedOn(source.getAppointedOn());
-            entity.setAppointedBefore(source.getAppointedBefore());
+            entity.setAppointedOn(source.getAppointedOn() != null ?
+                    Instant.from(source.getAppointedOn().atStartOfDay(UTC)) : null);
+            entity.setAppointedBefore(source.getAppointedBefore() != null ?
+                    Instant.from(source.getAppointedBefore().atStartOfDay(UTC)): null);
             entity.setPre1992Appointment(source.getIsPre1992Appointment());
             entity.setLinks(source.getLinks() != null && !source.getLinks().isEmpty()?
                             itemLinkTypesTransformer.transform(source.getLinks().get(0)) : null);
@@ -68,7 +73,8 @@ public class DeltaOfficerDataTransformer implements Transformative<Data, DeltaOf
             entity.setPrincipalOfficeAddress(source.getPrincipalOfficeAddress() != null?
                     principalOfficeAddressTransformer.transform(source.getPrincipalOfficeAddress())
                     : null);
-            entity.setResignedOn(source.getResignedOn());
+            entity.setResignedOn(source.getResignedOn() != null ?
+                    Instant.from(source.getResignedOn().atStartOfDay(UTC)) : null);
             entity.setResponsibilities(source.getResponsibilities());
             entity.setFormerNames(source.getFormerNames() != null?
                     source.getFormerNames().stream()
