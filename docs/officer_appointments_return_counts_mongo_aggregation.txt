@@ -1,35 +1,52 @@
 db.getCollection("appointments").aggregate([
     {
-        $match: { "officer_id": "kpGXv01D7f1goE23HONTysFaP5U"}
+        $match: { "officer_id": "1234" }
     },
     {
         $facet: {
             'active': [
                 {
-                    $match: { $and: [
-                        { 'data.resigned_on': { $exists: false }},
-                        { 'company_status': 'active'}
-                    ]}
+                    $match: {
+                        $and: [
+                            { 'data.resigned_on': { $exists: false } },
+                            {
+                                'company_status': {
+                                    $nin: [
+                                        'dissolved',
+                                        'removed',
+                                        'converted-closed'
+                                    ]
+                                }
+                            }
+                        ]
+                    }
                 }
             ],
             'inactive': [
                 {
-                    $match: { $and: [
-                        { 'data.resigned_on': { $exists: false }},
-                        { $or: [
-                            {'company_status': 'dissolved'},
-                            {'company_status': 'removed'},
-                            {'company_status': 'converted-closed'}
-                            ]
-                        }
-                    ]}
+                    $match: {
+                        $and: [
+                            { 'data.resigned_on': { $exists: false } },
+                            {
+                                'company_status': {
+                                    $in: [
+                                        'dissolved',
+                                        'removed',
+                                        'converted-closed'
+                                    ]
+                                }
+                            }
+                        ]
+                    }
                 }
             ],
             'resigned': [
                 {
-                    $match: { $and: [
-                        { 'data.resigned_on': { $exists: true }}
-                    ]}
+                    $match: {
+                        $and: [
+                            { 'data.resigned_on': { $exists: true } }
+                        ]
+                    }
                 }
             ]
         }
