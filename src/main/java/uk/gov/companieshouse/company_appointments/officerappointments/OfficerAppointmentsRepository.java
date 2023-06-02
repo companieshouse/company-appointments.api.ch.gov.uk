@@ -65,4 +65,55 @@ public interface OfficerAppointmentsRepository extends MongoRepository<CompanyAp
     OfficerAppointmentsAggregate findOfficerAppointments(String officerId, boolean filterEnabled, List<String> statusFilter, int startIndex, int pageSize);
 
     Optional<CompanyAppointmentData> findFirstByOfficerId(String officerId);
+
+    @Aggregation(pipeline = {
+            "{ $match: { 'officer_id': '?0'} }",
+            "{ $facet: { "
++               "'active': [ "
++                   "{ $match: { $and: [ "
++                               "{ 'data.resigned_on': { $exists: false }},"
++                               "{ 'company_status': 'active'}"
++                           "]"
++                       "}"
++                   "}"
++               "],"
++               "'inactive': [ "
++                   "{ $match: { $and: [ "
++                               "{ 'data.resigned_on': { $exists: false }},"
++                               "{ $or: [ "
++                                   "{'company_status': 'dissolved'},"
++                                   "{'company_status': 'removed'},"
++                                   "{'company_status': 'converted-closed'}"
++                                   "]"
++                               "}"
++                           "]"
++                       "}"
++                   "}"
++               "],"
++               "'resigned': [ "
++                   "{ $match: { $and: [ "
++                               "{ 'data.resigned_on': { $exists: true }}"
++                           "]"
++                       "}"
++                   "}"
++               "],"
++               "'total': [{ '$count': 'count' }]"
++               "}"
++           "}",
+            "{ "
++               "$unwind: { "
++                   "'path': '$total',"
++                   "'preserveNullAndEmptyArrays': true"
++               "}"
++           "}",
+            "{"
++               "$project: { "
++                   "'active_count': { $size: '$active' },"
++                   "'inactive_count': { $size: '$inactive'},"
++                   "'resigned_count': { $size: '$resigned'},"
++                   "'total_results': { $ifNull: ['$total.count', NumberInt(0)] }"
++               "}"
++           "}"
+    })
+    AppointmentCounts findOfficerAppointmentCounts(String officerId);
 }

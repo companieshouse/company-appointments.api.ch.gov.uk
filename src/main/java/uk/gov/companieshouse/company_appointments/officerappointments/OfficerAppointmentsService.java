@@ -37,6 +37,12 @@ public class OfficerAppointmentsService {
             return Optional.empty();
         }
 
+        AppointmentCounts appointmentCounts = null;
+        if (request.getReturnCounts()) {
+            // TODO: return counts
+            appointmentCounts = repository.findOfficerAppointmentCounts(officerId);
+        }
+
         int startIndex;
         if (request.getStartIndex() == null) {
             startIndex = START_INDEX;
@@ -66,7 +72,7 @@ public class OfficerAppointmentsService {
             }
         }
 
-        return mapper.mapOfficerAppointments(startIndex, itemsPerPage, firstAppointment.get(),
+        return mapper.mapOfficerAppointments(startIndex, itemsPerPage, firstAppointment.get(), appointmentCounts,
                 repository.findOfficerAppointments(officerId, filterEnabled, statusFilter, startIndex, itemsPerPage));
     }
 }

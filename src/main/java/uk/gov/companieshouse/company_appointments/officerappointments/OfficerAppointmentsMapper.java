@@ -35,7 +35,7 @@ public class OfficerAppointmentsMapper {
      * @param aggregate        The count and appointments list pairing returned by the repository.
      * @return The optional OfficerAppointmentsApi for the response body.
      */
-    protected Optional<AppointmentList> mapOfficerAppointments(Integer startIndex, Integer itemsPerPage, CompanyAppointmentData firstAppointment, OfficerAppointmentsAggregate aggregate) {
+    protected Optional<AppointmentList> mapOfficerAppointments(Integer startIndex, Integer itemsPerPage, CompanyAppointmentData firstAppointment, AppointmentCounts appointmentCounts, OfficerAppointmentsAggregate aggregate) {
         return ofNullable(firstAppointment.getData())
                         .map(data -> new AppointmentList()
                                 .dateOfBirth(dobMapper.map(data.getDateOfBirth(), data.getOfficerRole()))
@@ -49,5 +49,7 @@ public class OfficerAppointmentsMapper {
                                 .name(nameMapper.map(data))
                                 .startIndex(startIndex)
                                 .totalResults(aggregate.getTotalResults()));
+        // TODO: Need to add AppointmentCounts field to AppointmentList in private.api.sdk.java?
+        // TODO: What to set this field as if the request param is false or null?
     }
 }
