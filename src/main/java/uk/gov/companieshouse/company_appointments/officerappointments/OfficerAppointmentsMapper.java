@@ -35,7 +35,22 @@ public class OfficerAppointmentsMapper {
      * @param aggregate        The count and appointments list pairing returned by the repository.
      * @return The optional OfficerAppointmentsApi for the response body.
      */
-    protected Optional<AppointmentList> mapOfficerAppointments(Integer startIndex, Integer itemsPerPage, CompanyAppointmentData firstAppointment, AppointmentCounts appointmentCounts, OfficerAppointmentsAggregate aggregate) {
+    protected Optional<AppointmentList> mapOfficerAppointments(Integer startIndex, Integer itemsPerPage, CompanyAppointmentData firstAppointment, OfficerAppointmentsAggregate aggregate, AppointmentCounts appointmentCounts) {
+        Integer totalResults = aggregate.getTotalResults();
+        Integer inactiveCount;
+        Integer resignedCount;
+        Integer activeCount;
+
+        if (appointmentCounts != null) {
+            inactiveCount = appointmentCounts.getInactiveCount();
+            resignedCount = appointmentCounts.getResignedCount();
+            activeCount = totalResults - inactiveCount - resignedCount;
+        } else {
+            inactiveCount = null;
+            resignedCount = null;
+            activeCount = null;
+        }
+
         return ofNullable(firstAppointment.getData())
                         .map(data -> new AppointmentList()
                                 .dateOfBirth(dobMapper.map(data.getDateOfBirth(), data.getOfficerRole()))
@@ -48,8 +63,9 @@ public class OfficerAppointmentsMapper {
                                 .items(itemsMapper.map(aggregate.getOfficerAppointments()))
                                 .name(nameMapper.map(data))
                                 .startIndex(startIndex)
-                                .totalResults(aggregate.getTotalResults()));
-        // TODO: Need to add AppointmentCounts field to AppointmentList in private.api.sdk.java?
-        // TODO: What to set this field as if the request param is false or null?
+                                .activeCount(activeCount)
+                                .inactiveCount(inactiveCount)
+                                .resignedCount(resignedCount)
+                                .totalResults(totalResults));
     }
 }

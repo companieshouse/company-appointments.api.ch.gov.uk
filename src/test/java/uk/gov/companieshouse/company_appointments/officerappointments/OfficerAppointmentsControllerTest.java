@@ -48,12 +48,12 @@ class OfficerAppointmentsControllerTest {
         when(service.getOfficerAppointments(any())).thenReturn(Optional.of(officerAppointments));
 
         // when
-        ResponseEntity<AppointmentList> response = controller.getOfficerAppointments(OFFICER_ID, null, null, null);
+        ResponseEntity<AppointmentList> response = controller.getOfficerAppointments(OFFICER_ID, null, null, null, false);
 
         // then
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(officerAppointments, response.getBody());
-        verify(service).getOfficerAppointments(new OfficerAppointmentsRequest(OFFICER_ID, null, null, null));
+        verify(service).getOfficerAppointments(new OfficerAppointmentsRequest(OFFICER_ID, null, null, null, false));
     }
 
     @Test
@@ -63,12 +63,12 @@ class OfficerAppointmentsControllerTest {
         when(service.getOfficerAppointments(any())).thenReturn(Optional.empty());
 
         // when
-        ResponseEntity<AppointmentList> response = controller.getOfficerAppointments(OFFICER_ID, null, null, null);
+        ResponseEntity<AppointmentList> response = controller.getOfficerAppointments(OFFICER_ID, null, null, null, false);
 
         // then
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         assertNull(response.getBody());
-        verify(service).getOfficerAppointments(new OfficerAppointmentsRequest(OFFICER_ID, null, null, null));
+        verify(service).getOfficerAppointments(new OfficerAppointmentsRequest(OFFICER_ID, null, null, null, false));
         verify(logger).error(loggerCaptor.capture());
         assertEquals(String.format("No appointments found for officer ID %s", OFFICER_ID), loggerCaptor.getValue());
     }
@@ -80,13 +80,28 @@ class OfficerAppointmentsControllerTest {
         when(service.getOfficerAppointments(any())).thenThrow(BadRequestException.class);
 
         // when
-        ResponseEntity<AppointmentList> response = controller.getOfficerAppointments(OFFICER_ID, "invalid", null, null);
+        ResponseEntity<AppointmentList> response = controller.getOfficerAppointments(OFFICER_ID, "invalid", null, null, false);
 
         // then
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertNull(response.getBody());
-        verify(service).getOfficerAppointments(new OfficerAppointmentsRequest(OFFICER_ID, "invalid", null, null));
+        verify(service).getOfficerAppointments(new OfficerAppointmentsRequest(OFFICER_ID, "invalid", null, null, false));
         verify(logger).error(loggerCaptor.capture());
         assertEquals(String.format("Invalid filter parameter supplied: %s, officer ID %s", "invalid", OFFICER_ID), loggerCaptor.getValue());
+    }
+
+    @Test
+    @DisplayName("Call to get officer appointments returns http 200 ok and officer appointments api when filter parameter return_counts is true")
+    void testGetOfficerAppointmentsWhenReturnCountsIsTrue() throws BadRequestException {
+        // given
+        when(service.getOfficerAppointments(any())).thenReturn(Optional.of(officerAppointments));
+
+        // when
+        ResponseEntity<AppointmentList> response = controller.getOfficerAppointments(OFFICER_ID, null, null, null, true);
+
+        // then
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(officerAppointments, response.getBody());
+        verify(service).getOfficerAppointments(new OfficerAppointmentsRequest(OFFICER_ID, null, null, null, true));
     }
 }

@@ -1,27 +1,9 @@
 db.getCollection("appointments").aggregate([
     {
-        $match: { "officer_id": "1234" }
+        $match: { 'officer_id': 'kpGXv01D7f1goE23HONTysFaP5U' }
     },
     {
         $facet: {
-            'active': [
-                {
-                    $match: {
-                        $and: [
-                            { 'data.resigned_on': { $exists: false } },
-                            {
-                                'company_status': {
-                                    $nin: [
-                                        'dissolved',
-                                        'removed',
-                                        'converted-closed'
-                                    ]
-                                }
-                            }
-                        ]
-                    }
-                }
-            ],
             'inactive': [
                 {
                     $match: {
@@ -53,7 +35,6 @@ db.getCollection("appointments").aggregate([
     },
     {
         $project: {
-            'active_count': { $size: '$active' },
             'inactive_count': { $size: '$inactive' },
             'resigned_count': { $size: '$resigned' }
         }

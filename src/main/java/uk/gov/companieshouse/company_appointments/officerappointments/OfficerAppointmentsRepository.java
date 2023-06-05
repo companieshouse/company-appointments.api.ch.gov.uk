@@ -67,65 +67,46 @@ public interface OfficerAppointmentsRepository extends MongoRepository<CompanyAp
     Optional<CompanyAppointmentData> findFirstByOfficerId(String officerId);
 
     @Aggregation(pipeline = {
-            "{" +
-        "        $match: { 'officer_id': '?0' }" +
-        "    }",
-        "    {" +
-        "        $facet: {" +
-        "            'active': [" +
-        "                {" +
-        "                    $match: {" +
-        "                        $and: [" +
-        "                            { 'data.resigned_on': { $exists: false } }," +
-        "                            {" +
-        "                                'company_status': {" +
-        "                                    $nin: [" +
-        "                                        'dissolved'," +
-        "                                        'removed'," +
-        "                                        'converted-closed'" +
-        "                                    ]" +
-        "                                }" +
-        "                            }" +
-        "                        ]" +
-        "                    }" +
-        "                }" +
-        "            ]," +
-        "            'inactive': [" +
-        "                {" +
-        "                    $match: {" +
-        "                        $and: [" +
-        "                            { 'data.resigned_on': { $exists: false } }," +
-        "                            {" +
-        "                                'company_status': {" +
-        "                                    $in: [" +
-        "                                        'dissolved'," +
-        "                                        'removed'," +
-        "                                        'converted-closed'" +
-        "                                    ]" +
-        "                                }" +
-        "                            }" +
-        "                        ]" +
-        "                    }" +
-        "                }" +
-        "            ]," +
-        "            'resigned': [" +
-        "                {" +
-        "                    $match: {" +
-        "                        $and: [" +
-        "                            { 'data.resigned_on': { $exists: true } }" +
-        "                        ]" +
-        "                    }" +
-        "                }" +
-        "            ]" +
-        "        }" +
-        "    }",
-        "    {" +
-        "        $project: {" +
-        "            'active_count': { $size: '$active' }," +
-        "            'inactive_count': { $size: '$inactive' }," +
-        "            'resigned_count': { $size: '$resigned' }" +
-        "        }" +
-        "    }"
+                "    {" +
+                "        $match: { 'officer_id': '?0' }" +
+                "    }," +
+                "    {" +
+                "        $facet: {" +
+                "            'inactive': [" +
+                "                {" +
+                "                    $match: {" +
+                "                        $and: [" +
+                "                            { 'data.resigned_on': { $exists: false } }," +
+                "                            {" +
+                "                                'company_status': {" +
+                "                                    $in: [" +
+                "                                        'dissolved'," +
+                "                                        'removed'," +
+                "                                        'converted-closed'" +
+                "                                    ]" +
+                "                                }" +
+                "                            }" +
+                "                        ]" +
+                "                    }" +
+                "                }" +
+                "            ]," +
+                "            'resigned': [" +
+                "                {" +
+                "                    $match: {" +
+                "                        $and: [" +
+                "                            { 'data.resigned_on': { $exists: true } }" +
+                "                        ]" +
+                "                    }" +
+                "                }" +
+                "            ]" +
+                "        }" +
+                "    }," +
+                "    {" +
+                "        $project: {" +
+                "            'inactive_count': { $size: '$inactive' }," +
+                "            'resigned_count': { $size: '$resigned' }" +
+                "        }" +
+                "    }"
     })
     AppointmentCounts findOfficerAppointmentCounts(String officerId);
 }

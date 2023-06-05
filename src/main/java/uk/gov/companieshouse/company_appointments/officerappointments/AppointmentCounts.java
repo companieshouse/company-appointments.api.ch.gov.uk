@@ -1,45 +1,29 @@
 package uk.gov.companieshouse.company_appointments.officerappointments;
 
+import org.springframework.data.mongodb.core.mapping.Field;
+
 public class AppointmentCounts {
 
-    int activeCount;
-    int inactiveCount;
-    int resignedCount;
-    int totalCount;
+    @Field("inactive_count")
+    Integer inactiveCount;
+    @Field("resigned_count")
+    Integer resignedCount;
 
-    public int getActiveCount() {
-        return activeCount;
-    }
-
-    public AppointmentCounts setActiveCount(int activeCount) {
-        this.activeCount = activeCount;
-        return this;
-    }
-
-    public int getInactiveCount() {
+    public Integer getInactiveCount() {
         return inactiveCount;
     }
 
-    public AppointmentCounts setInactiveCount(int inactiveCount) {
+    public AppointmentCounts setInactiveCount(Integer inactiveCount) {
         this.inactiveCount = inactiveCount;
         return this;
     }
 
-    public int getResignedCount() {
+    public Integer getResignedCount() {
         return resignedCount;
     }
 
-    public AppointmentCounts setResignedCount(int resignedCount) {
+    public AppointmentCounts setResignedCount(Integer resignedCount) {
         this.resignedCount = resignedCount;
-        return this;
-    }
-
-    public int getTotalCount() {
-        return totalCount;
-    }
-
-    public AppointmentCounts setTotalCount(int totalCount) {
-        this.totalCount = totalCount;
         return this;
     }
 }
