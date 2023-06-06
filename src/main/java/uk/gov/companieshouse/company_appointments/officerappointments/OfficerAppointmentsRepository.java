@@ -69,7 +69,7 @@ public interface OfficerAppointmentsRepository extends MongoRepository<CompanyAp
     @Aggregation(pipeline = {
                 "    {" +
                 "        $match: { 'officer_id': '?0' }" +
-                "    }," +
+                "    }",
                 "    {" +
                 "        $facet: {" +
                 "            'inactive': [" +
@@ -77,13 +77,8 @@ public interface OfficerAppointmentsRepository extends MongoRepository<CompanyAp
                 "                    $match: {" +
                 "                        $and: [" +
                 "                            { 'data.resigned_on': { $exists: false } }," +
-                "                            {" +
-                "                                'company_status': {" +
-                "                                    $in: [" +
-                "                                        'dissolved'," +
-                "                                        'removed'," +
-                "                                        'converted-closed'" +
-                "                                    ]" +
+                "                            { 'company_status': {" +
+                "                                    $in: ['dissolved', 'removed', 'converted-closed']" +
                 "                                }" +
                 "                            }" +
                 "                        ]" +
@@ -92,15 +87,11 @@ public interface OfficerAppointmentsRepository extends MongoRepository<CompanyAp
                 "            ]," +
                 "            'resigned': [" +
                 "                {" +
-                "                    $match: {" +
-                "                        $and: [" +
-                "                            { 'data.resigned_on': { $exists: true } }" +
-                "                        ]" +
-                "                    }" +
+                "                    $match: { 'data.resigned_on': { $exists: true } }" +
                 "                }" +
                 "            ]" +
                 "        }" +
-                "    }," +
+                "    }",
                 "    {" +
                 "        $project: {" +
                 "            'inactive_count': { $size: '$inactive' }," +

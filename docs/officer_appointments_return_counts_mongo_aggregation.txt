@@ -1,6 +1,6 @@
 db.getCollection("appointments").aggregate([
     {
-        $match: { 'officer_id': 'kpGXv01D7f1goE23HONTysFaP5U' }
+        $match: { 'officer_id': 'OFFICER_ID' }
     },
     {
         $facet: {
@@ -24,11 +24,7 @@ db.getCollection("appointments").aggregate([
             ],
             'resigned': [
                 {
-                    $match: {
-                        $and: [
-                            { 'data.resigned_on': { $exists: true } }
-                        ]
-                    }
+                    $match: { 'data.resigned_on': { $exists: true } }
                 }
             ]
         }

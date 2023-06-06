@@ -45,9 +45,10 @@ public class OfficerAppointmentsMapper {
             inactiveCount = appointmentCounts.getInactiveCount();
             resignedCount = appointmentCounts.getResignedCount();
             activeCount = totalResults - inactiveCount - resignedCount;
+
         } else {
-            inactiveCount = null;
             resignedCount = null;
+            inactiveCount = null;
             activeCount = null;
         }
 
