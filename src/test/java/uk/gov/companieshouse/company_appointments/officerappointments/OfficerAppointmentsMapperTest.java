@@ -65,7 +65,7 @@ class OfficerAppointmentsMapperTest {
         AppointmentList expected = getExpectedOfficerAppointments(false);
 
         // when
-        Optional<AppointmentList> actual = mapper.mapOfficerAppointments(START_INDEX, ITEMS_PER_PAGE, companyAppointmentData, officerAppointmentsAggregate, null);
+        Optional<AppointmentList> actual = mapper.mapOfficerAppointments(START_INDEX, ITEMS_PER_PAGE, companyAppointmentData, officerAppointmentsAggregate, new AppointmentCounts());
 
         // then
         assertTrue(actual.isPresent());
@@ -93,7 +93,7 @@ class OfficerAppointmentsMapperTest {
         AppointmentList expected = getExpectedOfficerAppointmentsWithMultipleAppointments(false, 10);
 
         // when
-        Optional<AppointmentList> actual = mapper.mapOfficerAppointments(START_INDEX, ITEMS_PER_PAGE, companyAppointmentData, officerAppointmentsAggregate, appointmentCounts);
+        Optional<AppointmentList> actual = mapper.mapOfficerAppointments(START_INDEX, ITEMS_PER_PAGE, companyAppointmentData, officerAppointmentsAggregate, appointmentCounts, false);
 
         // then
         assertTrue(actual.isPresent());
@@ -121,7 +121,7 @@ class OfficerAppointmentsMapperTest {
 
         AppointmentList expected = getExpectedOfficerAppointments(true);
         // when
-        Optional<AppointmentList> actual = mapper.mapOfficerAppointments(START_INDEX, ITEMS_PER_PAGE, companyAppointmentData, officerAppointmentsAggregate, null);
+        Optional<AppointmentList> actual = mapper.mapOfficerAppointments(new OfficerAppointmentsMapper.MapperRequest(START_INDEX, ITEMS_PER_PAGE, companyAppointmentData, officerAppointmentsAggregate));
 
         // then
         assertTrue(actual.isPresent());
@@ -148,7 +148,7 @@ class OfficerAppointmentsMapperTest {
         expected.setTotalResults(0);
 
         // when
-        Optional<AppointmentList> actual = mapper.mapOfficerAppointments(START_INDEX, ITEMS_PER_PAGE, companyAppointmentData, aggregate, null);
+        Optional<AppointmentList> actual = mapper.mapOfficerAppointments(new OfficerAppointmentsMapper.MapperRequest(START_INDEX, ITEMS_PER_PAGE, companyAppointmentData, aggregate));
 
         // then
         assertTrue(actual.isPresent());
@@ -166,11 +166,7 @@ class OfficerAppointmentsMapperTest {
 
         // when
         Optional<AppointmentList> actual = mapper.mapOfficerAppointments(
-                START_INDEX,
-                ITEMS_PER_PAGE,
-                getCompanyAppointmentData(null),
-                new OfficerAppointmentsAggregate(),
-                null);
+                new OfficerAppointmentsMapper.MapperRequest(START_INDEX, ITEMS_PER_PAGE, getCompanyAppointmentData(null), new OfficerAppointmentsAggregate()));
 
         // then
         assertTrue(actual.isEmpty());

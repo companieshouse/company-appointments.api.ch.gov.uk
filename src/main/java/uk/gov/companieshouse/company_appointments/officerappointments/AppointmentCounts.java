@@ -4,10 +4,20 @@ import org.springframework.data.mongodb.core.mapping.Field;
 
 public class AppointmentCounts {
 
+    private Integer activeCount;
     @Field("inactive_count")
-    Integer inactiveCount;
+    private Integer inactiveCount;
     @Field("resigned_count")
-    Integer resignedCount;
+    private Integer resignedCount;
+
+    public Integer getActiveCount() {
+        return activeCount;
+    }
+
+    public AppointmentCounts setActiveCount(Integer activeCount) {
+        this.activeCount = activeCount;
+        return this;
+    }
 
     public Integer getInactiveCount() {
         return inactiveCount;

@@ -37,11 +37,6 @@ public class OfficerAppointmentsService {
             return Optional.empty();
         }
 
-        AppointmentCounts appointmentCounts = null;
-        if (request.getReturnCounts()) {
-            appointmentCounts = repository.findOfficerAppointmentCounts(officerId);
-        }
-
         int startIndex;
         if (request.getStartIndex() == null) {
             startIndex = START_INDEX;
@@ -58,7 +53,7 @@ public class OfficerAppointmentsService {
             itemsPerPage = Math.abs(request.getItemsPerPage());
         }
 
-        var filterEnabled = false;
+        boolean filterEnabled = false;
         List<String> statusFilter = new ArrayList<>();
         if (StringUtils.isNotBlank(request.getFilter())) {
             if (ACTIVE.equals(request.getFilter())) {
@@ -71,7 +66,14 @@ public class OfficerAppointmentsService {
             }
         }
 
-        return mapper.mapOfficerAppointments(startIndex, itemsPerPage, firstAppointment.get(),
-                repository.findOfficerAppointments(officerId, filterEnabled, statusFilter, startIndex, itemsPerPage), appointmentCounts);
+        OfficerAppointmentsAggregate aggregate = repository.findOfficerAppointments(officerId, filterEnabled, statusFilter, startIndex, itemsPerPage);
+
+        if (request.getReturnCounts()) {
+            AppointmentCounts appointmentCounts = repository.findOfficerAppointmentCounts(officerId);
+            Integer totalCount = aggregate.getTotalResults();
+            appointmentCounts.setActiveCount(filterEnabled ? totalCount : totalCount - appointmentCounts.getInactiveCount() - appointmentCounts.getResignedCount());
+            return mapper.mapOfficerAppointmentsWithCounts(startIndex, itemsPerPage, firstAppointment.get(), aggregate, appointmentCounts);
+        }
+        return mapper.mapOfficerAppointments(new OfficerAppointmentsMapper.MapperRequest(startIndex, itemsPerPage, firstAppointment.get(), aggregate));
     }
 }
