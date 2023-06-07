@@ -10,11 +10,11 @@ import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentD
 /**
  * Correct sorting: A list of, first, active officers sorted by appointed_on date in descending order (or appointed_before
  * if appointed_on is null), followed by resigned officers sorted by resigned_on date in descending order.
- *
+ * <p>
  * If filter = true, this means the show-active-only filter on the frontend has been checked, and so we want to
  * display active appointments only. This results in the aggregation matching on records where
  * data.resigned_on does not exist.
- *
+ * <p>
  * If filter = false, the aggregation matches on records where data.resigned_on either exists or does not - which effectively
  * just finds all records (i.e., both active and resigned appointments).
  */
@@ -62,7 +62,7 @@ public interface OfficerAppointmentsRepository extends MongoRepository<CompanyAp
         +       "}"
         +   "}"
     })
-    OfficerAppointmentsAggregate findOfficerAppointments(String officerId, boolean filterEnabled, List<String> statusFilter, int startIndex, int pageSize);
+    OfficerAppointmentsAggregate findOfficerAppointments(String officerId, boolean filterEnabled, List<String> filterStatuses, int startIndex, int pageSize);
 
     Optional<CompanyAppointmentData> findFirstByOfficerId(String officerId);
 

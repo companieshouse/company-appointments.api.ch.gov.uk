@@ -1,7 +1,7 @@
 package uk.gov.companieshouse.company_appointments.officerappointments;
 
+import static java.util.Collections.emptyList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
@@ -18,7 +18,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Named;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.api.function.Executable;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -43,19 +42,16 @@ class OfficerAppointmentsServiceTest {
 
     @InjectMocks
     private OfficerAppointmentsService service;
-
     @Mock
     private OfficerAppointmentsRepository repository;
-
     @Mock
     private OfficerAppointmentsMapper mapper;
-
+    @Mock
+    private ServiceFilter serviceFilter;
     @Mock
     private AppointmentList officerAppointments;
-
     @Mock
     private OfficerAppointmentsAggregate officerAppointmentsAggregate;
-
     @Mock
     private CompanyAppointmentData companyAppointmentData;
 
@@ -147,7 +143,10 @@ class OfficerAppointmentsServiceTest {
     @MethodSource("serviceTestParameters")
     void getOfficerAppointments(ServiceTestArgument argument) throws BadRequestException {
         // given
+        Filter filter = new Filter(argument.isFilterEnabled(), null, argument.getFilterStatuses());
+
         when(repository.findFirstByOfficerId(anyString())).thenReturn(Optional.of(companyAppointmentData));
+        when(serviceFilter.prepareFilter(any(), any())).thenReturn(filter);
         when(repository.findOfficerAppointments(anyString(), anyBoolean(), any(), anyInt(), anyInt())).thenReturn(
                 officerAppointmentsAggregate);
         when(mapper.mapOfficerAppointments(any())).thenReturn(Optional.of(officerAppointments));
@@ -158,8 +157,9 @@ class OfficerAppointmentsServiceTest {
         // then
         assertTrue(actual.isPresent());
         assertEquals(officerAppointments, actual.get());
+        verify(serviceFilter).prepareFilter(argument.getRequest().getFilter(), argument.getOfficerId());
         verify(repository).findOfficerAppointments(argument.getOfficerId(), argument.isFilterEnabled(),
-                argument.getStatusFilter(), argument.getStartIndex(), argument.getItemsPerPage());
+                argument.getFilterStatuses(), argument.getStartIndex(), argument.getItemsPerPage());
         verify(mapper).mapOfficerAppointments(new MapperRequest()
                 .startIndex(argument.getStartIndex())
                 .itemsPerPage(argument.getItemsPerPage())
@@ -171,7 +171,10 @@ class OfficerAppointmentsServiceTest {
     @Test
     void getOfficerAppointmentsWithCounts() throws Exception {
         // given
+        Filter filter = new Filter(false, AppointmentCounts::getTotalCount, emptyList());
+
         when(repository.findFirstByOfficerId(anyString())).thenReturn(Optional.of(companyAppointmentData));
+        when(serviceFilter.prepareFilter(any(), any())).thenReturn(filter);
         when(repository.findOfficerAppointments(anyString(), anyBoolean(), any(), anyInt(), anyInt())).thenReturn(
                 officerAppointmentsAggregate);
         when(repository.findOfficerAppointmentCounts(any())).thenReturn(appointmentCounts);
@@ -190,7 +193,55 @@ class OfficerAppointmentsServiceTest {
         // then
         assertTrue(actual.isPresent());
         assertEquals(officerAppointments, actual.get());
+        verify(serviceFilter).prepareFilter(null, OFFICER_ID);
+        verify(repository).findOfficerAppointments(OFFICER_ID, filter.isFilterEnabled(),
+                filter.getFilterStatuses(), START_INDEX, ITEMS_PER_PAGE);
         verify(repository).findOfficerAppointmentCounts(OFFICER_ID);
+        verify(appointmentCounts).totalCount(officerAppointmentsAggregate.getTotalResults());
+        verify(appointmentCounts).activeCount(any());
+        verify(mapper).mapOfficerAppointmentsWithCounts(new MapperRequest()
+                        .startIndex(0)
+                        .itemsPerPage(35)
+                        .firstAppointment(companyAppointmentData)
+                        .aggregate(officerAppointmentsAggregate),
+                appointmentCounts);
+    }
+
+    @DisplayName("Should return AppointmentList when return_counts parameter is true and filter is true")
+    @Test
+    void getOfficerAppointmentsWithCountsAndFilter() throws Exception {
+        // given
+        Filter filter = new Filter(
+                true,
+                counts -> counts.getTotalCount() - counts.getInactiveCount() - counts.getResignedCount(),
+                List.of(DISSOLVED, CONVERTED_CLOSED, REMOVED));
+
+        when(repository.findFirstByOfficerId(anyString())).thenReturn(Optional.of(companyAppointmentData));
+        when(serviceFilter.prepareFilter(any(), any())).thenReturn(filter);
+        when(repository.findOfficerAppointments(anyString(), anyBoolean(), any(), anyInt(), anyInt())).thenReturn(
+                officerAppointmentsAggregate);
+        when(repository.findOfficerAppointmentCounts(any())).thenReturn(appointmentCounts);
+        when(mapper.mapOfficerAppointmentsWithCounts(any(), any())).thenReturn(Optional.of(officerAppointments));
+
+        // when
+        Optional<AppointmentList> actual = service.getOfficerAppointments(
+                new OfficerAppointmentsRequest(
+                        OFFICER_ID,
+                        "active",
+                        null,
+                        null,
+                        true)
+        );
+
+        // then
+        assertTrue(actual.isPresent());
+        assertEquals(officerAppointments, actual.get());
+        verify(serviceFilter).prepareFilter("active", OFFICER_ID);
+        verify(repository).findOfficerAppointments(OFFICER_ID, filter.isFilterEnabled(),
+                filter.getFilterStatuses(), START_INDEX, ITEMS_PER_PAGE);
+        verify(repository).findOfficerAppointmentCounts(OFFICER_ID);
+        verify(appointmentCounts).totalCount(officerAppointmentsAggregate.getTotalResults());
+        verify(appointmentCounts).activeCount(any());
         verify(mapper).mapOfficerAppointmentsWithCounts(new MapperRequest()
                         .startIndex(0)
                         .itemsPerPage(35)
@@ -213,44 +264,12 @@ class OfficerAppointmentsServiceTest {
         assertTrue(actual.isEmpty());
     }
 
-    @DisplayName("Should throw bad request exception when invalid filter parameter supplied")
-    @Test
-    void getOfficerAppointmentsInvalidFilter() {
-        // given
-        when(repository.findFirstByOfficerId(anyString())).thenReturn(Optional.of(companyAppointmentData));
-
-        // when
-        Executable executable = () -> service.getOfficerAppointments(
-                new OfficerAppointmentsRequest(OFFICER_ID, "invalid", null, null, false));
-
-        // then
-        Exception exception = assertThrows(BadRequestException.class, executable);
-        assertEquals(String.format("Invalid filter parameter supplied: %s, officer ID: %s", "invalid", OFFICER_ID),
-                exception.getMessage());
-    }
-
-    @DisplayName("Should throw bad request exception when filter parameter supplied with incorrect casing")
-    @Test
-    void getOfficerAppointmentsIncorrectCaseFilter() {
-        // given
-        when(repository.findFirstByOfficerId(anyString())).thenReturn(Optional.of(companyAppointmentData));
-
-        // when
-        Executable executable = () -> service.getOfficerAppointments(
-                new OfficerAppointmentsRequest(OFFICER_ID, "Active", null, null, false));
-
-        // then
-        Exception exception = assertThrows(BadRequestException.class, executable);
-        assertEquals(String.format("Invalid filter parameter supplied: %s, officer ID: %s", "Active", OFFICER_ID),
-                exception.getMessage());
-    }
-
     private static class ServiceTestArgument {
 
         private final OfficerAppointmentsRequest request;
         private final String officerId;
         private final boolean filterEnabled;
-        private final List<String> statusFilter;
+        private final List<String> filterStatuses;
         private final int startIndex;
         private final int itemsPerPage;
 
@@ -258,7 +277,7 @@ class OfficerAppointmentsServiceTest {
             this.request = builder.request;
             this.officerId = builder.officerId;
             this.filterEnabled = builder.filterEnabled;
-            this.statusFilter = builder.statusFilter;
+            this.filterStatuses = builder.filterStatuses;
             this.startIndex = builder.startIndex;
             this.itemsPerPage = builder.itemsPerPage;
         }
@@ -275,8 +294,8 @@ class OfficerAppointmentsServiceTest {
             return filterEnabled;
         }
 
-        public List<String> getStatusFilter() {
-            return statusFilter;
+        public List<String> getFilterStatuses() {
+            return filterStatuses;
         }
 
         public int getStartIndex() {
@@ -292,12 +311,12 @@ class OfficerAppointmentsServiceTest {
             private OfficerAppointmentsRequest request;
             private String officerId;
             private boolean filterEnabled;
-            private List<String> statusFilter;
+            private List<String> filterStatuses;
             private int startIndex;
             private int itemsPerPage;
 
             private Builder() {
-                this.statusFilter = new ArrayList<>();
+                this.filterStatuses = new ArrayList<>();
             }
 
             public Builder withRequest(OfficerAppointmentsRequest request) {
@@ -316,7 +335,7 @@ class OfficerAppointmentsServiceTest {
             }
 
             public Builder withStatusFilter(List<String> statusFilter) {
-                this.statusFilter = statusFilter;
+                this.filterStatuses = statusFilter;
                 return this;
             }
 

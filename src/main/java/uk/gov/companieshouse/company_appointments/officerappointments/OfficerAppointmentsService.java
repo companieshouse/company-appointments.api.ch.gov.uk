@@ -1,9 +1,6 @@
 package uk.gov.companieshouse.company_appointments.officerappointments;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import uk.gov.companieshouse.api.officer.AppointmentList;
 import uk.gov.companieshouse.company_appointments.exception.BadRequestException;
@@ -16,17 +13,16 @@ public class OfficerAppointmentsService {
     private static final int ITEMS_PER_PAGE = 35;
     private static final int MAX_ITEMS_PER_PAGE = 50;
     private static final int START_INDEX = 0;
-    private static final String REMOVED = "removed";
-    private static final String CONVERTED_CLOSED = "converted-closed";
-    private static final String DISSOLVED = "dissolved";
-    private static final String ACTIVE = "active";
 
     private final OfficerAppointmentsRepository repository;
     private final OfficerAppointmentsMapper mapper;
+    private final ServiceFilter serviceFilter;
 
-    public OfficerAppointmentsService(OfficerAppointmentsRepository repository, OfficerAppointmentsMapper mapper) {
+    public OfficerAppointmentsService(OfficerAppointmentsRepository repository, OfficerAppointmentsMapper mapper,
+            ServiceFilter serviceFilter) {
         this.repository = repository;
         this.mapper = mapper;
+        this.serviceFilter = serviceFilter;
     }
 
     protected Optional<AppointmentList> getOfficerAppointments(
@@ -54,20 +50,10 @@ public class OfficerAppointmentsService {
             itemsPerPage = Math.abs(request.getItemsPerPage());
         }
 
-        boolean filterEnabled = false;
-        List<String> statusFilter = new ArrayList<>();
-        if (StringUtils.isNotBlank(request.getFilter())) {
-            if (ACTIVE.equals(request.getFilter())) {
-                filterEnabled = true;
-                statusFilter.addAll(List.of(DISSOLVED, CONVERTED_CLOSED, REMOVED));
-            } else {
-                throw new BadRequestException(
-                        String.format("Invalid filter parameter supplied: %s, officer ID: %s",
-                                request.getFilter(), request.getOfficerId()));
-            }
-        }
+        Filter filter = serviceFilter.prepareFilter(request.getFilter(), request.getOfficerId());
 
-        OfficerAppointmentsAggregate aggregate = repository.findOfficerAppointments(officerId, filterEnabled, statusFilter, startIndex, itemsPerPage);
+        OfficerAppointmentsAggregate aggregate = repository.findOfficerAppointments(officerId, filter.isFilterEnabled(),
+                filter.getFilterStatuses(), startIndex, itemsPerPage);
 
         MapperRequest mapperRequest = new MapperRequest()
                 .startIndex(startIndex)
@@ -77,8 +63,8 @@ public class OfficerAppointmentsService {
 
         if (request.getReturnCounts()) {
             AppointmentCounts appointmentCounts = repository.findOfficerAppointmentCounts(officerId);
-            Integer totalCount = aggregate.getTotalResults();
-            appointmentCounts.setActiveCount(filterEnabled ? totalCount : totalCount - appointmentCounts.getInactiveCount() - appointmentCounts.getResignedCount());
+            appointmentCounts.totalCount(aggregate.getTotalResults());
+            appointmentCounts.activeCount(filter.getActiveCountFormula().applyAsInt(appointmentCounts));
             return mapper.mapOfficerAppointmentsWithCounts(mapperRequest, appointmentCounts);
         }
         return mapper.mapOfficerAppointments(mapperRequest);

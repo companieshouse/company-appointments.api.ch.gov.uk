@@ -50,8 +50,6 @@ class OfficerAppointmentsMapperTest {
     private OfficerRoleMapper roleMapper;
     @Mock
     private OfficerAppointmentSummary officerAppointmentSummary;
-    @Mock
-    private AppointmentCounts appointmentCounts;
 
     @Test
     @DisplayName("Should map officer appointments aggregate to an officer appointments api")
@@ -89,9 +87,11 @@ class OfficerAppointmentsMapperTest {
         when(nameMapper.map(any())).thenReturn("forename secondForename surname");
         when(dobMapper.map(any(), anyString())).thenReturn(dateOfBirth);
         when(roleMapper.mapIsCorporateOfficer(anyString())).thenReturn(false);
-        when(appointmentCounts.getInactiveCount()).thenReturn(1);
-        when(appointmentCounts.getResignedCount()).thenReturn(2);
-        when(appointmentCounts.getActiveCount()).thenReturn(7);
+
+        AppointmentCounts counts = new AppointmentCounts()
+                .activeCount(7)
+                .inactiveCount(1)
+                .resignedCount(2);
 
         OfficerAppointmentsAggregate officerAppointmentsAggregate = getOfficerAppointmentsAggregateWithMultipleResults();
         CompanyAppointmentData companyAppointmentData = getCompanyAppointmentData(getOfficerData(DIRECTOR));
@@ -104,7 +104,7 @@ class OfficerAppointmentsMapperTest {
                         .itemsPerPage(ITEMS_PER_PAGE)
                         .firstAppointment(companyAppointmentData)
                         .aggregate(officerAppointmentsAggregate),
-                appointmentCounts);
+                counts);
 
         // then
         assertTrue(actual.isPresent());
