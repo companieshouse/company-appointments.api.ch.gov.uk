@@ -3,6 +3,7 @@ package uk.gov.companieshouse.company_appointments.officerappointments;
 import static java.util.Optional.ofNullable;
 import static uk.gov.companieshouse.api.officer.AppointmentList.KindEnum;
 
+import java.util.Objects;
 import java.util.Optional;
 import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.api.officer.AppointmentList;
@@ -50,7 +51,7 @@ public class OfficerAppointmentsMapper {
     }
 
     protected Optional<AppointmentList> mapOfficerAppointmentsWithCounts(MapperRequest mapperRequest, AppointmentCounts appointmentCounts) {
-        return mapOfficerAppointments(new MapperRequest(mapperRequest.getStartIndex(), mapperRequest.getItemsPerPage(), mapperRequest.getFirstAppointment(), mapperRequest.getAggregate()))
+        return mapOfficerAppointments(mapperRequest)
                 .map(appointmentList -> appointmentList
                         .activeCount(appointmentCounts.getActiveCount())
                         .inactiveCount(appointmentCounts.getInactiveCount())
@@ -97,6 +98,25 @@ public class OfficerAppointmentsMapper {
         public MapperRequest aggregate(OfficerAppointmentsAggregate aggregate) {
             this.aggregate = aggregate;
             return this;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+            MapperRequest that = (MapperRequest) o;
+            return Objects.equals(startIndex, that.startIndex) && Objects.equals(itemsPerPage,
+                    that.itemsPerPage) && Objects.equals(firstAppointment, that.firstAppointment)
+                    && Objects.equals(aggregate, that.aggregate);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(startIndex, itemsPerPage, firstAppointment, aggregate);
         }
     }
 }

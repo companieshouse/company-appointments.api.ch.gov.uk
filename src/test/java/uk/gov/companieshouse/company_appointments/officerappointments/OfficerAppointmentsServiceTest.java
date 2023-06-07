@@ -3,7 +3,10 @@ package uk.gov.companieshouse.company_appointments.officerappointments;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -11,7 +14,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
-
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Named;
 import org.junit.jupiter.api.Test;
@@ -26,9 +28,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.companieshouse.api.officer.AppointmentList;
 import uk.gov.companieshouse.company_appointments.exception.BadRequestException;
 import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentData;
+import uk.gov.companieshouse.company_appointments.officerappointments.OfficerAppointmentsMapper.MapperRequest;
 
 @ExtendWith(MockitoExtension.class)
 class OfficerAppointmentsServiceTest {
+
     private static final String OFFICER_ID = "officerId";
     private static final int START_INDEX = 0;
     private static final int ITEMS_PER_PAGE = 35;
@@ -63,7 +67,8 @@ class OfficerAppointmentsServiceTest {
                 Arguments.of(
                         Named.of("Get officer appointments returns an officer appointments api",
                                 new ServiceTestArgument.Builder()
-                                        .withRequest(new OfficerAppointmentsRequest(OFFICER_ID, null, null, null, false))
+                                        .withRequest(
+                                                new OfficerAppointmentsRequest(OFFICER_ID, null, null, null, false))
                                         .withOfficerId(OFFICER_ID)
                                         .withFilterEnabled(false)
                                         .withStartIndex(START_INDEX)
@@ -81,7 +86,8 @@ class OfficerAppointmentsServiceTest {
                 Arguments.of(
                         Named.of("Get officer appointments returns an officer appointments api when filter is active",
                                 new ServiceTestArgument.Builder()
-                                        .withRequest(new OfficerAppointmentsRequest(OFFICER_ID, "active", null, null, false))
+                                        .withRequest(
+                                                new OfficerAppointmentsRequest(OFFICER_ID, "active", null, null, false))
                                         .withOfficerId(OFFICER_ID)
                                         .withFilterEnabled(true)
                                         .withStatusFilter(List.of(DISSOLVED, CONVERTED_CLOSED, REMOVED))
@@ -89,7 +95,8 @@ class OfficerAppointmentsServiceTest {
                                         .withItemsPerPage(ITEMS_PER_PAGE)
                                         .build())),
                 Arguments.of(
-                        Named.of("Get officer appointments returns a paged officer appointments api when paging is provided and filter is active",
+                        Named.of(
+                                "Get officer appointments returns a paged officer appointments api when paging is provided and filter is active",
                                 new ServiceTestArgument.Builder()
                                         .withRequest(new OfficerAppointmentsRequest(OFFICER_ID, "active", 3, 3, false))
                                         .withOfficerId(OFFICER_ID)
@@ -141,8 +148,9 @@ class OfficerAppointmentsServiceTest {
     void getOfficerAppointments(ServiceTestArgument argument) throws BadRequestException {
         // given
         when(repository.findFirstByOfficerId(anyString())).thenReturn(Optional.of(companyAppointmentData));
-        when(repository.findOfficerAppointments(anyString(), anyBoolean(), any(), anyInt(), anyInt())).thenReturn(officerAppointmentsAggregate);
-        when(mapper.mapOfficerAppointments(anyInt(), anyInt(), any(), any(), any())).thenReturn(Optional.of(officerAppointments));
+        when(repository.findOfficerAppointments(anyString(), anyBoolean(), any(), anyInt(), anyInt())).thenReturn(
+                officerAppointmentsAggregate);
+        when(mapper.mapOfficerAppointments(any())).thenReturn(Optional.of(officerAppointments));
 
         // when
         Optional<AppointmentList> actual = service.getOfficerAppointments(argument.getRequest());
@@ -150,8 +158,13 @@ class OfficerAppointmentsServiceTest {
         // then
         assertTrue(actual.isPresent());
         assertEquals(officerAppointments, actual.get());
-        verify(repository).findOfficerAppointments(argument.getOfficerId(), argument.isFilterEnabled(), argument.getStatusFilter(), argument.getStartIndex(), argument.getItemsPerPage());
-        verify(mapper).mapOfficerAppointments(argument.getStartIndex(), argument.getItemsPerPage(), companyAppointmentData, officerAppointmentsAggregate, null);
+        verify(repository).findOfficerAppointments(argument.getOfficerId(), argument.isFilterEnabled(),
+                argument.getStatusFilter(), argument.getStartIndex(), argument.getItemsPerPage());
+        verify(mapper).mapOfficerAppointments(new MapperRequest()
+                .startIndex(argument.getStartIndex())
+                .itemsPerPage(argument.getItemsPerPage())
+                .firstAppointment(companyAppointmentData)
+                .aggregate(officerAppointmentsAggregate));
     }
 
     @DisplayName("Should return AppointmentList when return_counts parameter is true")
@@ -159,9 +172,10 @@ class OfficerAppointmentsServiceTest {
     void getOfficerAppointmentsWithCounts() throws Exception {
         // given
         when(repository.findFirstByOfficerId(anyString())).thenReturn(Optional.of(companyAppointmentData));
-        when(repository.findOfficerAppointments(anyString(), anyBoolean(), any(), anyInt(), anyInt())).thenReturn(officerAppointmentsAggregate);
+        when(repository.findOfficerAppointments(anyString(), anyBoolean(), any(), anyInt(), anyInt())).thenReturn(
+                officerAppointmentsAggregate);
         when(repository.findOfficerAppointmentCounts(any())).thenReturn(appointmentCounts);
-        when(mapper.mapOfficerAppointments(anyInt(), anyInt(), any(), any(), any())).thenReturn(Optional.of(officerAppointments));
+        when(mapper.mapOfficerAppointmentsWithCounts(any(), any())).thenReturn(Optional.of(officerAppointments));
 
         // when
         Optional<AppointmentList> actual = service.getOfficerAppointments(
@@ -177,7 +191,12 @@ class OfficerAppointmentsServiceTest {
         assertTrue(actual.isPresent());
         assertEquals(officerAppointments, actual.get());
         verify(repository).findOfficerAppointmentCounts(OFFICER_ID);
-        verify(mapper).mapOfficerAppointments(0, 35, companyAppointmentData, officerAppointmentsAggregate, appointmentCounts);
+        verify(mapper).mapOfficerAppointmentsWithCounts(new MapperRequest()
+                        .startIndex(0)
+                        .itemsPerPage(35)
+                        .firstAppointment(companyAppointmentData)
+                        .aggregate(officerAppointmentsAggregate),
+                appointmentCounts);
     }
 
     @DisplayName("Should return empty optional when no appointments found for officer id")
@@ -187,7 +206,8 @@ class OfficerAppointmentsServiceTest {
         when(repository.findFirstByOfficerId(anyString())).thenReturn(Optional.empty());
 
         // when
-        Optional<AppointmentList> actual = service.getOfficerAppointments(new OfficerAppointmentsRequest(OFFICER_ID, null, null, null,false));
+        Optional<AppointmentList> actual = service.getOfficerAppointments(
+                new OfficerAppointmentsRequest(OFFICER_ID, null, null, null, false));
 
         // then
         assertTrue(actual.isEmpty());
@@ -200,11 +220,13 @@ class OfficerAppointmentsServiceTest {
         when(repository.findFirstByOfficerId(anyString())).thenReturn(Optional.of(companyAppointmentData));
 
         // when
-        Executable executable = () -> service.getOfficerAppointments(new OfficerAppointmentsRequest(OFFICER_ID, "invalid", null, null, false));
+        Executable executable = () -> service.getOfficerAppointments(
+                new OfficerAppointmentsRequest(OFFICER_ID, "invalid", null, null, false));
 
         // then
         Exception exception = assertThrows(BadRequestException.class, executable);
-        assertEquals(String.format("Invalid filter parameter supplied: %s, officer ID: %s", "invalid", OFFICER_ID), exception.getMessage());
+        assertEquals(String.format("Invalid filter parameter supplied: %s, officer ID: %s", "invalid", OFFICER_ID),
+                exception.getMessage());
     }
 
     @DisplayName("Should throw bad request exception when filter parameter supplied with incorrect casing")
@@ -214,14 +236,17 @@ class OfficerAppointmentsServiceTest {
         when(repository.findFirstByOfficerId(anyString())).thenReturn(Optional.of(companyAppointmentData));
 
         // when
-        Executable executable = () -> service.getOfficerAppointments(new OfficerAppointmentsRequest(OFFICER_ID, "Active", null, null, false));
+        Executable executable = () -> service.getOfficerAppointments(
+                new OfficerAppointmentsRequest(OFFICER_ID, "Active", null, null, false));
 
         // then
         Exception exception = assertThrows(BadRequestException.class, executable);
-        assertEquals(String.format("Invalid filter parameter supplied: %s, officer ID: %s", "Active", OFFICER_ID), exception.getMessage());
+        assertEquals(String.format("Invalid filter parameter supplied: %s, officer ID: %s", "Active", OFFICER_ID),
+                exception.getMessage());
     }
 
     private static class ServiceTestArgument {
+
         private final OfficerAppointmentsRequest request;
         private final String officerId;
         private final boolean filterEnabled;
@@ -263,6 +288,7 @@ class OfficerAppointmentsServiceTest {
         }
 
         private static final class Builder {
+
             private OfficerAppointmentsRequest request;
             private String officerId;
             private boolean filterEnabled;

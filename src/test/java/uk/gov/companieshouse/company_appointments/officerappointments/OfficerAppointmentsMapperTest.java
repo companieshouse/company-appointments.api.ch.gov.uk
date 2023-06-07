@@ -26,6 +26,7 @@ import uk.gov.companieshouse.api.officer.OfficerAppointmentSummary;
 import uk.gov.companieshouse.api.officer.OfficerLinkTypes;
 import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentData;
 import uk.gov.companieshouse.company_appointments.model.data.OfficerData;
+import uk.gov.companieshouse.company_appointments.officerappointments.OfficerAppointmentsMapper.MapperRequest;
 
 @ExtendWith(MockitoExtension.class)
 class OfficerAppointmentsMapperTest {
@@ -65,7 +66,11 @@ class OfficerAppointmentsMapperTest {
         AppointmentList expected = getExpectedOfficerAppointments(false);
 
         // when
-        Optional<AppointmentList> actual = mapper.mapOfficerAppointments(START_INDEX, ITEMS_PER_PAGE, companyAppointmentData, officerAppointmentsAggregate, new AppointmentCounts());
+        Optional<AppointmentList> actual = mapper.mapOfficerAppointments(new MapperRequest()
+                .startIndex(START_INDEX)
+                .itemsPerPage(ITEMS_PER_PAGE)
+                .firstAppointment(companyAppointmentData)
+                .aggregate(officerAppointmentsAggregate));
 
         // then
         assertTrue(actual.isPresent());
@@ -80,20 +85,26 @@ class OfficerAppointmentsMapperTest {
     @DisplayName("Should map officer appointments aggregate to an officer appointments api with appointment counts")
     void mapWithAppointmentCounts() {
         // given
-        when(itemsMapper.map(any())).thenReturn(getMultipleAppointments(10));
+        when(itemsMapper.map(any())).thenReturn(getMultipleAppointments());
         when(nameMapper.map(any())).thenReturn("forename secondForename surname");
         when(dobMapper.map(any(), anyString())).thenReturn(dateOfBirth);
         when(roleMapper.mapIsCorporateOfficer(anyString())).thenReturn(false);
         when(appointmentCounts.getInactiveCount()).thenReturn(1);
         when(appointmentCounts.getResignedCount()).thenReturn(2);
+        when(appointmentCounts.getActiveCount()).thenReturn(7);
 
-        OfficerAppointmentsAggregate officerAppointmentsAggregate = getOfficerAppointmentsAggregateWithMultipleResults(DIRECTOR, 10);
+        OfficerAppointmentsAggregate officerAppointmentsAggregate = getOfficerAppointmentsAggregateWithMultipleResults();
         CompanyAppointmentData companyAppointmentData = getCompanyAppointmentData(getOfficerData(DIRECTOR));
-        List<CompanyAppointmentData> companyAppointmentDataList = getListOfCompanyAppointmentData(DIRECTOR, 10);
-        AppointmentList expected = getExpectedOfficerAppointmentsWithMultipleAppointments(false, 10);
+        List<CompanyAppointmentData> companyAppointmentDataList = getListOfCompanyAppointmentData();
+        AppointmentList expected = getExpectedOfficerAppointmentsWithMultipleAppointments();
 
         // when
-        Optional<AppointmentList> actual = mapper.mapOfficerAppointments(START_INDEX, ITEMS_PER_PAGE, companyAppointmentData, officerAppointmentsAggregate, appointmentCounts, false);
+        Optional<AppointmentList> actual = mapper.mapOfficerAppointmentsWithCounts(new MapperRequest()
+                        .startIndex(START_INDEX)
+                        .itemsPerPage(ITEMS_PER_PAGE)
+                        .firstAppointment(companyAppointmentData)
+                        .aggregate(officerAppointmentsAggregate),
+                appointmentCounts);
 
         // then
         assertTrue(actual.isPresent());
@@ -116,12 +127,18 @@ class OfficerAppointmentsMapperTest {
         when(nameMapper.map(any())).thenReturn("forename secondForename surname");
         when(dobMapper.map(any(), anyString())).thenReturn(dateOfBirth);
         when(roleMapper.mapIsCorporateOfficer(anyString())).thenReturn(true);
-        OfficerAppointmentsAggregate officerAppointmentsAggregate = getOfficerAppointmentsAggregate(CORPORATE_MANAGING_OFFICER);
-        CompanyAppointmentData companyAppointmentData = getCompanyAppointmentData(getOfficerData(CORPORATE_MANAGING_OFFICER));
+        OfficerAppointmentsAggregate officerAppointmentsAggregate = getOfficerAppointmentsAggregate(
+                CORPORATE_MANAGING_OFFICER);
+        CompanyAppointmentData companyAppointmentData = getCompanyAppointmentData(
+                getOfficerData(CORPORATE_MANAGING_OFFICER));
 
         AppointmentList expected = getExpectedOfficerAppointments(true);
         // when
-        Optional<AppointmentList> actual = mapper.mapOfficerAppointments(new OfficerAppointmentsMapper.MapperRequest(START_INDEX, ITEMS_PER_PAGE, companyAppointmentData, officerAppointmentsAggregate));
+        Optional<AppointmentList> actual = mapper.mapOfficerAppointments(new MapperRequest()
+                .startIndex(START_INDEX)
+                .itemsPerPage(ITEMS_PER_PAGE)
+                .firstAppointment(companyAppointmentData)
+                .aggregate(officerAppointmentsAggregate));
 
         // then
         assertTrue(actual.isPresent());
@@ -148,7 +165,11 @@ class OfficerAppointmentsMapperTest {
         expected.setTotalResults(0);
 
         // when
-        Optional<AppointmentList> actual = mapper.mapOfficerAppointments(new OfficerAppointmentsMapper.MapperRequest(START_INDEX, ITEMS_PER_PAGE, companyAppointmentData, aggregate));
+        Optional<AppointmentList> actual = mapper.mapOfficerAppointments(new MapperRequest()
+                .startIndex(START_INDEX)
+                .itemsPerPage(ITEMS_PER_PAGE)
+                .firstAppointment(companyAppointmentData)
+                .aggregate(aggregate));
 
         // then
         assertTrue(actual.isPresent());
@@ -165,8 +186,11 @@ class OfficerAppointmentsMapperTest {
         // given
 
         // when
-        Optional<AppointmentList> actual = mapper.mapOfficerAppointments(
-                new OfficerAppointmentsMapper.MapperRequest(START_INDEX, ITEMS_PER_PAGE, getCompanyAppointmentData(null), new OfficerAppointmentsAggregate()));
+        Optional<AppointmentList> actual = mapper.mapOfficerAppointments(new MapperRequest()
+                .startIndex(START_INDEX)
+                .itemsPerPage(ITEMS_PER_PAGE)
+                .firstAppointment(getCompanyAppointmentData(null))
+                .aggregate(new OfficerAppointmentsAggregate()));
 
         // then
         assertTrue(actual.isEmpty());
@@ -185,18 +209,19 @@ class OfficerAppointmentsMapperTest {
         return officerAppointmentsAggregate;
     }
 
-    private OfficerAppointmentsAggregate getOfficerAppointmentsAggregateWithMultipleResults(String role, int numberOfResults) {
-        List<CompanyAppointmentData> data = getListOfCompanyAppointmentData(role, numberOfResults);
+    private OfficerAppointmentsAggregate getOfficerAppointmentsAggregateWithMultipleResults() {
+        List<CompanyAppointmentData> data = getListOfCompanyAppointmentData();
 
         return new OfficerAppointmentsAggregate()
-                    .setTotalResults(numberOfResults)
-                    .setOfficerAppointments(data);
+                .setTotalResults(10)
+                .setOfficerAppointments(data);
     }
 
-    private List<CompanyAppointmentData> getListOfCompanyAppointmentData(String role, int numberOfElements) {
+    private List<CompanyAppointmentData> getListOfCompanyAppointmentData() {
         List<CompanyAppointmentData> companyAppointmentDataList = new ArrayList<>();
-        for (int i = 0; i < numberOfElements; i++) {
-            companyAppointmentDataList.add(getCompanyAppointmentData(getOfficerData(role)));
+        for (int i = 0; i < 10; i++) {
+            companyAppointmentDataList.add(getCompanyAppointmentData(getOfficerData(
+                    OfficerAppointmentsMapperTest.DIRECTOR)));
         }
         return companyAppointmentDataList;
     }
@@ -234,26 +259,26 @@ class OfficerAppointmentsMapperTest {
                 .totalResults(1);
     }
 
-    private AppointmentList getExpectedOfficerAppointmentsWithMultipleAppointments(boolean isCorporateOfficer, int numberOfAppointments) {
+    private AppointmentList getExpectedOfficerAppointmentsWithMultipleAppointments() {
         return new AppointmentList()
                 .dateOfBirth(dateOfBirth)
                 .etag("etag")
-                .isCorporateOfficer(isCorporateOfficer)
+                .isCorporateOfficer(false)
                 .itemsPerPage(ITEMS_PER_PAGE)
                 .kind(AppointmentList.KindEnum.PERSONAL_APPOINTMENT)
                 .links(new OfficerLinkTypes().self("/officers/officerId/appointments"))
-                .items(getMultipleAppointments(numberOfAppointments))
+                .items(getMultipleAppointments())
                 .name("forename secondForename surname")
                 .startIndex(START_INDEX)
                 .activeCount(7)
                 .inactiveCount(1)
                 .resignedCount(2)
-                .totalResults(numberOfAppointments);
+                .totalResults(10);
     }
 
-    private List<OfficerAppointmentSummary> getMultipleAppointments(int numberOfAppointments) {
+    private List<OfficerAppointmentSummary> getMultipleAppointments() {
         List<OfficerAppointmentSummary> officerAppointmentSummaryList = new ArrayList<>();
-        for(int i = 0; i < numberOfAppointments; i++) {
+        for (int i = 0; i < 10; i++) {
             officerAppointmentSummaryList.add(officerAppointmentSummary);
         }
         return officerAppointmentSummaryList;

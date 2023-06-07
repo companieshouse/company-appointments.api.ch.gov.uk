@@ -14,26 +14,23 @@ public class AppointmentCounts {
         return activeCount;
     }
 
-    public AppointmentCounts setActiveCount(Integer activeCount) {
+    public void setActiveCount(Integer activeCount) {
         this.activeCount = activeCount;
-        return this;
     }
 
     public Integer getInactiveCount() {
         return inactiveCount;
     }
 
-    public AppointmentCounts setInactiveCount(Integer inactiveCount) {
+    public void setInactiveCount(Integer inactiveCount) {
         this.inactiveCount = inactiveCount;
-        return this;
     }
 
     public Integer getResignedCount() {
         return resignedCount;
     }
 
-    public AppointmentCounts setResignedCount(Integer resignedCount) {
+    public void setResignedCount(Integer resignedCount) {
         this.resignedCount = resignedCount;
-        return this;
     }
 }

@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import uk.gov.companieshouse.api.officer.AppointmentList;
 import uk.gov.companieshouse.company_appointments.exception.BadRequestException;
 import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentData;
+import uk.gov.companieshouse.company_appointments.officerappointments.OfficerAppointmentsMapper.MapperRequest;
 
 @Service
 public class OfficerAppointmentsService {
@@ -68,12 +69,18 @@ public class OfficerAppointmentsService {
 
         OfficerAppointmentsAggregate aggregate = repository.findOfficerAppointments(officerId, filterEnabled, statusFilter, startIndex, itemsPerPage);
 
+        MapperRequest mapperRequest = new MapperRequest()
+                .startIndex(startIndex)
+                .itemsPerPage(itemsPerPage)
+                .firstAppointment(firstAppointment.get())
+                .aggregate(aggregate);
+
         if (request.getReturnCounts()) {
             AppointmentCounts appointmentCounts = repository.findOfficerAppointmentCounts(officerId);
             Integer totalCount = aggregate.getTotalResults();
             appointmentCounts.setActiveCount(filterEnabled ? totalCount : totalCount - appointmentCounts.getInactiveCount() - appointmentCounts.getResignedCount());
-            return mapper.mapOfficerAppointmentsWithCounts(startIndex, itemsPerPage, firstAppointment.get(), aggregate, appointmentCounts);
+            return mapper.mapOfficerAppointmentsWithCounts(mapperRequest, appointmentCounts);
         }
-        return mapper.mapOfficerAppointments(new OfficerAppointmentsMapper.MapperRequest(startIndex, itemsPerPage, firstAppointment.get(), aggregate));
+        return mapper.mapOfficerAppointments(mapperRequest);
     }
 }
