@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.company_appointments.exception.BadRequestException;
 
 @Component
-public class ServiceFilter {
+class ServiceFilter {
 
     private static final String REMOVED = "removed";
     private static final String CONVERTED_CLOSED = "converted-closed";
@@ -19,8 +19,7 @@ public class ServiceFilter {
             counts.getInactiveCount() - counts.getResignedCount();
     private static final ToIntFunction<AppointmentCounts> ACTIVE_COUNT_FILTERED = AppointmentCounts::getTotalCount;
 
-
-    protected Filter prepareFilter(String filter, String officerId) throws BadRequestException {
+    Filter prepareFilter(String filter, String officerId) throws BadRequestException {
         if (StringUtils.isNotBlank(filter)) {
             if (ACTIVE.equals(filter)) {
                 return new Filter(true, ACTIVE_COUNT_FILTERED, List.of(DISSOLVED, CONVERTED_CLOSED, REMOVED));

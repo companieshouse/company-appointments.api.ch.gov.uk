@@ -7,31 +7,31 @@ import org.springframework.data.mongodb.core.mapping.Field;
 import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentData;
 
 @Document
-public class OfficerAppointmentsAggregate {
+class OfficerAppointmentsAggregate {
 
     @Field("total_results")
     private Integer totalResults;
     @Field("officer_appointments")
     private List<CompanyAppointmentData> officerAppointments;
 
-    public OfficerAppointmentsAggregate() {
+    OfficerAppointmentsAggregate() {
         this.officerAppointments = new ArrayList<>();
     }
 
-    public Integer getTotalResults() {
+    Integer getTotalResults() {
         return totalResults;
     }
 
-    public OfficerAppointmentsAggregate setTotalResults(Integer totalResults) {
+    OfficerAppointmentsAggregate setTotalResults(Integer totalResults) {
         this.totalResults = totalResults;
         return this;
     }
 
-    public List<CompanyAppointmentData> getOfficerAppointments() {
+    List<CompanyAppointmentData> getOfficerAppointments() {
         return officerAppointments;
     }
 
-    public OfficerAppointmentsAggregate setOfficerAppointments(List<CompanyAppointmentData> officerAppointments) {
+    OfficerAppointmentsAggregate setOfficerAppointments(List<CompanyAppointmentData> officerAppointments) {
         this.officerAppointments = officerAppointments;
         return this;
     }

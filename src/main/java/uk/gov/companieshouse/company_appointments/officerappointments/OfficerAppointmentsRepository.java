@@ -19,7 +19,7 @@ import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentD
  * just finds all records (i.e., both active and resigned appointments).
  */
 @Repository
-public interface OfficerAppointmentsRepository extends MongoRepository<CompanyAppointmentData, String> {
+interface OfficerAppointmentsRepository extends MongoRepository<CompanyAppointmentData, String> {
 
     @Aggregation(pipeline = {
             "{ $match: { "

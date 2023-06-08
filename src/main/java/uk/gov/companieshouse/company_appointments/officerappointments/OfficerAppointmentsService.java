@@ -8,7 +8,7 @@ import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentD
 import uk.gov.companieshouse.company_appointments.officerappointments.OfficerAppointmentsMapper.MapperRequest;
 
 @Service
-public class OfficerAppointmentsService {
+class OfficerAppointmentsService {
 
     private static final int ITEMS_PER_PAGE = 35;
     private static final int MAX_ITEMS_PER_PAGE = 50;
@@ -18,14 +18,14 @@ public class OfficerAppointmentsService {
     private final OfficerAppointmentsMapper mapper;
     private final ServiceFilter serviceFilter;
 
-    public OfficerAppointmentsService(OfficerAppointmentsRepository repository, OfficerAppointmentsMapper mapper,
+    OfficerAppointmentsService(OfficerAppointmentsRepository repository, OfficerAppointmentsMapper mapper,
             ServiceFilter serviceFilter) {
         this.repository = repository;
         this.mapper = mapper;
         this.serviceFilter = serviceFilter;
     }
 
-    protected Optional<AppointmentList> getOfficerAppointments(
+    Optional<AppointmentList> getOfficerAppointments(
             OfficerAppointmentsRequest request) throws BadRequestException {
         String officerId = request.getOfficerId();
 
@@ -34,22 +34,8 @@ public class OfficerAppointmentsService {
             return Optional.empty();
         }
 
-        int startIndex;
-        if (request.getStartIndex() == null) {
-            startIndex = START_INDEX;
-        } else {
-            startIndex = Math.abs(request.getStartIndex());
-        }
-
-        int itemsPerPage;
-        if (request.getItemsPerPage() == null || request.getItemsPerPage() == 0) {
-            itemsPerPage = ITEMS_PER_PAGE;
-        } else if (Math.abs(request.getItemsPerPage()) > 50) {
-            itemsPerPage = MAX_ITEMS_PER_PAGE;
-        } else {
-            itemsPerPage = Math.abs(request.getItemsPerPage());
-        }
-
+        int startIndex = getStartIndex(request);
+        int itemsPerPage = getItemsPerPage(request);
         Filter filter = serviceFilter.prepareFilter(request.getFilter(), request.getOfficerId());
 
         OfficerAppointmentsAggregate aggregate = repository.findOfficerAppointments(officerId, filter.isFilterEnabled(),
@@ -66,7 +52,30 @@ public class OfficerAppointmentsService {
             appointmentCounts.totalCount(aggregate.getTotalResults());
             appointmentCounts.activeCount(filter.getActiveCountFormula().applyAsInt(appointmentCounts));
             return mapper.mapOfficerAppointmentsWithCounts(mapperRequest, appointmentCounts);
+        } else {
+            return mapper.mapOfficerAppointments(mapperRequest);
         }
-        return mapper.mapOfficerAppointments(mapperRequest);
+    }
+
+    private static int getItemsPerPage(OfficerAppointmentsRequest request) {
+        int itemsPerPage;
+        if (request.getItemsPerPage() == null || request.getItemsPerPage() == 0) {
+            itemsPerPage = ITEMS_PER_PAGE;
+        } else if (Math.abs(request.getItemsPerPage()) > 50) {
+            itemsPerPage = MAX_ITEMS_PER_PAGE;
+        } else {
+            itemsPerPage = Math.abs(request.getItemsPerPage());
+        }
+        return itemsPerPage;
+    }
+
+    private static int getStartIndex(OfficerAppointmentsRequest request) {
+        int startIndex;
+        if (request.getStartIndex() == null) {
+            startIndex = START_INDEX;
+        } else {
+            startIndex = Math.abs(request.getStartIndex());
+        }
+        return startIndex;
     }
 }

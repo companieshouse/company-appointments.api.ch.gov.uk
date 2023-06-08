@@ -7,15 +7,15 @@ import uk.gov.companieshouse.api.officer.CorporateIdent;
 import uk.gov.companieshouse.company_appointments.model.data.IdentificationData;
 
 @Component
-public class IdentificationMapper {
+class IdentificationMapper {
 
     private final IdentificationTypeMapper mapper;
 
-    public IdentificationMapper(IdentificationTypeMapper mapper) {
+    IdentificationMapper(IdentificationTypeMapper mapper) {
         this.mapper = mapper;
     }
 
-    protected CorporateIdent map(IdentificationData identificationData) {
+    CorporateIdent map(IdentificationData identificationData) {
         return ofNullable(identificationData)
                 .map(identification -> new CorporateIdent()
                         .identificationType(mapper.map(identification.getIdentificationType()))

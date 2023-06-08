@@ -2,7 +2,7 @@ package uk.gov.companieshouse.company_appointments.officerappointments;
 
 import org.springframework.data.mongodb.core.mapping.Field;
 
-public class AppointmentCounts {
+class AppointmentCounts {
 
     private Integer activeCount;
     @Field("inactive_count")
@@ -12,38 +12,38 @@ public class AppointmentCounts {
 
     private Integer totalCount;
 
-    public Integer getActiveCount() {
+    Integer getActiveCount() {
         return activeCount;
     }
 
-    public AppointmentCounts activeCount(Integer activeCount) {
+    AppointmentCounts activeCount(Integer activeCount) {
         this.activeCount = activeCount;
         return this;
     }
 
-    public Integer getInactiveCount() {
+    Integer getInactiveCount() {
         return inactiveCount;
     }
 
-    public AppointmentCounts inactiveCount(Integer inactiveCount) {
+    AppointmentCounts inactiveCount(Integer inactiveCount) {
         this.inactiveCount = inactiveCount;
         return this;
     }
 
-    public Integer getResignedCount() {
+    Integer getResignedCount() {
         return resignedCount;
     }
 
-    public AppointmentCounts resignedCount(Integer resignedCount) {
+    AppointmentCounts resignedCount(Integer resignedCount) {
         this.resignedCount = resignedCount;
         return this;
     }
 
-    public Integer getTotalCount() {
+    Integer getTotalCount() {
         return totalCount;
     }
 
-    public AppointmentCounts totalCount(Integer totalCount) {
+    AppointmentCounts totalCount(Integer totalCount) {
         this.totalCount = totalCount;
         return this;
     }

@@ -11,14 +11,14 @@ import uk.gov.companieshouse.api.officer.OfficerLinkTypes;
 import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentData;
 
 @Component
-public class OfficerAppointmentsMapper {
+class OfficerAppointmentsMapper {
 
     private final ItemsMapper itemsMapper;
     private final NameMapper nameMapper;
     private final DateOfBirthMapper dobMapper;
     private final OfficerRoleMapper roleMapper;
 
-    public OfficerAppointmentsMapper(ItemsMapper itemsMapper,
+    OfficerAppointmentsMapper(ItemsMapper itemsMapper,
                                      NameMapper nameMapper,
                                      DateOfBirthMapper dobMapper,
                                      OfficerRoleMapper roleMapper) {
@@ -34,7 +34,7 @@ public class OfficerAppointmentsMapper {
      *
      * @param mapperRequest@return The optional OfficerAppointmentsApi for the response body.
      */
-    protected Optional<AppointmentList> mapOfficerAppointments(MapperRequest mapperRequest) {
+    Optional<AppointmentList> mapOfficerAppointments(MapperRequest mapperRequest) {
         return ofNullable(mapperRequest.getFirstAppointment().getData())
                         .map(data -> new AppointmentList()
                                 .dateOfBirth(dobMapper.map(data.getDateOfBirth(), data.getOfficerRole()))
@@ -50,7 +50,7 @@ public class OfficerAppointmentsMapper {
                                 .totalResults(mapperRequest.getAggregate().getTotalResults()));
     }
 
-    protected Optional<AppointmentList> mapOfficerAppointmentsWithCounts(MapperRequest mapperRequest, AppointmentCounts appointmentCounts) {
+    Optional<AppointmentList> mapOfficerAppointmentsWithCounts(MapperRequest mapperRequest, AppointmentCounts appointmentCounts) {
         return mapOfficerAppointments(mapperRequest)
                 .map(appointmentList -> appointmentList
                         .activeCount(appointmentCounts.getActiveCount())
@@ -58,44 +58,44 @@ public class OfficerAppointmentsMapper {
                         .resignedCount(appointmentCounts.getResignedCount()));
     }
 
-    protected static class MapperRequest {
+    static class MapperRequest {
         private Integer startIndex;
         private Integer itemsPerPage;
         private CompanyAppointmentData firstAppointment;
         private OfficerAppointmentsAggregate aggregate;
 
-        public Integer getStartIndex() {
+        Integer getStartIndex() {
             return startIndex;
         }
 
-        public MapperRequest startIndex(Integer startIndex) {
+        MapperRequest startIndex(Integer startIndex) {
             this.startIndex = startIndex;
             return this;
         }
 
-        public Integer getItemsPerPage() {
+        Integer getItemsPerPage() {
             return itemsPerPage;
         }
 
-        public MapperRequest itemsPerPage(Integer itemsPerPage) {
+        MapperRequest itemsPerPage(Integer itemsPerPage) {
             this.itemsPerPage = itemsPerPage;
             return this;
         }
 
-        public CompanyAppointmentData getFirstAppointment() {
+        CompanyAppointmentData getFirstAppointment() {
             return firstAppointment;
         }
 
-        public MapperRequest firstAppointment(CompanyAppointmentData firstAppointment) {
+        MapperRequest firstAppointment(CompanyAppointmentData firstAppointment) {
             this.firstAppointment = firstAppointment;
             return this;
         }
 
-        public OfficerAppointmentsAggregate getAggregate() {
+        OfficerAppointmentsAggregate getAggregate() {
             return aggregate;
         }
 
-        public MapperRequest aggregate(OfficerAppointmentsAggregate aggregate) {
+        MapperRequest aggregate(OfficerAppointmentsAggregate aggregate) {
             this.aggregate = aggregate;
             return this;
         }

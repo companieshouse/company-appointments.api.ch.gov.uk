@@ -9,9 +9,9 @@ import uk.gov.companieshouse.api.officer.FormerNames;
 import uk.gov.companieshouse.company_appointments.model.data.FormerNamesData;
 
 @Component
-public class FormerNamesMapper {
+class FormerNamesMapper {
 
-    protected List<FormerNames> map(List<FormerNamesData> formerNames) {
+    List<FormerNames> map(List<FormerNamesData> formerNames) {
         return ofNullable(formerNames)
                 .map(formerNamesData -> formerNamesData.stream()
                         .map(names -> new FormerNames()

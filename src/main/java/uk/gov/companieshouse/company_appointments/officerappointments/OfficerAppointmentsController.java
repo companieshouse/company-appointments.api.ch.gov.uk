@@ -10,18 +10,18 @@ import uk.gov.companieshouse.company_appointments.exception.BadRequestException;
 import uk.gov.companieshouse.logging.Logger;
 
 @Controller
-public class OfficerAppointmentsController {
+class OfficerAppointmentsController {
 
     private final OfficerAppointmentsService service;
     private final Logger logger;
 
-    public OfficerAppointmentsController(OfficerAppointmentsService service, Logger logger) {
+    OfficerAppointmentsController(OfficerAppointmentsService service, Logger logger) {
         this.service = service;
         this.logger = logger;
     }
 
     @GetMapping(path = "/officers/{officer_id}/appointments")
-    public ResponseEntity<AppointmentList> getOfficerAppointments(@PathVariable("officer_id") String officerId,
+    ResponseEntity<AppointmentList> getOfficerAppointments(@PathVariable("officer_id") String officerId,
             @RequestParam(value = "filter", required = false) String filter,
             @RequestParam(value = "start_index", required = false) Integer startIndex,
             @RequestParam(value = "items_per_page", required = false) Integer itemsPerPage,

@@ -7,9 +7,9 @@ import uk.gov.companieshouse.api.officer.ContactDetails;
 import uk.gov.companieshouse.company_appointments.model.data.ContactDetailsData;
 
 @Component
-public class ContactDetailsMapper {
+class ContactDetailsMapper {
 
-    protected ContactDetails map(ContactDetailsData contactDetailsData) {
+    ContactDetails map(ContactDetailsData contactDetailsData) {
         return ofNullable(contactDetailsData)
                 .map(contactDetails -> new ContactDetails()
                         .contactName(contactDetails.getContactName()))
