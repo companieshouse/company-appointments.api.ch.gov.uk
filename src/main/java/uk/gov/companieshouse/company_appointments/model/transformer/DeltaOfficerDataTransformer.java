@@ -5,6 +5,7 @@ import static java.time.ZoneOffset.UTC;
 import java.time.Instant;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
+import uk.gov.companieshouse.GenerateEtagUtil;
 import uk.gov.companieshouse.api.appointment.Data;
 import uk.gov.companieshouse.company_appointments.exception.FailedToTransformException;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaContactDetails;
@@ -39,6 +40,7 @@ public class DeltaOfficerDataTransformer implements Transformative<Data, DeltaOf
             throws FailedToTransformException {
 
         try {
+            entity.setEtag(GenerateEtagUtil.generateEtag());
             entity.setPersonNumber(source.getPersonNumber());
             entity.setServiceAddress(source.getServiceAddress() != null?
                     serviceAddressTransformer.transform(source.getServiceAddress()) : null);
