@@ -16,13 +16,15 @@ class OfficerAppointmentsService {
 
     private final OfficerAppointmentsRepository repository;
     private final OfficerAppointmentsMapper mapper;
-    private final ServiceFilter serviceFilter;
+    private final FilterService filterService;
+    private final AppointmentsCountsService appointmentsCountsService;
 
     OfficerAppointmentsService(OfficerAppointmentsRepository repository, OfficerAppointmentsMapper mapper,
-            ServiceFilter serviceFilter) {
+            FilterService filterService, AppointmentsCountsService appointmentsCountsService) {
         this.repository = repository;
         this.mapper = mapper;
-        this.serviceFilter = serviceFilter;
+        this.filterService = filterService;
+        this.appointmentsCountsService = appointmentsCountsService;
     }
 
     Optional<AppointmentList> getOfficerAppointments(
@@ -36,7 +38,7 @@ class OfficerAppointmentsService {
 
         int startIndex = getStartIndex(request);
         int itemsPerPage = getItemsPerPage(request);
-        Filter filter = serviceFilter.prepareFilter(request.getFilter(), request.getOfficerId());
+        Filter filter = filterService.prepareFilter(request.getFilter(), request.getOfficerId());
 
         OfficerAppointmentsAggregate aggregate = repository.findOfficerAppointments(officerId, filter.isFilterEnabled(),
                 filter.getFilterStatuses(), startIndex, itemsPerPage);
@@ -48,10 +50,10 @@ class OfficerAppointmentsService {
                 .aggregate(aggregate);
 
         if (request.getReturnCounts()) {
-            AppointmentCounts appointmentCounts = repository.findOfficerAppointmentCounts(officerId);
-            appointmentCounts.totalCount(aggregate.getTotalResults());
-            appointmentCounts.activeCount(filter.getActiveCountFormula().applyAsInt(appointmentCounts));
-            return mapper.mapOfficerAppointmentsWithCounts(mapperRequest, appointmentCounts);
+            return mapper.mapOfficerAppointmentsWithCounts(mapperRequest,
+                    appointmentsCountsService.getAppointmentsCounts(officerId,
+                            filter.isFilterEnabled(),
+                            aggregate.getTotalResults()));
         } else {
             return mapper.mapOfficerAppointments(mapperRequest);
         }

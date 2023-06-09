@@ -88,7 +88,7 @@ class OfficerAppointmentsMapperTest {
         when(dobMapper.map(any(), anyString())).thenReturn(dateOfBirth);
         when(roleMapper.mapIsCorporateOfficer(anyString())).thenReturn(false);
 
-        AppointmentCounts counts = new AppointmentCounts()
+        AppointmentsCounts counts = new AppointmentsCounts()
                 .activeCount(7)
                 .inactiveCount(1)
                 .resignedCount(2);

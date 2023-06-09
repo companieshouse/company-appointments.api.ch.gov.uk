@@ -99,5 +99,5 @@ interface OfficerAppointmentsRepository extends MongoRepository<CompanyAppointme
                 "        }" +
                 "    }"
     })
-    AppointmentCounts findOfficerAppointmentCounts(String officerId);
+    AppointmentsCounts countOfficerAppointments(String officerId);
 }

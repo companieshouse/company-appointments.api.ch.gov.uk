@@ -50,12 +50,12 @@ class OfficerAppointmentsMapper {
                                 .totalResults(mapperRequest.getAggregate().getTotalResults()));
     }
 
-    Optional<AppointmentList> mapOfficerAppointmentsWithCounts(MapperRequest mapperRequest, AppointmentCounts appointmentCounts) {
+    Optional<AppointmentList> mapOfficerAppointmentsWithCounts(MapperRequest mapperRequest, AppointmentsCounts appointmentsCounts) {
         return mapOfficerAppointments(mapperRequest)
                 .map(appointmentList -> appointmentList
-                        .activeCount(appointmentCounts.getActiveCount())
-                        .inactiveCount(appointmentCounts.getInactiveCount())
-                        .resignedCount(appointmentCounts.getResignedCount()));
+                        .activeCount(appointmentsCounts.getActiveCount())
+                        .inactiveCount(appointmentsCounts.getInactiveCount())
+                        .resignedCount(appointmentsCounts.getResignedCount()));
     }
 
     static class MapperRequest {
