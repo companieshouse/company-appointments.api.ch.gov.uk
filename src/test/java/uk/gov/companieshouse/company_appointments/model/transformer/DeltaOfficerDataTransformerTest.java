@@ -76,11 +76,16 @@ class DeltaOfficerDataTransformerTest {
         when(principalOfficeAddressTransformer.transform(any(PrincipalOfficeAddress.class))).thenReturn(deltaPrincipalOfficeAddress);
         when(serviceAddressTransformer.transform(any(ServiceAddress.class))).thenReturn(deltaServiceAddress);
 
+        DeltaOfficerData expected = buildExpected();
+
         // when
         DeltaOfficerData actual = transformer.transform(buildSource());
 
         // then
-        assertThat(actual).isEqualTo(buildExpected());
+        assertThat(actual.getEtag()).isNotNull();
+        expected.setEtag(actual.getEtag());
+
+        assertThat(actual).isEqualTo(expected);
         verify(identificationTransformer).transform(identification);
         verify(itemLinkTypesTransformer).transform(itemLinkTypes);
         verify(principalOfficeAddressTransformer).transform(principalOfficeAddress);
@@ -110,6 +115,9 @@ class DeltaOfficerDataTransformerTest {
         DeltaOfficerData actual = transformer.transform(source);
 
         // then
+        assertThat(actual.getEtag()).isNotNull();
+        expected.setEtag(actual.getEtag());
+
         assertThat(actual).isEqualTo(expected);
         verifyNoInteractions(identificationTransformer);
         verifyNoInteractions(itemLinkTypesTransformer);
@@ -136,6 +144,9 @@ class DeltaOfficerDataTransformerTest {
         DeltaOfficerData actual = transformer.transform(source);
 
         // then
+        assertThat(actual.getEtag()).isNotNull();
+        expected.setEtag(actual.getEtag());
+
         assertThat(actual).isEqualTo(expected);
         verify(identificationTransformer).transform(identification);
         verifyNoInteractions(itemLinkTypesTransformer);
