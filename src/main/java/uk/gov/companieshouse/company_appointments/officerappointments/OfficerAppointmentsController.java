@@ -21,7 +21,7 @@ class OfficerAppointmentsController {
     }
 
     @GetMapping(path = "/officers/{officer_id}/appointments")
-    ResponseEntity<AppointmentList> getOfficerAppointments(@PathVariable("officer_id") String officerId,
+    public ResponseEntity<AppointmentList> getOfficerAppointments(@PathVariable("officer_id") String officerId,
             @RequestParam(value = "filter", required = false) String filter,
             @RequestParam(value = "start_index", required = false) Integer startIndex,
             @RequestParam(value = "items_per_page", required = false) Integer itemsPerPage) {
