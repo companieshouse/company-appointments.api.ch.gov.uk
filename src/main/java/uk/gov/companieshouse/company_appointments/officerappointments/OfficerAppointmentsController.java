@@ -24,10 +24,9 @@ class OfficerAppointmentsController {
     ResponseEntity<AppointmentList> getOfficerAppointments(@PathVariable("officer_id") String officerId,
             @RequestParam(value = "filter", required = false) String filter,
             @RequestParam(value = "start_index", required = false) Integer startIndex,
-            @RequestParam(value = "items_per_page", required = false) Integer itemsPerPage,
-            @RequestParam(value = "return_counts", required = false, defaultValue = "false") boolean returnCounts) {
+            @RequestParam(value = "items_per_page", required = false) Integer itemsPerPage) {
         try {
-            return service.getOfficerAppointments(new OfficerAppointmentsRequest(officerId, filter, startIndex, itemsPerPage, returnCounts))
+            return service.getOfficerAppointments(new OfficerAppointmentsRequest(officerId, filter, startIndex, itemsPerPage))
                     .map(ResponseEntity::ok)
                     .orElseGet(() -> {
                         logger.error(String.format("No appointments found for officer ID %s", officerId));

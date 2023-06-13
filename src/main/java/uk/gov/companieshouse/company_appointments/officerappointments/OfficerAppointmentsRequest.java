@@ -8,15 +8,13 @@ class OfficerAppointmentsRequest {
     private final String filter;
     private final Integer startIndex;
     private final Integer itemsPerPage;
-    private final boolean returnCounts;
 
     OfficerAppointmentsRequest(String officerId, String filter, Integer startIndex,
-                                      Integer itemsPerPage, boolean returnCounts) {
+                                      Integer itemsPerPage) {
         this.officerId = officerId;
         this.filter = filter;
         this.startIndex = startIndex;
         this.itemsPerPage = itemsPerPage;
-        this.returnCounts = returnCounts;
     }
 
     String getOfficerId() {
@@ -35,10 +33,6 @@ class OfficerAppointmentsRequest {
         return itemsPerPage;
     }
 
-    boolean getReturnCounts() {
-        return returnCounts;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -51,12 +45,11 @@ class OfficerAppointmentsRequest {
         return Objects.equals(officerId, request.officerId)
                 && Objects.equals(filter, request.filter)
                 && Objects.equals(startIndex, request.startIndex)
-                && Objects.equals(itemsPerPage, request.itemsPerPage)
-                && Objects.equals(returnCounts, request.returnCounts);
+                && Objects.equals(itemsPerPage, request.itemsPerPage);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(officerId, filter, startIndex, itemsPerPage, returnCounts);
+        return Objects.hash(officerId, filter, startIndex, itemsPerPage);
     }
 }

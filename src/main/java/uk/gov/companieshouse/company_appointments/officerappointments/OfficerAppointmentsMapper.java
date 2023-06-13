@@ -19,9 +19,9 @@ class OfficerAppointmentsMapper {
     private final OfficerRoleMapper roleMapper;
 
     OfficerAppointmentsMapper(ItemsMapper itemsMapper,
-                                     NameMapper nameMapper,
-                                     DateOfBirthMapper dobMapper,
-                                     OfficerRoleMapper roleMapper) {
+            NameMapper nameMapper,
+            DateOfBirthMapper dobMapper,
+            OfficerRoleMapper roleMapper) {
         this.itemsMapper = itemsMapper;
         this.nameMapper = nameMapper;
         this.dobMapper = dobMapper;
@@ -29,36 +29,36 @@ class OfficerAppointmentsMapper {
     }
 
     /**
-     * Maps the appointments returned from MongoDB to a list of officer appointments
-     * alongside top level fields, relating to the first appointment found.
+     * Maps the appointments returned from MongoDB to a list of officer appointments alongside top level fields,
+     * relating to the first appointment found.
      *
      * @param mapperRequest@return The optional OfficerAppointmentsApi for the response body.
      */
     Optional<AppointmentList> mapOfficerAppointments(MapperRequest mapperRequest) {
         return ofNullable(mapperRequest.getFirstAppointment().getData())
-                        .map(data -> new AppointmentList()
-                                .dateOfBirth(dobMapper.map(data.getDateOfBirth(), data.getOfficerRole()))
-                                .etag(data.getEtag())
-                                .isCorporateOfficer(roleMapper.mapIsCorporateOfficer(data.getOfficerRole()))
-                                .itemsPerPage(mapperRequest.getItemsPerPage())
-                                .kind(KindEnum.PERSONAL_APPOINTMENT)
-                                .links(new OfficerLinkTypes().self(
-                                        String.format("/officers/%s/appointments", mapperRequest.getFirstAppointment().getOfficerId())))
-                                .items(itemsMapper.map(mapperRequest.getAggregate().getOfficerAppointments()))
-                                .name(nameMapper.map(data))
-                                .startIndex(mapperRequest.getStartIndex())
-                                .totalResults(mapperRequest.getAggregate().getTotalResults()));
-    }
-
-    Optional<AppointmentList> mapOfficerAppointmentsWithCounts(MapperRequest mapperRequest, AppointmentsCounts appointmentsCounts) {
-        return mapOfficerAppointments(mapperRequest)
-                .map(appointmentList -> appointmentList
-                        .activeCount(appointmentsCounts.getActiveCount())
-                        .inactiveCount(appointmentsCounts.getInactiveCount())
-                        .resignedCount(appointmentsCounts.getResignedCount()));
+                .map(data -> {
+                    OfficerAppointmentsAggregate aggregate = mapperRequest.getAggregate();
+                    return new AppointmentList()
+                            .dateOfBirth(dobMapper.map(data.getDateOfBirth(), data.getOfficerRole()))
+                            .etag(data.getEtag())
+                            .isCorporateOfficer(roleMapper.mapIsCorporateOfficer(data.getOfficerRole()))
+                            .itemsPerPage(mapperRequest.getItemsPerPage())
+                            .kind(KindEnum.PERSONAL_APPOINTMENT)
+                            .links(new OfficerLinkTypes().self(
+                                    String.format("/officers/%s/appointments",
+                                            mapperRequest.getFirstAppointment().getOfficerId())))
+                            .items(itemsMapper.map(aggregate.getOfficerAppointments()))
+                            .name(nameMapper.map(data))
+                            .startIndex(mapperRequest.getStartIndex())
+                            .totalResults(aggregate.getTotalResults())
+                            .activeCount(aggregate.getTotalResults() - aggregate.getInactiveCount() - aggregate.getResignedCount())
+                            .inactiveCount(aggregate.getInactiveCount())
+                            .resignedCount(aggregate.getResignedCount());
+                });
     }
 
     static class MapperRequest {
+
         private Integer startIndex;
         private Integer itemsPerPage;
         private CompanyAppointmentData firstAppointment;

@@ -13,26 +13,50 @@ class OfficerAppointmentsAggregate {
     private Integer totalResults;
     @Field("officer_appointments")
     private List<CompanyAppointmentData> officerAppointments;
+    @Field("inactive_count")
+    private Integer inactiveCount;
+    @Field("resigned_count")
+    private Integer resignedCount;
+
 
     OfficerAppointmentsAggregate() {
         this.officerAppointments = new ArrayList<>();
     }
 
-    Integer getTotalResults() {
+    public Integer getTotalResults() {
         return totalResults;
     }
 
-    OfficerAppointmentsAggregate setTotalResults(Integer totalResults) {
+    public OfficerAppointmentsAggregate totalResults(Integer totalResults) {
         this.totalResults = totalResults;
         return this;
     }
 
-    List<CompanyAppointmentData> getOfficerAppointments() {
+    public List<CompanyAppointmentData> getOfficerAppointments() {
         return officerAppointments;
     }
 
-    OfficerAppointmentsAggregate setOfficerAppointments(List<CompanyAppointmentData> officerAppointments) {
+    public OfficerAppointmentsAggregate officerAppointments(
+            List<CompanyAppointmentData> officerAppointments) {
         this.officerAppointments = officerAppointments;
+        return this;
+    }
+
+    public Integer getInactiveCount() {
+        return inactiveCount;
+    }
+
+    public OfficerAppointmentsAggregate inactiveCount(Integer inactiveCount) {
+        this.inactiveCount = inactiveCount;
+        return this;
+    }
+
+    public Integer getResignedCount() {
+        return resignedCount;
+    }
+
+    public OfficerAppointmentsAggregate resignedCount(Integer resignedCount) {
+        this.resignedCount = resignedCount;
         return this;
     }
 }

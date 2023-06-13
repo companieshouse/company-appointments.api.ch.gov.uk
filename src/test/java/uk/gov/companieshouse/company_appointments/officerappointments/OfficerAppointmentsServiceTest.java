@@ -1,6 +1,5 @@
 package uk.gov.companieshouse.company_appointments.officerappointments;
 
-import static java.util.Collections.emptyList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -49,15 +48,11 @@ class OfficerAppointmentsServiceTest {
     @Mock
     private FilterService filterService;
     @Mock
-    private AppointmentsCountsService appointmentsCountsService;
-    @Mock
     private AppointmentList officerAppointments;
     @Mock
     private OfficerAppointmentsAggregate officerAppointmentsAggregate;
     @Mock
     private CompanyAppointmentData companyAppointmentData;
-    @Mock
-    private AppointmentsCounts appointmentsCounts;
 
     private static Stream<Arguments> serviceTestParameters() {
         return Stream.of(
@@ -65,7 +60,7 @@ class OfficerAppointmentsServiceTest {
                         Named.of("Get officer appointments returns an officer appointments api",
                                 new ServiceTestArgument.Builder()
                                         .withRequest(
-                                                new OfficerAppointmentsRequest(OFFICER_ID, null, null, null, false))
+                                                new OfficerAppointmentsRequest(OFFICER_ID, null, null, null))
                                         .withOfficerId(OFFICER_ID)
                                         .withFilterEnabled(false)
                                         .withStartIndex(START_INDEX)
@@ -74,7 +69,7 @@ class OfficerAppointmentsServiceTest {
                 Arguments.of(
                         Named.of("Get officer appointments returns an officer appointments api when filter is empty",
                                 new ServiceTestArgument.Builder()
-                                        .withRequest(new OfficerAppointmentsRequest(OFFICER_ID, "", null, null, false))
+                                        .withRequest(new OfficerAppointmentsRequest(OFFICER_ID, "", null, null))
                                         .withOfficerId(OFFICER_ID)
                                         .withFilterEnabled(false)
                                         .withStartIndex(START_INDEX)
@@ -84,7 +79,7 @@ class OfficerAppointmentsServiceTest {
                         Named.of("Get officer appointments returns an officer appointments api when filter is active",
                                 new ServiceTestArgument.Builder()
                                         .withRequest(
-                                                new OfficerAppointmentsRequest(OFFICER_ID, "active", null, null, false))
+                                                new OfficerAppointmentsRequest(OFFICER_ID, "active", null, null))
                                         .withOfficerId(OFFICER_ID)
                                         .withFilterEnabled(true)
                                         .withStatusFilter(List.of(DISSOLVED, CONVERTED_CLOSED, REMOVED))
@@ -95,7 +90,7 @@ class OfficerAppointmentsServiceTest {
                         Named.of(
                                 "Get officer appointments returns a paged officer appointments api when paging is provided and filter is active",
                                 new ServiceTestArgument.Builder()
-                                        .withRequest(new OfficerAppointmentsRequest(OFFICER_ID, "active", 3, 3, false))
+                                        .withRequest(new OfficerAppointmentsRequest(OFFICER_ID, "active", 3, 3))
                                         .withOfficerId(OFFICER_ID)
                                         .withFilterEnabled(true)
                                         .withStatusFilter(List.of(DISSOLVED, CONVERTED_CLOSED, REMOVED))
@@ -105,7 +100,7 @@ class OfficerAppointmentsServiceTest {
                 Arguments.of(
                         Named.of("Get officer appointments returns default paging when itemsPerPage is 0",
                                 new ServiceTestArgument.Builder()
-                                        .withRequest(new OfficerAppointmentsRequest(OFFICER_ID, null, null, 0, false))
+                                        .withRequest(new OfficerAppointmentsRequest(OFFICER_ID, null, null, 0))
                                         .withOfficerId(OFFICER_ID)
                                         .withFilterEnabled(false)
                                         .withStartIndex(0)
@@ -114,7 +109,7 @@ class OfficerAppointmentsServiceTest {
                 Arguments.of(
                         Named.of("Get officer appointments successfully handles negative paging values",
                                 new ServiceTestArgument.Builder()
-                                        .withRequest(new OfficerAppointmentsRequest(OFFICER_ID, null, -1, -5, false))
+                                        .withRequest(new OfficerAppointmentsRequest(OFFICER_ID, null, -1, -5))
                                         .withOfficerId(OFFICER_ID)
                                         .withFilterEnabled(false)
                                         .withStartIndex(1)
@@ -123,7 +118,7 @@ class OfficerAppointmentsServiceTest {
                 Arguments.of(
                         Named.of("Get officer appointments successfully handles paging values over 50",
                                 new ServiceTestArgument.Builder()
-                                        .withRequest(new OfficerAppointmentsRequest(OFFICER_ID, null, 1, 55, false))
+                                        .withRequest(new OfficerAppointmentsRequest(OFFICER_ID, null, 1, 55))
                                         .withOfficerId(OFFICER_ID)
                                         .withFilterEnabled(false)
                                         .withStartIndex(1)
@@ -132,7 +127,7 @@ class OfficerAppointmentsServiceTest {
                 Arguments.of(
                         Named.of("Get officer appointments successfully handles negative paging values over 50",
                                 new ServiceTestArgument.Builder()
-                                        .withRequest(new OfficerAppointmentsRequest(OFFICER_ID, null, -1, -55, false))
+                                        .withRequest(new OfficerAppointmentsRequest(OFFICER_ID, null, -1, -55))
                                         .withOfficerId(OFFICER_ID)
                                         .withFilterEnabled(false)
                                         .withStartIndex(1)
@@ -168,45 +163,6 @@ class OfficerAppointmentsServiceTest {
                 .aggregate(officerAppointmentsAggregate));
     }
 
-    @DisplayName("Should return AppointmentList when return_counts parameter is true")
-    @Test
-    void getOfficerAppointmentsWithCounts() throws Exception {
-        // given
-        Filter filter = new Filter(false, emptyList());
-
-        when(repository.findFirstByOfficerId(anyString())).thenReturn(Optional.of(companyAppointmentData));
-        when(filterService.prepareFilter(any(), any())).thenReturn(filter);
-        when(repository.findOfficerAppointments(anyString(), anyBoolean(), any(), anyInt(), anyInt())).thenReturn(
-                officerAppointmentsAggregate);
-        when(officerAppointmentsAggregate.getTotalResults()).thenReturn(5);
-        when(appointmentsCountsService.getAppointmentsCounts(anyString(), anyBoolean(), anyInt())).thenReturn(appointmentsCounts);
-        when(mapper.mapOfficerAppointmentsWithCounts(any(), any())).thenReturn(Optional.of(officerAppointments));
-
-        // when
-        Optional<AppointmentList> actual = service.getOfficerAppointments(
-                new OfficerAppointmentsRequest(
-                        OFFICER_ID,
-                        null,
-                        null,
-                        null,
-                        true)
-        );
-
-        // then
-        assertTrue(actual.isPresent());
-        assertEquals(officerAppointments, actual.get());
-        verify(filterService).prepareFilter(null, OFFICER_ID);
-        verify(repository).findOfficerAppointments(OFFICER_ID, filter.isFilterEnabled(),
-                filter.getFilterStatuses(), START_INDEX, ITEMS_PER_PAGE);
-        verify(appointmentsCountsService).getAppointmentsCounts(OFFICER_ID, filter.isFilterEnabled(), 5);
-        verify(mapper).mapOfficerAppointmentsWithCounts(new MapperRequest()
-                        .startIndex(0)
-                        .itemsPerPage(35)
-                        .firstAppointment(companyAppointmentData)
-                        .aggregate(officerAppointmentsAggregate),
-                appointmentsCounts);
-    }
-
     @DisplayName("Should return empty optional when no appointments found for officer id")
     @Test
     void getOfficerAppointmentsEmpty() throws BadRequestException {
@@ -215,7 +171,7 @@ class OfficerAppointmentsServiceTest {
 
         // when
         Optional<AppointmentList> actual = service.getOfficerAppointments(
-                new OfficerAppointmentsRequest(OFFICER_ID, null, null, null, false));
+                new OfficerAppointmentsRequest(OFFICER_ID, null, null, null));
 
         // then
         assertTrue(actual.isEmpty());

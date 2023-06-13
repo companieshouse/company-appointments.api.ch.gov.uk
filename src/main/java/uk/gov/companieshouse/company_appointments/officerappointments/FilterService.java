@@ -15,7 +15,7 @@ class FilterService {
     private static final String DISSOLVED = "dissolved";
     private static final String ACTIVE = "active";
 
-    Filter prepareFilter(String filter, String officerId) throws BadRequestException {
+    Filter prepareFilter(String filter, String officerId) {
         if (StringUtils.isNotBlank(filter)) {
             if (ACTIVE.equals(filter)) {
                 return new Filter(true, List.of(DISSOLVED, CONVERTED_CLOSED, REMOVED));
