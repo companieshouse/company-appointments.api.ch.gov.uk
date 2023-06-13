@@ -82,7 +82,7 @@ class OfficerAppointmentsServiceTest {
                                                 new OfficerAppointmentsRequest(OFFICER_ID, "active", null, null))
                                         .withOfficerId(OFFICER_ID)
                                         .withFilterEnabled(true)
-                                        .withStatusFilter(List.of(DISSOLVED, CONVERTED_CLOSED, REMOVED))
+                                        .withFilterStatuses(List.of(DISSOLVED, CONVERTED_CLOSED, REMOVED))
                                         .withStartIndex(START_INDEX)
                                         .withItemsPerPage(ITEMS_PER_PAGE)
                                         .build())),
@@ -93,7 +93,7 @@ class OfficerAppointmentsServiceTest {
                                         .withRequest(new OfficerAppointmentsRequest(OFFICER_ID, "active", 3, 3))
                                         .withOfficerId(OFFICER_ID)
                                         .withFilterEnabled(true)
-                                        .withStatusFilter(List.of(DISSOLVED, CONVERTED_CLOSED, REMOVED))
+                                        .withFilterStatuses(List.of(DISSOLVED, CONVERTED_CLOSED, REMOVED))
                                         .withStartIndex(3)
                                         .withItemsPerPage(3)
                                         .build())),
@@ -247,8 +247,8 @@ class OfficerAppointmentsServiceTest {
                 return this;
             }
 
-            public Builder withStatusFilter(List<String> statusFilter) {
-                this.filterStatuses = statusFilter;
+            public Builder withFilterStatuses(List<String> filterStatuses) {
+                this.filterStatuses = filterStatuses;
                 return this;
             }
 
