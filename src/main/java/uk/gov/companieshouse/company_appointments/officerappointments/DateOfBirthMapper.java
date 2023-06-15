@@ -8,15 +8,15 @@ import uk.gov.companieshouse.api.officer.DateOfBirth;
 import uk.gov.companieshouse.company_appointments.roles.SecretarialRoles;
 
 @Component
-public class DateOfBirthMapper {
+class DateOfBirthMapper {
 
     private final OfficerRoleMapper officerRoleMapper;
 
-    public DateOfBirthMapper(OfficerRoleMapper officerRoleMapper) {
+    DateOfBirthMapper(OfficerRoleMapper officerRoleMapper) {
         this.officerRoleMapper = officerRoleMapper;
     }
 
-    protected DateOfBirth map(LocalDateTime dateOfBirth, String officerRole) {
+    DateOfBirth map(LocalDateTime dateOfBirth, String officerRole) {
         if (SecretarialRoles.stream().anyMatch(roles -> roles.getRole().equals(officerRole))
                 || officerRoleMapper.mapIsCorporateOfficer(officerRole)) {
             return null;

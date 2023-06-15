@@ -11,7 +11,7 @@ import uk.gov.companieshouse.api.officer.OfficerAppointmentSummary;
 import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentData;
 
 @Component
-public class ItemsMapper {
+class ItemsMapper {
 
     private final AddressMapper addressMapper;
     private final ContactDetailsMapper contactDetailsMapper;
@@ -21,7 +21,7 @@ public class ItemsMapper {
     private final IdentificationMapper identificationMapper;
     private final OfficerRoleMapper roleMapper;
 
-    public ItemsMapper(AddressMapper addressMapper,
+    ItemsMapper(AddressMapper addressMapper,
             ContactDetailsMapper contactDetailsMapper,
             NameMapper nameMapper,
             LocalDateMapper localDateMapper,
@@ -37,7 +37,7 @@ public class ItemsMapper {
         this.roleMapper = roleMapper;
     }
 
-    protected List<OfficerAppointmentSummary> map(List<CompanyAppointmentData> appointments) {
+    List<OfficerAppointmentSummary> map(List<CompanyAppointmentData> appointments) {
         return appointments.stream()
                 .map(appointment -> ofNullable(appointment.getData())
                         .map(data -> new OfficerAppointmentSummary()

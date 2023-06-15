@@ -10,12 +10,12 @@ import uk.gov.companieshouse.company_appointments.exception.BadRequestException;
 import uk.gov.companieshouse.logging.Logger;
 
 @Controller
-public class OfficerAppointmentsController {
+class OfficerAppointmentsController {
 
     private final OfficerAppointmentsService service;
     private final Logger logger;
 
-    public OfficerAppointmentsController(OfficerAppointmentsService service, Logger logger) {
+    OfficerAppointmentsController(OfficerAppointmentsService service, Logger logger) {
         this.service = service;
         this.logger = logger;
     }

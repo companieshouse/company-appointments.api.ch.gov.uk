@@ -48,12 +48,12 @@ class OfficerAppointmentsControllerTest {
         when(service.getOfficerAppointments(any())).thenReturn(Optional.of(officerAppointments));
 
         // when
-        ResponseEntity<AppointmentList> response = controller.getOfficerAppointments(OFFICER_ID, null, null, null);
+        ResponseEntity<AppointmentList> response = controller.getOfficerAppointments(OFFICER_ID, null, 0, 5);
 
         // then
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(officerAppointments, response.getBody());
-        verify(service).getOfficerAppointments(new OfficerAppointmentsRequest(OFFICER_ID, null, null, null));
+        verify(service).getOfficerAppointments(new OfficerAppointmentsRequest(OFFICER_ID, null, 0, 5));
     }
 
     @Test

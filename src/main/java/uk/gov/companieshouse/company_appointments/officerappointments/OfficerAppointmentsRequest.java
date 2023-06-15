@@ -2,33 +2,34 @@ package uk.gov.companieshouse.company_appointments.officerappointments;
 
 import java.util.Objects;
 
-public class OfficerAppointmentsRequest {
+class OfficerAppointmentsRequest {
 
     private final String officerId;
     private final String filter;
     private final Integer startIndex;
     private final Integer itemsPerPage;
 
-    public OfficerAppointmentsRequest(String officerId, String filter, Integer startIndex, Integer itemsPerPage) {
+    OfficerAppointmentsRequest(String officerId, String filter, Integer startIndex,
+                                      Integer itemsPerPage) {
         this.officerId = officerId;
         this.filter = filter;
         this.startIndex = startIndex;
         this.itemsPerPage = itemsPerPage;
     }
 
-    public String getOfficerId() {
+    String getOfficerId() {
         return officerId;
     }
 
-    public String getFilter() {
+    String getFilter() {
         return filter;
     }
 
-    public Integer getStartIndex() {
+    Integer getStartIndex() {
         return startIndex;
     }
 
-    public Integer getItemsPerPage() {
+    Integer getItemsPerPage() {
         return itemsPerPage;
     }
 

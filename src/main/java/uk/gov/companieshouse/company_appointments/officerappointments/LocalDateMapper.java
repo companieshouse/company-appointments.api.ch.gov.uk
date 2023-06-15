@@ -9,15 +9,15 @@ import java.util.Locale;
 import org.springframework.stereotype.Component;
 
 @Component
-public class LocalDateMapper {
+class LocalDateMapper {
 
-    protected LocalDate map(String dateString) {
+    LocalDate map(String dateString) {
         return ofNullable(dateString)
                 .map(appointed -> LocalDate.parse(appointed, DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.UK)))
                 .orElse(null);
     }
 
-    protected LocalDate map(LocalDateTime dateTime) {
+    LocalDate map(LocalDateTime dateTime) {
         return ofNullable(dateTime)
                 .map(LocalDateTime::toLocalDate)
                 .orElse(null);

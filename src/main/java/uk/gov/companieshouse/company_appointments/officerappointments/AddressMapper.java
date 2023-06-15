@@ -7,9 +7,9 @@ import uk.gov.companieshouse.api.officer.Address;
 import uk.gov.companieshouse.company_appointments.model.data.ServiceAddressData;
 
 @Component
-public class AddressMapper {
+class AddressMapper {
 
-    protected Address map(ServiceAddressData addressData) {
+    Address map(ServiceAddressData addressData) {
         return ofNullable(addressData)
                 .map(address -> new Address()
                         .addressLine1(address.getAddressLine1())

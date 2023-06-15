@@ -6,9 +6,9 @@ import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.api.officer.CorporateIdent.IdentificationTypeEnum;
 
 @Component
-public class IdentificationTypeMapper {
+class IdentificationTypeMapper {
 
-    protected IdentificationTypeEnum map(String identificationType) {
+    IdentificationTypeEnum map(String identificationType) {
         return ofNullable(identificationType)
                 .map(IdentificationTypeEnum::fromValue)
                 .orElse(null);

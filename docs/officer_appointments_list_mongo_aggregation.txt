@@ -41,7 +41,26 @@ db.getCollection("appointments").aggregate([
                     }
                 }
             ],
-            'total_results': [{ '$count': 'count' }]
+            'total_results': [{ '$count': 'count' }],
+            'inactive': [
+                {
+                    $match: {
+                        $and: [
+                            { 'data.resigned_on': { $exists: false } },
+                            {
+                                'company_status': {
+                                    $in: [
+                                        'dissolved',
+                                        'removed',
+                                        'converted-closed'
+                                    ]
+                                }
+                            }
+                        ]
+                    }
+                },
+                {'$count': "count"}
+            ]
         }
     },
     {
@@ -51,9 +70,18 @@ db.getCollection("appointments").aggregate([
         }
     },
     {
+        $unwind: {
+            'path': '$inactive',
+            'preserveNullAndEmptyArrays': true
+        }
+    },
+    {
         $project: {
             'total_results': { '$ifNull': ['$total_results.count', NumberInt(0)] },
-            'officer_appointments': { $slice: [{ $concatArrays: ['$active', '$resigned']},  0, 35] }
+            'officer_appointments': { $slice: [{ $concatArrays: ['$active', '$resigned']},  0, 35] },
+            'inactive_count': { '$ifNull': ['$inactive.count', NumberInt(0)] },
+            'resigned_count': { $size: '$resigned' }
         }
     }
 ])
+

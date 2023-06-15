@@ -77,6 +77,8 @@ class OfficerAppointmentsRepositoryITest {
 
         // then
         assertEquals(5, officerAppointmentsAggregate.getTotalResults());
+        assertEquals(1, officerAppointmentsAggregate.getInactiveCount());
+        assertEquals(2, officerAppointmentsAggregate.getResignedCount());
         assertEquals(OFFICER_ID, officerAppointmentsAggregate.getOfficerAppointments().get(0).getOfficerId());
         assertEquals(OFFICER_ID, officerAppointmentsAggregate.getOfficerAppointments().get(1).getOfficerId());
         assertEquals(OFFICER_ID, officerAppointmentsAggregate.getOfficerAppointments().get(2).getOfficerId());
@@ -105,6 +107,8 @@ class OfficerAppointmentsRepositoryITest {
 
         // then
         assertEquals(0, officerAppointmentsAggregate.getTotalResults());
+        assertEquals(0, officerAppointmentsAggregate.getInactiveCount());
+        assertEquals(0, officerAppointmentsAggregate.getResignedCount());
         assertTrue(officerAppointmentsAggregate.getOfficerAppointments().isEmpty());
 
     }
@@ -124,6 +128,8 @@ class OfficerAppointmentsRepositoryITest {
 
         // then
         assertEquals(2, officerAppointmentsAggregate.getTotalResults());
+        assertEquals(0, officerAppointmentsAggregate.getInactiveCount());
+        assertEquals(0, officerAppointmentsAggregate.getResignedCount());
 
         assertEquals(OFFICER_ID, officerAppointmentsAggregate.getOfficerAppointments().get(0).getOfficerId());
         assertEquals(OFFICER_ID, officerAppointmentsAggregate.getOfficerAppointments().get(1).getOfficerId());
@@ -144,6 +150,9 @@ class OfficerAppointmentsRepositoryITest {
 
         // then
         assertEquals(0, officerAppointmentsAggregate.getTotalResults());
+        assertEquals(0, officerAppointmentsAggregate.getInactiveCount());
+        assertEquals(0, officerAppointmentsAggregate.getResignedCount());
+
         assertTrue(officerAppointmentsAggregate.getOfficerAppointments().isEmpty());
     }
 
@@ -157,6 +166,8 @@ class OfficerAppointmentsRepositoryITest {
 
         // then
         assertEquals(5, officerAppointmentsAggregate.getTotalResults());
+        assertEquals(1, officerAppointmentsAggregate.getInactiveCount());
+        assertEquals(2, officerAppointmentsAggregate.getResignedCount());
         assertEquals(OFFICER_ID, officerAppointmentsAggregate.getOfficerAppointments().get(0).getOfficerId());
         assertEquals(OFFICER_ID, officerAppointmentsAggregate.getOfficerAppointments().get(1).getOfficerId());
         assertEquals(OFFICER_ID, officerAppointmentsAggregate.getOfficerAppointments().get(2).getOfficerId());
@@ -180,6 +191,8 @@ class OfficerAppointmentsRepositoryITest {
 
         // then
         assertEquals(2, officerAppointmentsAggregate.getTotalResults());
+        assertEquals(0, officerAppointmentsAggregate.getInactiveCount());
+        assertEquals(0, officerAppointmentsAggregate.getResignedCount());
         assertEquals(OFFICER_ID, officerAppointmentsAggregate.getOfficerAppointments().get(0).getOfficerId());
 
         assertEquals("active_2",
@@ -196,6 +209,8 @@ class OfficerAppointmentsRepositoryITest {
 
         // then
         assertEquals(5, officerAppointmentsAggregate.getTotalResults());
+        assertEquals(1, officerAppointmentsAggregate.getInactiveCount());
+        assertEquals(2, officerAppointmentsAggregate.getResignedCount());
         assertTrue(officerAppointmentsAggregate.getOfficerAppointments().isEmpty());
     }
 
@@ -209,6 +224,8 @@ class OfficerAppointmentsRepositoryITest {
 
         // then
         assertEquals(SECOND_OFFICER_TOTAL_RESULTS, officerAppointmentsAggregate.getTotalResults());
+        assertEquals(0, officerAppointmentsAggregate.getInactiveCount());
+        assertEquals(0, officerAppointmentsAggregate.getResignedCount());
         assertEquals(MAX_ITEMS_PER_PAGE, officerAppointmentsAggregate.getOfficerAppointments().size());
     }
 

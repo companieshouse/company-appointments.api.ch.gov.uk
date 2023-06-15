@@ -10,14 +10,14 @@ import uk.gov.companieshouse.api.officer.NameElements;
 import uk.gov.companieshouse.company_appointments.model.data.OfficerData;
 
 @Component
-public class NameMapper {
+class NameMapper {
 
-    protected String map(OfficerData data) {
+    String map(OfficerData data) {
         return ofNullable(data.getCompanyName())
                 .orElse(buildOfficerName(data));
     }
 
-    protected NameElements mapNameElements(OfficerData data) {
+    NameElements mapNameElements(OfficerData data) {
         NameElements nameElements = new NameElements()
                 .forename(data.getForename())
                 .title(data.getTitle())
@@ -30,7 +30,7 @@ public class NameMapper {
         return nameElements;
     }
 
-    private String buildOfficerName(OfficerData data) {
+    private static String buildOfficerName(OfficerData data) {
         return Stream.of(data.getForename(), data.getOtherForenames(), data.getSurname())
                 .filter(Objects::nonNull)
                 .collect(Collectors.joining(" "));

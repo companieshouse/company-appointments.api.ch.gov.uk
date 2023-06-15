@@ -7,14 +7,19 @@ import org.springframework.data.mongodb.core.mapping.Field;
 import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentData;
 
 @Document
-public class OfficerAppointmentsAggregate {
+class OfficerAppointmentsAggregate {
 
     @Field("total_results")
     private Integer totalResults;
     @Field("officer_appointments")
     private List<CompanyAppointmentData> officerAppointments;
+    @Field("inactive_count")
+    private Integer inactiveCount;
+    @Field("resigned_count")
+    private Integer resignedCount;
 
-    public OfficerAppointmentsAggregate() {
+
+    OfficerAppointmentsAggregate() {
         this.officerAppointments = new ArrayList<>();
     }
 
@@ -22,7 +27,7 @@ public class OfficerAppointmentsAggregate {
         return totalResults;
     }
 
-    public OfficerAppointmentsAggregate setTotalResults(Integer totalResults) {
+    public OfficerAppointmentsAggregate totalResults(Integer totalResults) {
         this.totalResults = totalResults;
         return this;
     }
@@ -31,8 +36,27 @@ public class OfficerAppointmentsAggregate {
         return officerAppointments;
     }
 
-    public OfficerAppointmentsAggregate setOfficerAppointments(List<CompanyAppointmentData> officerAppointments) {
+    public OfficerAppointmentsAggregate officerAppointments(
+            List<CompanyAppointmentData> officerAppointments) {
         this.officerAppointments = officerAppointments;
+        return this;
+    }
+
+    public Integer getInactiveCount() {
+        return inactiveCount;
+    }
+
+    public OfficerAppointmentsAggregate inactiveCount(Integer inactiveCount) {
+        this.inactiveCount = inactiveCount;
+        return this;
+    }
+
+    public Integer getResignedCount() {
+        return resignedCount;
+    }
+
+    public OfficerAppointmentsAggregate resignedCount(Integer resignedCount) {
+        this.resignedCount = resignedCount;
         return this;
     }
 }
