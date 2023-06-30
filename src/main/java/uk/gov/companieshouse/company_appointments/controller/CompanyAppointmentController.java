@@ -11,14 +11,16 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import uk.gov.companieshouse.api.appointment.OfficerList;
+import uk.gov.companieshouse.api.appointment.OfficerSummary;
 import uk.gov.companieshouse.api.appointment.PatchAppointmentNameStatusApi;
 import uk.gov.companieshouse.company_appointments.CompanyAppointmentsApplication;
 import uk.gov.companieshouse.company_appointments.exception.BadRequestException;
 import uk.gov.companieshouse.company_appointments.exception.NotFoundException;
 import uk.gov.companieshouse.company_appointments.exception.ServiceUnavailableException;
-import uk.gov.companieshouse.company_appointments.model.view.AllCompanyAppointmentsView;
-import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentView;
 import uk.gov.companieshouse.company_appointments.service.CompanyAppointmentService;
+import uk.gov.companieshouse.company_appointments.service.FetchAppointmentsRequest;
+import uk.gov.companieshouse.company_appointments.service.FetchAppointmentsRequestFactory;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.logging.LoggerFactory;
 
@@ -27,15 +29,17 @@ import uk.gov.companieshouse.logging.LoggerFactory;
 public class CompanyAppointmentController {
 
     private final CompanyAppointmentService companyAppointmentService;
+    private final FetchAppointmentsRequestFactory fetchAppointmentsRequestFactory;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CompanyAppointmentsApplication.APPLICATION_NAMESPACE);
 
-    public CompanyAppointmentController(CompanyAppointmentService companyAppointmentService) {
+    public CompanyAppointmentController(CompanyAppointmentService companyAppointmentService, FetchAppointmentsRequestFactory fetchAppointmentsRequestFactory) {
         this.companyAppointmentService = companyAppointmentService;
+        this.fetchAppointmentsRequestFactory = fetchAppointmentsRequestFactory;
     }
 
     @GetMapping(path = "/appointments/{appointment_id}")
-    public ResponseEntity<CompanyAppointmentView> fetchAppointment(@PathVariable("company_number") String companyNumber, @PathVariable("appointment_id") String appointmentID) {
+    public ResponseEntity<OfficerSummary> fetchAppointment(@PathVariable("company_number") String companyNumber, @PathVariable("appointment_id") String appointmentID) {
         try {
             return ResponseEntity.ok(companyAppointmentService.fetchAppointment(companyNumber, appointmentID));
         } catch (NotFoundException e) {
@@ -45,7 +49,7 @@ public class CompanyAppointmentController {
     }
 
     @GetMapping(path = "/officers-test")
-    public ResponseEntity<AllCompanyAppointmentsView> fetchAppointmentsForCompany(
+    public ResponseEntity<OfficerList> fetchAppointmentsForCompany(
             @PathVariable("company_number") String companyNumber,
             @RequestParam(required = false) String filter,
             @RequestParam(name = "order_by", required = false) String orderBy,
@@ -54,8 +58,17 @@ public class CompanyAppointmentController {
             @RequestParam(required = false, name = "register_view") Boolean registerView,
             @RequestParam(required = false, name = "register_type") String registerType) {
 
+        FetchAppointmentsRequest request =
+                fetchAppointmentsRequestFactory.build()
+                        .companyNumber(companyNumber)
+                        .filter(filter)
+                        .orderBy(orderBy)
+                        .startIndex(startIndex)
+                        .itemsPerPage(itemsPerPage)
+                        .registerView(registerView)
+                        .registerType(registerType);
         try {
-            return ResponseEntity.ok(companyAppointmentService.fetchAppointmentsForCompany(companyNumber, filter, orderBy, startIndex, itemsPerPage, registerView, registerType));
+            return ResponseEntity.ok(companyAppointmentService.fetchAppointmentsForCompany(request));
         } catch (NotFoundException e) {
             LOGGER.info(e.getMessage());
             return ResponseEntity.notFound().build();

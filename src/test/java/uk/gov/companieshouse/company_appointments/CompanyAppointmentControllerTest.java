@@ -3,6 +3,7 @@ package uk.gov.companieshouse.company_appointments;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -14,14 +15,16 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import uk.gov.companieshouse.api.appointment.OfficerList;
+import uk.gov.companieshouse.api.appointment.OfficerSummary;
 import uk.gov.companieshouse.api.appointment.PatchAppointmentNameStatusApi;
 import uk.gov.companieshouse.company_appointments.controller.CompanyAppointmentController;
 import uk.gov.companieshouse.company_appointments.exception.BadRequestException;
 import uk.gov.companieshouse.company_appointments.exception.NotFoundException;
 import uk.gov.companieshouse.company_appointments.exception.ServiceUnavailableException;
-import uk.gov.companieshouse.company_appointments.model.view.AllCompanyAppointmentsView;
-import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentView;
 import uk.gov.companieshouse.company_appointments.service.CompanyAppointmentService;
+import uk.gov.companieshouse.company_appointments.service.FetchAppointmentsRequest;
+import uk.gov.companieshouse.company_appointments.service.FetchAppointmentsRequestFactory;
 
 @ExtendWith(MockitoExtension.class)
 public class CompanyAppointmentControllerTest {
@@ -34,31 +37,34 @@ public class CompanyAppointmentControllerTest {
     private CompanyAppointmentService companyAppointmentService;
 
     @Mock
-    private CompanyAppointmentView companyAppointmentView;
+    private FetchAppointmentsRequestFactory fetchAppointmentsRequestFactory;
 
     @Mock
-    private AllCompanyAppointmentsView allCompanyAppointmentsView;
+    private OfficerSummary officerSummary;
+
+    @Mock
+    private OfficerList officerList;
 
     private final static String COMPANY_NUMBER = "123456";
     private final static String APPOINTMENT_ID = "345678";
 
     @BeforeEach
     void setUp() {
-        companyAppointmentController = new CompanyAppointmentController(companyAppointmentService);
+        companyAppointmentController = new CompanyAppointmentController(companyAppointmentService, fetchAppointmentsRequestFactory);
     }
 
     @Test
     void testControllerReturns200StatusAndCompanyAppointmentsData() throws NotFoundException {
         // given
-        when(companyAppointmentService.fetchAppointment(COMPANY_NUMBER, APPOINTMENT_ID)).thenReturn(companyAppointmentView);
+        when(companyAppointmentService.fetchAppointment(COMPANY_NUMBER, APPOINTMENT_ID)).thenReturn(officerSummary);
 
         // when
-        ResponseEntity<CompanyAppointmentView> response = companyAppointmentController.fetchAppointment(COMPANY_NUMBER,
+        ResponseEntity<OfficerSummary> response = companyAppointmentController.fetchAppointment(COMPANY_NUMBER,
                 APPOINTMENT_ID);
 
         // then
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(companyAppointmentView, response.getBody());
+        assertEquals(officerSummary, response.getBody());
         verify(companyAppointmentService).fetchAppointment(COMPANY_NUMBER, APPOINTMENT_ID);
     }
 
@@ -68,7 +74,7 @@ public class CompanyAppointmentControllerTest {
         when(companyAppointmentService.fetchAppointment(any(), any())).thenThrow(NotFoundException.class);
 
         // when
-        ResponseEntity<CompanyAppointmentView> response = companyAppointmentController.fetchAppointment(COMPANY_NUMBER,
+        ResponseEntity<OfficerSummary> response = companyAppointmentController.fetchAppointment(COMPANY_NUMBER,
                 APPOINTMENT_ID);
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
@@ -78,69 +84,99 @@ public class CompanyAppointmentControllerTest {
     @Test
     void testControllerReturns200StatusAndAppointmentsForCompany() throws Exception {
         // given
-        when(companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER, "false", null, null, null, null, null)).thenReturn(allCompanyAppointmentsView);
+        FetchAppointmentsRequest request =
+                new FetchAppointmentsRequest()
+                        .companyNumber(COMPANY_NUMBER)
+                        .filter("false");
+
+        when(fetchAppointmentsRequestFactory.build()).thenReturn(request);
+        when(companyAppointmentService.fetchAppointmentsForCompany(request)).thenReturn(officerList);
 
         // when
-        ResponseEntity<AllCompanyAppointmentsView> response = companyAppointmentController.fetchAppointmentsForCompany(COMPANY_NUMBER,
+        ResponseEntity<OfficerList> response = companyAppointmentController.fetchAppointmentsForCompany(COMPANY_NUMBER,
                 "false", null, null, null, null, null);
 
         // then
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(allCompanyAppointmentsView, response.getBody());
-        verify(companyAppointmentService).fetchAppointmentsForCompany(COMPANY_NUMBER, "false", null, null, null, null, null);
+        assertEquals(officerList, response.getBody());
+        verify(companyAppointmentService).fetchAppointmentsForCompany(request);
     }
 
     @Test
     void testControllerReturns404StatusIfAppointmentForCompanyNotFound() throws Exception {
         // given
-        when(companyAppointmentService.fetchAppointmentsForCompany(any(), any(), any(), any(), any(), any(), any())).thenThrow(NotFoundException.class);
+        when(fetchAppointmentsRequestFactory.build()).thenReturn(new FetchAppointmentsRequest());
+        when(companyAppointmentService.fetchAppointmentsForCompany(any())).thenThrow(NotFoundException.class);
 
         // when
-        ResponseEntity<AllCompanyAppointmentsView> response = companyAppointmentController.fetchAppointmentsForCompany(COMPANY_NUMBER,
+        ResponseEntity<OfficerList> response = companyAppointmentController.fetchAppointmentsForCompany(COMPANY_NUMBER,
                 "false", null, null, null, null, null);
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        verify(companyAppointmentService).fetchAppointmentsForCompany(any(), any(), any(), any(), any(), any(), any());
+        verify(companyAppointmentService).fetchAppointmentsForCompany(any());
     }
 
     @Test
     void testControllerReturns400StatusIfOrderByParameterIsIncorrect() throws Exception {
         // given
-        when(companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER, "false", "invalid", null, null, null, null)).thenThrow(BadRequestException.class);
+        FetchAppointmentsRequest request =
+                new FetchAppointmentsRequest()
+                        .companyNumber(COMPANY_NUMBER)
+                        .filter("false")
+                        .orderBy("invalid");
+
+        when(fetchAppointmentsRequestFactory.build()).thenReturn(request);
+        when(companyAppointmentService.fetchAppointmentsForCompany(request)).thenThrow(BadRequestException.class);
 
         // when
-        ResponseEntity<AllCompanyAppointmentsView> response = companyAppointmentController.fetchAppointmentsForCompany(COMPANY_NUMBER,
+        ResponseEntity<OfficerList> response = companyAppointmentController.fetchAppointmentsForCompany(COMPANY_NUMBER,
                 "false", "invalid", null, null, null, null);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        verify(companyAppointmentService).fetchAppointmentsForCompany(COMPANY_NUMBER, "false", "invalid", null, null, null, null);
+        verify(companyAppointmentService).fetchAppointmentsForCompany(request);
     }
 
     @Test
     void testFetchAppointmentForCompanyWithIndexAndItemsReturns200Status() throws Exception {
+        // given
+        FetchAppointmentsRequest request =
+                new FetchAppointmentsRequest()
+                        .companyNumber(COMPANY_NUMBER)
+                        .filter("false")
+                        .startIndex(20)
+                        .itemsPerPage(50);
 
-        when(companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER, "false", null, 20, 50, null, null)).thenReturn(allCompanyAppointmentsView);
+        when(fetchAppointmentsRequestFactory.build()).thenReturn(request);
+        when(companyAppointmentService.fetchAppointmentsForCompany(request)).thenReturn(officerList);
 
         // when
-        ResponseEntity<AllCompanyAppointmentsView> response = companyAppointmentController.fetchAppointmentsForCompany(COMPANY_NUMBER,
+        ResponseEntity<OfficerList> response = companyAppointmentController.fetchAppointmentsForCompany(COMPANY_NUMBER,
                 "false", null, 20, 50, null, null);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        verify(companyAppointmentService).fetchAppointmentsForCompany(COMPANY_NUMBER, "false", null, 20, 50, null, null);
+        verify(companyAppointmentService).fetchAppointmentsForCompany(request);
     }
 
     @Test
     void testControllerReturns500StatusIfThereIsServiceUnavailable() throws Exception {
         // given
-        when(companyAppointmentService.fetchAppointmentsForCompany(COMPANY_NUMBER, "false", null, null, null, true, "directors"))
+        FetchAppointmentsRequest request =
+                new FetchAppointmentsRequest()
+                        .companyNumber(COMPANY_NUMBER)
+                        .filter("false")
+                        .registerView(true)
+                        .registerType("directors");
+
+        when(fetchAppointmentsRequestFactory.build()).thenReturn(request);
+        when(companyAppointmentService.fetchAppointmentsForCompany(request))
                 .thenThrow(ServiceUnavailableException.class);
 
         // when
-        ResponseEntity<AllCompanyAppointmentsView> response = companyAppointmentController.fetchAppointmentsForCompany(COMPANY_NUMBER,
+        ResponseEntity<OfficerList> response = companyAppointmentController.fetchAppointmentsForCompany(COMPANY_NUMBER,
                 "false", null, null, null, true, "directors");
 
         assertEquals(HttpStatus.SERVICE_UNAVAILABLE, response.getStatusCode());
-        verify(companyAppointmentService).fetchAppointmentsForCompany(COMPANY_NUMBER, "false", null, null, null, true, "directors");
+        verify(companyAppointmentService).fetchAppointmentsForCompany(request);
     }
 
     @Test
