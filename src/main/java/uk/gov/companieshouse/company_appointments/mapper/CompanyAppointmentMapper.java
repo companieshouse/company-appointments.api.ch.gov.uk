@@ -63,7 +63,7 @@ public class CompanyAppointmentMapper {
                 .principalOfficeAddress(mapPrincipalOfficeAddress(companyAppointmentData))
                 .contactDetails(mapContactDetails(companyAppointmentData))
                 .isPre1992Appointment(companyAppointmentData.getData().getIsPre1992Appointment());
-                // TODO: Perl impl does not have etag in each summary but this did, should we add etag or not?
+                // TODO: Map person number when switching to delta_appointments collection
         LOGGER.debug("Mapped data for appointment: " + companyAppointmentData.getId());
         return result;
     }

@@ -20,7 +20,6 @@ import uk.gov.companieshouse.company_appointments.exception.NotFoundException;
 import uk.gov.companieshouse.company_appointments.exception.ServiceUnavailableException;
 import uk.gov.companieshouse.company_appointments.service.CompanyAppointmentService;
 import uk.gov.companieshouse.company_appointments.service.FetchAppointmentsRequest;
-import uk.gov.companieshouse.company_appointments.service.FetchAppointmentsRequestFactory;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.logging.LoggerFactory;
 
@@ -29,13 +28,11 @@ import uk.gov.companieshouse.logging.LoggerFactory;
 public class CompanyAppointmentController {
 
     private final CompanyAppointmentService companyAppointmentService;
-    private final FetchAppointmentsRequestFactory fetchAppointmentsRequestFactory;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CompanyAppointmentsApplication.APPLICATION_NAMESPACE);
 
-    public CompanyAppointmentController(CompanyAppointmentService companyAppointmentService, FetchAppointmentsRequestFactory fetchAppointmentsRequestFactory) {
+    public CompanyAppointmentController(CompanyAppointmentService companyAppointmentService) {
         this.companyAppointmentService = companyAppointmentService;
-        this.fetchAppointmentsRequestFactory = fetchAppointmentsRequestFactory;
     }
 
     @GetMapping(path = "/appointments/{appointment_id}")
@@ -58,15 +55,15 @@ public class CompanyAppointmentController {
             @RequestParam(required = false, name = "register_view") Boolean registerView,
             @RequestParam(required = false, name = "register_type") String registerType) {
 
-        FetchAppointmentsRequest request =
-                fetchAppointmentsRequestFactory.build()
-                        .companyNumber(companyNumber)
-                        .filter(filter)
-                        .orderBy(orderBy)
-                        .startIndex(startIndex)
-                        .itemsPerPage(itemsPerPage)
-                        .registerView(registerView)
-                        .registerType(registerType);
+        FetchAppointmentsRequest request = FetchAppointmentsRequest.Builder.builder()
+                        .withCompanyNumber(companyNumber)
+                        .withFilter(filter)
+                        .withOrderBy(orderBy)
+                        .withStartIndex(startIndex)
+                        .withItemsPerPage(itemsPerPage)
+                        .withRegisterView(registerView)
+                        .withRegisterType(registerType)
+                        .build();
         try {
             return ResponseEntity.ok(companyAppointmentService.fetchAppointmentsForCompany(request));
         } catch (NotFoundException e) {

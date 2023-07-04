@@ -92,7 +92,7 @@ class CompanyAppointmentServiceTest {
 
     @Test
     void testFetchAppointmentReturnsMappedAppointmentData() throws NotFoundException {
-        CompanyAppointmentData officerData = new CompanyAppointmentData("1", officerData().build(), "active");
+        CompanyAppointmentData officerData = new CompanyAppointmentData("1", officerData().withEtag("etag").build(), "active");
 
         // given
         when(companyAppointmentRepository.readByCompanyNumberAndAppointmentID(COMPANY_NUMBER, APPOINTMENT_ID))
@@ -103,6 +103,7 @@ class CompanyAppointmentServiceTest {
 
         // then
         assertEquals(OfficerSummary.class, result.getClass());
+        assertEquals("etag", result.getEtag());
         verify(companyAppointmentRepository).readByCompanyNumberAndAppointmentID(COMPANY_NUMBER, APPOINTMENT_ID);
     }
 
@@ -123,10 +124,11 @@ class CompanyAppointmentServiceTest {
         allAppointmentData.add(officerData);
 
         FetchAppointmentsRequest request =
-                new FetchAppointmentsRequest()
-                        .companyNumber(COMPANY_NUMBER)
-                        .filter(FILTER)
-                        .orderBy(ORDER_BY);
+                FetchAppointmentsRequest.Builder.builder()
+                        .withCompanyNumber(COMPANY_NUMBER)
+                        .withFilter(FILTER)
+                        .withOrderBy(ORDER_BY)
+                        .build();
 
         when(sortMapper.getSort(ORDER_BY)).thenReturn(SORT);
         when(companyAppointmentRepository.readAllByCompanyNumberForNotResigned(COMPANY_NUMBER, SORT))
@@ -143,10 +145,11 @@ class CompanyAppointmentServiceTest {
     @Test
     void testFetchAppointmentForCompanyThrowsNotFoundExceptionIfAppointmentDoesntExist() {
         FetchAppointmentsRequest request =
-                new FetchAppointmentsRequest()
-                        .companyNumber(COMPANY_NUMBER)
-                        .filter("filter")
-                        .orderBy(ORDER_BY);
+                FetchAppointmentsRequest.Builder.builder()
+                        .withCompanyNumber(COMPANY_NUMBER)
+                        .withFilter("filter")
+                        .withOrderBy(ORDER_BY)
+                        .build();
 
         when(companyAppointmentRepository.readAllByCompanyNumber(any(), any()))
                 .thenReturn(new ArrayList<>());
@@ -163,10 +166,11 @@ class CompanyAppointmentServiceTest {
         allAppointmentData.add(officerData);
 
         FetchAppointmentsRequest request =
-                new FetchAppointmentsRequest()
-                        .companyNumber(COMPANY_NUMBER)
-                        .filter("filter")
-                        .orderBy(ORDER_BY);
+                FetchAppointmentsRequest.Builder.builder()
+                        .withCompanyNumber(COMPANY_NUMBER)
+                        .withFilter("filter")
+                        .withOrderBy(ORDER_BY)
+                        .build();
 
         when(sortMapper.getSort(ORDER_BY)).thenReturn(SORT);
         when(companyAppointmentRepository.readAllByCompanyNumber(COMPANY_NUMBER, SORT))
@@ -189,10 +193,11 @@ class CompanyAppointmentServiceTest {
         }
 
         FetchAppointmentsRequest request =
-                new FetchAppointmentsRequest()
-                        .companyNumber(COMPANY_NUMBER)
-                        .filter("false")
-                        .orderBy(ORDER_BY);
+                FetchAppointmentsRequest.Builder.builder()
+                        .withCompanyNumber(COMPANY_NUMBER)
+                        .withFilter("false")
+                        .withOrderBy(ORDER_BY)
+                        .build();
 
         when(sortMapper.getSort(ORDER_BY)).thenReturn(SORT);
         when(companyAppointmentRepository.readAllByCompanyNumber(COMPANY_NUMBER, SORT))
@@ -212,12 +217,12 @@ class CompanyAppointmentServiceTest {
         }
 
         FetchAppointmentsRequest request =
-                new FetchAppointmentsRequest()
-                        .companyNumber(COMPANY_NUMBER)
-                        .filter("false")
-                        .orderBy(ORDER_BY)
-                        .itemsPerPage(150);
-
+                FetchAppointmentsRequest.Builder.builder()
+                        .withCompanyNumber(COMPANY_NUMBER)
+                        .withFilter("false")
+                        .withOrderBy(ORDER_BY)
+                        .withItemsPerPage(150)
+                        .build();
 
         when(sortMapper.getSort(ORDER_BY)).thenReturn(SORT);
         when(companyAppointmentRepository.readAllByCompanyNumber(COMPANY_NUMBER, SORT))
@@ -238,12 +243,12 @@ class CompanyAppointmentServiceTest {
         }
 
         FetchAppointmentsRequest request =
-                new FetchAppointmentsRequest()
-                        .companyNumber(COMPANY_NUMBER)
-                        .filter("false")
-                        .orderBy(ORDER_BY)
-                        .itemsPerPage(5);
-
+                FetchAppointmentsRequest.Builder.builder()
+                        .withCompanyNumber(COMPANY_NUMBER)
+                        .withFilter("false")
+                        .withOrderBy(ORDER_BY)
+                        .withItemsPerPage(5)
+                        .build();
 
         when(sortMapper.getSort(ORDER_BY)).thenReturn(SORT);
         when(companyAppointmentRepository.readAllByCompanyNumber(COMPANY_NUMBER, SORT))
@@ -266,11 +271,12 @@ class CompanyAppointmentServiceTest {
         }
 
         FetchAppointmentsRequest request =
-                new FetchAppointmentsRequest()
-                        .companyNumber(COMPANY_NUMBER)
-                        .filter("false")
-                        .orderBy(ORDER_BY)
-                        .startIndex(5);
+                FetchAppointmentsRequest.Builder.builder()
+                        .withCompanyNumber(COMPANY_NUMBER)
+                        .withFilter("false")
+                        .withOrderBy(ORDER_BY)
+                        .withStartIndex(5)
+                        .build();
 
         when(sortMapper.getSort(ORDER_BY)).thenReturn(SORT);
         when(companyAppointmentRepository.readAllByCompanyNumber(COMPANY_NUMBER, SORT))
@@ -293,12 +299,13 @@ class CompanyAppointmentServiceTest {
         }
 
         FetchAppointmentsRequest request =
-                new FetchAppointmentsRequest()
-                        .companyNumber(COMPANY_NUMBER)
-                        .filter("false")
-                        .orderBy(ORDER_BY)
-                        .startIndex(56)
-                        .itemsPerPage(15);
+                FetchAppointmentsRequest.Builder.builder()
+                        .withCompanyNumber(COMPANY_NUMBER)
+                        .withFilter("false")
+                        .withOrderBy(ORDER_BY)
+                        .withStartIndex(56)
+                        .withItemsPerPage(15)
+                        .build();
 
         when(sortMapper.getSort(ORDER_BY)).thenReturn(SORT);
         when(companyAppointmentRepository.readAllByCompanyNumber(COMPANY_NUMBER, SORT))
@@ -322,12 +329,13 @@ class CompanyAppointmentServiceTest {
         }
 
         FetchAppointmentsRequest request =
-                new FetchAppointmentsRequest()
-                        .companyNumber(COMPANY_NUMBER)
-                        .filter("false")
-                        .orderBy(ORDER_BY)
-                        .startIndex(195)
-                        .itemsPerPage(50);
+                FetchAppointmentsRequest.Builder.builder()
+                        .withCompanyNumber(COMPANY_NUMBER)
+                        .withFilter("false")
+                        .withOrderBy(ORDER_BY)
+                        .withStartIndex(195)
+                        .withItemsPerPage(50)
+                        .build();
 
         when(sortMapper.getSort(ORDER_BY)).thenReturn(SORT);
         when(companyAppointmentRepository.readAllByCompanyNumber(COMPANY_NUMBER, SORT))
@@ -349,11 +357,12 @@ class CompanyAppointmentServiceTest {
         }
 
         FetchAppointmentsRequest request =
-                new FetchAppointmentsRequest()
-                        .companyNumber(COMPANY_NUMBER)
-                        .filter("false")
-                        .orderBy(ORDER_BY)
-                        .startIndex(300);
+                FetchAppointmentsRequest.Builder.builder()
+                        .withCompanyNumber(COMPANY_NUMBER)
+                        .withFilter("false")
+                        .withOrderBy(ORDER_BY)
+                        .withStartIndex(300)
+                        .build();
 
         when(sortMapper.getSort(ORDER_BY)).thenReturn(SORT);
         when(companyAppointmentRepository.readAllByCompanyNumber(COMPANY_NUMBER, SORT))
@@ -373,10 +382,11 @@ class CompanyAppointmentServiceTest {
         allAppointmentData.add(officerData);
 
         FetchAppointmentsRequest request =
-                new FetchAppointmentsRequest()
-                        .companyNumber(COMPANY_NUMBER)
-                        .filter("filter")
-                        .orderBy(ORDER_BY);
+                FetchAppointmentsRequest.Builder.builder()
+                        .withCompanyNumber(COMPANY_NUMBER)
+                        .withFilter("filter")
+                        .withOrderBy(ORDER_BY)
+                        .build();
 
         when(sortMapper.getSort(ORDER_BY)).thenReturn(SORT);
         when(companyAppointmentRepository.readAllByCompanyNumber(COMPANY_NUMBER, SORT))
@@ -399,10 +409,11 @@ class CompanyAppointmentServiceTest {
         allAppointmentData.add(officerData);
 
         FetchAppointmentsRequest request =
-                new FetchAppointmentsRequest()
-                        .companyNumber(COMPANY_NUMBER)
-                        .filter("filter")
-                        .orderBy(ORDER_BY);
+                FetchAppointmentsRequest.Builder.builder()
+                        .withCompanyNumber(COMPANY_NUMBER)
+                        .withFilter("filter")
+                        .withOrderBy(ORDER_BY)
+                        .build();
 
         when(sortMapper.getSort(ORDER_BY)).thenReturn(SORT);
         when(companyAppointmentRepository.readAllByCompanyNumber(COMPANY_NUMBER, SORT))
@@ -422,9 +433,10 @@ class CompanyAppointmentServiceTest {
         allAppointmentData.add(officerData);
 
         FetchAppointmentsRequest request =
-                new FetchAppointmentsRequest()
-                        .companyNumber(COMPANY_NUMBER)
-                        .registerView(false);
+                FetchAppointmentsRequest.Builder.builder()
+                        .withCompanyNumber(COMPANY_NUMBER)
+                        .withRegisterView(false)
+                        .build();
 
         when(sortMapper.getSort(null)).thenReturn(SORT);
         when(companyAppointmentRepository.readAllByCompanyNumber(COMPANY_NUMBER, SORT))
@@ -443,8 +455,9 @@ class CompanyAppointmentServiceTest {
         allAppointmentData.add(officerData);
 
         FetchAppointmentsRequest request =
-                new FetchAppointmentsRequest()
-                        .companyNumber(COMPANY_NUMBER);
+                FetchAppointmentsRequest.Builder.builder()
+                        .withCompanyNumber(COMPANY_NUMBER)
+                        .build();
 
         when(sortMapper.getSort(null)).thenReturn(SORT);
         when(companyAppointmentRepository.readAllByCompanyNumber(COMPANY_NUMBER, SORT))
@@ -457,10 +470,11 @@ class CompanyAppointmentServiceTest {
     @Test
     void testFetchAppointmentsForCompanyThrowsNotFoundExceptionIfRegisterViewAndNotHeldInCompaniesHouse() throws Exception {
         FetchAppointmentsRequest request =
-                new FetchAppointmentsRequest()
-                        .companyNumber(COMPANY_NUMBER)
-                        .registerView(true)
-                        .registerType(REGISTER_TYPE);
+                FetchAppointmentsRequest.Builder.builder()
+                        .withCompanyNumber(COMPANY_NUMBER)
+                        .withRegisterView(true)
+                        .withRegisterType(REGISTER_TYPE)
+                        .build();
 
         when(companyRegisterService.isRegisterHeldInCompaniesHouse(REGISTER_TYPE, COMPANY_NUMBER)).thenReturn(false);
 
@@ -476,10 +490,11 @@ class CompanyAppointmentServiceTest {
         allAppointmentData.add(officerData);
 
         FetchAppointmentsRequest request =
-                new FetchAppointmentsRequest()
-                        .companyNumber(COMPANY_NUMBER)
-                        .registerView(true)
-                        .registerType("secretaries");
+                FetchAppointmentsRequest.Builder.builder()
+                        .withCompanyNumber(COMPANY_NUMBER)
+                        .withRegisterView(true)
+                        .withRegisterType("secretaries")
+                        .build();
 
         when(sortMapper.getSort(null)).thenReturn(SORT);
         when(companyAppointmentRepository.readAllByCompanyNumberForNotResigned(COMPANY_NUMBER, SORT))
@@ -498,10 +513,11 @@ class CompanyAppointmentServiceTest {
         allAppointmentData.add(officerData);
 
         FetchAppointmentsRequest request =
-                new FetchAppointmentsRequest()
-                        .companyNumber(COMPANY_NUMBER)
-                        .registerView(true)
-                        .registerType(REGISTER_TYPE);
+                FetchAppointmentsRequest.Builder.builder()
+                        .withCompanyNumber(COMPANY_NUMBER)
+                        .withRegisterView(true)
+                        .withRegisterType(REGISTER_TYPE)
+                        .build();
 
         when(sortMapper.getSort(null)).thenReturn(SORT);
         when(companyAppointmentRepository.readAllByCompanyNumberForNotResigned(COMPANY_NUMBER, SORT))
