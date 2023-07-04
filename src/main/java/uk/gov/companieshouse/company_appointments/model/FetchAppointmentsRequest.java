@@ -1,4 +1,4 @@
-package uk.gov.companieshouse.company_appointments.service;
+package uk.gov.companieshouse.company_appointments.model;
 
 import java.util.Objects;
 

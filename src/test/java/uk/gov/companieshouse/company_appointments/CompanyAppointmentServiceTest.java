@@ -43,7 +43,7 @@ import uk.gov.companieshouse.company_appointments.repository.CompanyAppointmentF
 import uk.gov.companieshouse.company_appointments.repository.CompanyAppointmentRepository;
 import uk.gov.companieshouse.company_appointments.service.CompanyAppointmentService;
 import uk.gov.companieshouse.company_appointments.service.CompanyRegisterService;
-import uk.gov.companieshouse.company_appointments.service.FetchAppointmentsRequest;
+import uk.gov.companieshouse.company_appointments.model.FetchAppointmentsRequest;
 import uk.gov.companieshouse.company_appointments.util.CompanyStatusValidator;
 
 @ExtendWith(MockitoExtension.class)

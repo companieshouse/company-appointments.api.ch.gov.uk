@@ -24,6 +24,7 @@ import uk.gov.companieshouse.company_appointments.exception.NotFoundException;
 import uk.gov.companieshouse.company_appointments.exception.ServiceUnavailableException;
 import uk.gov.companieshouse.company_appointments.mapper.CompanyAppointmentMapper;
 import uk.gov.companieshouse.company_appointments.mapper.SortMapper;
+import uk.gov.companieshouse.company_appointments.model.FetchAppointmentsRequest;
 import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentData;
 import uk.gov.companieshouse.company_appointments.repository.CompanyAppointmentFullRecordRepository;
 import uk.gov.companieshouse.company_appointments.repository.CompanyAppointmentRepository;
