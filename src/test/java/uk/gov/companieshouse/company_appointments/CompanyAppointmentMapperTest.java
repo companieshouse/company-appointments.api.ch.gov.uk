@@ -2,10 +2,20 @@ package uk.gov.companieshouse.company_appointments;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import uk.gov.companieshouse.api.appointment.Address;
+import uk.gov.companieshouse.api.appointment.ContactDetails;
+import uk.gov.companieshouse.api.appointment.CorporateIdent;
+import uk.gov.companieshouse.api.appointment.DateOfBirth;
+import uk.gov.companieshouse.api.appointment.FormerNames;
+import uk.gov.companieshouse.api.appointment.ItemLinkTypes;
+import uk.gov.companieshouse.api.appointment.OfficerLinkTypes;
+import uk.gov.companieshouse.api.appointment.OfficerSummary;
+import uk.gov.companieshouse.api.appointment.PrincipalOfficeAddress;
 import uk.gov.companieshouse.company_appointments.mapper.CompanyAppointmentMapper;
 import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentData;
 import uk.gov.companieshouse.company_appointments.model.data.ContactDetailsData;
@@ -14,17 +24,11 @@ import uk.gov.companieshouse.company_appointments.model.data.IdentificationData;
 import uk.gov.companieshouse.company_appointments.model.data.LinksData;
 import uk.gov.companieshouse.company_appointments.model.data.OfficerData;
 import uk.gov.companieshouse.company_appointments.model.data.ServiceAddressData;
-import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentView;
-import uk.gov.companieshouse.company_appointments.model.view.ContactDetailsView;
-import uk.gov.companieshouse.company_appointments.model.view.DateOfBirthView;
-import uk.gov.companieshouse.company_appointments.model.view.FormerNamesView;
-import uk.gov.companieshouse.company_appointments.model.view.IdentificationView;
-import uk.gov.companieshouse.company_appointments.model.view.LinksView;
-import uk.gov.companieshouse.company_appointments.model.view.ServiceAddressView;
 import uk.gov.companieshouse.company_appointments.roles.SecretarialRoles;
 
 class CompanyAppointmentMapperTest {
 
+    public static final String IDENTIFICATION_TYPE = "eea";
     private CompanyAppointmentMapper companyAppointmentMapper;
 
     @BeforeEach
@@ -35,7 +39,7 @@ class CompanyAppointmentMapperTest {
     @Test
     void testCompanyAppointmentMapperForenameAndOtherForenames() {
         //when
-        CompanyAppointmentView actual = companyAppointmentMapper.map(companyAppointmentData(personalAppointmentDataWithOtherForenames()));
+        OfficerSummary actual = companyAppointmentMapper.map(companyAppointmentData(personalAppointmentDataWithOtherForenames()));
 
         //then
         assertEquals(personalAppointmentViewWithOtherForenames(), actual);
@@ -44,7 +48,7 @@ class CompanyAppointmentMapperTest {
     @Test
     void testCompanyAppointmentMapperNoOtherForenames() {
         //when
-        CompanyAppointmentView actual = companyAppointmentMapper.map(companyAppointmentData(personalAppointmentDataWithNoOtherForenames()));
+        OfficerSummary actual = companyAppointmentMapper.map(companyAppointmentData(personalAppointmentDataWithNoOtherForenames()));
 
         //then
         assertEquals(personalAppointmentViewWithNoOtherForenames(), actual);
@@ -53,7 +57,7 @@ class CompanyAppointmentMapperTest {
     @Test
     void testCompanyAppointmentMapperNoForenameOrOtherForenames() {
         //when
-        CompanyAppointmentView actual = companyAppointmentMapper.map(companyAppointmentData(personalAppointmentDataWithNoForenameOrOtherForenames()));
+        OfficerSummary actual = companyAppointmentMapper.map(companyAppointmentData(personalAppointmentDataWithNoForenameOrOtherForenames()));
 
         //then
         assertEquals(personalAppointmentViewWithNoForenamesOrOtherForenames(), actual);
@@ -62,7 +66,7 @@ class CompanyAppointmentMapperTest {
     @Test
     void testCompanyAppointmentMapperNoForenameAndOtherForenames() {
         //when
-        CompanyAppointmentView actual = companyAppointmentMapper.map(companyAppointmentData(personalAppointmentDataWithNoForenameAndOtherForenames()));
+        OfficerSummary actual = companyAppointmentMapper.map(companyAppointmentData(personalAppointmentDataWithNoForenameAndOtherForenames()));
 
         //then
         assertEquals(personalAppointmentViewWithNoForenamesAndOtherForenames(), actual);
@@ -71,7 +75,7 @@ class CompanyAppointmentMapperTest {
     @Test
     void testCompanyAppointmentMapperWithForenamesAndTitle() {
         //when
-        CompanyAppointmentView actual = companyAppointmentMapper.map(companyAppointmentData(personalAppointmentDataWithForenamesAndTitle()));
+        OfficerSummary actual = companyAppointmentMapper.map(companyAppointmentData(personalAppointmentDataWithForenamesAndTitle()));
 
         //then
         assertEquals(personalAppointmentViewWithForenamesAndTitle(), actual);
@@ -80,7 +84,7 @@ class CompanyAppointmentMapperTest {
     @Test
     void testCompanyAppointmentMapperWithForenamesOmitsTitle() {
         //when
-        CompanyAppointmentView actual = companyAppointmentMapper.map(companyAppointmentData(personalAppointmentDataWithNoForenamesOmitsTitle()));
+        OfficerSummary actual = companyAppointmentMapper.map(companyAppointmentData(personalAppointmentDataWithNoForenamesOmitsTitle()));
 
         //then
         assertEquals(personalAppointmentViewWithNoForenamesOmitsTitle(), actual);
@@ -89,7 +93,7 @@ class CompanyAppointmentMapperTest {
     @Test
     void testCompanyAppointmentMapperWithCorporateOfficer() {
         //when
-        CompanyAppointmentView actual = companyAppointmentMapper.map(companyAppointmentData(corporateAppointmentData()));
+        OfficerSummary actual = companyAppointmentMapper.map(companyAppointmentData(corporateAppointmentData()));
 
         //then
         assertEquals(corporateAppointmentView(), actual);
@@ -98,7 +102,7 @@ class CompanyAppointmentMapperTest {
     @Test
     void testCompanyAppointmentMapperWithFormerName() {
         //when
-        CompanyAppointmentView actual = companyAppointmentMapper.map(companyAppointmentData(personalAppointmentDataWithFormerNames()));
+        OfficerSummary actual = companyAppointmentMapper.map(companyAppointmentData(personalAppointmentDataWithFormerNames()));
 
         //then
         assertEquals(personalAppointmentViewWithFormerNames(), actual);
@@ -107,7 +111,7 @@ class CompanyAppointmentMapperTest {
     @Test
     void testCompanyAppointmentMapperWithoutServiceAddress() {
         //when
-        CompanyAppointmentView actual = companyAppointmentMapper.map(companyAppointmentData(personalAppointmentDataWithoutServiceAddress()));
+        OfficerSummary actual = companyAppointmentMapper.map(companyAppointmentData(personalAppointmentDataWithoutServiceAddress()));
 
         //then
         assertEquals(personalAppointmentViewWithoutServiceAddress(), actual);
@@ -116,7 +120,7 @@ class CompanyAppointmentMapperTest {
     @Test
     void testCompanyAppointmentMapperWithoutLinks() {
         //when
-        CompanyAppointmentView actual = companyAppointmentMapper.map(companyAppointmentData(personalAppointmentDataWithoutLinks()));
+        OfficerSummary actual = companyAppointmentMapper.map(companyAppointmentData(personalAppointmentDataWithoutLinks()));
 
         //then
         assertEquals(personalAppointmentViewWithoutLinks(), actual);
@@ -125,7 +129,7 @@ class CompanyAppointmentMapperTest {
     @Test
     void testCompanyAppointmentMapperWithoutAppointmentLink() {
         //when
-        CompanyAppointmentView actual = companyAppointmentMapper.map(companyAppointmentData(personalAppointmentDataWithoutAppointmentLink()));
+        OfficerSummary actual = companyAppointmentMapper.map(companyAppointmentData(personalAppointmentDataWithoutAppointmentLink()));
 
         //then
         assertEquals(personalAppointmentViewWithoutAppointmentLink(), actual);
@@ -134,7 +138,7 @@ class CompanyAppointmentMapperTest {
     @Test
     void testCompanyAppointmentMapperWithoutDateOfBirth() {
         //when
-        CompanyAppointmentView actual = companyAppointmentMapper.map(companyAppointmentData(personalAppointmentDataWithoutDateOfBirth()));
+        OfficerSummary actual = companyAppointmentMapper.map(companyAppointmentData(personalAppointmentDataWithoutDateOfBirth()));
 
         //then
         assertEquals(personalAppointmentViewWithoutDateOfBirth(), actual);
@@ -144,7 +148,7 @@ class CompanyAppointmentMapperTest {
     void testCompanyAppointmentMapperDoesNotMapCountryOfResidenceOrDOBForSecretarialRoles(){
         SecretarialRoles.stream().forEach(s -> {
             //when
-            CompanyAppointmentView actual = companyAppointmentMapper.map(companyAppointmentData(personalAppointmentDataForSecretarialRole(s)));
+            OfficerSummary actual = companyAppointmentMapper.map(companyAppointmentData(personalAppointmentDataForSecretarialRole(s)));
 
             //then
             assertEquals(personalAppointmentViewOmitCountryOfResidenceAndDOBForSecretarialRole(s), actual);
@@ -154,7 +158,7 @@ class CompanyAppointmentMapperTest {
     @Test
     void testCompanyAppointmentMapperWithResponsibilities() {
         //when
-        CompanyAppointmentView actual = companyAppointmentMapper.map(companyAppointmentData(personalAppointmentDataWithResponsibilities()));
+        OfficerSummary actual = companyAppointmentMapper.map(companyAppointmentData(personalAppointmentDataWithResponsibilities()));
 
         //then
         assertEquals(personalAppointmentViewResponsibilities(), actual);
@@ -163,7 +167,7 @@ class CompanyAppointmentMapperTest {
     @Test
     void testCompanyAppointmentMapperWithPrincipalOfficeAddress() {
         //when
-        CompanyAppointmentView actual = companyAppointmentMapper.map(companyAppointmentData(personalAppointmentDataWithPrincipalOfficeAddress()));
+        OfficerSummary actual = companyAppointmentMapper.map(companyAppointmentData(personalAppointmentDataWithPrincipalOfficeAddress()));
 
         //then
         assertEquals(personalAppointmentViewPrincipalOfficeAddress(), actual);
@@ -172,7 +176,7 @@ class CompanyAppointmentMapperTest {
     @Test
     void testCompanyAppointmentMapperContactDetails() {
         //when
-        CompanyAppointmentView actual = companyAppointmentMapper.map(companyAppointmentData(personalAppointmentDataWithContactDetails()));
+        OfficerSummary actual = companyAppointmentMapper.map(companyAppointmentData(personalAppointmentDataWithContactDetails()));
 
         //then
         assertEquals(personalAppointmentViewWithContactDetails(), actual);
@@ -182,7 +186,7 @@ class CompanyAppointmentMapperTest {
     void testCompanyAppointmentMapperWithRegisterViewTrue(){
         //when
         companyAppointmentMapper.setRegisterView(true);
-        CompanyAppointmentView actual = companyAppointmentMapper.map(companyAppointmentData(personalAppointmentDataWithFullDateOfBirth()));
+        OfficerSummary actual = companyAppointmentMapper.map(companyAppointmentData(personalAppointmentDataWithFullDateOfBirth()));
         //then
         assertEquals(personalAppointmentViewWithFullDateOfBirth(), actual);
     }
@@ -200,7 +204,7 @@ class CompanyAppointmentMapperTest {
                 .withLinks(new LinksData("/company/12345678/appointment/123", "/officers/abc", "/officers/abc/appointments"))
                 .withNationality("Nationality")
                 .withOccupation("Occupation")
-                .withOfficerRole("Role")
+                .withOfficerRole(OfficerSummary.OfficerRoleEnum.MANAGING_OFFICER.toString())
                 .withEtag("ETAG")
                 .withServiceAddress(ServiceAddressData.builder()
                         .withAddressLine1("Address 1")
@@ -275,7 +279,7 @@ class CompanyAppointmentMapperTest {
         return officerData()
                 .withCompanyName("Company Name")
                 .withIdentification(IdentificationData.builder()
-                .withIdentificationType("Identification type")
+                .withIdentificationType(IDENTIFICATION_TYPE)
                 .withLegalAuthority("Legal authority")
                 .withLegalForm("Legal form")
                 .withPlaceRegistered("Place registered")
@@ -360,50 +364,52 @@ class CompanyAppointmentMapperTest {
                 .build();
     }
 
-    private CompanyAppointmentView.Builder expectedCompanyAppointment() {
-        return CompanyAppointmentView.builder()
-                .withAppointedOn(LocalDateTime.of(2020, 8, 26, 12, 0))
-                .withResignedOn(LocalDateTime.of(2020, 8, 26, 13, 0))
-                .withCountryOfResidence("Country")
-                .withDateOfBirth(new DateOfBirthView(1, 1980))
-                .withLinks(new LinksView("/company/12345678/appointment/123", "/officers/abc/appointments"))
-                .withNationality("Nationality")
-                .withOccupation("Occupation")
-                .withOfficerRole("Role")
-                .withEtag("ETAG")
-                .withServiceAddress(ServiceAddressView.builder()
-                        .withAddressLine1("Address 1")
-                        .withAddressLine2("Address 2")
-                        .withCareOf("Care of")
-                        .withCountry("Country")
-                        .withLocality("Locality")
-                        .withPostcode("AB01 9XY")
-                        .withPoBox("PO Box")
-                        .withPremises("Premises")
-                        .withRegion("Region")
-                        .build())
-                .withResponsibilities("responsibilities")
-                .withPrincipalOfficeAddress(ServiceAddressView.builder()
-                        .withAddressLine1("Address 1")
-                        .withAddressLine2("Address 2")
-                        .withCareOf("Care of")
-                        .withCountry("Country")
-                        .withLocality("Locality")
-                        .withPostcode("AB01 9XY")
-                        .withPoBox("PO Box")
-                        .withPremises("Premises")
-                        .withRegion("Region")
-                        .build())
-                .withContactDetails(ContactDetailsView.builder()
-                        .withContactName("Name")
-                        .build());
+    private OfficerSummary expectedCompanyAppointment() {
+        return new OfficerSummary()
+                .appointedOn(LocalDate.of(2020, 8, 26))
+                .resignedOn(LocalDate.of(2020, 8, 26))
+                .countryOfResidence("Country")
+                .dateOfBirth(new DateOfBirth()
+                        .month(1)
+                        .year(1980))
+                .links(new ItemLinkTypes()
+                        .self("/company/12345678/appointment/123")
+                        .officer(new OfficerLinkTypes()
+                                .self(null)
+                                .appointments("/officers/abc/appointments")))
+                .nationality("Nationality")
+                .occupation("Occupation")
+                .officerRole(OfficerSummary.OfficerRoleEnum.MANAGING_OFFICER)
+                .etag(null)
+                .address(new Address()
+                        .addressLine1("Address 1")
+                        .addressLine2("Address 2")
+                        .careOf("Care of")
+                        .country("Country")
+                        .locality("Locality")
+                        .postalCode("AB01 9XY")
+                        .poBox("PO Box")
+                        .premises("Premises")
+                        .region("Region"))
+                .responsibilities("responsibilities")
+                .principalOfficeAddress(new PrincipalOfficeAddress()
+                        .addressLine1("Address 1")
+                        .addressLine2("Address 2")
+                        .careOf("Care of")
+                        .country("Country")
+                        .locality("Locality")
+                        .postalCode("AB01 9XY")
+                        .poBox("PO Box")
+                        .premises("Premises")
+                        .region("Region"))
+                .contactDetails(new ContactDetails()
+                        .contactName("Name"));
     }
 
 
-    private CompanyAppointmentView personalAppointmentViewWithFullDateOfBirth() {
+    private OfficerSummary personalAppointmentViewWithFullDateOfBirth() {
         return expectedCompanyAppointment()
-                .withDateOfBirth(new DateOfBirthView(1, 1, 1980))
-                .build();
+                .dateOfBirth(new DateOfBirth().day(1).month(1).year(1980));
     }
 
     private OfficerData personalAppointmentDataWithFullDateOfBirth() {
@@ -412,125 +418,106 @@ class CompanyAppointmentMapperTest {
                 .build();
     }
 
-    private CompanyAppointmentView personalAppointmentViewWithOtherForenames() {
+    private OfficerSummary personalAppointmentViewWithOtherForenames() {
         return expectedCompanyAppointment()
-                .withName("SURNAME, Forename Other-Forename")
-                .build();
+                .name("SURNAME, Forename Other-Forename");
     }
 
-    private CompanyAppointmentView personalAppointmentViewWithNoOtherForenames() {
+    private OfficerSummary personalAppointmentViewWithNoOtherForenames() {
         return expectedCompanyAppointment()
-                .withName("SURNAME, Forename")
-                .build();
+                .name("SURNAME, Forename");
     }
 
-    private CompanyAppointmentView personalAppointmentViewWithNoForenamesOrOtherForenames() {
+    private OfficerSummary personalAppointmentViewWithNoForenamesOrOtherForenames() {
         return expectedCompanyAppointment()
-                .withName("SURNAME")
-                .build();
+                .name("SURNAME");
     }
 
-    private CompanyAppointmentView personalAppointmentViewWithNoForenamesAndOtherForenames() {
+    private OfficerSummary personalAppointmentViewWithNoForenamesAndOtherForenames() {
         return expectedCompanyAppointment()
-                .withName("SURNAME, Other-Forename")
-                .build();
+                .name("SURNAME, Other-Forename");
     }
 
-    private CompanyAppointmentView personalAppointmentViewWithForenamesAndTitle() {
+    private OfficerSummary personalAppointmentViewWithForenamesAndTitle() {
         return expectedCompanyAppointment()
-                .withName("SURNAME, Forename Other-Forename, Dr")
-                .build();
+                .name("SURNAME, Forename Other-Forename, Dr");
     }
 
-    private CompanyAppointmentView personalAppointmentViewWithNoForenamesOmitsTitle() {
+    private OfficerSummary personalAppointmentViewWithNoForenamesOmitsTitle() {
         return expectedCompanyAppointment()
-                .withName("SURNAME")
-                .build();
+                .name("SURNAME");
     }
 
-    private CompanyAppointmentView corporateAppointmentView() {
+    private OfficerSummary corporateAppointmentView() {
         return expectedCompanyAppointment()
-                .withName("Company Name")
-                .withIdentification(IdentificationView.builder()
-                .withIdentificationType("Identification type")
-                .withLegalAuthority("Legal authority")
-                .withLegalForm("Legal form")
-                .withPlaceRegistered("Place registered")
-                .withRegistrationNumber("Registration number")
-                .build())
-                .build();
+                .name("Company Name")
+                .identification(new CorporateIdent()
+                    .identificationType(CorporateIdent.IdentificationTypeEnum.fromValue(IDENTIFICATION_TYPE))
+                .legalAuthority("Legal authority")
+                .legalForm("Legal form")
+                .placeRegistered("Place registered")
+                .registrationNumber("Registration number"));
     }
 
-    private CompanyAppointmentView personalAppointmentViewWithFormerNames() {
+    private OfficerSummary personalAppointmentViewWithFormerNames() {
         return expectedCompanyAppointment()
-                .withName("SURNAME, Forename")
-                .withFormerNames(Collections.singletonList(new FormerNamesView("Forename", "Surname")))
-                .build();
+                .name("SURNAME, Forename")
+                .formerNames(Collections.singletonList(new FormerNames().forenames("Forename").surname("Surname")));
     }
 
-    private CompanyAppointmentView personalAppointmentViewWithoutServiceAddress() {
+    private OfficerSummary personalAppointmentViewWithoutServiceAddress() {
         return expectedCompanyAppointment()
-                .withName("SURNAME, Forename")
-                .withServiceAddress(null)
-                .build();
+                .name("SURNAME, Forename")
+                .address(null);
     }
 
-    private CompanyAppointmentView personalAppointmentViewWithoutLinks() {
+    private OfficerSummary personalAppointmentViewWithoutLinks() {
         return expectedCompanyAppointment()
-                .withName("SURNAME, Forename")
-                .withLinks(null)
-                .build();
+                .name("SURNAME, Forename")
+                .links(null);
     }
 
-    private CompanyAppointmentView personalAppointmentViewWithoutAppointmentLink() {
+    private OfficerSummary personalAppointmentViewWithoutAppointmentLink() {
         return expectedCompanyAppointment()
-                .withName("SURNAME, Forename")
-                .withLinks(new LinksView(null, (String)null))
-                .build();
+                .name("SURNAME, Forename")
+                .links(new ItemLinkTypes().self(null).officer(new OfficerLinkTypes()));
     }
 
-    private CompanyAppointmentView personalAppointmentViewWithoutDateOfBirth() {
+    private OfficerSummary personalAppointmentViewWithoutDateOfBirth() {
         return expectedCompanyAppointment()
-                .withName("SURNAME, Forename")
-                .withDateOfBirth(null)
-                .build();
+                .name("SURNAME, Forename")
+                .dateOfBirth(null);
     }
 
-    private CompanyAppointmentView personalAppointmentViewOmitCountryOfResidenceAndDOBForSecretarialRole(SecretarialRoles secretary){
+    private OfficerSummary personalAppointmentViewOmitCountryOfResidenceAndDOBForSecretarialRole(SecretarialRoles secretary){
         return expectedCompanyAppointment()
-                .withOfficerRole(secretary.getRole())
-                .withCountryOfResidence(null)
-                .withDateOfBirth(null)
-                .build();
+                .officerRole(OfficerSummary.OfficerRoleEnum.fromValue(secretary.getRole()))
+                .countryOfResidence(null)
+                .dateOfBirth(null);
     }
 
-    private CompanyAppointmentView personalAppointmentViewResponsibilities() {
+    private OfficerSummary personalAppointmentViewResponsibilities() {
         return expectedCompanyAppointment()
-                .withResponsibilities("responsibilities")
-                .build();
+                .responsibilities("responsibilities");
     }
 
-    private CompanyAppointmentView personalAppointmentViewPrincipalOfficeAddress() {
+    private OfficerSummary personalAppointmentViewPrincipalOfficeAddress() {
         return expectedCompanyAppointment()
-                .withServiceAddress(ServiceAddressView.builder()
-                        .withAddressLine1("Address 1")
-                        .withAddressLine2("Address 2")
-                        .withCareOf("Care of")
-                        .withCountry("Country")
-                        .withLocality("Locality")
-                        .withPostcode("AB01 9XY")
-                        .withPoBox("PO Box")
-                        .withPremises("Premises")
-                        .withRegion("Region")
-                        .build())
-                .build();
+                .address(new Address()
+                        .addressLine1("Address 1")
+                        .addressLine2("Address 2")
+                        .careOf("Care of")
+                        .country("Country")
+                        .locality("Locality")
+                        .postalCode("AB01 9XY")
+                        .poBox("PO Box")
+                        .premises("Premises")
+                        .region("Region"));
     }
 
-    private CompanyAppointmentView personalAppointmentViewWithContactDetails() {
+    private OfficerSummary personalAppointmentViewWithContactDetails() {
         return expectedCompanyAppointment()
-                .withContactDetails(ContactDetailsView.builder()
-                        .withContactName("John")
-                        .build())
-                .build();
+                .contactDetails(new ContactDetails()
+                        .contactName("John"));
     }
 }

@@ -6,6 +6,7 @@ import static uk.gov.companieshouse.logging.util.LogContextProperties.REQUEST_ID
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.chrono.ChronoLocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -14,15 +15,17 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import uk.gov.companieshouse.GenerateEtagUtil;
+import uk.gov.companieshouse.api.appointment.LinkTypes;
+import uk.gov.companieshouse.api.appointment.OfficerList;
+import uk.gov.companieshouse.api.appointment.OfficerSummary;
 import uk.gov.companieshouse.company_appointments.CompanyAppointmentsApplication;
 import uk.gov.companieshouse.company_appointments.exception.BadRequestException;
 import uk.gov.companieshouse.company_appointments.exception.NotFoundException;
 import uk.gov.companieshouse.company_appointments.exception.ServiceUnavailableException;
 import uk.gov.companieshouse.company_appointments.mapper.CompanyAppointmentMapper;
 import uk.gov.companieshouse.company_appointments.mapper.SortMapper;
+import uk.gov.companieshouse.company_appointments.model.FetchAppointmentsRequest;
 import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentData;
-import uk.gov.companieshouse.company_appointments.model.view.AllCompanyAppointmentsView;
-import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentView;
 import uk.gov.companieshouse.company_appointments.repository.CompanyAppointmentFullRecordRepository;
 import uk.gov.companieshouse.company_appointments.repository.CompanyAppointmentRepository;
 import uk.gov.companieshouse.company_appointments.roles.RoleHelper;
@@ -37,6 +40,8 @@ public class CompanyAppointmentService {
             CompanyAppointmentsApplication.APPLICATION_NAMESPACE);
     private static final String PATCH_APPOINTMENT_ERROR_MESSAGE = "Request failed for company [%s] with appointment [%s], contextId: [%s]: ";
     private static final String PATCH_APPOINTMENTS_ERROR_MESSAGE = "Request failed for company [%s], contextId: [%s]: ";
+    private static final int DEFAULT_ITEMS_PER_PAGE = 35;
+    private static final int DEFAULT_START_INDEX = 0;
 
     private final CompanyAppointmentRepository companyAppointmentRepository;
     private final CompanyAppointmentMapper companyAppointmentMapper;
@@ -59,20 +64,27 @@ public class CompanyAppointmentService {
         this.clock = clock;
     }
 
-    public CompanyAppointmentView fetchAppointment(String companyNumber, String appointmentID) throws NotFoundException {
+    public OfficerSummary fetchAppointment(String companyNumber, String appointmentID) throws NotFoundException {
         LOGGER.debug(String.format("Fetching appointment [%s] for company [%s]", appointmentID, companyNumber));
         Optional<CompanyAppointmentData> appointmentData = companyAppointmentRepository.readByCompanyNumberAndAppointmentID(companyNumber, appointmentID);
-        appointmentData.ifPresent(appt -> LOGGER.debug(String.format("Found appointment [%s] for company [%s]", appointmentID, companyNumber)));
-        return companyAppointmentMapper.map(appointmentData.orElseThrow(() -> new NotFoundException(String.format("Appointment [%s] for company [%s] not found", appointmentID, companyNumber))));
+        OfficerSummary officerSummary = companyAppointmentMapper.map(appointmentData.orElseThrow(() -> new NotFoundException(String.format("Appointment [%s] for company [%s] not found", appointmentID, companyNumber))));
+        appointmentData.ifPresent(appt -> {
+            officerSummary.etag(appt.getData().getEtag());
+            LOGGER.debug(String.format("Found appointment [%s] for company [%s]", appointmentID, companyNumber));
+        });
+        return officerSummary;
     }
 
-    public AllCompanyAppointmentsView fetchAppointmentsForCompany(String companyNumber, String filter, String orderBy, Integer startIndex, Integer itemsPerPage,
-            Boolean registerView, String registerType) throws NotFoundException, BadRequestException, ServiceUnavailableException {
+    public OfficerList fetchAppointmentsForCompany(FetchAppointmentsRequest request) throws NotFoundException, BadRequestException, ServiceUnavailableException {
+        String companyNumber = request.getCompanyNumber();
+        String orderBy = request.getOrderBy();
         LOGGER.debug(String.format("Fetching appointments for company [%s] with order by [%s]", companyNumber, orderBy));
 
+        Boolean registerView = request.getRegisterView();
         if(registerView == null) {
             registerView = false;
         }
+        String registerType = request.getRegisterType();
         if (registerView && !companyRegisterService.isRegisterHeldInCompaniesHouse(registerType, companyNumber)) {
             throw new NotFoundException("Register not held at Companies House");
         }
@@ -80,7 +92,8 @@ public class CompanyAppointmentService {
         List<CompanyAppointmentData> allAppointmentData;
 
         Sort sort = sortMapper.getSort(orderBy);
-                
+
+        String filter = request.getFilter();
         if ((filter != null && filter.equals("active")) || registerView){
             allAppointmentData = companyAppointmentRepository.readAllByCompanyNumberForNotResigned(companyNumber, sort);
         } else {
@@ -95,8 +108,8 @@ public class CompanyAppointmentService {
             throw new NotFoundException(String.format("Appointments for company [%s] not found", companyNumber));
         }
 
-        List<CompanyAppointmentView> companyAppointmentViews = allAppointmentData.stream().map(companyAppointmentMapper::map).collect(Collectors.toList());
-        int count = (int) companyAppointmentViews.stream().filter(officer -> officer.getResignedOn() == null).count();
+        List<OfficerSummary> officerSummaries = allAppointmentData.stream().map(companyAppointmentMapper::map).collect(Collectors.toList());
+        int count = (int) officerSummaries.stream().filter(officer -> officer.getResignedOn() == null).count();
         int activeCount = 0;
         int inactiveCount = 0;
         String appointmentStatus = allAppointmentData.get(0).getCompanyStatus();
@@ -106,11 +119,23 @@ public class CompanyAppointmentService {
             activeCount = count;
         }
 
-        int resignedCount = (int) companyAppointmentViews.stream().filter(officer -> officer.getResignedOn() != null && officer.getResignedOn().isBefore(LocalDate.now().atStartOfDay())).count();
+        int resignedCount = (int) officerSummaries.stream().filter(officer -> officer.getResignedOn() != null && officer.getResignedOn().isBefore(ChronoLocalDate.from(LocalDate.now().atStartOfDay()))).count();
 
-        companyAppointmentViews = addPagingAndStartIndex(companyAppointmentViews, startIndex, itemsPerPage);
+        Integer startIndex = request.getStartIndex();
+        Integer itemsPerPage = request.getItemsPerPage();
+        officerSummaries = addPagingAndStartIndex(officerSummaries, startIndex, itemsPerPage);
 
-        return new AllCompanyAppointmentsView(companyAppointmentViews.size(), companyAppointmentViews, activeCount, inactiveCount, resignedCount);
+        return new OfficerList()
+                    .totalResults(officerSummaries.size())
+                    .items(officerSummaries)
+                    .activeCount(activeCount)
+                    .inactiveCount(inactiveCount)
+                    .resignedCount(resignedCount)
+                    .kind(OfficerList.KindEnum.OFFICER_LIST)
+                    .startIndex(startIndex == null ? DEFAULT_START_INDEX : startIndex)
+                    .itemsPerPage(itemsPerPage == null ? DEFAULT_ITEMS_PER_PAGE : itemsPerPage)
+                    .links(new LinkTypes().self(String.format("/company/%s/officers", companyNumber)))
+                    .etag(officerSummaries.isEmpty() ? "" : officerSummaries.get(0).getEtag());
     }
 
     public void patchCompanyNameStatus(String companyNumber, String companyName,
@@ -176,12 +201,12 @@ public class CompanyAppointmentService {
         }
     }
 
-    private List<CompanyAppointmentView> addPagingAndStartIndex(List<CompanyAppointmentView> companyAppointmentViews, Integer startIndex, Integer itemsPerPage) throws NotFoundException {
+    private List<OfficerSummary> addPagingAndStartIndex(List<OfficerSummary> officerSummaries, Integer startIndex, Integer itemsPerPage) throws NotFoundException {
         int firstItem = 0;
         int lastItem = 35;
 
         if (startIndex != null) {
-            if (startIndex <= companyAppointmentViews.size()){
+            if (startIndex <= officerSummaries.size()){
                 firstItem = startIndex;
             } else {
                 throw new NotFoundException("Index too high");
@@ -196,15 +221,15 @@ public class CompanyAppointmentService {
             }
         }
 
-        if (firstItem + lastItem <= companyAppointmentViews.size()) {
-            companyAppointmentViews = companyAppointmentViews.subList(firstItem,
+        if (firstItem + lastItem <= officerSummaries.size()) {
+            officerSummaries = officerSummaries.subList(firstItem,
                     firstItem + lastItem);
         } else {
-            companyAppointmentViews = companyAppointmentViews.subList(firstItem,
-                    companyAppointmentViews.size());
+            officerSummaries = officerSummaries.subList(firstItem,
+                    officerSummaries.size());
         }
 
-        return companyAppointmentViews;
+        return officerSummaries;
     }
 
     private String getContextId() {
