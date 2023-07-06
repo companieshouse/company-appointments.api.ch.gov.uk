@@ -1,6 +1,7 @@
 package uk.gov.companieshouse.company_appointments;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -191,6 +192,18 @@ class CompanyAppointmentMapperTest {
         assertEquals(personalAppointmentViewWithFullDateOfBirth(), actual);
     }
 
+    @Test
+    void testPre1992Appointment() {
+        // given
+        OfficerSummary expected = pre1992AppointmentSummary();
+
+        // when
+        OfficerSummary actual = companyAppointmentMapper.map(companyAppointmentData(pre1992AppointmentData()));
+
+        // then
+        assertEquals(expected, actual);
+    }
+
     private CompanyAppointmentData companyAppointmentData(OfficerData officerData) {
         return new CompanyAppointmentData("123", officerData, "active");
     }
@@ -232,6 +245,46 @@ class CompanyAppointmentMapperTest {
                 .withContactDetails(ContactDetailsData.builder()
                         .withContactName("Name")
                         .build());
+    }
+
+    private OfficerData pre1992AppointmentData() {
+        return OfficerData.builder()
+                .withIsPre1992Appointment(true)
+                .withAppointedBefore("1991-11-10")
+                .withResignedOn(LocalDateTime.of(2020, 8, 26, 13, 0))
+                .withCountryOfResidence("Country")
+                .withDateOfBirth(LocalDateTime.of(1980, 1, 1, 12, 0))
+                .withLinks(new LinksData("/company/12345678/appointment/123", "/officers/abc", "/officers/abc/appointments"))
+                .withNationality("Nationality")
+                .withOccupation("Occupation")
+                .withOfficerRole(OfficerSummary.OfficerRoleEnum.DIRECTOR.toString())
+                .withEtag("ETAG")
+                .withServiceAddress(ServiceAddressData.builder()
+                        .withAddressLine1("Address 1")
+                        .withCountry("Country")
+                        .withLocality("Locality")
+                        .build())
+                .build();
+    }
+
+    private OfficerSummary pre1992AppointmentSummary() {
+        return new OfficerSummary()
+                .isPre1992Appointment(true)
+                .appointedBefore(LocalDate.of(1991, 11, 10))
+                .resignedOn(LocalDate.of(2020, 8, 26))
+                .countryOfResidence("Country")
+                .dateOfBirth(new DateOfBirth().year(1980).month(1))
+                .links(new ItemLinkTypes()
+                        .self("/company/12345678/appointment/123")
+                        .officer(new OfficerLinkTypes()
+                                .appointments("/officers/abc/appointments")))
+                .nationality("Nationality")
+                .occupation("Occupation")
+                .officerRole(OfficerSummary.OfficerRoleEnum.DIRECTOR)
+                .address(new Address()
+                        .addressLine1("Address 1")
+                        .country("Country")
+                        .locality("Locality"));
     }
 
     private OfficerData personalAppointmentDataWithOtherForenames() {
