@@ -40,11 +40,12 @@ public class CompanyAppointmentMapper {
     public OfficerSummary map(CompanyAppointmentData companyAppointmentData) {
         LOGGER.debug("Mapping data for appointment: " + companyAppointmentData.getId());
         boolean isSecretary = RoleHelper.isSecretary(companyAppointmentData);
+        LocalDateTime appointedOn = companyAppointmentData.getData().getAppointedOn();
         String appointedBefore = companyAppointmentData.getData().getAppointedBefore();
         LocalDateTime resignedOn = companyAppointmentData.getData().getResignedOn();
 
         OfficerSummary result = new OfficerSummary()
-                .appointedOn(companyAppointmentData.getData().getAppointedOn().toLocalDate())
+                .appointedOn(appointedOn == null ? null : appointedOn.toLocalDate())
                 .appointedBefore(StringUtils.isBlank(appointedBefore) ? null : LocalDate.parse(
                         appointedBefore,
                         DateTimeFormatter.ofPattern(APPOINTED_BEFORE_DATE_FORMAT)))
