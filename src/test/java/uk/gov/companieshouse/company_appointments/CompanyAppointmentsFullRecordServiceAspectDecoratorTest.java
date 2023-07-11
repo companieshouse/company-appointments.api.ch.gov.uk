@@ -41,61 +41,61 @@ class CompanyAppointmentsFullRecordServiceAspectDecoratorTest {
         aspect = new CompanyAppointmentsFullRecordServiceAspectDecorator(companyProfileClient, logger);
     }
 
-//    @Test
-//    @DisplayName("Successfully populate company name and status fields")
-//    void populateCompanyNameAndStatus() throws Exception {
-//        // given
-//        CompanyAppointmentDocument document = new CompanyAppointmentDocument()
-//                .setAppointmentId(APPOINTMENT_ID)
-//                .setCompanyNumber(COMPANY_NUMBER);
-//        Data data = new Data()
-//                .companyName(COMPANY_NAME)
-//                .companyStatus(COMPANY_STATUS);
-//
-//        when(companyProfileClient.getCompanyProfile(any())).thenReturn(Optional.of(data));
-//
-//        // when
-//        aspect.populateCompanyNameAndCompanyStatusFields(document);
-//
-//        // then
-//        verify(companyProfileClient).getCompanyProfile(COMPANY_NUMBER);
-//        assertEquals(COMPANY_NAME, document.getCompanyName());
-//        assertEquals(COMPANY_STATUS, document.getCompanyStatus());
-//        assertEquals(APPOINTMENT_ID, document.getAppointmentId());
-//    }
-//
-//    @Test
-//    @DisplayName("Return value is not instance of CompanyAppointmentDocument")
-//    void methodReturnsEarly() throws Exception {
-//        // given
-//        Object invalidObject = new Object();
-//
-//        // when
-//        aspect.populateCompanyNameAndCompanyStatusFields(invalidObject);
-//
-//        // then
-//        verifyNoInteractions(companyProfileClient);
-//    }
-//
-//    @Test
-//    @DisplayName("Company does not exist in company profile collection")
-//    void companyProfileClientReturnsNotFound() throws Exception {
-//        // given
-//        CompanyAppointmentDocument document = new CompanyAppointmentDocument()
-//                .setAppointmentId(APPOINTMENT_ID)
-//                .setCompanyNumber(COMPANY_NUMBER);
-//        Data data = new Data()
-//                .companyName(COMPANY_NAME)
-//                .companyStatus(COMPANY_STATUS);
-//
-//        when(companyProfileClient.getCompanyProfile(any())).thenThrow(NotFoundException.class);
-//
-//        // when
-//        Executable executable = () -> aspect.populateCompanyNameAndCompanyStatusFields(document);
-//
-//        // then
-//        assertThrows(NotFoundException.class, executable);
-//        verify(companyProfileClient).getCompanyProfile(COMPANY_NUMBER);
-//
-//    }
+    @Test
+    @DisplayName("Successfully populate company name and status fields")
+    void populateCompanyNameAndStatus() throws Exception {
+        // given
+        CompanyAppointmentDocument document = new CompanyAppointmentDocument()
+                .setAppointmentId(APPOINTMENT_ID)
+                .setCompanyNumber(COMPANY_NUMBER);
+        Data data = new Data()
+                .companyName(COMPANY_NAME)
+                .companyStatus(COMPANY_STATUS);
+
+        when(companyProfileClient.getCompanyProfile(any())).thenReturn(Optional.of(data));
+
+        // when
+        aspect.populateCompanyNameAndCompanyStatusFields(document);
+
+        // then
+        verify(companyProfileClient).getCompanyProfile(COMPANY_NUMBER);
+        assertEquals(COMPANY_NAME, document.getCompanyName());
+        assertEquals(COMPANY_STATUS, document.getCompanyStatus());
+        assertEquals(APPOINTMENT_ID, document.getAppointmentId());
+    }
+
+    @Test
+    @DisplayName("Return value is not instance of CompanyAppointmentDocument")
+    void methodReturnsEarly() throws Exception {
+        // given
+        Object invalidObject = new Object();
+
+        // when
+        aspect.populateCompanyNameAndCompanyStatusFields(invalidObject);
+
+        // then
+        verifyNoInteractions(companyProfileClient);
+    }
+
+    @Test
+    @DisplayName("Company does not exist in company profile collection")
+    void companyProfileClientReturnsNotFound() throws Exception {
+        // given
+        CompanyAppointmentDocument document = new CompanyAppointmentDocument()
+                .setAppointmentId(APPOINTMENT_ID)
+                .setCompanyNumber(COMPANY_NUMBER);
+        Data data = new Data()
+                .companyName(COMPANY_NAME)
+                .companyStatus(COMPANY_STATUS);
+
+        when(companyProfileClient.getCompanyProfile(any())).thenThrow(NotFoundException.class);
+
+        // when
+        Executable executable = () -> aspect.populateCompanyNameAndCompanyStatusFields(document);
+
+        // then
+        assertThrows(NotFoundException.class, executable);
+        verify(companyProfileClient).getCompanyProfile(COMPANY_NUMBER);
+
+    }
 }
