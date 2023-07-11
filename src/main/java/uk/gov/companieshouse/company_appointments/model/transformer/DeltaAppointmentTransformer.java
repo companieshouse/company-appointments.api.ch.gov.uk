@@ -25,7 +25,12 @@ public class DeltaAppointmentTransformer implements Transformative<FullRecordCom
         return new CompanyAppointmentDocument();
     }
 
+    @Override
     @AddCompanyNameAndStatus
+    public CompanyAppointmentDocument transform(FullRecordCompanyOfficerApi source) throws FailedToTransformException {
+        return transform(source, factory());
+    }
+
     public CompanyAppointmentDocument transform(FullRecordCompanyOfficerApi api, CompanyAppointmentDocument entity) throws FailedToTransformException {
         try {
             var externalData = api.getExternalData();

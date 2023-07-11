@@ -1,6 +1,5 @@
 package uk.gov.companieshouse.company_appointments.service;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.api.InternalApiClient;
 import uk.gov.companieshouse.api.company.Data;
@@ -24,20 +23,19 @@ public class CompanyProfileClient {
     public Optional<Data> getCompanyProfile(String companyNumber) throws URIValidationException, NotFoundException, ServiceUnavailableException {
         InternalApiClient client = internalApiClientSupplier.get();
 
-        Optional<Data> companyProfileData = Optional.empty();
         try {
-            companyProfileData = Optional.ofNullable(client.privateCompanyResourceHandler()
+            return Optional.ofNullable(client.privateCompanyResourceHandler()
                     .getCompanyFullProfile(String.format("/company/%s", companyNumber))
                     .execute()
                     .getData());
         } catch (ApiErrorResponseException ex) {
             int statusCode = ex.getStatusCode();
             if (statusCode == 404) {
+                // TODO: NotFoundException not appearing in logs
                 throw new NotFoundException(String.format("No company profile record could be found for company number: [%s]", companyNumber));
-            } else if (HttpStatus.valueOf(statusCode).is5xxServerError()) {
+            } else {
                 throw new ServiceUnavailableException(String.format("Error connecting to company profile api with status code: [%s]", statusCode));
             }
         }
-        return companyProfileData;
     }
 }

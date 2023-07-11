@@ -10,35 +10,34 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.companieshouse.api.company.Data;
 import uk.gov.companieshouse.company_appointments.exception.NotFoundException;
 import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentDocument;
-import uk.gov.companieshouse.company_appointments.service.CompanyAppointmentsFullRecordServiceAspectDecorator;
+import uk.gov.companieshouse.company_appointments.service.DeltaAppointmentTransformerAspect;
 import uk.gov.companieshouse.company_appointments.service.CompanyProfileClient;
-import uk.gov.companieshouse.logging.Logger;
 
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class CompanyAppointmentsFullRecordServiceAspectDecoratorTest {
+class DeltaAppointmentTransformerAspectTest {
 
     private static final String COMPANY_NUMBER = "abcdefg";
     private static final String APPOINTMENT_ID = "123456";
     private static final String COMPANY_NAME = "company name";
     private static final String COMPANY_STATUS = "company status";
 
-    private CompanyAppointmentsFullRecordServiceAspectDecorator aspect;
+    private DeltaAppointmentTransformerAspect aspect;
 
     @Mock
     private CompanyProfileClient companyProfileClient;
-    @Mock
-    private Logger logger;
 
     @BeforeEach
     void setUp() {
-        aspect = new CompanyAppointmentsFullRecordServiceAspectDecorator(companyProfileClient, logger);
+        aspect = new DeltaAppointmentTransformerAspect(companyProfileClient);
     }
 
     @Test
@@ -84,9 +83,6 @@ class CompanyAppointmentsFullRecordServiceAspectDecoratorTest {
         CompanyAppointmentDocument document = new CompanyAppointmentDocument()
                 .setAppointmentId(APPOINTMENT_ID)
                 .setCompanyNumber(COMPANY_NUMBER);
-        Data data = new Data()
-                .companyName(COMPANY_NAME)
-                .companyStatus(COMPANY_STATUS);
 
         when(companyProfileClient.getCompanyProfile(any())).thenThrow(NotFoundException.class);
 
@@ -96,6 +92,5 @@ class CompanyAppointmentsFullRecordServiceAspectDecoratorTest {
         // then
         assertThrows(NotFoundException.class, executable);
         verify(companyProfileClient).getCompanyProfile(COMPANY_NUMBER);
-
     }
 }

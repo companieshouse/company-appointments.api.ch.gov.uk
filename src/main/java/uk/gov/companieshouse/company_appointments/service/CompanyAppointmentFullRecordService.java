@@ -56,7 +56,6 @@ public class CompanyAppointmentFullRecordService {
     }
 
     public void upsertAppointmentDelta(String contextId, final FullRecordCompanyOfficerApi requestBody) throws ServiceUnavailableException {
-        LOGGER.debug("TESTING MY NEW CODE");
             CompanyAppointmentDocument companyAppointmentDocument;
             try {
                 companyAppointmentDocument = deltaAppointmentTransformer.transform(requestBody);

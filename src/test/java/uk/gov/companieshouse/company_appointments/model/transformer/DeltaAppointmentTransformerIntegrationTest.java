@@ -6,12 +6,12 @@ import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import uk.gov.companieshouse.api.appointment.Data;
 import uk.gov.companieshouse.api.appointment.DateOfBirth;
 import uk.gov.companieshouse.api.appointment.ExternalData;
 import uk.gov.companieshouse.api.appointment.FullRecordCompanyOfficerApi;
 import uk.gov.companieshouse.api.appointment.InternalData;
+import uk.gov.companieshouse.api.appointment.ItemLinkTypes;
 import uk.gov.companieshouse.api.appointment.SensitiveData;
 import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentDocument;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaOfficerData;
@@ -23,16 +23,23 @@ import java.time.OffsetDateTime;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
-@EnableAspectJAutoProxy
 class DeltaAppointmentTransformerIntegrationTest {
+
+    private static final String COMPANY_NAME = "companyName";
+    private static final String COMPANY_STATUS = "companyStatus";
+    private static final String COMPANY_NUMBER = "12345678";
 
     @Autowired
     private DeltaAppointmentTransformer transformer;
+    @Autowired
+    private DeltaItemLinkTypesTransformer itemLinkTypesTransformer;
 
     @Mock
     private DeltaOfficerData deltaOfficerData;
@@ -58,8 +65,8 @@ class DeltaAppointmentTransformerIntegrationTest {
         // given
         when(officerDataTransformer.transform(any(Data.class))).thenReturn(deltaOfficerData);
         when(sensitiveDataTransformer.transform(any(SensitiveData.class))).thenReturn(deltaSensitiveData);
-        when(companyProfileData.getCompanyName()).thenReturn("companyName");
-        when(companyProfileData.getCompanyStatus()).thenReturn("companyStatus");
+        when(companyProfileData.getCompanyName()).thenReturn(COMPANY_NAME);
+        when(companyProfileData.getCompanyStatus()).thenReturn(COMPANY_STATUS);
         when(client.getCompanyProfile(anyString())).thenReturn(Optional.of(companyProfileData));
 
         CompanyAppointmentDocument expected = new CompanyAppointmentDocument()
@@ -70,19 +77,30 @@ class DeltaAppointmentTransformerIntegrationTest {
                 .setAppointmentId("id")
                 .setOfficerId("officerId")
                 .setPreviousOfficerId("previousOfficerId")
-                .setCompanyNumber("12345678")
+                .setCompanyNumber(COMPANY_NUMBER)
                 .setUpdatedBy("updatedBy")
                 .setDeltaAt(Instant.parse("2022-01-12T00:00:00.000000Z"))
                 .setOfficerRoleSortOrder(22)
-                .setCompanyName("companyName")
-                .setCompanyStatus("companyStatus");
+                .setCompanyName(COMPANY_NAME)
+                .setCompanyStatus(COMPANY_STATUS);
 
         // when
         CompanyAppointmentDocument actual = transformer.transform(buildFullRecordOfficer());
 
         // then
+        verify(client).getCompanyProfile(COMPANY_NUMBER);
         assertEquals(expected, actual);
-        verify(client).getCompanyProfile("12345678");
+    }
+
+    @Test
+    void aspectNotAppliedInvalidReturnType() throws Exception {
+        // given
+
+        // when
+        itemLinkTypesTransformer.transform(new ItemLinkTypes());
+
+        // then
+        verifyNoInteractions(client);
     }
 
     private FullRecordCompanyOfficerApi buildFullRecordOfficer() {

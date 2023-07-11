@@ -4,29 +4,29 @@ import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.api.company.Data;
-import uk.gov.companieshouse.api.error.ApiErrorResponseException;
 import uk.gov.companieshouse.api.handler.exception.URIValidationException;
+import uk.gov.companieshouse.company_appointments.CompanyAppointmentsApplication;
 import uk.gov.companieshouse.company_appointments.exception.NotFoundException;
 import uk.gov.companieshouse.company_appointments.exception.ServiceUnavailableException;
 import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentDocument;
 import uk.gov.companieshouse.logging.Logger;
+import uk.gov.companieshouse.logging.LoggerFactory;
 
 @Aspect
 @Component
-public class CompanyAppointmentsFullRecordServiceAspectDecorator {
+public class DeltaAppointmentTransformerAspect {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(CompanyAppointmentsApplication.APPLICATION_NAMESPACE);
 
     private final CompanyProfileClient companyProfileClient;
-    private final Logger logger;
 
-    public CompanyAppointmentsFullRecordServiceAspectDecorator(CompanyProfileClient companyProfileClient, Logger logger) {
+    public DeltaAppointmentTransformerAspect(CompanyProfileClient companyProfileClient) {
         this.companyProfileClient = companyProfileClient;
-        this.logger = logger;
     }
 
-    @AfterReturning(pointcut = "within(uk.gov.companieshouse.company_appointments.model.transformer.Transformative+) && execution(* transform(..))", returning = "returnValue")
-    public void populateCompanyNameAndCompanyStatusFields(Object returnValue) throws ApiErrorResponseException, NotFoundException, URIValidationException, ServiceUnavailableException {
+    @AfterReturning(pointcut="@annotation(AddCompanyNameAndStatus)", returning="returnValue")
+    public void populateCompanyNameAndCompanyStatusFields(Object returnValue) throws NotFoundException, URIValidationException, ServiceUnavailableException {
         if (!(returnValue instanceof CompanyAppointmentDocument)) {
-            logger.error("Return value is not instance of CompanyAppointmentDocument");
             return;
         }
         CompanyAppointmentDocument document = (CompanyAppointmentDocument) returnValue;
@@ -40,6 +40,6 @@ public class CompanyAppointmentsFullRecordServiceAspectDecorator {
 
         document.setCompanyName(companyName);
         document.setCompanyStatus(companyStatus);
-        logger.debug(String.format("Company name [%s] and company status [%s] set on appointment [%s]", companyName, companyStatus, appointmentId));
+        LOGGER.debug(String.format("Company name [%s] and company status [%s] set on appointment [%s]", companyName, companyStatus, appointmentId));
     }
 }
