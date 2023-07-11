@@ -1,5 +1,7 @@
 package uk.gov.companieshouse.company_appointments.service;
 
+import org.aspectj.lang.JoinPoint;
+import org.aspectj.lang.annotation.After;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.stereotype.Component;
@@ -7,6 +9,7 @@ import uk.gov.companieshouse.api.company.Data;
 import uk.gov.companieshouse.api.error.ApiErrorResponseException;
 import uk.gov.companieshouse.api.handler.exception.URIValidationException;
 import uk.gov.companieshouse.company_appointments.exception.NotFoundException;
+import uk.gov.companieshouse.company_appointments.exception.ServiceUnavailableException;
 import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentDocument;
 import uk.gov.companieshouse.logging.Logger;
 
@@ -21,22 +24,26 @@ public class CompanyAppointmentsFullRecordServiceAspectDecorator {
         this.companyProfileClient = companyProfileClient;
         this.logger = logger;
     }
+    // execution(* transform(..))
 
-    @AfterReturning("@annotation(AddCompanyNameAndStatus)")
-    public void populateCompanyNameAndCompanyStatusFields(Object returnValue) throws ApiErrorResponseException, NotFoundException, URIValidationException {
-        if (!(returnValue instanceof CompanyAppointmentDocument)) {
-            return; // TODO: Return may stop execution of transform method in DeltaAppointmentTransformer so may need to change this
-        }
-        CompanyAppointmentDocument document = (CompanyAppointmentDocument) returnValue; // TODO: Is this the correct way of doing this?
-
-        Data companyProfileData = companyProfileClient.getCompanyProfile(document.getCompanyNumber());
-
-        String companyName = companyProfileData.getCompanyName();
-        String companyStatus = companyProfileData.getCompanyStatus();
-        String appointmentId = document.getAppointmentId();
-
-        document.setCompanyName(companyName);
-        document.setCompanyStatus(companyStatus);
-        logger.debug(String.format("Company name [%s] and company status [%s] set on appointment [%s]", companyName, companyStatus, appointmentId));
+    @After(value = "@annotation(AddCompanyNameAndStatus)")
+    public void populateCompanyNameAndCompanyStatusFields(JoinPoint joinPoint) throws ApiErrorResponseException, NotFoundException, URIValidationException, ServiceUnavailableException {
+//        if (!(returnValue instanceof CompanyAppointmentDocument)) {
+//            logger.error("Return value is not instance of CompanyAppointmentDocument");
+//            return;
+//        }
+//        CompanyAppointmentDocument document = (CompanyAppointmentDocument) returnValue;
+//
+//        Data companyProfileData = companyProfileClient.getCompanyProfile(document.getCompanyNumber())
+//                .orElseThrow(() -> new NotFoundException("Company profile record not found"));
+//
+//        String companyName = companyProfileData.getCompanyName();
+//        String companyStatus = companyProfileData.getCompanyStatus();
+//        String appointmentId = document.getAppointmentId();
+//
+//        document.setCompanyName(companyName);
+//        document.setCompanyStatus(companyStatus);
+//        logger.debug(String.format("Company name [%s] and company status [%s] set on appointment [%s]", companyName, companyStatus, appointmentId));
+        System.out.println("TEST");
     }
 }

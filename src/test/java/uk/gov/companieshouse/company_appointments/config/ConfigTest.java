@@ -12,6 +12,7 @@ import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistration;
@@ -22,6 +23,7 @@ import uk.gov.companieshouse.company_appointments.interceptor.RequestLoggingInte
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = Config.class)
+@EnableAspectJAutoProxy
 class ConfigTest {
     @Autowired
     private Config testConfig;
