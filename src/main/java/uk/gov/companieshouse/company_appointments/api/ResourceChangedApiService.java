@@ -40,6 +40,7 @@ public class ResourceChangedApiService {
      * @param resourceChangedRequest encapsulates details relating to the updated or deleted company exemption
      * @return The service status of the response from chs kafka api
      */
+    @StreamEvents
     public ApiResponse<Void> invokeChsKafkaApi(ResourceChangedRequest resourceChangedRequest) throws ServiceUnavailableException {
         InternalApiClient internalApiClient = apiClientService.getInternalApiClient(); //NOSONAR
         internalApiClient.setBasePath(chsKafkaUrl);
