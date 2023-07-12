@@ -81,7 +81,7 @@ class CompanyAppointmentFullRecordControllerTest {
     }
 
     @Test
-    void testControllerReturns503StatusWhenPutEndpointIsCalled() throws ServiceUnavailableException {
+    void testControllerReturns503StatusWhenPutEndpointIsCalled() throws Exception {
         // given
         doThrow(ServiceUnavailableException.class)
                 .when(companyAppointmentService).upsertAppointmentDelta(any(), any());

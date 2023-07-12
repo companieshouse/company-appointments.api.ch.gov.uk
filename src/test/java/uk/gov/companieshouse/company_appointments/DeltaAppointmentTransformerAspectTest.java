@@ -90,7 +90,7 @@ class DeltaAppointmentTransformerAspectTest {
         Executable executable = () -> aspect.populateCompanyNameAndCompanyStatusFields(document);
 
         // then
-        assertThrows(NotFoundException.class, executable);
+        assertThrows(IllegalArgumentException.class, executable);
         verify(companyProfileClient).getCompanyProfile(COMPANY_NUMBER);
     }
 }

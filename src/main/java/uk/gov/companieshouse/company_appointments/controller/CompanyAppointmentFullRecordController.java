@@ -56,6 +56,9 @@ public class CompanyAppointmentFullRecordController {
         } catch (ServiceUnavailableException e) {
             LOGGER.info(e.getMessage());
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();
+        } catch (NotFoundException ex) {
+            LOGGER.info(ex.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
 

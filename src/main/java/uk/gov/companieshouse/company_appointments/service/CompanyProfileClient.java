@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.company_appointments.service;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.api.InternalApiClient;
 import uk.gov.companieshouse.api.company.Data;
@@ -30,9 +31,8 @@ public class CompanyProfileClient {
                     .getData());
         } catch (ApiErrorResponseException ex) {
             int statusCode = ex.getStatusCode();
-            if (statusCode == 404) {
-                // TODO: NotFoundException not appearing in logs
-                throw new NotFoundException(String.format("No company profile record could be found for company number: [%s]", companyNumber));
+            if (statusCode == HttpStatus.NOT_FOUND.value()) {
+                throw new NotFoundException(String.format("Company profile record not found for company number: [%s]", companyNumber));
             } else {
                 throw new ServiceUnavailableException(String.format("Error connecting to company profile api with status code: [%s]", statusCode));
             }
