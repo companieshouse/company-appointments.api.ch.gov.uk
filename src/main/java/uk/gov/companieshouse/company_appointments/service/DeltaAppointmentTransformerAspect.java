@@ -2,6 +2,7 @@ package uk.gov.companieshouse.company_appointments.service;
 
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.api.company.Data;
 import uk.gov.companieshouse.api.handler.exception.URIValidationException;
@@ -14,6 +15,7 @@ import uk.gov.companieshouse.logging.LoggerFactory;
 
 @Aspect
 @Component
+@ConditionalOnProperty(prefix = "feature", name = "seeding_collection_enabled")
 public class DeltaAppointmentTransformerAspect {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CompanyAppointmentsApplication.APPLICATION_NAMESPACE);
