@@ -43,7 +43,7 @@ class CompanyAppointmentFullRecordControllerITest {
 
     @Autowired
     private MockMvc mockMvc;
-    @Autowired
+
     private ObjectMapper objectMapper;
 
     @Container

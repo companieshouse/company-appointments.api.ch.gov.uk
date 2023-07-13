@@ -2,11 +2,11 @@ package uk.gov.companieshouse.company_appointments;
 
 import com.google.api.client.http.HttpHeaders;
 import com.google.api.client.http.HttpResponseException;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.function.Executable;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
@@ -42,15 +42,9 @@ class CompanyProfileClientTest {
     private PrivateCompanyResourceHandler privateCompanyResourceHandler;
     @Mock
     private PrivateCompanyFullProfileGet privateCompanyFullProfileGet;
-    @Mock
-    private Data data;
 
+    @InjectMocks
     private CompanyProfileClient companyProfileClient;
-
-    @BeforeEach
-    void setUp() {
-        companyProfileClient = new CompanyProfileClient(internalApiClientSupplier);
-    }
 
     @Test
     @DisplayName("Successfully returns data")

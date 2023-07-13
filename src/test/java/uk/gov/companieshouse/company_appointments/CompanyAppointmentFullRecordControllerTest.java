@@ -94,6 +94,19 @@ class CompanyAppointmentFullRecordControllerTest {
     }
 
     @Test
+    void testControllerReturns404StatusWhenPutEndpointIsCalled() throws ServiceUnavailableException, NotFoundException {
+        // given
+        doThrow(NotFoundException.class)
+                .when(companyAppointmentService).upsertAppointmentDelta(any(), any());
+
+        // when
+        ResponseEntity<Void> response = companyAppointmentFullRecordController.submitOfficerData(CONTEXT_ID, appointment);
+
+        // then
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+    }
+
+    @Test
     void testControllerReturns200WhenOfficerDeleted() {
 
         ResponseEntity<Void> response = companyAppointmentFullRecordController.deleteOfficerData(CONTEXT_ID, COMPANY_NUMBER, APPOINTMENT_ID);

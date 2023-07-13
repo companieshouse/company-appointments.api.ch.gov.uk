@@ -1,10 +1,10 @@
 package uk.gov.companieshouse.company_appointments;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.function.Executable;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.companieshouse.api.company.Data;
@@ -32,15 +32,11 @@ class DeltaAppointmentTransformerAspectTest {
     private static final String COMPANY_NAME = "company name";
     private static final String COMPANY_STATUS = "company status";
 
+    @InjectMocks
     private DeltaAppointmentTransformerAspect aspect;
 
     @Mock
     private CompanyProfileClient companyProfileClient;
-
-    @BeforeEach
-    void setUp() {
-        aspect = new DeltaAppointmentTransformerAspect(companyProfileClient);
-    }
 
     @Test
     @DisplayName("Successfully populate company name and status fields")
