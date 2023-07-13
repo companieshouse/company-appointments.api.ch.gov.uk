@@ -2,13 +2,13 @@ package uk.gov.companieshouse.company_appointments.tests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.time.OffsetDateTime;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -24,13 +24,11 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.SimpleMongoClientDatabaseFactory;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import uk.gov.companieshouse.api.appointment.*;
 import uk.gov.companieshouse.company_appointments.CompanyAppointmentsApplication;
 import uk.gov.companieshouse.company_appointments.api.ResourceChangedApiService;
 import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentDocument;
@@ -60,14 +58,10 @@ class CompanyAppointmentFullRecordControllerITest {
     static void start() throws IOException {
         System.setProperty("spring.data.mongodb.uri", mongoDBContainer.getReplicaSetUrl());
         mongoTemplate = new MongoTemplate(new SimpleMongoClientDatabaseFactory(mongoDBContainer.getReplicaSetUrl()));
-
         mongoTemplate.createCollection("delta_appointments");
         mongoTemplate.insert(Document.parse(
                         IOUtils.resourceToString("/delta-appointment-data.json", StandardCharsets.UTF_8)),
                 "delta_appointments");
-
-        mongoTemplate.createCollection("company_profile");
-
         System.setProperty("company-metrics-api.endpoint", "localhost");
     }
 
@@ -131,60 +125,5 @@ class CompanyAppointmentFullRecordControllerITest {
         query.addCriteria(Criteria.where("_id").is("7IjxamNGLlqtIingmTZJJ42Hw9Q"));
         List<CompanyAppointmentDocument> appointments = mongoTemplate.find(query, CompanyAppointmentDocument.class);
         assertThat(appointments).hasSize(1);
-    }
-
-    @Test
-    void testReturn404IfCompanyProfileRecordNotFound() throws Exception {
-        // given
-
-        // when
-        ResultActions result = mockMvc
-                .perform(put("/company/{company_number}/appointments/{appointment_id}/full_record", COMPANY_NUMBER, "123")
-                        .header("ERIC-Identity", "123").header("ERIC-Identity-Type", "key")
-                        .header("ERIC-authorised-key-privileges", "internal-app")
-                        .header("x-request-id", "contextId")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(buildFullRecordOfficer())));
-
-        // then
-        result.andExpect(status().isNotFound());
-
-        Query query = new Query();
-        query.addCriteria(Criteria.where("_id").is("123"));
-        List<CompanyAppointmentDocument> appointments = mongoTemplate.find(query, CompanyAppointmentDocument.class);
-        assertThat(appointments).isEmpty();
-    }
-
-    private FullRecordCompanyOfficerApi buildFullRecordOfficer() {
-        FullRecordCompanyOfficerApi output = new FullRecordCompanyOfficerApi();
-
-        Data data = new Data();
-        data.setForename("forename");
-        data.setSurname("surname");
-        data.setOfficerRole(Data.OfficerRoleEnum.DIRECTOR);
-        data.setCompanyNumber("12345678");
-
-        SensitiveData sensitiveData = new SensitiveData();
-        sensitiveData.setDateOfBirth(new DateOfBirth().day(1).month(2).year(1990));
-
-        ExternalData externalData = new ExternalData();
-        externalData.setData(data);
-        externalData.setSensitiveData(sensitiveData);
-        externalData.setAppointmentId("123");
-        externalData.setCompanyNumber("12345678");
-        externalData.setInternalId("internalId");
-        externalData.setOfficerId("officerId");
-        externalData.setPreviousOfficerId("previousOfficerId");
-
-        InternalData internalData = new InternalData();
-        internalData.setOfficerRoleSortOrder(22);
-        internalData.setDeltaAt(OffsetDateTime.parse("2022-01-12T00:00:00Z"));
-        internalData.setUpdatedBy("updatedBy");
-
-        output.setExternalData(externalData);
-        output.setInternalData(internalData);
-
-        return output;
     }
 }

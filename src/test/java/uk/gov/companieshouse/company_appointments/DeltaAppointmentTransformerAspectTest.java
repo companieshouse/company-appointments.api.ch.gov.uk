@@ -8,7 +8,9 @@ import org.junit.jupiter.api.function.Executable;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.companieshouse.api.company.Data;
+import uk.gov.companieshouse.company_appointments.exception.FailedToTransformException;
 import uk.gov.companieshouse.company_appointments.exception.NotFoundException;
+import uk.gov.companieshouse.company_appointments.exception.ServiceUnavailableException;
 import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentDocument;
 import uk.gov.companieshouse.company_appointments.service.DeltaAppointmentTransformerAspect;
 import uk.gov.companieshouse.company_appointments.service.CompanyProfileClient;
@@ -85,6 +87,42 @@ class DeltaAppointmentTransformerAspectTest {
                 .setCompanyNumber(COMPANY_NUMBER);
 
         when(companyProfileClient.getCompanyProfile(any())).thenThrow(NotFoundException.class);
+
+        // when
+        Executable executable = () -> aspect.populateCompanyNameAndCompanyStatusFields(document);
+
+        // then
+        assertThrows(IllegalArgumentException.class, executable);
+        verify(companyProfileClient).getCompanyProfile(COMPANY_NUMBER);
+    }
+
+    @Test
+    @DisplayName("Fails to connect to company profile service")
+    void companyProfileClientReturns5xx() throws Exception {
+        // given
+        CompanyAppointmentDocument document = new CompanyAppointmentDocument()
+                .setAppointmentId(APPOINTMENT_ID)
+                .setCompanyNumber(COMPANY_NUMBER);
+
+        when(companyProfileClient.getCompanyProfile(any())).thenThrow(ServiceUnavailableException.class);
+
+        // when
+        Executable executable = () -> aspect.populateCompanyNameAndCompanyStatusFields(document);
+
+        // then
+        assertThrows(FailedToTransformException.class, executable);
+        verify(companyProfileClient).getCompanyProfile(COMPANY_NUMBER);
+    }
+
+    @Test
+    @DisplayName("Company profile data is null")
+    void companyProfileClientReturnsNullData() throws Exception {
+        // given
+        CompanyAppointmentDocument document = new CompanyAppointmentDocument()
+                .setAppointmentId(APPOINTMENT_ID)
+                .setCompanyNumber(COMPANY_NUMBER);
+
+        when(companyProfileClient.getCompanyProfile(any())).thenReturn(Optional.empty());
 
         // when
         Executable executable = () -> aspect.populateCompanyNameAndCompanyStatusFields(document);

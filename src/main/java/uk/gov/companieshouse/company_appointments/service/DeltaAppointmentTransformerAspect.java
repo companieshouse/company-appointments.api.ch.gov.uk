@@ -6,6 +6,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.api.handler.exception.URIValidationException;
 import uk.gov.companieshouse.company_appointments.CompanyAppointmentsApplication;
+import uk.gov.companieshouse.company_appointments.exception.FailedToTransformException;
 import uk.gov.companieshouse.company_appointments.exception.NotFoundException;
 import uk.gov.companieshouse.company_appointments.exception.ServiceUnavailableException;
 import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentDocument;
@@ -26,8 +27,8 @@ public class DeltaAppointmentTransformerAspect {
         this.companyProfileClient = companyProfileClient;
     }
 
-    @AfterReturning(pointcut="@annotation(AddCompanyNameAndStatus)", returning="returnValue")
-    public void populateCompanyNameAndCompanyStatusFields(Object returnValue) throws URIValidationException, ServiceUnavailableException {
+    @AfterReturning(pointcut = "@annotation(AddCompanyNameAndStatus)", returning = "returnValue")
+    public void populateCompanyNameAndCompanyStatusFields(Object returnValue) throws URIValidationException, FailedToTransformException {
         if (!(returnValue instanceof CompanyAppointmentDocument)) {
             return;
         }
@@ -36,17 +37,22 @@ public class DeltaAppointmentTransformerAspect {
         try {
             companyProfileClient.getCompanyProfile(document.getCompanyNumber())
                     .ifPresentOrElse(data -> {
-                        String companyName = data.getCompanyName();
-                        String companyStatus = data.getCompanyStatus();
-                        String appointmentId = document.getAppointmentId();
+                                String companyName = data.getCompanyName();
+                                String companyStatus = data.getCompanyStatus();
+                                String appointmentId = document.getAppointmentId();
 
-                        document.setCompanyName(companyName);
-                        document.setCompanyStatus(companyStatus);
+                                document.setCompanyName(companyName);
+                                document.setCompanyStatus(companyStatus);
 
-                        LOGGER.debug(String.format("Company name [%s] and company status [%s] set on appointment [%s]", companyName, companyStatus, appointmentId));
-                    }, () -> { throw new IllegalArgumentException(COMPANY_PROFILE_NOT_FOUND); });
+                                LOGGER.debug(String.format("Company name [%s] and company status [%s] set on appointment [%s]", companyName, companyStatus, appointmentId));
+                            },
+                            () -> {
+                                throw new IllegalArgumentException(COMPANY_PROFILE_NOT_FOUND);
+                            });
         } catch (NotFoundException e) {
             throw new IllegalArgumentException(COMPANY_PROFILE_NOT_FOUND, e);
+        } catch (ServiceUnavailableException e) {
+            throw new FailedToTransformException(e.getMessage());
         }
     }
 }

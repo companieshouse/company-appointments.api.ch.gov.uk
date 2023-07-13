@@ -1,11 +1,11 @@
 package uk.gov.companieshouse.company_appointments.model.transformer;
 
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.ActiveProfiles;
 import uk.gov.companieshouse.api.appointment.Data;
 import uk.gov.companieshouse.api.appointment.DateOfBirth;
 import uk.gov.companieshouse.api.appointment.ExternalData;
@@ -30,6 +30,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
+@ActiveProfiles("feature_flag_enabled")
 class DeltaAppointmentTransformerIntegrationTest {
 
     private static final String COMPANY_NAME = "companyName";
@@ -54,11 +55,6 @@ class DeltaAppointmentTransformerIntegrationTest {
     private DeltaSensitiveDataTransformer sensitiveDataTransformer;
     @MockBean
     private CompanyProfileClient client;
-
-    @BeforeAll
-    static void setUp() {
-        System.setProperty("company-metrics-api.endpoint", "localhost");
-    }
 
     @Test
     void successfullyCallAspect() throws Exception {

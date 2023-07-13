@@ -34,7 +34,7 @@ public class CompanyProfileClient {
             if (statusCode == HttpStatus.NOT_FOUND.value()) {
                 throw new NotFoundException(String.format("Company profile record not found for company number: [%s]", companyNumber));
             } else {
-                throw new ServiceUnavailableException(String.format("Error connecting to company profile api with status code: [%s]", statusCode));
+                throw new ServiceUnavailableException(String.format("Request to fetch company profile failed with status code: [%s]", statusCode));
             }
         }
     }
