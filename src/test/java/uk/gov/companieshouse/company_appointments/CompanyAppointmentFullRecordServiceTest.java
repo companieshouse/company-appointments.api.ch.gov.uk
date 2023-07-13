@@ -50,7 +50,6 @@ import uk.gov.companieshouse.company_appointments.model.transformer.DeltaAppoint
 import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentFullRecordView;
 import uk.gov.companieshouse.company_appointments.repository.CompanyAppointmentFullRecordRepository;
 import uk.gov.companieshouse.company_appointments.service.CompanyAppointmentFullRecordService;
-import uk.gov.companieshouse.company_appointments.service.DeltaAppointmentTransformerAspect;
 
 @ExtendWith(MockitoExtension.class)
 class CompanyAppointmentFullRecordServiceTest {
@@ -59,8 +58,6 @@ class CompanyAppointmentFullRecordServiceTest {
 
     @Mock
     private DeltaAppointmentTransformer deltaAppointmentTransformer;
-    @Mock
-    private DeltaAppointmentTransformerAspect deltaAppointmentTransformerAspect;
     @Mock
     private CompanyAppointmentFullRecordRepository companyAppointmentRepository;
     @Mock
