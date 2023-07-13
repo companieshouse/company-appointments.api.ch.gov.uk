@@ -44,8 +44,6 @@ class CompanyAppointmentFullRecordControllerITest {
     @Autowired
     private MockMvc mockMvc;
 
-    private ObjectMapper objectMapper;
-
     @Container
     private static final MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:4.4");
 
