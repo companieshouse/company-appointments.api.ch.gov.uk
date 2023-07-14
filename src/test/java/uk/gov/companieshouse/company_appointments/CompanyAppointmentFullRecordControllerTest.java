@@ -81,7 +81,7 @@ class CompanyAppointmentFullRecordControllerTest {
     }
 
     @Test
-    void testControllerReturns503StatusWhenPutEndpointIsCalled() throws ServiceUnavailableException {
+    void testControllerReturns503StatusWhenPutEndpointIsCalled() throws Exception {
         // given
         doThrow(ServiceUnavailableException.class)
                 .when(companyAppointmentService).upsertAppointmentDelta(any(), any());
@@ -91,6 +91,19 @@ class CompanyAppointmentFullRecordControllerTest {
 
         // then
         assertEquals(HttpStatus.SERVICE_UNAVAILABLE, response.getStatusCode());
+    }
+
+    @Test
+    void testControllerReturns404StatusWhenPutEndpointIsCalled() throws ServiceUnavailableException, NotFoundException {
+        // given
+        doThrow(NotFoundException.class)
+                .when(companyAppointmentService).upsertAppointmentDelta(any(), any());
+
+        // when
+        ResponseEntity<Void> response = companyAppointmentFullRecordController.submitOfficerData(CONTEXT_ID, appointment);
+
+        // then
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
 
     @Test

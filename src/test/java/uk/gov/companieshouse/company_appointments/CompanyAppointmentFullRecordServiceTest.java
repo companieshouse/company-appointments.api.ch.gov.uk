@@ -4,6 +4,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -57,7 +58,6 @@ class CompanyAppointmentFullRecordServiceTest {
 
     @Mock
     private DeltaAppointmentTransformer deltaAppointmentTransformer;
-
     @Mock
     private CompanyAppointmentFullRecordRepository companyAppointmentRepository;
     @Mock
@@ -188,6 +188,19 @@ class CompanyAppointmentFullRecordServiceTest {
 
         // then
         assertThrows(ServiceUnavailableException.class, executable);
+    }
+
+    @Test
+    void testPutAppointmentDataThrowsNotFoundExceptionWhenIllegalArgumentExceptionCaught() throws Exception {
+        // given
+        doThrow(IllegalArgumentException.class)
+                .when(deltaAppointmentTransformer).transform(any(FullRecordCompanyOfficerApi.class));
+
+        // When
+        Executable executable = () -> companyAppointmentService.upsertAppointmentDelta(CONTEXT_ID, fullRecordCompanyOfficerApi);
+
+        // then
+        assertThrows(NotFoundException.class, executable);
     }
 
     @ParameterizedTest

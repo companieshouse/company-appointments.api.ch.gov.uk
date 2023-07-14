@@ -55,12 +55,14 @@ public class CompanyAppointmentFullRecordService {
                         String.format("Appointment [%s] for company [%s] not found", appointmentID, companyNumber)));
     }
 
-    public void upsertAppointmentDelta(String contextId, final FullRecordCompanyOfficerApi requestBody) throws ServiceUnavailableException {
+    public void upsertAppointmentDelta(String contextId, final FullRecordCompanyOfficerApi requestBody) throws ServiceUnavailableException, NotFoundException {
             CompanyAppointmentDocument companyAppointmentDocument;
             try {
                 companyAppointmentDocument = deltaAppointmentTransformer.transform(requestBody);
-            } catch (FailedToTransformException e) {
-                throw new ServiceUnavailableException(String.format("Failed to transform payload: %s", e.getMessage()));
+            } catch (IllegalArgumentException ex) {
+                throw new NotFoundException(String.format("Company profile not found for company number [%s]", requestBody.getExternalData().getCompanyNumber()));
+            } catch (FailedToTransformException ex) {
+                throw new ServiceUnavailableException(String.format("Failed to transform payload: %s", ex.getMessage()));
             }
             var instant = new DeltaTimestamp(Instant.now(clock));
             DeltaOfficerData officer = companyAppointmentDocument.getData();
