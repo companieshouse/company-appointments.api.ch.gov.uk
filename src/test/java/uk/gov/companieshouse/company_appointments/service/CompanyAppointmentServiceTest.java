@@ -29,12 +29,18 @@ import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.data.domain.Sort;
 import uk.gov.companieshouse.api.appointment.OfficerList;
 import uk.gov.companieshouse.api.appointment.OfficerSummary;
+import uk.gov.companieshouse.api.metrics.AppointmentsApi;
+import uk.gov.companieshouse.api.metrics.CountsApi;
+import uk.gov.companieshouse.api.metrics.MetricsApi;
+import uk.gov.companieshouse.api.metrics.RegistersApi;
+import uk.gov.companieshouse.api.model.ApiResponse;
 import uk.gov.companieshouse.company_appointments.api.CompanyMetricsApiService;
 import uk.gov.companieshouse.company_appointments.exception.BadRequestException;
 import uk.gov.companieshouse.company_appointments.exception.NotFoundException;
 import uk.gov.companieshouse.company_appointments.exception.ServiceUnavailableException;
 import uk.gov.companieshouse.company_appointments.mapper.CompanyAppointmentMapper;
 import uk.gov.companieshouse.company_appointments.mapper.SortMapper;
+import uk.gov.companieshouse.company_appointments.model.FetchAppointmentsRequest;
 import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentData;
 import uk.gov.companieshouse.company_appointments.model.data.ContactDetailsData;
 import uk.gov.companieshouse.company_appointments.model.data.LinksData;
@@ -42,9 +48,6 @@ import uk.gov.companieshouse.company_appointments.model.data.OfficerData;
 import uk.gov.companieshouse.company_appointments.model.data.ServiceAddressData;
 import uk.gov.companieshouse.company_appointments.repository.CompanyAppointmentFullRecordRepository;
 import uk.gov.companieshouse.company_appointments.repository.CompanyAppointmentRepository;
-import uk.gov.companieshouse.company_appointments.service.CompanyAppointmentService;
-import uk.gov.companieshouse.company_appointments.service.CompanyRegisterService;
-import uk.gov.companieshouse.company_appointments.model.FetchAppointmentsRequest;
 import uk.gov.companieshouse.company_appointments.util.CompanyStatusValidator;
 
 @ExtendWith(MockitoExtension.class)
@@ -73,6 +76,12 @@ class CompanyAppointmentServiceTest {
     @Mock
     private SortMapper sortMapper;
 
+    @Mock
+    private MetricsApi metricsApi;
+
+    @Mock
+    private RegistersApi registersApi;
+
     private final static String COMPANY_NUMBER = "123456";
     private final static String APPOINTMENT_ID = "345678";
     private final static String FILTER = "active";
@@ -88,15 +97,15 @@ class CompanyAppointmentServiceTest {
     void setUp() {
         CompanyAppointmentMapper companyAppointmentMapper = new CompanyAppointmentMapper();
         companyAppointmentService = new CompanyAppointmentService(companyAppointmentRepository,
-                companyAppointmentMapper, sortMapper,
-                companyRegisterService, companyMetricsApiService, companyStatusValidator, fullRecordAppointmentRepository,
-                clock);
+                companyAppointmentMapper, sortMapper, companyRegisterService, companyMetricsApiService,
+                companyStatusValidator, fullRecordAppointmentRepository, clock);
         MDC.put(REQUEST_ID.value(), CONTEXT_ID);
     }
 
     @Test
     void testFetchAppointmentReturnsMappedAppointmentData() throws NotFoundException {
-        CompanyAppointmentData officerData = new CompanyAppointmentData("1", officerData().withEtag("etag").build(), "active");
+        CompanyAppointmentData officerData = new CompanyAppointmentData("1", officerData().withEtag("etag").build(),
+                "active");
 
         // given
         when(companyAppointmentRepository.readByCompanyNumberAndAppointmentID(COMPANY_NUMBER, APPOINTMENT_ID))
@@ -122,7 +131,7 @@ class CompanyAppointmentServiceTest {
     }
 
     @Test
-    void testFetchAppointmentForCompanyNumberForNotResignedReturnsMappedAppointmentData() throws Exception{
+    void testFetchAppointmentForCompanyNumberForNotResignedReturnsMappedAppointmentData() throws Exception {
         CompanyAppointmentData officerData = new CompanyAppointmentData("1", officerData().build(), "active");
         List<CompanyAppointmentData> allAppointmentData = new ArrayList<>();
         allAppointmentData.add(officerData);
@@ -134,14 +143,23 @@ class CompanyAppointmentServiceTest {
                         .withOrderBy(ORDER_BY)
                         .build();
 
+        AppointmentsApi appointmentsCounts = new AppointmentsApi()
+                .totalCount(8)
+                .activeCount(5)
+                .resignedCount(3);
+
+        when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(new ApiResponse<>(200, null, metricsApi));
+        when(metricsApi.getCounts()).thenReturn(new CountsApi().appointments(appointmentsCounts));
         when(sortMapper.getSort(ORDER_BY)).thenReturn(SORT);
         when(companyAppointmentRepository.readAllByCompanyNumberForNotResigned(COMPANY_NUMBER, SORT))
                 .thenReturn(allAppointmentData);
 
-
         OfficerList result = companyAppointmentService.fetchAppointmentsForCompany(request);
 
         assertEquals(1, result.getTotalResults());
+        assertEquals(5, result.getActiveCount());
+        assertEquals(0, result.getInactiveCount());
+        assertEquals(3, result.getResignedCount());
         assertEquals(OfficerList.class, result.getClass());
         verify(companyAppointmentRepository).readAllByCompanyNumberForNotResigned(COMPANY_NUMBER, SORT);
     }
@@ -164,7 +182,7 @@ class CompanyAppointmentServiceTest {
     }
 
     @Test
-    void testFetchAppointmentForCompanyNumberReturnsMappedAppointmentData() throws Exception{
+    void testFetchAppointmentForCompanyNumberReturnsMappedAppointmentData() throws Exception {
         CompanyAppointmentData officerData = new CompanyAppointmentData("1", officerData().build(), "active");
         List<CompanyAppointmentData> allAppointmentData = new ArrayList<>();
         allAppointmentData.add(officerData);
@@ -180,7 +198,6 @@ class CompanyAppointmentServiceTest {
         when(companyAppointmentRepository.readAllByCompanyNumber(COMPANY_NUMBER, SORT))
                 .thenReturn(allAppointmentData);
 
-
         OfficerList result = companyAppointmentService.fetchAppointmentsForCompany(request);
 
         assertEquals(1, result.getTotalResults());
@@ -192,7 +209,7 @@ class CompanyAppointmentServiceTest {
     void testFetchAppointmentForCompanyWhenNoParametersThenReturnsFirstThirtyFiveOfficers() throws Exception {
         CompanyAppointmentData officerData = new CompanyAppointmentData("1", officerData().build(), "active");
         List<CompanyAppointmentData> allAppointmentData = new ArrayList<>();
-        for (int i = 0; i < 200; i++){
+        for (int i = 0; i < 200; i++) {
             allAppointmentData.add(officerData);
         }
 
@@ -213,10 +230,11 @@ class CompanyAppointmentServiceTest {
     }
 
     @Test
-    void testFetchAppointmentForCompanyWhenItemsPerPageIsLargerThanOneHundredThenReturnsOneHundredBack() throws Exception {
+    void testFetchAppointmentForCompanyWhenItemsPerPageIsLargerThanOneHundredThenReturnsOneHundredBack()
+            throws Exception {
         CompanyAppointmentData officerData = new CompanyAppointmentData("1", officerData().build(), "active");
         List<CompanyAppointmentData> allAppointmentData = new ArrayList<>();
-        for (int i = 0; i < 200; i++){
+        for (int i = 0; i < 200; i++) {
             allAppointmentData.add(officerData);
         }
 
@@ -240,7 +258,7 @@ class CompanyAppointmentServiceTest {
     @Test
     void testFetchAppointmentForCompanyWhenItemsPerPageIsFiveThenReturnsFirstFiveOfficers() throws Exception {
         List<CompanyAppointmentData> allAppointmentData = new ArrayList<>();
-        for (int i = 0; i < 200; i++){
+        for (int i = 0; i < 200; i++) {
             CompanyAppointmentData officerData = new CompanyAppointmentData("1", officerData().build(), "active");
             officerData.getData().setOccupation(String.valueOf(i));
             allAppointmentData.add(officerData);
@@ -265,7 +283,8 @@ class CompanyAppointmentServiceTest {
     }
 
     @Test
-    void testFetchAppointmentForCompanyWhenStartIndexIsFiveThenReturnsThirtyFiveOfficersStartingFromIndexFive() throws Exception {
+    void testFetchAppointmentForCompanyWhenStartIndexIsFiveThenReturnsThirtyFiveOfficersStartingFromIndexFive()
+            throws Exception {
 
         List<CompanyAppointmentData> allAppointmentData = new ArrayList<>();
         for (int i = 0; i < 200; i++) {
@@ -293,7 +312,8 @@ class CompanyAppointmentServiceTest {
     }
 
     @Test
-    void testFetchAppointmentForCompanyWhenStartIndexAndItemsPerPagePresentThenReturnsItemsPerPageStartingFromStartIndex() throws Exception {
+    void testFetchAppointmentForCompanyWhenStartIndexAndItemsPerPagePresentThenReturnsItemsPerPageStartingFromStartIndex()
+            throws Exception {
 
         List<CompanyAppointmentData> allAppointmentData = new ArrayList<>();
         for (int i = 0; i < 200; i++) {
@@ -317,13 +337,13 @@ class CompanyAppointmentServiceTest {
 
         OfficerList result = companyAppointmentService.fetchAppointmentsForCompany(request);
 
-
         assertEquals(String.valueOf(56), result.getItems().get(0).getOccupation());
         assertEquals(15, result.getTotalResults());
     }
 
     @Test
-    void testFetchAppointmentForCompanyWhenStartIndexPlusItemsPerPageIsLargerThanSizeOfListThenReturnsItemsFromStartIndexToEndOfList() throws Exception {
+    void testFetchAppointmentForCompanyWhenStartIndexPlusItemsPerPageIsLargerThanSizeOfListThenReturnsItemsFromStartIndexToEndOfList()
+            throws Exception {
 
         List<CompanyAppointmentData> allAppointmentData = new ArrayList<>();
         for (int i = 0; i < 200; i++) {
@@ -346,7 +366,6 @@ class CompanyAppointmentServiceTest {
                 .thenReturn(allAppointmentData);
 
         OfficerList result = companyAppointmentService.fetchAppointmentsForCompany(request);
-
 
         assertEquals(String.valueOf(195), result.getItems().get(0).getOccupation());
         assertEquals(5, result.getTotalResults());
@@ -377,7 +396,8 @@ class CompanyAppointmentServiceTest {
     }
 
     @Test
-    void testFetchAppointmentForCompanyReturnInactiveOrActiveCountInCompanyOfficersGETDependingOnCompanyStatusReturnsActive() throws Exception{
+    void testFetchAppointmentForCompanyReturnInactiveOrActiveCountInCompanyOfficersGETDependingOnCompanyStatusReturnsActive()
+            throws Exception {
         OfficerData officer = officerData().build();
         officer.setResignedOn(null);
         CompanyAppointmentData officerData = new CompanyAppointmentData("1", officer, "active");
@@ -404,7 +424,8 @@ class CompanyAppointmentServiceTest {
     }
 
     @Test
-    void testFetchAppointmentForCompanyReturnInactiveOrActiveCountInCompanyOfficersGETDependingOnCompanyStatusReturnsInactive() throws Exception{
+    void testFetchAppointmentForCompanyReturnInactiveOrActiveCountInCompanyOfficersGETDependingOnCompanyStatusReturnsInactive()
+            throws Exception {
         OfficerData officer = officerData().build();
         officer.setResignedOn(null);
         CompanyAppointmentData officerData = new CompanyAppointmentData("1", officer, "removed");
@@ -429,6 +450,7 @@ class CompanyAppointmentServiceTest {
         assertEquals(0, result.getActiveCount());
 
     }
+
     @Test
     void testNoRegisterViewIsFalse() throws Exception {
         CompanyAppointmentData officerData = new CompanyAppointmentData("1", officerData().build(), "active");
@@ -471,8 +493,9 @@ class CompanyAppointmentServiceTest {
 
         verify(companyRegisterService, times(0)).isRegisterHeldInCompaniesHouse(any(), any());
     }
+
     @Test
-    void testFetchAppointmentsForCompanyThrowsNotFoundExceptionIfRegisterViewAndNotHeldInCompaniesHouse() throws Exception {
+    void testFetchAppointmentsForCompanyThrowsNotFoundExceptionIfRegisterViewAndNotHeldInCompaniesHouse() {
         FetchAppointmentsRequest request =
                 FetchAppointmentsRequest.Builder.builder()
                         .withCompanyNumber(COMPANY_NUMBER)
@@ -673,7 +696,8 @@ class CompanyAppointmentServiceTest {
         // given
 
         // when
-        Executable executable = () -> companyAppointmentService.patchNewAppointmentCompanyNameStatus(COMPANY_NUMBER, APPOINTMENT_ID, "", OPEN_STATUS);
+        Executable executable = () -> companyAppointmentService.patchNewAppointmentCompanyNameStatus(COMPANY_NUMBER,
+                APPOINTMENT_ID, "", OPEN_STATUS);
 
         // then
         BadRequestException exception = assertThrows(BadRequestException.class, executable);
@@ -726,14 +750,17 @@ class CompanyAppointmentServiceTest {
     void patchNewAppointmentNameStatusMissingAppointmentAfterResourceChanged() {
         // given
         when(companyStatusValidator.isValidCompanyStatus(OPEN_STATUS)).thenReturn(true);
-        when(fullRecordAppointmentRepository.patchAppointmentNameStatus(anyString(), anyString(), anyString(), any(), anyString())).thenReturn(0L);
+        when(fullRecordAppointmentRepository.patchAppointmentNameStatus(anyString(), anyString(), anyString(), any(),
+                anyString())).thenReturn(0L);
 
         // when
-        Executable executable = () -> companyAppointmentService.patchNewAppointmentCompanyNameStatus(COMPANY_NUMBER, APPOINTMENT_ID, COMPANY_NAME, OPEN_STATUS);
+        Executable executable = () -> companyAppointmentService.patchNewAppointmentCompanyNameStatus(COMPANY_NUMBER,
+                APPOINTMENT_ID, COMPANY_NAME, OPEN_STATUS);
 
         // then
         NotFoundException exception = assertThrows(NotFoundException.class, executable);
-        assertEquals("Appointment [345678] for company [123456] not found during PATCH request", exception.getMessage());
+        assertEquals("Appointment [345678] for company [123456] not found during PATCH request",
+                exception.getMessage());
         verify(companyStatusValidator).isValidCompanyStatus(OPEN_STATUS);
         verify(fullRecordAppointmentRepository).patchAppointmentNameStatus(any(), any(), any(), any(), any());
     }
@@ -767,7 +794,8 @@ class CompanyAppointmentServiceTest {
                 .withResignedOn(LocalDateTime.of(2020, 8, 26, 13, 0))
                 .withCountryOfResidence("Country")
                 .withDateOfBirth(LocalDateTime.of(1980, 1, 1, 12, 0))
-                .withLinks(new LinksData("/company/12345678/appointment/123", "/officers/abc", "/officers/abc/appointments"))
+                .withLinks(new LinksData("/company/12345678/appointment/123", "/officers/abc",
+                        "/officers/abc/appointments"))
                 .withNationality("Nationality")
                 .withOccupation("Occupation")
                 .withOfficerRole("director")

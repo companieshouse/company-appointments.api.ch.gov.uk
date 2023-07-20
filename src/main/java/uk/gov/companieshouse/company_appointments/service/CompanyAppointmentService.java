@@ -10,6 +10,7 @@ import java.time.chrono.ChronoLocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import javax.swing.text.html.Option;
 import org.slf4j.MDC;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Sort;
@@ -18,6 +19,9 @@ import uk.gov.companieshouse.GenerateEtagUtil;
 import uk.gov.companieshouse.api.appointment.LinkTypes;
 import uk.gov.companieshouse.api.appointment.OfficerList;
 import uk.gov.companieshouse.api.appointment.OfficerSummary;
+import uk.gov.companieshouse.api.metrics.AppointmentsApi;
+import uk.gov.companieshouse.api.metrics.CountsApi;
+import uk.gov.companieshouse.api.metrics.MetricsApi;
 import uk.gov.companieshouse.api.metrics.RegistersApi;
 import uk.gov.companieshouse.company_appointments.CompanyAppointmentsApplication;
 import uk.gov.companieshouse.company_appointments.api.CompanyMetricsApiService;
@@ -89,8 +93,11 @@ public class CompanyAppointmentService {
         if(registerView == null) {
             registerView = false;
         }
+
+        MetricsApi metricsApi = companyMetricsApiService.invokeGetMetricsApi(companyNumber).getData();
+
         String registerType = request.getRegisterType();
-        if (registerView && !companyRegisterService.isRegisterHeldInCompaniesHouse(registerType, new RegistersApi())) {
+        if (registerView && !companyRegisterService.isRegisterHeldInCompaniesHouse(registerType, metricsApi.getRegisters())) {
             throw new NotFoundException("Register not held at Companies House");
         }
 
@@ -113,18 +120,14 @@ public class CompanyAppointmentService {
             throw new NotFoundException(String.format("Appointments for company [%s] not found", companyNumber));
         }
 
-        List<OfficerSummary> officerSummaries = allAppointmentData.stream().map(companyAppointmentMapper::map).collect(Collectors.toList());
-        int count = (int) officerSummaries.stream().filter(officer -> officer.getResignedOn() == null).count();
-        int activeCount = 0;
-        int inactiveCount = 0;
-        String appointmentStatus = allAppointmentData.get(0).getCompanyStatus();
-        if (appointmentStatus.equals("removed") || appointmentStatus.equals("dissolved") || appointmentStatus.equals("converted-closed")){
-            inactiveCount = count;
-        } else {
-            activeCount = count;
-        }
+        String companyStatus = allAppointmentData.get(0).getCompanyStatus();
 
-        int resignedCount = (int) officerSummaries.stream().filter(officer -> officer.getResignedOn() != null && officer.getResignedOn().isBefore(ChronoLocalDate.from(LocalDate.now().atStartOfDay()))).count();
+        Counts counts = Optional.ofNullable(metricsApi.getCounts())
+                .map(CountsApi::getAppointments)
+                .map(appointments -> new Counts(appointments, companyStatus))
+                .orElseThrow(() -> new NotFoundException(String.format("Appointments for company [%s] not found", companyNumber)));
+
+        List<OfficerSummary> officerSummaries = allAppointmentData.stream().map(companyAppointmentMapper::map).collect(Collectors.toList());
 
         Integer startIndex = request.getStartIndex();
         Integer itemsPerPage = request.getItemsPerPage();
@@ -133,9 +136,9 @@ public class CompanyAppointmentService {
         return new OfficerList()
                     .totalResults(officerSummaries.size())
                     .items(officerSummaries)
-                    .activeCount(activeCount)
-                    .inactiveCount(inactiveCount)
-                    .resignedCount(resignedCount)
+                    .activeCount(counts.getActive())
+                    .inactiveCount(counts.getInactive())
+                    .resignedCount(counts.getResigned())
                     .kind(OfficerList.KindEnum.OFFICER_LIST)
                     .startIndex(startIndex == null ? DEFAULT_START_INDEX : startIndex)
                     .itemsPerPage(itemsPerPage == null ? DEFAULT_ITEMS_PER_PAGE : itemsPerPage)
@@ -239,5 +242,38 @@ public class CompanyAppointmentService {
 
     private String getContextId() {
         return MDC.get(REQUEST_ID.value());
+    }
+
+    private static class Counts {
+        private final int active;
+        private final int inactive;
+        private final int resigned;
+
+        private Counts(final AppointmentsApi appointments, final String status) {
+            switch (status) {
+                case "removed":
+                case "dissolved":
+                case "converted-closed":
+                    this.active = 0;
+                    this.inactive = appointments.getActiveCount();
+                    break;
+                default:
+                    this.active = appointments.getActiveCount();
+                    this.inactive = 0;
+            }
+           this.resigned = appointments.getResignedCount();
+        }
+
+        public int getActive() {
+            return active;
+        }
+
+        public int getInactive() {
+            return inactive;
+        }
+
+        public int getResigned() {
+            return resigned;
+        }
     }
 }
