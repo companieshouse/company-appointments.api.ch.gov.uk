@@ -18,7 +18,9 @@ import uk.gov.companieshouse.GenerateEtagUtil;
 import uk.gov.companieshouse.api.appointment.LinkTypes;
 import uk.gov.companieshouse.api.appointment.OfficerList;
 import uk.gov.companieshouse.api.appointment.OfficerSummary;
+import uk.gov.companieshouse.api.metrics.RegistersApi;
 import uk.gov.companieshouse.company_appointments.CompanyAppointmentsApplication;
+import uk.gov.companieshouse.company_appointments.api.CompanyMetricsApiService;
 import uk.gov.companieshouse.company_appointments.exception.BadRequestException;
 import uk.gov.companieshouse.company_appointments.exception.NotFoundException;
 import uk.gov.companieshouse.company_appointments.exception.ServiceUnavailableException;
@@ -48,17 +50,20 @@ public class CompanyAppointmentService {
     private final SortMapper sortMapper;
     private final CompanyStatusValidator companyStatusValidator;
     private final CompanyRegisterService companyRegisterService;
+    private final CompanyMetricsApiService companyMetricsApiService;
     private final CompanyAppointmentFullRecordRepository fullRecordAppointmentRepository;
     private final Clock clock;
 
     public CompanyAppointmentService(CompanyAppointmentRepository companyAppointmentRepository,
             CompanyAppointmentMapper companyAppointmentMapper, SortMapper sortMapper,
-            CompanyRegisterService companyRegisterService, CompanyStatusValidator companyStatusValidator,
+            CompanyRegisterService companyRegisterService, CompanyMetricsApiService companyMetricsApiService,
+            CompanyStatusValidator companyStatusValidator,
             CompanyAppointmentFullRecordRepository fullRecordAppointmentRepository, Clock clock) {
         this.companyAppointmentRepository = companyAppointmentRepository;
         this.companyAppointmentMapper = companyAppointmentMapper;
         this.sortMapper = sortMapper;
         this.companyRegisterService = companyRegisterService;
+        this.companyMetricsApiService = companyMetricsApiService;
         this.companyStatusValidator = companyStatusValidator;
         this.fullRecordAppointmentRepository = fullRecordAppointmentRepository;
         this.clock = clock;
@@ -85,7 +90,7 @@ public class CompanyAppointmentService {
             registerView = false;
         }
         String registerType = request.getRegisterType();
-        if (registerView && !companyRegisterService.isRegisterHeldInCompaniesHouse(registerType, companyNumber)) {
+        if (registerView && !companyRegisterService.isRegisterHeldInCompaniesHouse(registerType, new RegistersApi())) {
             throw new NotFoundException("Register not held at Companies House");
         }
 

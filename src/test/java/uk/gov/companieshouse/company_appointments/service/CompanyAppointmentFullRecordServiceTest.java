@@ -1,4 +1,4 @@
-package uk.gov.companieshouse.company_appointments;
+package uk.gov.companieshouse.company_appointments.service;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;

@@ -1,4 +1,4 @@
-package uk.gov.companieshouse.company_appointments;
+package uk.gov.companieshouse.company_appointments.service;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -29,6 +29,7 @@ import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.data.domain.Sort;
 import uk.gov.companieshouse.api.appointment.OfficerList;
 import uk.gov.companieshouse.api.appointment.OfficerSummary;
+import uk.gov.companieshouse.company_appointments.api.CompanyMetricsApiService;
 import uk.gov.companieshouse.company_appointments.exception.BadRequestException;
 import uk.gov.companieshouse.company_appointments.exception.NotFoundException;
 import uk.gov.companieshouse.company_appointments.exception.ServiceUnavailableException;
@@ -52,16 +53,19 @@ class CompanyAppointmentServiceTest {
     private CompanyAppointmentService companyAppointmentService;
 
     @Mock
-    private CompanyAppointmentRepository companyAppointmentRepository;
-
-    @Mock
     private CompanyRegisterService companyRegisterService;
 
     @Mock
-    private CompanyStatusValidator companyStatusValidator;
+    private CompanyMetricsApiService companyMetricsApiService;
+
+    @Mock
+    private CompanyAppointmentRepository companyAppointmentRepository;
 
     @Mock
     private CompanyAppointmentFullRecordRepository fullRecordAppointmentRepository;
+
+    @Mock
+    private CompanyStatusValidator companyStatusValidator;
 
     @Mock
     private Clock clock;
@@ -85,7 +89,7 @@ class CompanyAppointmentServiceTest {
         CompanyAppointmentMapper companyAppointmentMapper = new CompanyAppointmentMapper();
         companyAppointmentService = new CompanyAppointmentService(companyAppointmentRepository,
                 companyAppointmentMapper, sortMapper,
-                companyRegisterService, companyStatusValidator, fullRecordAppointmentRepository,
+                companyRegisterService, companyMetricsApiService, companyStatusValidator, fullRecordAppointmentRepository,
                 clock);
         MDC.put(REQUEST_ID.value(), CONTEXT_ID);
     }
@@ -476,7 +480,7 @@ class CompanyAppointmentServiceTest {
                         .withRegisterType(REGISTER_TYPE)
                         .build();
 
-        when(companyRegisterService.isRegisterHeldInCompaniesHouse(REGISTER_TYPE, COMPANY_NUMBER)).thenReturn(false);
+        when(companyRegisterService.isRegisterHeldInCompaniesHouse(eq(REGISTER_TYPE), any())).thenReturn(false);
 
         assertThrows(NotFoundException.class,
                 () -> companyAppointmentService.fetchAppointmentsForCompany(request));
@@ -499,7 +503,7 @@ class CompanyAppointmentServiceTest {
         when(sortMapper.getSort(null)).thenReturn(SORT);
         when(companyAppointmentRepository.readAllByCompanyNumberForNotResigned(COMPANY_NUMBER, SORT))
                 .thenReturn(allAppointmentData);
-        when(companyRegisterService.isRegisterHeldInCompaniesHouse("secretaries", COMPANY_NUMBER)).thenReturn(true);
+        when(companyRegisterService.isRegisterHeldInCompaniesHouse(eq("secretaries"), any())).thenReturn(true);
 
         assertThrows(NotFoundException.class,
                 () -> companyAppointmentService.fetchAppointmentsForCompany(request));
@@ -522,7 +526,7 @@ class CompanyAppointmentServiceTest {
         when(sortMapper.getSort(null)).thenReturn(SORT);
         when(companyAppointmentRepository.readAllByCompanyNumberForNotResigned(COMPANY_NUMBER, SORT))
                 .thenReturn(allAppointmentData);
-        when(companyRegisterService.isRegisterHeldInCompaniesHouse(REGISTER_TYPE, COMPANY_NUMBER)).thenReturn(true);
+        when(companyRegisterService.isRegisterHeldInCompaniesHouse(eq(REGISTER_TYPE), any())).thenReturn(true);
 
         OfficerList result = companyAppointmentService.fetchAppointmentsForCompany(request);
 

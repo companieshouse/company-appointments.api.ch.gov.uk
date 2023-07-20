@@ -1,4 +1,4 @@
-package uk.gov.companieshouse.company_appointments;
+package uk.gov.companieshouse.company_appointments.api;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;

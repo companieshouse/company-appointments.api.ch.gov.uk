@@ -17,9 +17,9 @@ public class CompanyMetricsApiService {
 
     private final String metricsUrl;
 
-    private ApiClientService apiClientService;
+    private final ApiClientService apiClientService;
 
-    private Logger logger;
+    private final Logger logger;
 
     @Autowired
     public CompanyMetricsApiService(@Value("${company-metrics-api.endpoint}") String metricsUrl,
