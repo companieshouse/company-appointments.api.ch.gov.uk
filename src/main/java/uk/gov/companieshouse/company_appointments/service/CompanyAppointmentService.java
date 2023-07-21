@@ -5,12 +5,9 @@ import static uk.gov.companieshouse.logging.util.LogContextProperties.REQUEST_ID
 
 import java.time.Clock;
 import java.time.Instant;
-import java.time.LocalDate;
-import java.time.chrono.ChronoLocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import javax.swing.text.html.Option;
 import org.slf4j.MDC;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Sort;
@@ -22,7 +19,6 @@ import uk.gov.companieshouse.api.appointment.OfficerSummary;
 import uk.gov.companieshouse.api.metrics.AppointmentsApi;
 import uk.gov.companieshouse.api.metrics.CountsApi;
 import uk.gov.companieshouse.api.metrics.MetricsApi;
-import uk.gov.companieshouse.api.metrics.RegistersApi;
 import uk.gov.companieshouse.company_appointments.CompanyAppointmentsApplication;
 import uk.gov.companieshouse.company_appointments.api.CompanyMetricsApiService;
 import uk.gov.companieshouse.company_appointments.exception.BadRequestException;

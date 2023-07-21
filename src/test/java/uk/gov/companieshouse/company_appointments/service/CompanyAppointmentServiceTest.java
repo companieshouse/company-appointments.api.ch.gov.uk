@@ -32,7 +32,6 @@ import uk.gov.companieshouse.api.appointment.OfficerSummary;
 import uk.gov.companieshouse.api.metrics.AppointmentsApi;
 import uk.gov.companieshouse.api.metrics.CountsApi;
 import uk.gov.companieshouse.api.metrics.MetricsApi;
-import uk.gov.companieshouse.api.metrics.RegistersApi;
 import uk.gov.companieshouse.api.model.ApiResponse;
 import uk.gov.companieshouse.company_appointments.api.CompanyMetricsApiService;
 import uk.gov.companieshouse.company_appointments.exception.BadRequestException;

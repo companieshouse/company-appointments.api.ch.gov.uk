@@ -1,6 +1,5 @@
 package uk.gov.companieshouse.company_appointments.api;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -21,7 +20,6 @@ public class CompanyMetricsApiService {
 
     private final Logger logger;
 
-    @Autowired
     public CompanyMetricsApiService(@Value("${company-metrics-api.endpoint}") String metricsUrl,
                                   Logger logger, ApiClientService apiClientService) {
         this.metricsUrl = metricsUrl;
