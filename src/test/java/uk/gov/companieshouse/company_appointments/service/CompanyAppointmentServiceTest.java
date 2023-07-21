@@ -79,19 +79,20 @@ class CompanyAppointmentServiceTest {
     @Mock
     private MetricsApi metricsApi;
 
-    @Mock
-    private RegistersApi registersApi;
-
-    private final static String COMPANY_NUMBER = "123456";
-    private final static String APPOINTMENT_ID = "345678";
-    private final static String FILTER = "active";
-    private final static String ORDER_BY = "surname";
-    private final static Sort SORT = Sort.by("test");
-    private final static String REGISTER_TYPE = "directors";
-    private final static String COMPANY_NAME = "ACME LTD";
-    private final static String OPEN_STATUS = "open";
-    private final static String FAKE_STATUS = "fake";
-    private final static String CONTEXT_ID = "ABC123";
+    private static final String COMPANY_NUMBER = "123456";
+    private static final String APPOINTMENT_ID = "345678";
+    private static final String FILTER = "active";
+    private static final String ORDER_BY = "surname";
+    private static final Sort SORT = Sort.by("test");
+    private static final String REGISTER_TYPE = "directors";
+    private static final String COMPANY_NAME = "ACME LTD";
+    private static final String OPEN_STATUS = "open";
+    private static final String FAKE_STATUS = "fake";
+    private static final String CONTEXT_ID = "ABC123";
+    private static final AppointmentsApi APPOINTMENTS_COUNTS = new AppointmentsApi()
+            .totalCount(8)
+            .activeCount(5)
+            .resignedCount(3);
 
     @BeforeEach
     void setUp() {
@@ -146,7 +147,7 @@ class CompanyAppointmentServiceTest {
         AppointmentsApi appointmentsCounts = new AppointmentsApi()
                 .totalCount(8)
                 .activeCount(5)
-                .resignedCount(3);
+                .resignedCount(0);
 
         when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(new ApiResponse<>(200, null, metricsApi));
         when(metricsApi.getCounts()).thenReturn(new CountsApi().appointments(appointmentsCounts));
@@ -157,15 +158,13 @@ class CompanyAppointmentServiceTest {
         OfficerList result = companyAppointmentService.fetchAppointmentsForCompany(request);
 
         assertEquals(1, result.getTotalResults());
-        assertEquals(5, result.getActiveCount());
-        assertEquals(0, result.getInactiveCount());
-        assertEquals(3, result.getResignedCount());
         assertEquals(OfficerList.class, result.getClass());
         verify(companyAppointmentRepository).readAllByCompanyNumberForNotResigned(COMPANY_NUMBER, SORT);
     }
 
     @Test
-    void testFetchAppointmentForCompanyThrowsNotFoundExceptionIfAppointmentDoesntExist() {
+    void testFetchAppointmentForCompanyThrowsNotFoundExceptionIfAppointmentDoesntExist()
+            throws ServiceUnavailableException {
         FetchAppointmentsRequest request =
                 FetchAppointmentsRequest.Builder.builder()
                         .withCompanyNumber(COMPANY_NUMBER)
@@ -173,6 +172,7 @@ class CompanyAppointmentServiceTest {
                         .withOrderBy(ORDER_BY)
                         .build();
 
+        when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(new ApiResponse<>(200, null, metricsApi));
         when(companyAppointmentRepository.readAllByCompanyNumber(any(), any()))
                 .thenReturn(new ArrayList<>());
 
@@ -194,6 +194,8 @@ class CompanyAppointmentServiceTest {
                         .withOrderBy(ORDER_BY)
                         .build();
 
+        when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(new ApiResponse<>(200, null, metricsApi));
+        when(metricsApi.getCounts()).thenReturn(new CountsApi().appointments(APPOINTMENTS_COUNTS));
         when(sortMapper.getSort(ORDER_BY)).thenReturn(SORT);
         when(companyAppointmentRepository.readAllByCompanyNumber(COMPANY_NUMBER, SORT))
                 .thenReturn(allAppointmentData);
@@ -201,6 +203,9 @@ class CompanyAppointmentServiceTest {
         OfficerList result = companyAppointmentService.fetchAppointmentsForCompany(request);
 
         assertEquals(1, result.getTotalResults());
+        assertEquals(5, result.getActiveCount());
+        assertEquals(0, result.getInactiveCount());
+        assertEquals(3, result.getResignedCount());
         assertEquals(OfficerList.class, result.getClass());
         verify(companyAppointmentRepository).readAllByCompanyNumber(COMPANY_NUMBER, SORT);
     }
@@ -220,6 +225,8 @@ class CompanyAppointmentServiceTest {
                         .withOrderBy(ORDER_BY)
                         .build();
 
+        when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(new ApiResponse<>(200, null, metricsApi));
+        when(metricsApi.getCounts()).thenReturn(new CountsApi().appointments(APPOINTMENTS_COUNTS));
         when(sortMapper.getSort(ORDER_BY)).thenReturn(SORT);
         when(companyAppointmentRepository.readAllByCompanyNumber(COMPANY_NUMBER, SORT))
                 .thenReturn(allAppointmentData);
@@ -246,6 +253,8 @@ class CompanyAppointmentServiceTest {
                         .withItemsPerPage(150)
                         .build();
 
+        when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(new ApiResponse<>(200, null, metricsApi));
+        when(metricsApi.getCounts()).thenReturn(new CountsApi().appointments(APPOINTMENTS_COUNTS));
         when(sortMapper.getSort(ORDER_BY)).thenReturn(SORT);
         when(companyAppointmentRepository.readAllByCompanyNumber(COMPANY_NUMBER, SORT))
                 .thenReturn(allAppointmentData);
@@ -272,6 +281,8 @@ class CompanyAppointmentServiceTest {
                         .withItemsPerPage(5)
                         .build();
 
+        when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(new ApiResponse<>(200, null, metricsApi));
+        when(metricsApi.getCounts()).thenReturn(new CountsApi().appointments(APPOINTMENTS_COUNTS));
         when(sortMapper.getSort(ORDER_BY)).thenReturn(SORT);
         when(companyAppointmentRepository.readAllByCompanyNumber(COMPANY_NUMBER, SORT))
                 .thenReturn(allAppointmentData);
@@ -301,6 +312,8 @@ class CompanyAppointmentServiceTest {
                         .withStartIndex(5)
                         .build();
 
+        when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(new ApiResponse<>(200, null, metricsApi));
+        when(metricsApi.getCounts()).thenReturn(new CountsApi().appointments(APPOINTMENTS_COUNTS));
         when(sortMapper.getSort(ORDER_BY)).thenReturn(SORT);
         when(companyAppointmentRepository.readAllByCompanyNumber(COMPANY_NUMBER, SORT))
                 .thenReturn(allAppointmentData);
@@ -331,6 +344,8 @@ class CompanyAppointmentServiceTest {
                         .withItemsPerPage(15)
                         .build();
 
+        when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(new ApiResponse<>(200, null, metricsApi));
+        when(metricsApi.getCounts()).thenReturn(new CountsApi().appointments(APPOINTMENTS_COUNTS));
         when(sortMapper.getSort(ORDER_BY)).thenReturn(SORT);
         when(companyAppointmentRepository.readAllByCompanyNumber(COMPANY_NUMBER, SORT))
                 .thenReturn(allAppointmentData);
@@ -361,6 +376,8 @@ class CompanyAppointmentServiceTest {
                         .withItemsPerPage(50)
                         .build();
 
+        when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(new ApiResponse<>(200, null, metricsApi));
+        when(metricsApi.getCounts()).thenReturn(new CountsApi().appointments(APPOINTMENTS_COUNTS));
         when(sortMapper.getSort(ORDER_BY)).thenReturn(SORT);
         when(companyAppointmentRepository.readAllByCompanyNumber(COMPANY_NUMBER, SORT))
                 .thenReturn(allAppointmentData);
@@ -387,6 +404,8 @@ class CompanyAppointmentServiceTest {
                         .withStartIndex(300)
                         .build();
 
+        when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(new ApiResponse<>(200, null, metricsApi));
+        when(metricsApi.getCounts()).thenReturn(new CountsApi().appointments(APPOINTMENTS_COUNTS));
         when(sortMapper.getSort(ORDER_BY)).thenReturn(SORT);
         when(companyAppointmentRepository.readAllByCompanyNumber(COMPANY_NUMBER, SORT))
                 .thenReturn(allAppointmentData);
@@ -412,13 +431,15 @@ class CompanyAppointmentServiceTest {
                         .withOrderBy(ORDER_BY)
                         .build();
 
+        when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(new ApiResponse<>(200, null, metricsApi));
+        when(metricsApi.getCounts()).thenReturn(new CountsApi().appointments(APPOINTMENTS_COUNTS));
         when(sortMapper.getSort(ORDER_BY)).thenReturn(SORT);
         when(companyAppointmentRepository.readAllByCompanyNumber(COMPANY_NUMBER, SORT))
                 .thenReturn(allAppointmentData);
 
         OfficerList result = companyAppointmentService.fetchAppointmentsForCompany(request);
 
-        assertEquals(1, result.getActiveCount());
+        assertEquals(5, result.getActiveCount());
         assertEquals(0, result.getInactiveCount());
 
     }
@@ -440,13 +461,15 @@ class CompanyAppointmentServiceTest {
                         .withOrderBy(ORDER_BY)
                         .build();
 
+        when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(new ApiResponse<>(200, null, metricsApi));
+        when(metricsApi.getCounts()).thenReturn(new CountsApi().appointments(APPOINTMENTS_COUNTS));
         when(sortMapper.getSort(ORDER_BY)).thenReturn(SORT);
         when(companyAppointmentRepository.readAllByCompanyNumber(COMPANY_NUMBER, SORT))
                 .thenReturn(allAppointmentData);
 
         OfficerList result = companyAppointmentService.fetchAppointmentsForCompany(request);
 
-        assertEquals(1, result.getInactiveCount());
+        assertEquals(5, result.getInactiveCount());
         assertEquals(0, result.getActiveCount());
 
     }
@@ -464,6 +487,8 @@ class CompanyAppointmentServiceTest {
                         .withRegisterView(false)
                         .build();
 
+        when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(new ApiResponse<>(200, null, metricsApi));
+        when(metricsApi.getCounts()).thenReturn(new CountsApi().appointments(APPOINTMENTS_COUNTS));
         when(sortMapper.getSort(null)).thenReturn(SORT);
         when(companyAppointmentRepository.readAllByCompanyNumber(COMPANY_NUMBER, SORT))
                 .thenReturn(allAppointmentData);
@@ -485,6 +510,8 @@ class CompanyAppointmentServiceTest {
                         .withCompanyNumber(COMPANY_NUMBER)
                         .build();
 
+        when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(new ApiResponse<>(200, null, metricsApi));
+        when(metricsApi.getCounts()).thenReturn(new CountsApi().appointments(APPOINTMENTS_COUNTS));
         when(sortMapper.getSort(null)).thenReturn(SORT);
         when(companyAppointmentRepository.readAllByCompanyNumber(COMPANY_NUMBER, SORT))
                 .thenReturn(allAppointmentData);
@@ -495,7 +522,8 @@ class CompanyAppointmentServiceTest {
     }
 
     @Test
-    void testFetchAppointmentsForCompanyThrowsNotFoundExceptionIfRegisterViewAndNotHeldInCompaniesHouse() {
+    void testFetchAppointmentsForCompanyThrowsNotFoundExceptionIfRegisterViewAndNotHeldInCompaniesHouse()
+            throws ServiceUnavailableException {
         FetchAppointmentsRequest request =
                 FetchAppointmentsRequest.Builder.builder()
                         .withCompanyNumber(COMPANY_NUMBER)
@@ -503,6 +531,7 @@ class CompanyAppointmentServiceTest {
                         .withRegisterType(REGISTER_TYPE)
                         .build();
 
+        when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(new ApiResponse<>(200, null, metricsApi));
         when(companyRegisterService.isRegisterHeldInCompaniesHouse(eq(REGISTER_TYPE), any())).thenReturn(false);
 
         assertThrows(NotFoundException.class,
@@ -523,6 +552,7 @@ class CompanyAppointmentServiceTest {
                         .withRegisterType("secretaries")
                         .build();
 
+        when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(new ApiResponse<>(200, null, metricsApi));
         when(sortMapper.getSort(null)).thenReturn(SORT);
         when(companyAppointmentRepository.readAllByCompanyNumberForNotResigned(COMPANY_NUMBER, SORT))
                 .thenReturn(allAppointmentData);
@@ -546,6 +576,8 @@ class CompanyAppointmentServiceTest {
                         .withRegisterType(REGISTER_TYPE)
                         .build();
 
+        when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(new ApiResponse<>(200, null, metricsApi));
+        when(metricsApi.getCounts()).thenReturn(new CountsApi().appointments(APPOINTMENTS_COUNTS));
         when(sortMapper.getSort(null)).thenReturn(SORT);
         when(companyAppointmentRepository.readAllByCompanyNumberForNotResigned(COMPANY_NUMBER, SORT))
                 .thenReturn(allAppointmentData);

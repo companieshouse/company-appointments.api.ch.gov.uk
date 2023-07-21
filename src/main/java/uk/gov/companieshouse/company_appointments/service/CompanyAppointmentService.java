@@ -254,14 +254,14 @@ public class CompanyAppointmentService {
                 case "removed":
                 case "dissolved":
                 case "converted-closed":
-                    this.active = 0;
-                    this.inactive = appointments.getActiveCount();
+                    active = 0;
+                    inactive = appointments.getActiveCount();
                     break;
                 default:
-                    this.active = appointments.getActiveCount();
-                    this.inactive = 0;
+                    active = appointments.getActiveCount();
+                    inactive = 0;
             }
-           this.resigned = appointments.getResignedCount();
+            resigned = appointments.getResignedCount();
         }
 
         public int getActive() {
