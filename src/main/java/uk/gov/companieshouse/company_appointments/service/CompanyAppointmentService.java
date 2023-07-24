@@ -117,10 +117,11 @@ public class CompanyAppointmentService {
         }
 
         String companyStatus = allAppointmentData.get(0).getCompanyStatus();
+        final Boolean registerViewCounts = registerView;
 
         Counts counts = Optional.ofNullable(metricsApi.getCounts())
                 .map(CountsApi::getAppointments)
-                .map(appointments -> new Counts(appointments, companyStatus))
+                .map(appointments -> new Counts(appointments, companyStatus, registerViewCounts, registerType))
                 .orElseThrow(() -> new NotFoundException(String.format("Appointments metrics for company number [%s] not found", companyNumber)));
 
         List<OfficerSummary> officerSummaries = allAppointmentData.stream().map(companyAppointmentMapper::map).collect(Collectors.toList());
@@ -130,7 +131,7 @@ public class CompanyAppointmentService {
         officerSummaries = addPagingAndStartIndex(officerSummaries, startIndex, itemsPerPage);
 
         return new OfficerList()
-                    .totalResults(officerSummaries.size())
+                    .totalResults(counts.getTotalResults())
                     .items(officerSummaries)
                     .activeCount(counts.getActive())
                     .inactiveCount(counts.getInactive())
@@ -241,23 +242,57 @@ public class CompanyAppointmentService {
     }
 
     private static class Counts {
+
+        private final int totalResults;
         private final int active;
         private final int inactive;
         private final int resigned;
 
-        private Counts(final AppointmentsApi appointments, final String status) {
-            switch (status) {
-                case "removed":
-                case "dissolved":
-                case "converted-closed":
-                    active = 0;
-                    inactive = appointments.getActiveCount();
-                    break;
-                default:
-                    active = appointments.getActiveCount();
-                    inactive = 0;
+        private Counts(final AppointmentsApi appointments, final String status, Boolean registerViewCounts,
+                String registerType) {
+            if (registerViewCounts.equals(true)) {
+                switch (registerType) {
+                    case "directors":
+                        active = appointments.getActiveDirectorsCount();
+                        resigned = 0;
+                        totalResults = appointments.getActiveDirectorsCount();
+                        break;
+                    case "secretaries":
+                        active = appointments.getActiveSecretariesCount();
+                        resigned = 0;
+                        totalResults = appointments.getActiveSecretariesCount();
+                        break;
+                    case "llp_members":
+                        active = appointments.getActiveLlpMembersCount();
+                        resigned = 0;
+                        totalResults = appointments.getActiveLlpMembersCount();
+                        break;
+                    default:
+                        active = appointments.getActiveCount();
+                        resigned = appointments.getResignedCount();
+                        totalResults = appointments.getTotalCount();
+                }
+                inactive = 0;
+            } else {
+                switch (status) {
+                    case "removed":
+                    case "dissolved":
+                    case "converted-closed":
+                        active = 0;
+                        inactive = appointments.getActiveCount();
+                        totalResults = appointments.getTotalCount();
+                        break;
+                    default:
+                        active = appointments.getActiveCount();
+                        inactive = 0;
+                        totalResults = appointments.getTotalCount();
+                }
+                resigned = appointments.getResignedCount();
             }
-            resigned = appointments.getResignedCount();
+        }
+
+        public int getTotalResults() {
+            return totalResults;
         }
 
         public int getActive() {
