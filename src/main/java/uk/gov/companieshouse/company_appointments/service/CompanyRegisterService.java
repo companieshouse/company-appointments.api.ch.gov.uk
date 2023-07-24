@@ -9,8 +9,7 @@ public class CompanyRegisterService {
 
     private static final String PUBLIC_REGISTER = "public-register";
 
-    public boolean isRegisterHeldInCompaniesHouse(String registerType, RegistersApi registersApi)
-            throws BadRequestException {
+    public boolean isRegisterHeldInCompaniesHouse(String registerType, RegistersApi registersApi) {
 
         if (registerType == null) {
             throw new BadRequestException("If registerView is true then registerType must be set");
