@@ -80,7 +80,7 @@ public class CompanyAppointmentService {
         return officerSummary;
     }
 
-    public OfficerList fetchAppointmentsForCompany(FetchAppointmentsRequest request) throws NotFoundException, BadRequestException, ServiceUnavailableException {
+    public OfficerList fetchAppointmentsForCompany(FetchAppointmentsRequest request) throws NotFoundException, ServiceUnavailableException {
         String companyNumber = request.getCompanyNumber();
         String orderBy = request.getOrderBy();
         LOGGER.debug(String.format("Fetching appointments for company [%s] with order by [%s]", companyNumber, orderBy));
@@ -121,7 +121,7 @@ public class CompanyAppointmentService {
         Counts counts = Optional.ofNullable(metricsApi.getCounts())
                 .map(CountsApi::getAppointments)
                 .map(appointments -> new Counts(appointments, companyStatus))
-                .orElseThrow(() -> new NotFoundException(String.format("Appointments for company [%s] not found", companyNumber)));
+                .orElseThrow(() -> new NotFoundException(String.format("Appointments metrics for company number [%s] not found", companyNumber)));
 
         List<OfficerSummary> officerSummaries = allAppointmentData.stream().map(companyAppointmentMapper::map).collect(Collectors.toList());
 
