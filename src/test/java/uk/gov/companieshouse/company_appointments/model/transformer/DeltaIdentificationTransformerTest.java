@@ -4,6 +4,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 import org.junit.jupiter.api.Test;
 import uk.gov.companieshouse.api.appointment.Identification;
+import uk.gov.companieshouse.api.appointment.Identification.IdentificationTypeEnum;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaIdentification;
 
 class DeltaIdentificationTransformerTest {
@@ -13,7 +14,7 @@ class DeltaIdentificationTransformerTest {
     @Test
     void shouldTransformValidIdentification() throws Exception {
         Identification identification = new Identification()
-                .identificationType(Identification.IdentificationTypeEnum.UK_LIMITED)
+                .identificationType(IdentificationTypeEnum.UK_LIMITED_COMPANY)
                 .legalAuthority("legalAuthority")
                 .legalForm("legalForm")
                 .placeRegistered("placeRegistered")
@@ -21,7 +22,7 @@ class DeltaIdentificationTransformerTest {
 
         DeltaIdentification result = transformer.transform(identification);
 
-        assertThat(result.getIdentificationType()).isEqualTo("uk-limited");
+        assertThat(result.getIdentificationType()).isEqualTo("uk-limited-company");
         assertThat(result.getLegalAuthority()).isEqualTo("legalAuthority");
         assertThat(result.getLegalForm()).isEqualTo("legalForm");
         assertThat(result.getPlaceRegistered()).isEqualTo("placeRegistered");
