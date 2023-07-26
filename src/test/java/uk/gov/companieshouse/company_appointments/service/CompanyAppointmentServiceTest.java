@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -83,7 +83,7 @@ class CompanyAppointmentServiceTest {
     private static final String FILTER = "active";
     private static final String ORDER_BY = "surname";
     private static final Sort SORT = Sort.by("test");
-    private static final String REGISTER_TYPE = "directors";
+    private static final String REGISTER_TYPE_DIRECTORS = "directors";
     private static final String COMPANY_NAME = "ACME LTD";
     private static final String OPEN_STATUS = "open";
     private static final String FAKE_STATUS = "fake";
@@ -133,8 +133,7 @@ class CompanyAppointmentServiceTest {
     @Test
     void testFetchAppointmentForCompanyNumberForNotResignedReturnsMappedAppointmentData() throws Exception {
         CompanyAppointmentData officerData = new CompanyAppointmentData("1", officerData().build(), "active");
-        List<CompanyAppointmentData> allAppointmentData = new ArrayList<>();
-        allAppointmentData.add(officerData);
+        List<CompanyAppointmentData> allAppointmentData = List.of(officerData);
 
         FetchAppointmentsRequest request =
                 FetchAppointmentsRequest.Builder.builder()
@@ -156,7 +155,7 @@ class CompanyAppointmentServiceTest {
 
         OfficerList result = companyAppointmentService.fetchAppointmentsForCompany(request);
 
-        assertEquals(1, result.getTotalResults());
+        assertEquals(5, result.getTotalResults());
         assertEquals(OfficerList.class, result.getClass());
         verify(companyAppointmentRepository).readAllByCompanyNumberForNotResigned(COMPANY_NUMBER, SORT);
     }
@@ -183,8 +182,7 @@ class CompanyAppointmentServiceTest {
     @Test
     void testFetchAppointmentForCompanyNumberReturnsMappedAppointmentData() throws Exception {
         CompanyAppointmentData officerData = new CompanyAppointmentData("1", officerData().build(), "active");
-        List<CompanyAppointmentData> allAppointmentData = new ArrayList<>();
-        allAppointmentData.add(officerData);
+        List<CompanyAppointmentData> allAppointmentData = List.of(officerData);
 
         FetchAppointmentsRequest request =
                 FetchAppointmentsRequest.Builder.builder()
@@ -194,7 +192,10 @@ class CompanyAppointmentServiceTest {
                         .build();
 
         when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(new ApiResponse<>(200, null, metricsApi));
-        when(metricsApi.getCounts()).thenReturn(new CountsApi().appointments(APPOINTMENTS_COUNTS));
+        when(metricsApi.getCounts()).thenReturn(new CountsApi().appointments(new AppointmentsApi()
+                .totalCount(1)
+                .activeCount(1)
+                .resignedCount(0)));
         when(sortMapper.getSort(ORDER_BY)).thenReturn(SORT);
         when(companyAppointmentRepository.readAllByCompanyNumber(COMPANY_NUMBER, SORT))
                 .thenReturn(allAppointmentData);
@@ -202,9 +203,9 @@ class CompanyAppointmentServiceTest {
         OfficerList result = companyAppointmentService.fetchAppointmentsForCompany(request);
 
         assertEquals(1, result.getTotalResults());
-        assertEquals(5, result.getActiveCount());
+        assertEquals(1, result.getActiveCount());
         assertEquals(0, result.getInactiveCount());
-        assertEquals(3, result.getResignedCount());
+        assertEquals(0, result.getResignedCount());
         assertEquals(OfficerList.class, result.getClass());
         verify(companyAppointmentRepository).readAllByCompanyNumber(COMPANY_NUMBER, SORT);
     }
@@ -213,7 +214,7 @@ class CompanyAppointmentServiceTest {
     void testFetchAppointmentForCompanyWhenNoParametersThenReturnsFirstThirtyFiveOfficers() throws Exception {
         CompanyAppointmentData officerData = new CompanyAppointmentData("1", officerData().build(), "active");
         List<CompanyAppointmentData> allAppointmentData = new ArrayList<>();
-        for (int i = 0; i < 200; i++) {
+        for (int i = 0; i < 50; i++) {
             allAppointmentData.add(officerData);
         }
 
@@ -225,14 +226,18 @@ class CompanyAppointmentServiceTest {
                         .build();
 
         when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(new ApiResponse<>(200, null, metricsApi));
-        when(metricsApi.getCounts()).thenReturn(new CountsApi().appointments(APPOINTMENTS_COUNTS));
+        when(metricsApi.getCounts()).thenReturn(new CountsApi().appointments(new AppointmentsApi()
+                .totalCount(50)
+                .activeCount(20)
+                .resignedCount(30)));
         when(sortMapper.getSort(ORDER_BY)).thenReturn(SORT);
         when(companyAppointmentRepository.readAllByCompanyNumber(COMPANY_NUMBER, SORT))
                 .thenReturn(allAppointmentData);
 
         OfficerList result = companyAppointmentService.fetchAppointmentsForCompany(request);
 
-        assertEquals(35, result.getTotalResults());
+        assertEquals(50, result.getTotalResults());
+        assertEquals(35, result.getItems().size());
     }
 
     @Test
@@ -253,22 +258,26 @@ class CompanyAppointmentServiceTest {
                         .build();
 
         when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(new ApiResponse<>(200, null, metricsApi));
-        when(metricsApi.getCounts()).thenReturn(new CountsApi().appointments(APPOINTMENTS_COUNTS));
+        when(metricsApi.getCounts()).thenReturn(new CountsApi().appointments(new AppointmentsApi()
+                .totalCount(200)
+                .activeCount(150)
+                .resignedCount(50)));
         when(sortMapper.getSort(ORDER_BY)).thenReturn(SORT);
         when(companyAppointmentRepository.readAllByCompanyNumber(COMPANY_NUMBER, SORT))
                 .thenReturn(allAppointmentData);
 
         OfficerList result = companyAppointmentService.fetchAppointmentsForCompany(request);
 
-        assertEquals(100, result.getTotalResults());
+        assertEquals(200, result.getTotalResults());
+        assertEquals(100, result.getItems().size());
     }
 
     @Test
     void testFetchAppointmentForCompanyWhenItemsPerPageIsFiveThenReturnsFirstFiveOfficers() throws Exception {
         List<CompanyAppointmentData> allAppointmentData = new ArrayList<>();
-        for (int i = 0; i < 200; i++) {
+        for (int i = 0; i < 8; i++) {
             CompanyAppointmentData officerData = new CompanyAppointmentData("1", officerData().build(), "active");
-            officerData.getData().setOccupation(String.valueOf(i));
+            officerData.getData().setOccupation(String.format("Occupation %d", i));
             allAppointmentData.add(officerData);
         }
 
@@ -288,8 +297,40 @@ class CompanyAppointmentServiceTest {
 
         OfficerList result = companyAppointmentService.fetchAppointmentsForCompany(request);
 
-        assertEquals(5, result.getTotalResults());
-        assertEquals(String.valueOf(0), result.getItems().get(0).getOccupation());
+        assertEquals(8, result.getTotalResults());
+        assertEquals(5, result.getItems().size());
+        assertEquals("Occupation 0", result.getItems().get(0).getOccupation());
+    }
+
+    @Test
+    void testFetchAppointmentForCompanyWhenStartIndexIsFiveThenReturnsSecondPageOfThreeAppointments() throws Exception {
+        List<CompanyAppointmentData> allAppointmentData = new ArrayList<>();
+        for (int i = 0; i < 8; i++) {
+            CompanyAppointmentData officerData = new CompanyAppointmentData("1", officerData().build(), "active");
+            officerData.getData().setOccupation(String.format("Occupation %d", i));
+            allAppointmentData.add(officerData);
+        }
+
+        FetchAppointmentsRequest request =
+                FetchAppointmentsRequest.Builder.builder()
+                        .withCompanyNumber(COMPANY_NUMBER)
+                        .withFilter("false")
+                        .withOrderBy(ORDER_BY)
+                        .withItemsPerPage(5)
+                        .withStartIndex(5)
+                        .build();
+
+        when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(new ApiResponse<>(200, null, metricsApi));
+        when(metricsApi.getCounts()).thenReturn(new CountsApi().appointments(APPOINTMENTS_COUNTS));
+        when(sortMapper.getSort(ORDER_BY)).thenReturn(SORT);
+        when(companyAppointmentRepository.readAllByCompanyNumber(COMPANY_NUMBER, SORT))
+                .thenReturn(allAppointmentData);
+
+        OfficerList result = companyAppointmentService.fetchAppointmentsForCompany(request);
+
+        assertEquals(8, result.getTotalResults());
+        assertEquals(3, result.getItems().size());
+        assertEquals("Occupation 5", result.getItems().get(0).getOccupation());
     }
 
     @Test
@@ -297,9 +338,9 @@ class CompanyAppointmentServiceTest {
             throws Exception {
 
         List<CompanyAppointmentData> allAppointmentData = new ArrayList<>();
-        for (int i = 0; i < 200; i++) {
+        for (int i = 0; i < 40; i++) {
             CompanyAppointmentData officerData = new CompanyAppointmentData("1", officerData().build(), "active");
-            officerData.getData().setOccupation(String.valueOf(i));
+            officerData.getData().setOccupation(String.format("Occupation %d", i));
             allAppointmentData.add(officerData);
         }
 
@@ -312,15 +353,19 @@ class CompanyAppointmentServiceTest {
                         .build();
 
         when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(new ApiResponse<>(200, null, metricsApi));
-        when(metricsApi.getCounts()).thenReturn(new CountsApi().appointments(APPOINTMENTS_COUNTS));
+        when(metricsApi.getCounts()).thenReturn(new CountsApi().appointments(new AppointmentsApi()
+                .totalCount(40)
+                .activeCount(38)
+                .resignedCount(3)));
         when(sortMapper.getSort(ORDER_BY)).thenReturn(SORT);
         when(companyAppointmentRepository.readAllByCompanyNumber(COMPANY_NUMBER, SORT))
                 .thenReturn(allAppointmentData);
 
         OfficerList result = companyAppointmentService.fetchAppointmentsForCompany(request);
 
-        assertEquals(String.valueOf(5), result.getItems().get(0).getOccupation());
-        assertEquals(35, result.getTotalResults());
+        assertEquals(40, result.getTotalResults());
+        assertEquals(35, result.getItems().size());
+        assertEquals("Occupation 5", result.getItems().get(0).getOccupation());
     }
 
     @Test
@@ -328,9 +373,9 @@ class CompanyAppointmentServiceTest {
             throws Exception {
 
         List<CompanyAppointmentData> allAppointmentData = new ArrayList<>();
-        for (int i = 0; i < 200; i++) {
+        for (int i = 0; i < 100; i++) {
             CompanyAppointmentData officerData = new CompanyAppointmentData("1", officerData().build(), "active");
-            officerData.getData().setOccupation(String.valueOf(i));
+            officerData.getData().setOccupation(String.format("Occupation %d", i));
             allAppointmentData.add(officerData);
         }
 
@@ -344,15 +389,19 @@ class CompanyAppointmentServiceTest {
                         .build();
 
         when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(new ApiResponse<>(200, null, metricsApi));
-        when(metricsApi.getCounts()).thenReturn(new CountsApi().appointments(APPOINTMENTS_COUNTS));
+        when(metricsApi.getCounts()).thenReturn(new CountsApi().appointments(new AppointmentsApi()
+                .totalCount(100)
+                .activeCount(40)
+                .resignedCount(60)));
         when(sortMapper.getSort(ORDER_BY)).thenReturn(SORT);
         when(companyAppointmentRepository.readAllByCompanyNumber(COMPANY_NUMBER, SORT))
                 .thenReturn(allAppointmentData);
 
         OfficerList result = companyAppointmentService.fetchAppointmentsForCompany(request);
 
-        assertEquals(String.valueOf(56), result.getItems().get(0).getOccupation());
-        assertEquals(15, result.getTotalResults());
+        assertEquals(100, result.getTotalResults());
+        assertEquals(15, result.getItems().size());
+        assertEquals("Occupation 56", result.getItems().get(0).getOccupation());
     }
 
     @Test
@@ -362,7 +411,7 @@ class CompanyAppointmentServiceTest {
         List<CompanyAppointmentData> allAppointmentData = new ArrayList<>();
         for (int i = 0; i < 200; i++) {
             CompanyAppointmentData officerData = new CompanyAppointmentData("1", officerData().build(), "active");
-            officerData.getData().setOccupation(String.valueOf(i));
+            officerData.getData().setOccupation(String.format("Occupation %d", i));
             allAppointmentData.add(officerData);
         }
 
@@ -376,15 +425,19 @@ class CompanyAppointmentServiceTest {
                         .build();
 
         when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(new ApiResponse<>(200, null, metricsApi));
-        when(metricsApi.getCounts()).thenReturn(new CountsApi().appointments(APPOINTMENTS_COUNTS));
+        when(metricsApi.getCounts()).thenReturn(new CountsApi().appointments(new AppointmentsApi()
+                .totalCount(200)
+                .activeCount(150)
+                .resignedCount(50)));
         when(sortMapper.getSort(ORDER_BY)).thenReturn(SORT);
         when(companyAppointmentRepository.readAllByCompanyNumber(COMPANY_NUMBER, SORT))
                 .thenReturn(allAppointmentData);
 
         OfficerList result = companyAppointmentService.fetchAppointmentsForCompany(request);
 
-        assertEquals(String.valueOf(195), result.getItems().get(0).getOccupation());
-        assertEquals(5, result.getTotalResults());
+        assertEquals(200, result.getTotalResults());
+        assertEquals(5, result.getItems().size());
+        assertEquals("Occupation 195", result.getItems().get(0).getOccupation());
     }
 
     @Test
@@ -404,7 +457,6 @@ class CompanyAppointmentServiceTest {
                         .build();
 
         when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(new ApiResponse<>(200, null, metricsApi));
-        when(metricsApi.getCounts()).thenReturn(new CountsApi().appointments(APPOINTMENTS_COUNTS));
         when(sortMapper.getSort(ORDER_BY)).thenReturn(SORT);
         when(companyAppointmentRepository.readAllByCompanyNumber(COMPANY_NUMBER, SORT))
                 .thenReturn(allAppointmentData);
@@ -420,8 +472,7 @@ class CompanyAppointmentServiceTest {
         officer.setResignedOn(null);
         CompanyAppointmentData officerData = new CompanyAppointmentData("1", officer, "active");
 
-        List<CompanyAppointmentData> allAppointmentData = new ArrayList<>();
-        allAppointmentData.add(officerData);
+        List<CompanyAppointmentData> allAppointmentData = List.of(officerData);
 
         FetchAppointmentsRequest request =
                 FetchAppointmentsRequest.Builder.builder()
@@ -431,16 +482,19 @@ class CompanyAppointmentServiceTest {
                         .build();
 
         when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(new ApiResponse<>(200, null, metricsApi));
-        when(metricsApi.getCounts()).thenReturn(new CountsApi().appointments(APPOINTMENTS_COUNTS));
+        when(metricsApi.getCounts()).thenReturn(new CountsApi().appointments(new AppointmentsApi()
+                .totalCount(1)
+                .activeCount(1)
+                .resignedCount(0)));
         when(sortMapper.getSort(ORDER_BY)).thenReturn(SORT);
         when(companyAppointmentRepository.readAllByCompanyNumber(COMPANY_NUMBER, SORT))
                 .thenReturn(allAppointmentData);
 
         OfficerList result = companyAppointmentService.fetchAppointmentsForCompany(request);
 
-        assertEquals(5, result.getActiveCount());
+        assertEquals(1, result.getTotalResults());
+        assertEquals(1, result.getActiveCount());
         assertEquals(0, result.getInactiveCount());
-
     }
 
     @Test
@@ -450,8 +504,7 @@ class CompanyAppointmentServiceTest {
         officer.setResignedOn(null);
         CompanyAppointmentData officerData = new CompanyAppointmentData("1", officer, "removed");
 
-        List<CompanyAppointmentData> allAppointmentData = new ArrayList<>();
-        allAppointmentData.add(officerData);
+        List<CompanyAppointmentData> allAppointmentData = List.of(officerData);
 
         FetchAppointmentsRequest request =
                 FetchAppointmentsRequest.Builder.builder()
@@ -461,24 +514,26 @@ class CompanyAppointmentServiceTest {
                         .build();
 
         when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(new ApiResponse<>(200, null, metricsApi));
-        when(metricsApi.getCounts()).thenReturn(new CountsApi().appointments(APPOINTMENTS_COUNTS));
+        when(metricsApi.getCounts()).thenReturn(new CountsApi().appointments(new AppointmentsApi()
+                .totalCount(1)
+                .activeCount(1)
+                .resignedCount(0)));
         when(sortMapper.getSort(ORDER_BY)).thenReturn(SORT);
         when(companyAppointmentRepository.readAllByCompanyNumber(COMPANY_NUMBER, SORT))
                 .thenReturn(allAppointmentData);
 
         OfficerList result = companyAppointmentService.fetchAppointmentsForCompany(request);
 
-        assertEquals(5, result.getInactiveCount());
+        assertEquals(1, result.getTotalResults());
+        assertEquals(1, result.getInactiveCount());
         assertEquals(0, result.getActiveCount());
-
     }
 
     @Test
-    void testNoRegisterViewIsFalse() throws Exception {
+    void testRegisterViewIsFalse() throws Exception {
         CompanyAppointmentData officerData = new CompanyAppointmentData("1", officerData().build(), "active");
 
-        List<CompanyAppointmentData> allAppointmentData = new ArrayList<>();
-        allAppointmentData.add(officerData);
+        List<CompanyAppointmentData> allAppointmentData = List.of(officerData);
 
         FetchAppointmentsRequest request =
                 FetchAppointmentsRequest.Builder.builder()
@@ -487,22 +542,24 @@ class CompanyAppointmentServiceTest {
                         .build();
 
         when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(new ApiResponse<>(200, null, metricsApi));
-        when(metricsApi.getCounts()).thenReturn(new CountsApi().appointments(APPOINTMENTS_COUNTS));
+        when(metricsApi.getCounts()).thenReturn(new CountsApi().appointments(new AppointmentsApi()
+                .totalCount(1)
+                .activeCount(1)
+                .resignedCount(0)));
         when(sortMapper.getSort(null)).thenReturn(SORT);
         when(companyAppointmentRepository.readAllByCompanyNumber(COMPANY_NUMBER, SORT))
                 .thenReturn(allAppointmentData);
 
         companyAppointmentService.fetchAppointmentsForCompany(request);
 
-        verify(companyRegisterService, times(0)).isRegisterHeldInCompaniesHouse(any(), any());
+        verify(companyRegisterService, never()).isRegisterHeldInCompaniesHouse(any(), any());
     }
 
     @Test
     void testNoRegisterViewIsNull() throws Exception {
         CompanyAppointmentData officerData = new CompanyAppointmentData("1", officerData().build(), "active");
 
-        List<CompanyAppointmentData> allAppointmentData = new ArrayList<>();
-        allAppointmentData.add(officerData);
+        List<CompanyAppointmentData> allAppointmentData = List.of(officerData);
 
         FetchAppointmentsRequest request =
                 FetchAppointmentsRequest.Builder.builder()
@@ -510,14 +567,17 @@ class CompanyAppointmentServiceTest {
                         .build();
 
         when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(new ApiResponse<>(200, null, metricsApi));
-        when(metricsApi.getCounts()).thenReturn(new CountsApi().appointments(APPOINTMENTS_COUNTS));
+        when(metricsApi.getCounts()).thenReturn(new CountsApi().appointments(new AppointmentsApi()
+                .totalCount(1)
+                .activeCount(1)
+                .resignedCount(0)));
         when(sortMapper.getSort(null)).thenReturn(SORT);
         when(companyAppointmentRepository.readAllByCompanyNumber(COMPANY_NUMBER, SORT))
                 .thenReturn(allAppointmentData);
 
         companyAppointmentService.fetchAppointmentsForCompany(request);
 
-        verify(companyRegisterService, times(0)).isRegisterHeldInCompaniesHouse(any(), any());
+        verify(companyRegisterService, never()).isRegisterHeldInCompaniesHouse(any(), any());
     }
 
     @Test
@@ -527,11 +587,11 @@ class CompanyAppointmentServiceTest {
                 FetchAppointmentsRequest.Builder.builder()
                         .withCompanyNumber(COMPANY_NUMBER)
                         .withRegisterView(true)
-                        .withRegisterType(REGISTER_TYPE)
+                        .withRegisterType(REGISTER_TYPE_DIRECTORS)
                         .build();
 
         when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(new ApiResponse<>(200, null, metricsApi));
-        when(companyRegisterService.isRegisterHeldInCompaniesHouse(eq(REGISTER_TYPE), any())).thenReturn(false);
+        when(companyRegisterService.isRegisterHeldInCompaniesHouse(eq(REGISTER_TYPE_DIRECTORS), any())).thenReturn(false);
 
         assertThrows(NotFoundException.class,
                 () -> companyAppointmentService.fetchAppointmentsForCompany(request));
@@ -541,8 +601,7 @@ class CompanyAppointmentServiceTest {
     void testFetchAppointmentsForCompanyThrowsNotFoundExceptionIfNoAppointmentOfRegisterType() throws Exception {
         CompanyAppointmentData officerData = new CompanyAppointmentData("1", officerData().build(), "active");
 
-        List<CompanyAppointmentData> allAppointmentData = new ArrayList<>();
-        allAppointmentData.add(officerData);
+        List<CompanyAppointmentData> allAppointmentData = List.of(officerData);
 
         FetchAppointmentsRequest request =
                 FetchAppointmentsRequest.Builder.builder()
@@ -565,25 +624,29 @@ class CompanyAppointmentServiceTest {
     void testFetchAppointmentsForCompanyReturnsAppointmentsIfRegisterTypeMatches() throws Exception {
         CompanyAppointmentData officerData = new CompanyAppointmentData("1", officerData().build(), "active");
 
-        List<CompanyAppointmentData> allAppointmentData = new ArrayList<>();
-        allAppointmentData.add(officerData);
+        List<CompanyAppointmentData> allAppointmentData = List.of(officerData);
 
         FetchAppointmentsRequest request =
                 FetchAppointmentsRequest.Builder.builder()
                         .withCompanyNumber(COMPANY_NUMBER)
                         .withRegisterView(true)
-                        .withRegisterType(REGISTER_TYPE)
+                        .withRegisterType(REGISTER_TYPE_DIRECTORS)
                         .build();
 
         when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(new ApiResponse<>(200, null, metricsApi));
-        when(metricsApi.getCounts()).thenReturn(new CountsApi().appointments(APPOINTMENTS_COUNTS));
+        when(metricsApi.getCounts()).thenReturn(new CountsApi().appointments(new AppointmentsApi()
+                .totalCount(1)
+                .activeCount(1)
+                .activeDirectorsCount(1)
+                .resignedCount(0)));
         when(sortMapper.getSort(null)).thenReturn(SORT);
         when(companyAppointmentRepository.readAllByCompanyNumberForNotResigned(COMPANY_NUMBER, SORT))
                 .thenReturn(allAppointmentData);
-        when(companyRegisterService.isRegisterHeldInCompaniesHouse(eq(REGISTER_TYPE), any())).thenReturn(true);
+        when(companyRegisterService.isRegisterHeldInCompaniesHouse(eq(REGISTER_TYPE_DIRECTORS), any())).thenReturn(true);
 
         OfficerList result = companyAppointmentService.fetchAppointmentsForCompany(request);
 
+        assertEquals(1, result.getTotalResults());
         assertEquals(1, result.getItems().size());
     }
 

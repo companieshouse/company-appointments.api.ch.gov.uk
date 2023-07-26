@@ -83,48 +83,51 @@ public class CompanyAppointmentService {
     public OfficerList fetchAppointmentsForCompany(FetchAppointmentsRequest request) throws NotFoundException, ServiceUnavailableException {
         String companyNumber = request.getCompanyNumber();
         String orderBy = request.getOrderBy();
-        LOGGER.debug(String.format("Fetching appointments for company [%s] with order by [%s]", companyNumber, orderBy));
+        LOGGER.debug(
+                String.format("Fetching appointments for company [%s] with order by [%s]", companyNumber, orderBy));
 
-        Boolean registerView = request.getRegisterView();
-        if(registerView == null) {
-            registerView = false;
-        }
+        final boolean registerView = request.getRegisterView() != null && request.getRegisterView();
 
         MetricsApi metricsApi = companyMetricsApiService.invokeGetMetricsApi(companyNumber).getData();
 
         String registerType = request.getRegisterType();
-        if (registerView && !companyRegisterService.isRegisterHeldInCompaniesHouse(registerType, metricsApi.getRegisters())) {
+        if (registerView && !companyRegisterService.isRegisterHeldInCompaniesHouse(registerType,
+                metricsApi.getRegisters())) {
             throw new NotFoundException("Register not held at Companies House");
         }
-
-        List<CompanyAppointmentData> allAppointmentData;
 
         Sort sort = sortMapper.getSort(orderBy);
 
         String filter = request.getFilter();
-        if ((filter != null && filter.equals("active")) || registerView){
+
+        List<CompanyAppointmentData> allAppointmentData;
+        boolean isFilterEnabled = false;
+        if ((filter != null && filter.equals("active")) || registerView) {
             allAppointmentData = companyAppointmentRepository.readAllByCompanyNumberForNotResigned(companyNumber, sort);
+            isFilterEnabled = true;
         } else {
             allAppointmentData = companyAppointmentRepository.readAllByCompanyNumber(companyNumber, sort);
         }
-        companyAppointmentMapper.setRegisterView(registerView);
-        if(registerView) {
-            allAppointmentData = allAppointmentData.stream().filter(d -> RoleHelper.isRegisterType(d, registerType)).collect(Collectors.toList());
-        }
-
         if (allAppointmentData.isEmpty()) {
             throw new NotFoundException(String.format("Appointments for company [%s] not found", companyNumber));
         }
-
-        String companyStatus = allAppointmentData.get(0).getCompanyStatus();
-        final Boolean registerViewCounts = registerView;
-
-        Counts counts = Optional.ofNullable(metricsApi.getCounts())
+        companyAppointmentMapper.setRegisterView(registerView);
+        AppointmentsApi appointmentsCounts = Optional.ofNullable(metricsApi.getCounts())
                 .map(CountsApi::getAppointments)
-                .map(appointments -> new Counts(appointments, companyStatus, registerViewCounts, registerType))
-                .orElseThrow(() -> new NotFoundException(String.format("Appointments metrics for company number [%s] not found", companyNumber)));
+                .orElseThrow(() -> new NotFoundException(
+                        String.format("Appointments metrics for company number [%s] not found", companyNumber)));
+        Counts counts;
+        if (registerView) {
+            allAppointmentData = allAppointmentData.stream().filter(d -> RoleHelper.isRegisterType(d, registerType))
+                    .collect(Collectors.toList());
+            counts = new Counts(appointmentsCounts, registerType);
+        } else {
+            counts = new Counts(appointmentsCounts, allAppointmentData.get(0).getCompanyStatus(), isFilterEnabled);
+        }
 
-        List<OfficerSummary> officerSummaries = allAppointmentData.stream().map(companyAppointmentMapper::map).collect(Collectors.toList());
+        List<OfficerSummary> officerSummaries = allAppointmentData.stream().map(companyAppointmentMapper::map)
+                .collect(Collectors.toList());
+
 
         Integer startIndex = request.getStartIndex();
         Integer itemsPerPage = request.getItemsPerPage();
@@ -245,50 +248,57 @@ public class CompanyAppointmentService {
 
         private final int totalResults;
         private final int active;
-        private final int inactive;
+        private final Integer inactive;
         private final int resigned;
 
-        private Counts(final AppointmentsApi appointments, final String status, Boolean registerViewCounts,
-                String registerType) {
-            if (registerViewCounts.equals(true)) {
-                switch (registerType) {
-                    case "directors":
-                        active = appointments.getActiveDirectorsCount();
-                        resigned = 0;
-                        totalResults = appointments.getActiveDirectorsCount();
-                        break;
-                    case "secretaries":
-                        active = appointments.getActiveSecretariesCount();
-                        resigned = 0;
-                        totalResults = appointments.getActiveSecretariesCount();
-                        break;
-                    case "llp_members":
-                        active = appointments.getActiveLlpMembersCount();
-                        resigned = 0;
-                        totalResults = appointments.getActiveLlpMembersCount();
-                        break;
-                    default:
-                        active = appointments.getActiveCount();
-                        resigned = appointments.getResignedCount();
-                        totalResults = appointments.getTotalCount();
-                }
-                inactive = 0;
-            } else {
-                switch (status) {
-                    case "removed":
-                    case "dissolved":
-                    case "converted-closed":
-                        active = 0;
-                        inactive = appointments.getActiveCount();
-                        totalResults = appointments.getTotalCount();
-                        break;
-                    default:
-                        active = appointments.getActiveCount();
-                        inactive = 0;
-                        totalResults = appointments.getTotalCount();
-                }
-                resigned = appointments.getResignedCount();
+        private Counts(final AppointmentsApi appointments, final String registerType) {
+            switch (registerType) {
+                case "directors":
+                    this.active = appointments.getActiveDirectorsCount();
+                    this.resigned = 0;
+                    totalResults = appointments.getActiveDirectorsCount();
+                    break;
+                case "secretaries":
+                    active = appointments.getActiveSecretariesCount();
+                    resigned = 0;
+                    totalResults = appointments.getActiveSecretariesCount();
+                    break;
+                case "llp_members":
+                    active = appointments.getActiveLlpMembersCount();
+                    resigned = 0;
+                    totalResults = appointments.getActiveLlpMembersCount();
+                    break;
+                default:
+                    active = appointments.getActiveCount();
+                    resigned = appointments.getResignedCount();
+                    totalResults = appointments.getTotalCount();
             }
+            inactive = null;
+        }
+
+        private Counts(final AppointmentsApi appointments, final String status, final boolean isFilterEnabled) {
+            switch (status) {
+                case "removed":
+                case "dissolved":
+                case "converted-closed":
+                    active = 0;
+                    inactive = appointments.getActiveCount();
+                    if(isFilterEnabled) {
+                        totalResults = 0;
+                    } else {
+                        totalResults = appointments.getTotalCount();
+                    }
+                    break;
+                default:
+                    active = appointments.getActiveCount();
+                    inactive = 0;
+                    if(isFilterEnabled){
+                        totalResults = appointments.getActiveCount();
+                    } else {
+                        totalResults = appointments.getTotalCount();
+                    }
+            }
+            resigned = appointments.getResignedCount();
         }
 
         public int getTotalResults() {
@@ -299,7 +309,7 @@ public class CompanyAppointmentService {
             return active;
         }
 
-        public int getInactive() {
+        public Integer getInactive() {
             return inactive;
         }
 
