@@ -12,6 +12,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static uk.gov.companieshouse.logging.util.LogContextProperties.REQUEST_ID;
 
+import io.cucumber.java.ja.然し;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -47,6 +48,7 @@ import uk.gov.companieshouse.company_appointments.model.data.OfficerData;
 import uk.gov.companieshouse.company_appointments.model.data.ServiceAddressData;
 import uk.gov.companieshouse.company_appointments.repository.CompanyAppointmentFullRecordRepository;
 import uk.gov.companieshouse.company_appointments.repository.CompanyAppointmentRepository;
+import uk.gov.companieshouse.company_appointments.roles.RoleHelper;
 import uk.gov.companieshouse.company_appointments.util.CompanyStatusValidator;
 
 @ExtendWith(MockitoExtension.class)
@@ -84,6 +86,8 @@ class CompanyAppointmentServiceTest {
     private static final String ORDER_BY = "surname";
     private static final Sort SORT = Sort.by("test");
     private static final String REGISTER_TYPE_DIRECTORS = "directors";
+    private static final String REGISTER_TYPE_SECRETARIES = "secretaries";
+    private static final String REGISTER_TYPE_LLPMEMBERS = "llp_members";
     private static final String COMPANY_NAME = "ACME LTD";
     private static final String OPEN_STATUS = "open";
     private static final String FAKE_STATUS = "fake";
@@ -530,6 +534,38 @@ class CompanyAppointmentServiceTest {
     }
 
     @Test
+    void testFetchAppointmentForCompanyReturnTotalCountOfZeroWhenCompanyStatusIsInactiveAndActiveFilterIsApplied()
+            throws Exception {
+        OfficerData officer = officerData().build();
+        officer.setResignedOn(null);
+        CompanyAppointmentData officerData = new CompanyAppointmentData("1", officer, "dissolved");
+
+        List<CompanyAppointmentData> allAppointmentData = List.of(officerData);
+
+        FetchAppointmentsRequest request =
+                FetchAppointmentsRequest.Builder.builder()
+                        .withCompanyNumber(COMPANY_NUMBER)
+                        .withFilter(FILTER)
+                        .withOrderBy(ORDER_BY)
+                        .build();
+
+        when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(new ApiResponse<>(200, null, metricsApi));
+        when(metricsApi.getCounts()).thenReturn(new CountsApi().appointments(new AppointmentsApi()
+                .totalCount(1)
+                .activeCount(1)
+                .resignedCount(0)));
+        when(sortMapper.getSort(ORDER_BY)).thenReturn(SORT);
+        when(companyAppointmentRepository.readAllByCompanyNumberForNotResigned(COMPANY_NUMBER, SORT))
+                .thenReturn(allAppointmentData);
+
+        OfficerList result = companyAppointmentService.fetchAppointmentsForCompany(request);
+
+        assertEquals(0, result.getTotalResults());
+        assertEquals(1, result.getInactiveCount());
+        assertEquals(0, result.getActiveCount());
+    }
+
+    @Test
     void testRegisterViewIsFalse() throws Exception {
         CompanyAppointmentData officerData = new CompanyAppointmentData("1", officerData().build(), "active");
 
@@ -621,8 +657,8 @@ class CompanyAppointmentServiceTest {
     }
 
     @Test
-    void testFetchAppointmentsForCompanyReturnsAppointmentsIfRegisterTypeMatches() throws Exception {
-        CompanyAppointmentData officerData = new CompanyAppointmentData("1", officerData().build(), "active");
+    void testFetchAppointmentsForCompanyReturnsAppointmentsIfRegisterTypeMatchesDirectorsAndRoleTypeIsDirector() throws Exception {
+        CompanyAppointmentData officerData = new CompanyAppointmentData("1", officerData().withOfficerRole("director").build(), "active");
 
         List<CompanyAppointmentData> allAppointmentData = List.of(officerData);
 
@@ -642,12 +678,112 @@ class CompanyAppointmentServiceTest {
         when(sortMapper.getSort(null)).thenReturn(SORT);
         when(companyAppointmentRepository.readAllByCompanyNumberForNotResigned(COMPANY_NUMBER, SORT))
                 .thenReturn(allAppointmentData);
-        when(companyRegisterService.isRegisterHeldInCompaniesHouse(eq(REGISTER_TYPE_DIRECTORS), any())).thenReturn(true);
+        when(companyRegisterService.isRegisterHeldInCompaniesHouse(eq(REGISTER_TYPE_DIRECTORS), any())).thenReturn(
+                true);
 
         OfficerList result = companyAppointmentService.fetchAppointmentsForCompany(request);
 
         assertEquals(1, result.getTotalResults());
         assertEquals(1, result.getItems().size());
+    }
+
+    @Test
+    void testFetchAppointmentsForCompanyReturnsAppointmentsIfRegisterTypeMatchesSecretariesAndRoleTypeIsSecretary() throws Exception {
+        CompanyAppointmentData officerData = new CompanyAppointmentData("1",
+                officerData().withOfficerRole("secretary").build(), "active");
+
+        List<CompanyAppointmentData> allAppointmentData = List.of(officerData);
+
+        FetchAppointmentsRequest request =
+                FetchAppointmentsRequest.Builder.builder()
+                        .withCompanyNumber(COMPANY_NUMBER)
+                        .withRegisterView(true)
+                        .withRegisterType(REGISTER_TYPE_SECRETARIES)
+                        .build();
+
+        when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(
+                new ApiResponse<>(200, null, metricsApi));
+        when(metricsApi.getCounts()).thenReturn(new CountsApi().appointments(new AppointmentsApi()
+                .totalCount(1)
+                .activeCount(1)
+                .activeSecretariesCount(1)
+                .resignedCount(0)));
+        when(sortMapper.getSort(null)).thenReturn(SORT);
+        when(companyAppointmentRepository.readAllByCompanyNumberForNotResigned(COMPANY_NUMBER, SORT))
+                .thenReturn(allAppointmentData);
+        when(companyRegisterService.isRegisterHeldInCompaniesHouse(eq(REGISTER_TYPE_SECRETARIES), any())).thenReturn(
+                true);
+
+        OfficerList result = companyAppointmentService.fetchAppointmentsForCompany(request);
+
+        assertEquals(1, result.getTotalResults());
+        assertEquals(1, result.getItems().size());
+    }
+
+    @Test
+    void testFetchAppointmentsForCompanyReturnsAppointmentsIfRegisterTypeMatchesLLPMembersAndRoleTypeIsLLPMember() throws Exception {
+        CompanyAppointmentData officerData = new CompanyAppointmentData("1",
+                officerData().withOfficerRole("llp-member").build(), "active");
+
+        List<CompanyAppointmentData> allAppointmentData = List.of(officerData);
+
+        FetchAppointmentsRequest request =
+                FetchAppointmentsRequest.Builder.builder()
+                        .withCompanyNumber(COMPANY_NUMBER)
+                        .withRegisterView(true)
+                        .withRegisterType(REGISTER_TYPE_LLPMEMBERS)
+                        .build();
+
+        when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(
+                new ApiResponse<>(200, null, metricsApi));
+        when(metricsApi.getCounts()).thenReturn(new CountsApi().appointments(new AppointmentsApi()
+                .totalCount(1)
+                .activeCount(1)
+                .activeLlpMembersCount(1)
+                .resignedCount(0)));
+        when(sortMapper.getSort(null)).thenReturn(SORT);
+        when(companyAppointmentRepository.readAllByCompanyNumberForNotResigned(COMPANY_NUMBER, SORT))
+                .thenReturn(allAppointmentData);
+        when(companyRegisterService.isRegisterHeldInCompaniesHouse(eq(REGISTER_TYPE_LLPMEMBERS), any())).thenReturn(
+                true);
+
+        OfficerList result = companyAppointmentService.fetchAppointmentsForCompany(request);
+
+        assertEquals(1, result.getTotalResults());
+        assertEquals(1, result.getItems().size());
+    }
+
+    @Test
+    void testFetchAppointmentsForCompanyReturnsAppointmentsIfRegisterTypeDoesNotMatch() throws Exception {
+        CompanyAppointmentData officerData = new CompanyAppointmentData("1",
+                officerData().withOfficerRole("director").build(), "active");
+
+        List<CompanyAppointmentData> allAppointmentData = List.of(officerData);
+
+        FetchAppointmentsRequest request =
+                FetchAppointmentsRequest.Builder.builder()
+                        .withCompanyNumber(COMPANY_NUMBER)
+                        .withRegisterView(true)
+                        .withRegisterType("registerType")
+                        .build();
+
+        when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(
+                new ApiResponse<>(200, null, metricsApi));
+        when(metricsApi.getCounts()).thenReturn(new CountsApi().appointments(new AppointmentsApi()
+                .totalCount(1)
+                .activeCount(0)
+                .resignedCount(1)));
+        when(sortMapper.getSort(null)).thenReturn(SORT);
+        when(companyAppointmentRepository.readAllByCompanyNumberForNotResigned(COMPANY_NUMBER, SORT))
+                .thenReturn(allAppointmentData);
+        when(companyRegisterService.isRegisterHeldInCompaniesHouse(eq("registerType"), any())).thenReturn(
+                true);
+
+        OfficerList result = companyAppointmentService.fetchAppointmentsForCompany(request);
+
+        assertEquals(1, result.getTotalResults());
+        assertEquals(0, result.getActiveCount());
+        assertEquals(1, result.getResignedCount());
     }
 
     @Test
