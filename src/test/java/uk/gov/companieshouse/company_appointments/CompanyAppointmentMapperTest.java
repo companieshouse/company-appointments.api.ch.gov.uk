@@ -185,8 +185,7 @@ class CompanyAppointmentMapperTest {
     @Test
     void testCompanyAppointmentMapperWithRegisterViewTrue(){
         //when
-        companyAppointmentMapper.setRegisterView(true);
-        OfficerSummary actual = companyAppointmentMapper.map(companyAppointmentData(personalAppointmentDataWithFullDateOfBirth()));
+        OfficerSummary actual = companyAppointmentMapper.map(companyAppointmentData(personalAppointmentDataWithFullDateOfBirth()), true);
         //then
         assertEquals(personalAppointmentViewWithFullDateOfBirth(), actual);
     }
