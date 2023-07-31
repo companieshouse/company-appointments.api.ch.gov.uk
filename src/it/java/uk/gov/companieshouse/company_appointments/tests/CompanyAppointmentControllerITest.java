@@ -3,6 +3,8 @@ package uk.gov.companieshouse.company_appointments.tests;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.Matchers.contains;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 
@@ -14,9 +16,11 @@ import org.bson.Document;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.SimpleMongoClientDatabaseFactory;
 import org.springframework.http.HttpHeaders;
@@ -29,7 +33,12 @@ import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import uk.gov.companieshouse.api.appointment.PatchAppointmentNameStatusApi;
+import uk.gov.companieshouse.api.metrics.AppointmentsApi;
+import uk.gov.companieshouse.api.metrics.CountsApi;
+import uk.gov.companieshouse.api.metrics.MetricsApi;
+import uk.gov.companieshouse.api.model.ApiResponse;
 import uk.gov.companieshouse.company_appointments.CompanyAppointmentsApplication;
+import uk.gov.companieshouse.company_appointments.api.CompanyMetricsApiService;
 
 @Testcontainers
 @AutoConfigureMockMvc
@@ -51,6 +60,17 @@ class CompanyAppointmentControllerITest {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @MockBean
+    private CompanyMetricsApiService companyMetricsApiService;
+
+    @Mock
+    private MetricsApi metricsApi;
+
+    private static final AppointmentsApi APPOINTMENTS_COUNTS = new AppointmentsApi()
+            .totalCount(2)
+            .activeCount(1)
+            .resignedCount(1);
 
     @BeforeAll
     static void start() throws IOException {
@@ -111,6 +131,8 @@ class CompanyAppointmentControllerITest {
     @Test
     void testReturn200OKIfAllOfficersAreFound() throws Exception {
         //when
+        when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(new ApiResponse<>(200, null, metricsApi));
+        when(metricsApi.getCounts()).thenReturn(new CountsApi().appointments(APPOINTMENTS_COUNTS));
         ResultActions result = mockMvc.perform(get("/company/{company_number}/officers-test", COMPANY_NUMBER)
                 .header(ERIC_IDENTITY, "123")
                 .header(ERIC_IDENTITY_TYPE, "key")
@@ -128,6 +150,7 @@ class CompanyAppointmentControllerITest {
     @Test
     void testReturn404IfOfficersForCompanyIsNotFound() throws Exception {
         // when
+        when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(new ApiResponse<>(200, null, metricsApi));
         ResultActions result = mockMvc
                 .perform(get("/company/{company_number}/officers-test", "87654321")
                         .header(ERIC_IDENTITY, "123").header(ERIC_IDENTITY_TYPE, "oauth2")
@@ -140,6 +163,11 @@ class CompanyAppointmentControllerITest {
     @Test
     void testReturn200OKIfAllOfficersAreFoundWithFilter() throws Exception {
         //when
+        when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(new ApiResponse<>(200, null, metricsApi));
+        when(metricsApi.getCounts()).thenReturn(new CountsApi().appointments(new AppointmentsApi()
+                .totalCount(1)
+                .activeCount(1)
+                .resignedCount(0)));
         ResultActions result = mockMvc.perform(get("/company/{company_number}/officers-test?filter=active", COMPANY_NUMBER)
                 .header(ERIC_IDENTITY, "123")
                 .header(ERIC_IDENTITY_TYPE, "key")
@@ -156,6 +184,8 @@ class CompanyAppointmentControllerITest {
 
     @Test
     void testReturn200OkWithOfficersOrderedByAppointedOn() throws Exception {
+        when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(new ApiResponse<>(200, null, metricsApi));
+        when(metricsApi.getCounts()).thenReturn(new CountsApi().appointments(APPOINTMENTS_COUNTS));
         ResultActions result = mockMvc.perform(get("/company/{company_number}/officers-test?order_by=appointed_on", COMPANY_NUMBER)
                 .header(ERIC_IDENTITY, "123")
                 .header(ERIC_IDENTITY_TYPE, "key")
@@ -169,6 +199,8 @@ class CompanyAppointmentControllerITest {
 
     @Test
     void testReturn200OkWithOfficersOrderedBySurname() throws Exception {
+        when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(new ApiResponse<>(200, null, metricsApi));
+        when(metricsApi.getCounts()).thenReturn(new CountsApi().appointments(APPOINTMENTS_COUNTS));
         ResultActions result = mockMvc.perform(get("/company/{company_number}/officers-test?order_by=surname", COMPANY_NUMBER)
                 .header(ERIC_IDENTITY, "123")
                 .header(ERIC_IDENTITY_TYPE, "key")
@@ -182,6 +214,7 @@ class CompanyAppointmentControllerITest {
 
     @Test
     void testReturn400BadRequestWithIncorrectOrderBy() throws Exception {
+        when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(new ApiResponse<>(200, null, metricsApi));
         ResultActions result = mockMvc.perform(get("/company/{company_number}/officers-test?order_by=invalid", COMPANY_NUMBER)
                 .header(ERIC_IDENTITY, "123")
                 .header(ERIC_IDENTITY_TYPE, "key")

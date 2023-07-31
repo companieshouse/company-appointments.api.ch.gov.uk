@@ -10,10 +10,6 @@ public class DateOfBirthView {
     private Integer month;
     private Integer year;
 
-    public DateOfBirthView(Integer month, Integer year) {
-        this(null, month, year);
-    }
-
     public DateOfBirthView(Integer day, Integer month, Integer year) {
         this.day = day;
         this.month = month;
@@ -26,25 +22,16 @@ public class DateOfBirthView {
         return day;
     }
 
-    public void setDay(Integer day) {
-        this.day = day;
-    }
 
     public Integer getMonth() {
         return month;
     }
 
-    public void setMonth(Integer month) {
-        this.month = month;
-    }
 
     public Integer getYear() {
         return year;
     }
 
-    public void setYear(Integer year) {
-        this.year = year;
-    }
 
     @Override
     public boolean equals(Object o) {

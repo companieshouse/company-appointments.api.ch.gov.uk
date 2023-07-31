@@ -1,6 +1,7 @@
-package uk.gov.companieshouse.company_appointments;
+package uk.gov.companieshouse.company_appointments.service;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -48,8 +49,8 @@ import uk.gov.companieshouse.company_appointments.model.data.DeltaOfficerLinkTyp
 import uk.gov.companieshouse.company_appointments.model.data.DeltaSensitiveData;
 import uk.gov.companieshouse.company_appointments.model.transformer.DeltaAppointmentTransformer;
 import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentFullRecordView;
+import uk.gov.companieshouse.company_appointments.model.view.DateOfBirthView;
 import uk.gov.companieshouse.company_appointments.repository.CompanyAppointmentFullRecordRepository;
-import uk.gov.companieshouse.company_appointments.service.CompanyAppointmentFullRecordService;
 
 @ExtendWith(MockitoExtension.class)
 class CompanyAppointmentFullRecordServiceTest {
@@ -119,7 +120,7 @@ class CompanyAppointmentFullRecordServiceTest {
                 companyAppointmentService.getAppointment(COMPANY_NUMBER, APPOINTMENT_ID);
 
         // then
-        assertThat(result).isInstanceOf(CompanyAppointmentFullRecordView.class);
+        assertEquals(result.getDateOfBirth(), new DateOfBirthView(12, 1, 1990));
         verify(companyAppointmentRepository).readByCompanyNumberAndID(COMPANY_NUMBER,
                 APPOINTMENT_ID);
     }

@@ -1,4 +1,4 @@
-package uk.gov.companieshouse.company_appointments;
+package uk.gov.companieshouse.company_appointments.api;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -19,15 +19,13 @@ import uk.gov.companieshouse.api.handler.metrics.PrivateCompanyMetricsResourceHa
 import uk.gov.companieshouse.api.handler.metrics.request.PrivateCompanyMetricsGet;
 import uk.gov.companieshouse.api.metrics.MetricsApi;
 import uk.gov.companieshouse.api.model.ApiResponse;
-import uk.gov.companieshouse.company_appointments.api.ApiClientService;
-import uk.gov.companieshouse.company_appointments.api.CompanyMetricsApiService;
 import uk.gov.companieshouse.company_appointments.exception.ServiceUnavailableException;
 import uk.gov.companieshouse.logging.Logger;
 
 @ExtendWith(MockitoExtension.class)
 class CompanyMetricsApiServiceTest {
 
-    private static String COMPANY_NUMBER = "12345678";
+    private static final String COMPANY_NUMBER = "12345678";
 
     private CompanyMetricsApiService service;
 
@@ -71,9 +69,7 @@ class CompanyMetricsApiServiceTest {
         when(get.execute()).thenThrow(apiErrorResponseException);
 
         assertThrows(ServiceUnavailableException.class,
-                () -> {
-                    ApiResponse result = service.invokeGetMetricsApi(COMPANY_NUMBER);
-                });
+                () -> service.invokeGetMetricsApi(COMPANY_NUMBER));
     }
 
     @Test
@@ -85,9 +81,7 @@ class CompanyMetricsApiServiceTest {
         when(get.execute()).thenThrow(apiErrorResponseException);
 
         assertThrows(ServiceUnavailableException.class,
-                () -> {
-                    ApiResponse result = service.invokeGetMetricsApi(COMPANY_NUMBER);
-                });
+                () -> service.invokeGetMetricsApi(COMPANY_NUMBER));
     }
 
     @Test
@@ -96,8 +90,6 @@ class CompanyMetricsApiServiceTest {
         when(get.execute()).thenThrow(uriValidationException);
 
         assertThrows(ServiceUnavailableException.class,
-                () -> {
-                    ApiResponse result = service.invokeGetMetricsApi(COMPANY_NUMBER);
-                });
+                () -> service.invokeGetMetricsApi(COMPANY_NUMBER));
     }
 }

@@ -1,4 +1,4 @@
-package uk.gov.companieshouse.company_appointments;
+package uk.gov.companieshouse.company_appointments.service;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -6,12 +6,13 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static uk.gov.companieshouse.logging.util.LogContextProperties.REQUEST_ID;
 
+import io.cucumber.java.ja.然し;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -29,11 +30,17 @@ import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.data.domain.Sort;
 import uk.gov.companieshouse.api.appointment.OfficerList;
 import uk.gov.companieshouse.api.appointment.OfficerSummary;
+import uk.gov.companieshouse.api.metrics.AppointmentsApi;
+import uk.gov.companieshouse.api.metrics.CountsApi;
+import uk.gov.companieshouse.api.metrics.MetricsApi;
+import uk.gov.companieshouse.api.model.ApiResponse;
+import uk.gov.companieshouse.company_appointments.api.CompanyMetricsApiService;
 import uk.gov.companieshouse.company_appointments.exception.BadRequestException;
 import uk.gov.companieshouse.company_appointments.exception.NotFoundException;
 import uk.gov.companieshouse.company_appointments.exception.ServiceUnavailableException;
 import uk.gov.companieshouse.company_appointments.mapper.CompanyAppointmentMapper;
 import uk.gov.companieshouse.company_appointments.mapper.SortMapper;
+import uk.gov.companieshouse.company_appointments.model.FetchAppointmentsRequest;
 import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentData;
 import uk.gov.companieshouse.company_appointments.model.data.ContactDetailsData;
 import uk.gov.companieshouse.company_appointments.model.data.LinksData;
@@ -41,9 +48,7 @@ import uk.gov.companieshouse.company_appointments.model.data.OfficerData;
 import uk.gov.companieshouse.company_appointments.model.data.ServiceAddressData;
 import uk.gov.companieshouse.company_appointments.repository.CompanyAppointmentFullRecordRepository;
 import uk.gov.companieshouse.company_appointments.repository.CompanyAppointmentRepository;
-import uk.gov.companieshouse.company_appointments.service.CompanyAppointmentService;
-import uk.gov.companieshouse.company_appointments.service.CompanyRegisterService;
-import uk.gov.companieshouse.company_appointments.model.FetchAppointmentsRequest;
+import uk.gov.companieshouse.company_appointments.roles.RoleHelper;
 import uk.gov.companieshouse.company_appointments.util.CompanyStatusValidator;
 
 @ExtendWith(MockitoExtension.class)
@@ -52,16 +57,19 @@ class CompanyAppointmentServiceTest {
     private CompanyAppointmentService companyAppointmentService;
 
     @Mock
-    private CompanyAppointmentRepository companyAppointmentRepository;
-
-    @Mock
     private CompanyRegisterService companyRegisterService;
 
     @Mock
-    private CompanyStatusValidator companyStatusValidator;
+    private CompanyMetricsApiService companyMetricsApiService;
+
+    @Mock
+    private CompanyAppointmentRepository companyAppointmentRepository;
 
     @Mock
     private CompanyAppointmentFullRecordRepository fullRecordAppointmentRepository;
+
+    @Mock
+    private CompanyStatusValidator companyStatusValidator;
 
     @Mock
     private Clock clock;
@@ -69,30 +77,39 @@ class CompanyAppointmentServiceTest {
     @Mock
     private SortMapper sortMapper;
 
-    private final static String COMPANY_NUMBER = "123456";
-    private final static String APPOINTMENT_ID = "345678";
-    private final static String FILTER = "active";
-    private final static String ORDER_BY = "surname";
-    private final static Sort SORT = Sort.by("test");
-    private final static String REGISTER_TYPE = "directors";
-    private final static String COMPANY_NAME = "ACME LTD";
-    private final static String OPEN_STATUS = "open";
-    private final static String FAKE_STATUS = "fake";
-    private final static String CONTEXT_ID = "ABC123";
+    @Mock
+    private MetricsApi metricsApi;
+
+    private static final String COMPANY_NUMBER = "123456";
+    private static final String APPOINTMENT_ID = "345678";
+    private static final String FILTER = "active";
+    private static final String ORDER_BY = "surname";
+    private static final Sort SORT = Sort.by("test");
+    private static final String REGISTER_TYPE_DIRECTORS = "directors";
+    private static final String REGISTER_TYPE_SECRETARIES = "secretaries";
+    private static final String REGISTER_TYPE_LLPMEMBERS = "llp_members";
+    private static final String COMPANY_NAME = "ACME LTD";
+    private static final String OPEN_STATUS = "open";
+    private static final String FAKE_STATUS = "fake";
+    private static final String CONTEXT_ID = "ABC123";
+    private static final AppointmentsApi APPOINTMENTS_COUNTS = new AppointmentsApi()
+            .totalCount(8)
+            .activeCount(5)
+            .resignedCount(3);
 
     @BeforeEach
     void setUp() {
         CompanyAppointmentMapper companyAppointmentMapper = new CompanyAppointmentMapper();
         companyAppointmentService = new CompanyAppointmentService(companyAppointmentRepository,
-                companyAppointmentMapper, sortMapper,
-                companyRegisterService, companyStatusValidator, fullRecordAppointmentRepository,
-                clock);
+                companyAppointmentMapper, sortMapper, companyRegisterService, companyMetricsApiService,
+                companyStatusValidator, fullRecordAppointmentRepository, clock);
         MDC.put(REQUEST_ID.value(), CONTEXT_ID);
     }
 
     @Test
     void testFetchAppointmentReturnsMappedAppointmentData() throws NotFoundException {
-        CompanyAppointmentData officerData = new CompanyAppointmentData("1", officerData().withEtag("etag").build(), "active");
+        CompanyAppointmentData officerData = new CompanyAppointmentData("1", officerData().withEtag("etag").build(),
+                "active");
 
         // given
         when(companyAppointmentRepository.readByCompanyNumberAndAppointmentID(COMPANY_NUMBER, APPOINTMENT_ID))
@@ -118,10 +135,9 @@ class CompanyAppointmentServiceTest {
     }
 
     @Test
-    void testFetchAppointmentForCompanyNumberForNotResignedReturnsMappedAppointmentData() throws Exception{
+    void testFetchAppointmentForCompanyNumberForNotResignedReturnsMappedAppointmentData() throws Exception {
         CompanyAppointmentData officerData = new CompanyAppointmentData("1", officerData().build(), "active");
-        List<CompanyAppointmentData> allAppointmentData = new ArrayList<>();
-        allAppointmentData.add(officerData);
+        List<CompanyAppointmentData> allAppointmentData = List.of(officerData);
 
         FetchAppointmentsRequest request =
                 FetchAppointmentsRequest.Builder.builder()
@@ -130,20 +146,27 @@ class CompanyAppointmentServiceTest {
                         .withOrderBy(ORDER_BY)
                         .build();
 
+        AppointmentsApi appointmentsCounts = new AppointmentsApi()
+                .totalCount(8)
+                .activeCount(5)
+                .resignedCount(0);
+
+        when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(new ApiResponse<>(200, null, metricsApi));
+        when(metricsApi.getCounts()).thenReturn(new CountsApi().appointments(appointmentsCounts));
         when(sortMapper.getSort(ORDER_BY)).thenReturn(SORT);
         when(companyAppointmentRepository.readAllByCompanyNumberForNotResigned(COMPANY_NUMBER, SORT))
                 .thenReturn(allAppointmentData);
 
-
         OfficerList result = companyAppointmentService.fetchAppointmentsForCompany(request);
 
-        assertEquals(1, result.getTotalResults());
+        assertEquals(5, result.getTotalResults());
         assertEquals(OfficerList.class, result.getClass());
         verify(companyAppointmentRepository).readAllByCompanyNumberForNotResigned(COMPANY_NUMBER, SORT);
     }
 
     @Test
-    void testFetchAppointmentForCompanyThrowsNotFoundExceptionIfAppointmentDoesntExist() {
+    void testFetchAppointmentForCompanyThrowsNotFoundExceptionIfAppointmentDoesntExist()
+            throws ServiceUnavailableException {
         FetchAppointmentsRequest request =
                 FetchAppointmentsRequest.Builder.builder()
                         .withCompanyNumber(COMPANY_NUMBER)
@@ -151,6 +174,7 @@ class CompanyAppointmentServiceTest {
                         .withOrderBy(ORDER_BY)
                         .build();
 
+        when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(new ApiResponse<>(200, null, metricsApi));
         when(companyAppointmentRepository.readAllByCompanyNumber(any(), any()))
                 .thenReturn(new ArrayList<>());
 
@@ -160,10 +184,9 @@ class CompanyAppointmentServiceTest {
     }
 
     @Test
-    void testFetchAppointmentForCompanyNumberReturnsMappedAppointmentData() throws Exception{
+    void testFetchAppointmentForCompanyNumberReturnsMappedAppointmentData() throws Exception {
         CompanyAppointmentData officerData = new CompanyAppointmentData("1", officerData().build(), "active");
-        List<CompanyAppointmentData> allAppointmentData = new ArrayList<>();
-        allAppointmentData.add(officerData);
+        List<CompanyAppointmentData> allAppointmentData = List.of(officerData);
 
         FetchAppointmentsRequest request =
                 FetchAppointmentsRequest.Builder.builder()
@@ -172,14 +195,21 @@ class CompanyAppointmentServiceTest {
                         .withOrderBy(ORDER_BY)
                         .build();
 
+        when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(new ApiResponse<>(200, null, metricsApi));
+        when(metricsApi.getCounts()).thenReturn(new CountsApi().appointments(new AppointmentsApi()
+                .totalCount(1)
+                .activeCount(1)
+                .resignedCount(0)));
         when(sortMapper.getSort(ORDER_BY)).thenReturn(SORT);
         when(companyAppointmentRepository.readAllByCompanyNumber(COMPANY_NUMBER, SORT))
                 .thenReturn(allAppointmentData);
 
-
         OfficerList result = companyAppointmentService.fetchAppointmentsForCompany(request);
 
         assertEquals(1, result.getTotalResults());
+        assertEquals(1, result.getActiveCount());
+        assertEquals(0, result.getInactiveCount());
+        assertEquals(0, result.getResignedCount());
         assertEquals(OfficerList.class, result.getClass());
         verify(companyAppointmentRepository).readAllByCompanyNumber(COMPANY_NUMBER, SORT);
     }
@@ -188,7 +218,7 @@ class CompanyAppointmentServiceTest {
     void testFetchAppointmentForCompanyWhenNoParametersThenReturnsFirstThirtyFiveOfficers() throws Exception {
         CompanyAppointmentData officerData = new CompanyAppointmentData("1", officerData().build(), "active");
         List<CompanyAppointmentData> allAppointmentData = new ArrayList<>();
-        for (int i = 0; i < 200; i++){
+        for (int i = 0; i < 50; i++) {
             allAppointmentData.add(officerData);
         }
 
@@ -199,20 +229,27 @@ class CompanyAppointmentServiceTest {
                         .withOrderBy(ORDER_BY)
                         .build();
 
+        when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(new ApiResponse<>(200, null, metricsApi));
+        when(metricsApi.getCounts()).thenReturn(new CountsApi().appointments(new AppointmentsApi()
+                .totalCount(50)
+                .activeCount(20)
+                .resignedCount(30)));
         when(sortMapper.getSort(ORDER_BY)).thenReturn(SORT);
         when(companyAppointmentRepository.readAllByCompanyNumber(COMPANY_NUMBER, SORT))
                 .thenReturn(allAppointmentData);
 
         OfficerList result = companyAppointmentService.fetchAppointmentsForCompany(request);
 
-        assertEquals(35, result.getTotalResults());
+        assertEquals(50, result.getTotalResults());
+        assertEquals(35, result.getItems().size());
     }
 
     @Test
-    void testFetchAppointmentForCompanyWhenItemsPerPageIsLargerThanOneHundredThenReturnsOneHundredBack() throws Exception {
+    void testFetchAppointmentForCompanyWhenItemsPerPageIsLargerThanOneHundredThenReturnsOneHundredBack()
+            throws Exception {
         CompanyAppointmentData officerData = new CompanyAppointmentData("1", officerData().build(), "active");
         List<CompanyAppointmentData> allAppointmentData = new ArrayList<>();
-        for (int i = 0; i < 200; i++){
+        for (int i = 0; i < 200; i++) {
             allAppointmentData.add(officerData);
         }
 
@@ -224,21 +261,27 @@ class CompanyAppointmentServiceTest {
                         .withItemsPerPage(150)
                         .build();
 
+        when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(new ApiResponse<>(200, null, metricsApi));
+        when(metricsApi.getCounts()).thenReturn(new CountsApi().appointments(new AppointmentsApi()
+                .totalCount(200)
+                .activeCount(150)
+                .resignedCount(50)));
         when(sortMapper.getSort(ORDER_BY)).thenReturn(SORT);
         when(companyAppointmentRepository.readAllByCompanyNumber(COMPANY_NUMBER, SORT))
                 .thenReturn(allAppointmentData);
 
         OfficerList result = companyAppointmentService.fetchAppointmentsForCompany(request);
 
-        assertEquals(100, result.getTotalResults());
+        assertEquals(200, result.getTotalResults());
+        assertEquals(100, result.getItems().size());
     }
 
     @Test
     void testFetchAppointmentForCompanyWhenItemsPerPageIsFiveThenReturnsFirstFiveOfficers() throws Exception {
         List<CompanyAppointmentData> allAppointmentData = new ArrayList<>();
-        for (int i = 0; i < 200; i++){
+        for (int i = 0; i < 8; i++) {
             CompanyAppointmentData officerData = new CompanyAppointmentData("1", officerData().build(), "active");
-            officerData.getData().setOccupation(String.valueOf(i));
+            officerData.getData().setOccupation(String.format("Occupation %d", i));
             allAppointmentData.add(officerData);
         }
 
@@ -250,23 +293,58 @@ class CompanyAppointmentServiceTest {
                         .withItemsPerPage(5)
                         .build();
 
+        when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(new ApiResponse<>(200, null, metricsApi));
+        when(metricsApi.getCounts()).thenReturn(new CountsApi().appointments(APPOINTMENTS_COUNTS));
         when(sortMapper.getSort(ORDER_BY)).thenReturn(SORT);
         when(companyAppointmentRepository.readAllByCompanyNumber(COMPANY_NUMBER, SORT))
                 .thenReturn(allAppointmentData);
 
         OfficerList result = companyAppointmentService.fetchAppointmentsForCompany(request);
 
-        assertEquals(5, result.getTotalResults());
-        assertEquals(String.valueOf(0), result.getItems().get(0).getOccupation());
+        assertEquals(8, result.getTotalResults());
+        assertEquals(5, result.getItems().size());
+        assertEquals("Occupation 0", result.getItems().get(0).getOccupation());
     }
 
     @Test
-    void testFetchAppointmentForCompanyWhenStartIndexIsFiveThenReturnsThirtyFiveOfficersStartingFromIndexFive() throws Exception {
+    void testFetchAppointmentForCompanyWhenStartIndexIsFiveThenReturnsSecondPageOfThreeAppointments() throws Exception {
+        List<CompanyAppointmentData> allAppointmentData = new ArrayList<>();
+        for (int i = 0; i < 8; i++) {
+            CompanyAppointmentData officerData = new CompanyAppointmentData("1", officerData().build(), "active");
+            officerData.getData().setOccupation(String.format("Occupation %d", i));
+            allAppointmentData.add(officerData);
+        }
+
+        FetchAppointmentsRequest request =
+                FetchAppointmentsRequest.Builder.builder()
+                        .withCompanyNumber(COMPANY_NUMBER)
+                        .withFilter("false")
+                        .withOrderBy(ORDER_BY)
+                        .withItemsPerPage(5)
+                        .withStartIndex(5)
+                        .build();
+
+        when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(new ApiResponse<>(200, null, metricsApi));
+        when(metricsApi.getCounts()).thenReturn(new CountsApi().appointments(APPOINTMENTS_COUNTS));
+        when(sortMapper.getSort(ORDER_BY)).thenReturn(SORT);
+        when(companyAppointmentRepository.readAllByCompanyNumber(COMPANY_NUMBER, SORT))
+                .thenReturn(allAppointmentData);
+
+        OfficerList result = companyAppointmentService.fetchAppointmentsForCompany(request);
+
+        assertEquals(8, result.getTotalResults());
+        assertEquals(3, result.getItems().size());
+        assertEquals("Occupation 5", result.getItems().get(0).getOccupation());
+    }
+
+    @Test
+    void testFetchAppointmentForCompanyWhenStartIndexIsFiveThenReturnsThirtyFiveOfficersStartingFromIndexFive()
+            throws Exception {
 
         List<CompanyAppointmentData> allAppointmentData = new ArrayList<>();
-        for (int i = 0; i < 200; i++) {
+        for (int i = 0; i < 40; i++) {
             CompanyAppointmentData officerData = new CompanyAppointmentData("1", officerData().build(), "active");
-            officerData.getData().setOccupation(String.valueOf(i));
+            officerData.getData().setOccupation(String.format("Occupation %d", i));
             allAppointmentData.add(officerData);
         }
 
@@ -278,23 +356,30 @@ class CompanyAppointmentServiceTest {
                         .withStartIndex(5)
                         .build();
 
+        when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(new ApiResponse<>(200, null, metricsApi));
+        when(metricsApi.getCounts()).thenReturn(new CountsApi().appointments(new AppointmentsApi()
+                .totalCount(40)
+                .activeCount(38)
+                .resignedCount(3)));
         when(sortMapper.getSort(ORDER_BY)).thenReturn(SORT);
         when(companyAppointmentRepository.readAllByCompanyNumber(COMPANY_NUMBER, SORT))
                 .thenReturn(allAppointmentData);
 
         OfficerList result = companyAppointmentService.fetchAppointmentsForCompany(request);
 
-        assertEquals(String.valueOf(5), result.getItems().get(0).getOccupation());
-        assertEquals(35, result.getTotalResults());
+        assertEquals(40, result.getTotalResults());
+        assertEquals(35, result.getItems().size());
+        assertEquals("Occupation 5", result.getItems().get(0).getOccupation());
     }
 
     @Test
-    void testFetchAppointmentForCompanyWhenStartIndexAndItemsPerPagePresentThenReturnsItemsPerPageStartingFromStartIndex() throws Exception {
+    void testFetchAppointmentForCompanyWhenStartIndexAndItemsPerPagePresentThenReturnsItemsPerPageStartingFromStartIndex()
+            throws Exception {
 
         List<CompanyAppointmentData> allAppointmentData = new ArrayList<>();
-        for (int i = 0; i < 200; i++) {
+        for (int i = 0; i < 100; i++) {
             CompanyAppointmentData officerData = new CompanyAppointmentData("1", officerData().build(), "active");
-            officerData.getData().setOccupation(String.valueOf(i));
+            officerData.getData().setOccupation(String.format("Occupation %d", i));
             allAppointmentData.add(officerData);
         }
 
@@ -307,24 +392,30 @@ class CompanyAppointmentServiceTest {
                         .withItemsPerPage(15)
                         .build();
 
+        when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(new ApiResponse<>(200, null, metricsApi));
+        when(metricsApi.getCounts()).thenReturn(new CountsApi().appointments(new AppointmentsApi()
+                .totalCount(100)
+                .activeCount(40)
+                .resignedCount(60)));
         when(sortMapper.getSort(ORDER_BY)).thenReturn(SORT);
         when(companyAppointmentRepository.readAllByCompanyNumber(COMPANY_NUMBER, SORT))
                 .thenReturn(allAppointmentData);
 
         OfficerList result = companyAppointmentService.fetchAppointmentsForCompany(request);
 
-
-        assertEquals(String.valueOf(56), result.getItems().get(0).getOccupation());
-        assertEquals(15, result.getTotalResults());
+        assertEquals(100, result.getTotalResults());
+        assertEquals(15, result.getItems().size());
+        assertEquals("Occupation 56", result.getItems().get(0).getOccupation());
     }
 
     @Test
-    void testFetchAppointmentForCompanyWhenStartIndexPlusItemsPerPageIsLargerThanSizeOfListThenReturnsItemsFromStartIndexToEndOfList() throws Exception {
+    void testFetchAppointmentForCompanyWhenStartIndexPlusItemsPerPageIsLargerThanSizeOfListThenReturnsItemsFromStartIndexToEndOfList()
+            throws Exception {
 
         List<CompanyAppointmentData> allAppointmentData = new ArrayList<>();
         for (int i = 0; i < 200; i++) {
             CompanyAppointmentData officerData = new CompanyAppointmentData("1", officerData().build(), "active");
-            officerData.getData().setOccupation(String.valueOf(i));
+            officerData.getData().setOccupation(String.format("Occupation %d", i));
             allAppointmentData.add(officerData);
         }
 
@@ -337,15 +428,20 @@ class CompanyAppointmentServiceTest {
                         .withItemsPerPage(50)
                         .build();
 
+        when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(new ApiResponse<>(200, null, metricsApi));
+        when(metricsApi.getCounts()).thenReturn(new CountsApi().appointments(new AppointmentsApi()
+                .totalCount(200)
+                .activeCount(150)
+                .resignedCount(50)));
         when(sortMapper.getSort(ORDER_BY)).thenReturn(SORT);
         when(companyAppointmentRepository.readAllByCompanyNumber(COMPANY_NUMBER, SORT))
                 .thenReturn(allAppointmentData);
 
         OfficerList result = companyAppointmentService.fetchAppointmentsForCompany(request);
 
-
-        assertEquals(String.valueOf(195), result.getItems().get(0).getOccupation());
-        assertEquals(5, result.getTotalResults());
+        assertEquals(200, result.getTotalResults());
+        assertEquals(5, result.getItems().size());
+        assertEquals("Occupation 195", result.getItems().get(0).getOccupation());
     }
 
     @Test
@@ -364,6 +460,7 @@ class CompanyAppointmentServiceTest {
                         .withStartIndex(300)
                         .build();
 
+        when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(new ApiResponse<>(200, null, metricsApi));
         when(sortMapper.getSort(ORDER_BY)).thenReturn(SORT);
         when(companyAppointmentRepository.readAllByCompanyNumber(COMPANY_NUMBER, SORT))
                 .thenReturn(allAppointmentData);
@@ -373,13 +470,13 @@ class CompanyAppointmentServiceTest {
     }
 
     @Test
-    void testFetchAppointmentForCompanyReturnInactiveOrActiveCountInCompanyOfficersGETDependingOnCompanyStatusReturnsActive() throws Exception{
+    void testFetchAppointmentForCompanyReturnInactiveOrActiveCountInCompanyOfficersGETDependingOnCompanyStatusReturnsActive()
+            throws Exception {
         OfficerData officer = officerData().build();
         officer.setResignedOn(null);
         CompanyAppointmentData officerData = new CompanyAppointmentData("1", officer, "active");
 
-        List<CompanyAppointmentData> allAppointmentData = new ArrayList<>();
-        allAppointmentData.add(officerData);
+        List<CompanyAppointmentData> allAppointmentData = List.of(officerData);
 
         FetchAppointmentsRequest request =
                 FetchAppointmentsRequest.Builder.builder()
@@ -388,25 +485,30 @@ class CompanyAppointmentServiceTest {
                         .withOrderBy(ORDER_BY)
                         .build();
 
+        when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(new ApiResponse<>(200, null, metricsApi));
+        when(metricsApi.getCounts()).thenReturn(new CountsApi().appointments(new AppointmentsApi()
+                .totalCount(1)
+                .activeCount(1)
+                .resignedCount(0)));
         when(sortMapper.getSort(ORDER_BY)).thenReturn(SORT);
         when(companyAppointmentRepository.readAllByCompanyNumber(COMPANY_NUMBER, SORT))
                 .thenReturn(allAppointmentData);
 
         OfficerList result = companyAppointmentService.fetchAppointmentsForCompany(request);
 
+        assertEquals(1, result.getTotalResults());
         assertEquals(1, result.getActiveCount());
         assertEquals(0, result.getInactiveCount());
-
     }
 
     @Test
-    void testFetchAppointmentForCompanyReturnInactiveOrActiveCountInCompanyOfficersGETDependingOnCompanyStatusReturnsInactive() throws Exception{
+    void testFetchAppointmentForCompanyReturnInactiveOrActiveCountInCompanyOfficersGETDependingOnCompanyStatusReturnsInactive()
+            throws Exception {
         OfficerData officer = officerData().build();
         officer.setResignedOn(null);
         CompanyAppointmentData officerData = new CompanyAppointmentData("1", officer, "removed");
 
-        List<CompanyAppointmentData> allAppointmentData = new ArrayList<>();
-        allAppointmentData.add(officerData);
+        List<CompanyAppointmentData> allAppointmentData = List.of(officerData);
 
         FetchAppointmentsRequest request =
                 FetchAppointmentsRequest.Builder.builder()
@@ -415,22 +517,59 @@ class CompanyAppointmentServiceTest {
                         .withOrderBy(ORDER_BY)
                         .build();
 
+        when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(new ApiResponse<>(200, null, metricsApi));
+        when(metricsApi.getCounts()).thenReturn(new CountsApi().appointments(new AppointmentsApi()
+                .totalCount(1)
+                .activeCount(1)
+                .resignedCount(0)));
         when(sortMapper.getSort(ORDER_BY)).thenReturn(SORT);
         when(companyAppointmentRepository.readAllByCompanyNumber(COMPANY_NUMBER, SORT))
                 .thenReturn(allAppointmentData);
 
         OfficerList result = companyAppointmentService.fetchAppointmentsForCompany(request);
 
+        assertEquals(1, result.getTotalResults());
         assertEquals(1, result.getInactiveCount());
         assertEquals(0, result.getActiveCount());
-
     }
+
     @Test
-    void testNoRegisterViewIsFalse() throws Exception {
+    void testFetchAppointmentForCompanyReturnTotalCountOfZeroWhenCompanyStatusIsInactiveAndActiveFilterIsApplied()
+            throws Exception {
+        OfficerData officer = officerData().build();
+        officer.setResignedOn(null);
+        CompanyAppointmentData officerData = new CompanyAppointmentData("1", officer, "dissolved");
+
+        List<CompanyAppointmentData> allAppointmentData = List.of(officerData);
+
+        FetchAppointmentsRequest request =
+                FetchAppointmentsRequest.Builder.builder()
+                        .withCompanyNumber(COMPANY_NUMBER)
+                        .withFilter(FILTER)
+                        .withOrderBy(ORDER_BY)
+                        .build();
+
+        when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(new ApiResponse<>(200, null, metricsApi));
+        when(metricsApi.getCounts()).thenReturn(new CountsApi().appointments(new AppointmentsApi()
+                .totalCount(1)
+                .activeCount(1)
+                .resignedCount(0)));
+        when(sortMapper.getSort(ORDER_BY)).thenReturn(SORT);
+        when(companyAppointmentRepository.readAllByCompanyNumberForNotResigned(COMPANY_NUMBER, SORT))
+                .thenReturn(allAppointmentData);
+
+        OfficerList result = companyAppointmentService.fetchAppointmentsForCompany(request);
+
+        assertEquals(0, result.getTotalResults());
+        assertEquals(1, result.getInactiveCount());
+        assertEquals(0, result.getActiveCount());
+    }
+
+    @Test
+    void testRegisterViewIsFalse() throws Exception {
         CompanyAppointmentData officerData = new CompanyAppointmentData("1", officerData().build(), "active");
 
-        List<CompanyAppointmentData> allAppointmentData = new ArrayList<>();
-        allAppointmentData.add(officerData);
+        List<CompanyAppointmentData> allAppointmentData = List.of(officerData);
 
         FetchAppointmentsRequest request =
                 FetchAppointmentsRequest.Builder.builder()
@@ -438,45 +577,57 @@ class CompanyAppointmentServiceTest {
                         .withRegisterView(false)
                         .build();
 
+        when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(new ApiResponse<>(200, null, metricsApi));
+        when(metricsApi.getCounts()).thenReturn(new CountsApi().appointments(new AppointmentsApi()
+                .totalCount(1)
+                .activeCount(1)
+                .resignedCount(0)));
         when(sortMapper.getSort(null)).thenReturn(SORT);
         when(companyAppointmentRepository.readAllByCompanyNumber(COMPANY_NUMBER, SORT))
                 .thenReturn(allAppointmentData);
 
         companyAppointmentService.fetchAppointmentsForCompany(request);
 
-        verify(companyRegisterService, times(0)).isRegisterHeldInCompaniesHouse(any(), any());
+        verify(companyRegisterService, never()).isRegisterHeldInCompaniesHouse(any(), any());
     }
 
     @Test
     void testNoRegisterViewIsNull() throws Exception {
         CompanyAppointmentData officerData = new CompanyAppointmentData("1", officerData().build(), "active");
 
-        List<CompanyAppointmentData> allAppointmentData = new ArrayList<>();
-        allAppointmentData.add(officerData);
+        List<CompanyAppointmentData> allAppointmentData = List.of(officerData);
 
         FetchAppointmentsRequest request =
                 FetchAppointmentsRequest.Builder.builder()
                         .withCompanyNumber(COMPANY_NUMBER)
                         .build();
 
+        when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(new ApiResponse<>(200, null, metricsApi));
+        when(metricsApi.getCounts()).thenReturn(new CountsApi().appointments(new AppointmentsApi()
+                .totalCount(1)
+                .activeCount(1)
+                .resignedCount(0)));
         when(sortMapper.getSort(null)).thenReturn(SORT);
         when(companyAppointmentRepository.readAllByCompanyNumber(COMPANY_NUMBER, SORT))
                 .thenReturn(allAppointmentData);
 
         companyAppointmentService.fetchAppointmentsForCompany(request);
 
-        verify(companyRegisterService, times(0)).isRegisterHeldInCompaniesHouse(any(), any());
+        verify(companyRegisterService, never()).isRegisterHeldInCompaniesHouse(any(), any());
     }
+
     @Test
-    void testFetchAppointmentsForCompanyThrowsNotFoundExceptionIfRegisterViewAndNotHeldInCompaniesHouse() throws Exception {
+    void testFetchAppointmentsForCompanyThrowsNotFoundExceptionIfRegisterViewAndNotHeldInCompaniesHouse()
+            throws ServiceUnavailableException {
         FetchAppointmentsRequest request =
                 FetchAppointmentsRequest.Builder.builder()
                         .withCompanyNumber(COMPANY_NUMBER)
                         .withRegisterView(true)
-                        .withRegisterType(REGISTER_TYPE)
+                        .withRegisterType(REGISTER_TYPE_DIRECTORS)
                         .build();
 
-        when(companyRegisterService.isRegisterHeldInCompaniesHouse(REGISTER_TYPE, COMPANY_NUMBER)).thenReturn(false);
+        when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(new ApiResponse<>(200, null, metricsApi));
+        when(companyRegisterService.isRegisterHeldInCompaniesHouse(eq(REGISTER_TYPE_DIRECTORS), any())).thenReturn(false);
 
         assertThrows(NotFoundException.class,
                 () -> companyAppointmentService.fetchAppointmentsForCompany(request));
@@ -486,8 +637,7 @@ class CompanyAppointmentServiceTest {
     void testFetchAppointmentsForCompanyThrowsNotFoundExceptionIfNoAppointmentOfRegisterType() throws Exception {
         CompanyAppointmentData officerData = new CompanyAppointmentData("1", officerData().build(), "active");
 
-        List<CompanyAppointmentData> allAppointmentData = new ArrayList<>();
-        allAppointmentData.add(officerData);
+        List<CompanyAppointmentData> allAppointmentData = List.of(officerData);
 
         FetchAppointmentsRequest request =
                 FetchAppointmentsRequest.Builder.builder()
@@ -496,37 +646,144 @@ class CompanyAppointmentServiceTest {
                         .withRegisterType("secretaries")
                         .build();
 
+        when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(new ApiResponse<>(200, null, metricsApi));
         when(sortMapper.getSort(null)).thenReturn(SORT);
         when(companyAppointmentRepository.readAllByCompanyNumberForNotResigned(COMPANY_NUMBER, SORT))
                 .thenReturn(allAppointmentData);
-        when(companyRegisterService.isRegisterHeldInCompaniesHouse("secretaries", COMPANY_NUMBER)).thenReturn(true);
+        when(companyRegisterService.isRegisterHeldInCompaniesHouse(eq("secretaries"), any())).thenReturn(true);
 
         assertThrows(NotFoundException.class,
                 () -> companyAppointmentService.fetchAppointmentsForCompany(request));
     }
 
     @Test
-    void testFetchAppointmentsForCompanyReturnsAppointmentsIfRegisterTypeMatches() throws Exception {
-        CompanyAppointmentData officerData = new CompanyAppointmentData("1", officerData().build(), "active");
+    void testFetchAppointmentsForCompanyReturnsAppointmentsIfRegisterTypeMatchesDirectorsAndRoleTypeIsDirector() throws Exception {
+        CompanyAppointmentData officerData = new CompanyAppointmentData("1", officerData().withOfficerRole("director").build(), "active");
 
-        List<CompanyAppointmentData> allAppointmentData = new ArrayList<>();
-        allAppointmentData.add(officerData);
+        List<CompanyAppointmentData> allAppointmentData = List.of(officerData);
 
         FetchAppointmentsRequest request =
                 FetchAppointmentsRequest.Builder.builder()
                         .withCompanyNumber(COMPANY_NUMBER)
                         .withRegisterView(true)
-                        .withRegisterType(REGISTER_TYPE)
+                        .withRegisterType(REGISTER_TYPE_DIRECTORS)
                         .build();
 
+        when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(new ApiResponse<>(200, null, metricsApi));
+        when(metricsApi.getCounts()).thenReturn(new CountsApi().appointments(new AppointmentsApi()
+                .totalCount(1)
+                .activeCount(1)
+                .activeDirectorsCount(1)
+                .resignedCount(0)));
         when(sortMapper.getSort(null)).thenReturn(SORT);
         when(companyAppointmentRepository.readAllByCompanyNumberForNotResigned(COMPANY_NUMBER, SORT))
                 .thenReturn(allAppointmentData);
-        when(companyRegisterService.isRegisterHeldInCompaniesHouse(REGISTER_TYPE, COMPANY_NUMBER)).thenReturn(true);
+        when(companyRegisterService.isRegisterHeldInCompaniesHouse(eq(REGISTER_TYPE_DIRECTORS), any())).thenReturn(
+                true);
 
         OfficerList result = companyAppointmentService.fetchAppointmentsForCompany(request);
 
+        assertEquals(1, result.getTotalResults());
         assertEquals(1, result.getItems().size());
+    }
+
+    @Test
+    void testFetchAppointmentsForCompanyReturnsAppointmentsIfRegisterTypeMatchesSecretariesAndRoleTypeIsSecretary() throws Exception {
+        CompanyAppointmentData officerData = new CompanyAppointmentData("1",
+                officerData().withOfficerRole("secretary").build(), "active");
+
+        List<CompanyAppointmentData> allAppointmentData = List.of(officerData);
+
+        FetchAppointmentsRequest request =
+                FetchAppointmentsRequest.Builder.builder()
+                        .withCompanyNumber(COMPANY_NUMBER)
+                        .withRegisterView(true)
+                        .withRegisterType(REGISTER_TYPE_SECRETARIES)
+                        .build();
+
+        when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(
+                new ApiResponse<>(200, null, metricsApi));
+        when(metricsApi.getCounts()).thenReturn(new CountsApi().appointments(new AppointmentsApi()
+                .totalCount(1)
+                .activeCount(1)
+                .activeSecretariesCount(1)
+                .resignedCount(0)));
+        when(sortMapper.getSort(null)).thenReturn(SORT);
+        when(companyAppointmentRepository.readAllByCompanyNumberForNotResigned(COMPANY_NUMBER, SORT))
+                .thenReturn(allAppointmentData);
+        when(companyRegisterService.isRegisterHeldInCompaniesHouse(eq(REGISTER_TYPE_SECRETARIES), any())).thenReturn(
+                true);
+
+        OfficerList result = companyAppointmentService.fetchAppointmentsForCompany(request);
+
+        assertEquals(1, result.getTotalResults());
+        assertEquals(1, result.getItems().size());
+    }
+
+    @Test
+    void testFetchAppointmentsForCompanyReturnsAppointmentsIfRegisterTypeMatchesLLPMembersAndRoleTypeIsLLPMember() throws Exception {
+        CompanyAppointmentData officerData = new CompanyAppointmentData("1",
+                officerData().withOfficerRole("llp-member").build(), "active");
+
+        List<CompanyAppointmentData> allAppointmentData = List.of(officerData);
+
+        FetchAppointmentsRequest request =
+                FetchAppointmentsRequest.Builder.builder()
+                        .withCompanyNumber(COMPANY_NUMBER)
+                        .withRegisterView(true)
+                        .withRegisterType(REGISTER_TYPE_LLPMEMBERS)
+                        .build();
+
+        when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(
+                new ApiResponse<>(200, null, metricsApi));
+        when(metricsApi.getCounts()).thenReturn(new CountsApi().appointments(new AppointmentsApi()
+                .totalCount(1)
+                .activeCount(1)
+                .activeLlpMembersCount(1)
+                .resignedCount(0)));
+        when(sortMapper.getSort(null)).thenReturn(SORT);
+        when(companyAppointmentRepository.readAllByCompanyNumberForNotResigned(COMPANY_NUMBER, SORT))
+                .thenReturn(allAppointmentData);
+        when(companyRegisterService.isRegisterHeldInCompaniesHouse(eq(REGISTER_TYPE_LLPMEMBERS), any())).thenReturn(
+                true);
+
+        OfficerList result = companyAppointmentService.fetchAppointmentsForCompany(request);
+
+        assertEquals(1, result.getTotalResults());
+        assertEquals(1, result.getItems().size());
+    }
+
+    @Test
+    void testFetchAppointmentsForCompanyReturnsAppointmentsIfRegisterTypeDoesNotMatch() throws Exception {
+        CompanyAppointmentData officerData = new CompanyAppointmentData("1",
+                officerData().withOfficerRole("director").build(), "active");
+
+        List<CompanyAppointmentData> allAppointmentData = List.of(officerData);
+
+        FetchAppointmentsRequest request =
+                FetchAppointmentsRequest.Builder.builder()
+                        .withCompanyNumber(COMPANY_NUMBER)
+                        .withRegisterView(true)
+                        .withRegisterType("registerType")
+                        .build();
+
+        when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(
+                new ApiResponse<>(200, null, metricsApi));
+        when(metricsApi.getCounts()).thenReturn(new CountsApi().appointments(new AppointmentsApi()
+                .totalCount(1)
+                .activeCount(0)
+                .resignedCount(1)));
+        when(sortMapper.getSort(null)).thenReturn(SORT);
+        when(companyAppointmentRepository.readAllByCompanyNumberForNotResigned(COMPANY_NUMBER, SORT))
+                .thenReturn(allAppointmentData);
+        when(companyRegisterService.isRegisterHeldInCompaniesHouse(eq("registerType"), any())).thenReturn(
+                true);
+
+        OfficerList result = companyAppointmentService.fetchAppointmentsForCompany(request);
+
+        assertEquals(1, result.getTotalResults());
+        assertEquals(0, result.getActiveCount());
+        assertEquals(1, result.getResignedCount());
     }
 
     @Test
@@ -669,7 +926,8 @@ class CompanyAppointmentServiceTest {
         // given
 
         // when
-        Executable executable = () -> companyAppointmentService.patchNewAppointmentCompanyNameStatus(COMPANY_NUMBER, APPOINTMENT_ID, "", OPEN_STATUS);
+        Executable executable = () -> companyAppointmentService.patchNewAppointmentCompanyNameStatus(COMPANY_NUMBER,
+                APPOINTMENT_ID, "", OPEN_STATUS);
 
         // then
         BadRequestException exception = assertThrows(BadRequestException.class, executable);
@@ -722,14 +980,17 @@ class CompanyAppointmentServiceTest {
     void patchNewAppointmentNameStatusMissingAppointmentAfterResourceChanged() {
         // given
         when(companyStatusValidator.isValidCompanyStatus(OPEN_STATUS)).thenReturn(true);
-        when(fullRecordAppointmentRepository.patchAppointmentNameStatus(anyString(), anyString(), anyString(), any(), anyString())).thenReturn(0L);
+        when(fullRecordAppointmentRepository.patchAppointmentNameStatus(anyString(), anyString(), anyString(), any(),
+                anyString())).thenReturn(0L);
 
         // when
-        Executable executable = () -> companyAppointmentService.patchNewAppointmentCompanyNameStatus(COMPANY_NUMBER, APPOINTMENT_ID, COMPANY_NAME, OPEN_STATUS);
+        Executable executable = () -> companyAppointmentService.patchNewAppointmentCompanyNameStatus(COMPANY_NUMBER,
+                APPOINTMENT_ID, COMPANY_NAME, OPEN_STATUS);
 
         // then
         NotFoundException exception = assertThrows(NotFoundException.class, executable);
-        assertEquals("Appointment [345678] for company [123456] not found during PATCH request", exception.getMessage());
+        assertEquals("Appointment [345678] for company [123456] not found during PATCH request",
+                exception.getMessage());
         verify(companyStatusValidator).isValidCompanyStatus(OPEN_STATUS);
         verify(fullRecordAppointmentRepository).patchAppointmentNameStatus(any(), any(), any(), any(), any());
     }
@@ -763,7 +1024,8 @@ class CompanyAppointmentServiceTest {
                 .withResignedOn(LocalDateTime.of(2020, 8, 26, 13, 0))
                 .withCountryOfResidence("Country")
                 .withDateOfBirth(LocalDateTime.of(1980, 1, 1, 12, 0))
-                .withLinks(new LinksData("/company/12345678/appointment/123", "/officers/abc", "/officers/abc/appointments"))
+                .withLinks(new LinksData("/company/12345678/appointment/123", "/officers/abc",
+                        "/officers/abc/appointments"))
                 .withNationality("Nationality")
                 .withOccupation("Occupation")
                 .withOfficerRole("director")
