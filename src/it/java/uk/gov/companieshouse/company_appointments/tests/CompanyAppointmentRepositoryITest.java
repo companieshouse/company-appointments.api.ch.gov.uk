@@ -2,6 +2,7 @@ package uk.gov.companieshouse.company_appointments.tests;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static uk.gov.companieshouse.company_appointments.roles.DirectorRoles.DIRECTOR;
 import static uk.gov.companieshouse.company_appointments.roles.SecretarialRoles.SECRETARY;
 
@@ -173,6 +174,31 @@ class CompanyAppointmentRepositoryITest {
     }
 
     @Test
+    void shouldFindAllAppointmentsForCompanyDefaultSortingWithResignedDirectorAndSecretary() {
+        // given
+        insertAppointment(APPOINTMENT_ID + 1, SURNAME + "B", SECRETARY.getRole(), APPOINTED_ON_BASE,
+                null);
+        insertAppointment(APPOINTMENT_ID + 2, SURNAME + "A", SECRETARY.getRole(),
+                APPOINTED_ON_BASE.plusDays(2), APPOINTED_ON_BASE.plusDays(1));
+        insertAppointment(APPOINTMENT_ID + 3, SURNAME + "C", DIRECTOR.getRole(),
+                APPOINTED_ON_BASE.plusDays(1), null);
+        insertAppointment(APPOINTMENT_ID + 4, SURNAME + "A", DIRECTOR.getRole(),
+                APPOINTED_ON_BASE.plusDays(1), RESIGNED_ON_BASE);
+        // when
+        List<CompanyAppointmentData> result = repository.getCompanyAppointmentData(COMPANY_NUMBER,
+                null, null, 0, 5, false, false);
+
+        // then
+        assertEquals(4, result.size());
+        // Rule: Secretary > Director, Appointed On DESC
+        assertEquals(APPOINTMENT_ID + 1, result.get(0).getId());
+        assertEquals(APPOINTMENT_ID + 3, result.get(1).getId());
+        // Rule: Active > Resigned
+        assertEquals(APPOINTMENT_ID + 2, result.get(2).getId());
+        assertEquals(APPOINTMENT_ID + 4, result.get(3).getId());
+    }
+
+    @Test
     void shouldFindAllActiveAppointmentsForCompanyDefaultSortingWithResignedDirector() {
         // given
         insertAppointment(APPOINTMENT_ID + 1, SURNAME + "B", SECRETARY.getRole(), APPOINTED_ON_BASE,
@@ -208,7 +234,7 @@ class CompanyAppointmentRepositoryITest {
                 APPOINTED_ON_BASE.plusDays(1), RESIGNED_ON_BASE);
         // when
         List<CompanyAppointmentData> result = repository.getCompanyAppointmentData(COMPANY_NUMBER,
-                null, REGISTER_TYPE_SECRETARIES, 0, 5, true, false);
+                null, REGISTER_TYPE_SECRETARIES, 0, 5, true, true);
 
         // then
         assertEquals(2, result.size());
@@ -230,12 +256,11 @@ class CompanyAppointmentRepositoryITest {
                 APPOINTED_ON_BASE.plusDays(1), RESIGNED_ON_BASE);
         // when
         List<CompanyAppointmentData> result = repository.getCompanyAppointmentData(COMPANY_NUMBER,
-                null, REGISTER_TYPE_DIRECTORS, 0, 5, true, false);
+                null, REGISTER_TYPE_DIRECTORS, 0, 5, true, true);
 
         // then
-        assertEquals(2, result.size());
+        assertEquals(1, result.size());
         assertEquals(APPOINTMENT_ID + 3, result.get(0).getId());
-        assertEquals(APPOINTMENT_ID + 4, result.get(1).getId());
     }
 
     @ParameterizedTest
@@ -252,13 +277,12 @@ class CompanyAppointmentRepositoryITest {
                 APPOINTED_ON_BASE.plusDays(1), RESIGNED_ON_BASE);
         // when
         List<CompanyAppointmentData> result = repository.getCompanyAppointmentData(COMPANY_NUMBER,
-                null, REGISTER_TYPE_LLP_MEMBERS, 0, 5, true, false);
+                null, REGISTER_TYPE_LLP_MEMBERS, 0, 5, true, true);
 
         // then
-        assertEquals(2, result.size());
+        assertEquals(1, result.size());
         // Surname > Appointed On
-        assertEquals(APPOINTMENT_ID + 4, result.get(0).getId());
-        assertEquals(APPOINTMENT_ID + 3, result.get(1).getId());
+        assertEquals(APPOINTMENT_ID + 3, result.get(0).getId());
     }
 
     @Test
@@ -266,7 +290,7 @@ class CompanyAppointmentRepositoryITest {
         // given
         // when
         Executable executable = () -> repository.getCompanyAppointmentData(COMPANY_NUMBER,
-                null, "imposter", 0, 5, true, false);
+                null, "imposter", 0, 5, true, true);
 
         // then
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, executable);
@@ -307,6 +331,23 @@ class CompanyAppointmentRepositoryITest {
         assertEquals(APPOINTMENT_ID + 1, result.get(1).getId());
     }
 
+    @Test
+    void testFetchAppointmentForCompanyWhenStartIndexIsLargerThanSizeOfListThrowsNotFoundException() {
+        insertAppointment(APPOINTMENT_ID + 1, SURNAME + "B", SECRETARY.getRole(), APPOINTED_ON_BASE,
+                null);
+        insertAppointment(APPOINTMENT_ID + 2, SURNAME + "A", SECRETARY.getRole(),
+                APPOINTED_ON_BASE.plusDays(2), null);
+        insertAppointment(APPOINTMENT_ID + 3, SURNAME + "C", DIRECTOR.getRole(),
+                APPOINTED_ON_BASE.plusDays(1), null);
+        insertAppointment(APPOINTMENT_ID + 4, SURNAME + "A", DIRECTOR.getRole(),
+                APPOINTED_ON_BASE.plusDays(1), null);
+
+        List<CompanyAppointmentData> result = repository.getCompanyAppointmentData(COMPANY_NUMBER,
+                null, null, 4, 5, false, false);
+
+        assertTrue(result.isEmpty());
+    }
+
     @SuppressWarnings({"unchecked"})
     private void insertAppointment(String appointmentId, String surname, String officerRole,
             LocalDateTime appointedOn, LocalDateTime resignedOn) {
@@ -330,11 +371,14 @@ class CompanyAppointmentRepositoryITest {
                 break;
             case "llp-member":
             case "corporate-llp-member":
+                templateDocument.put("officer_role_sort_order", resignedOn == null ? 20 : 200);
+                break;
             case "llp-designated-member":
             case "corporate-llp-designated-member":
-            case "limited-partner-in-a-limited-partnership":
                 templateDocument.put("officer_role_sort_order", resignedOn == null ? 10 : 100);
                 break;
+            default:
+                throw new IllegalArgumentException("Invalid role name");
         }
         officerData.put("surname", surname);
         officerData.put("appointed_on", appointedOn.toInstant(ZoneOffset.UTC));

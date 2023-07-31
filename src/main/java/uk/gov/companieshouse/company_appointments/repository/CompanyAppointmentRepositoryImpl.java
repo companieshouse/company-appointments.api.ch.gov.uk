@@ -8,7 +8,6 @@ import static uk.gov.companieshouse.company_appointments.roles.DirectorRoles.DIR
 import static uk.gov.companieshouse.company_appointments.roles.DirectorRoles.NOMINEE_DIRECTOR;
 import static uk.gov.companieshouse.company_appointments.roles.LlpRoles.CORPORATE_LLP_DESIGNATED_MEMBER;
 import static uk.gov.companieshouse.company_appointments.roles.LlpRoles.CORPORATE_LLP_MEMBER;
-import static uk.gov.companieshouse.company_appointments.roles.LlpRoles.LIMITED_PARTNER_IN_LIMITED_PARTNERSHIP;
 import static uk.gov.companieshouse.company_appointments.roles.LlpRoles.LLP_DESIGNATED_MEMBER;
 import static uk.gov.companieshouse.company_appointments.roles.LlpRoles.LLP_MEMBER;
 import static uk.gov.companieshouse.company_appointments.roles.SecretarialRoles.CORPORATE_NOMINEE_SECRETARY;
@@ -25,7 +24,7 @@ import uk.gov.companieshouse.company_appointments.mapper.SortMapper;
 import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentData;
 
 @Component
-class CompanyAppointmentRepositoryImpl implements CompanyAppointmentRepositoryExtension {
+public class CompanyAppointmentRepositoryImpl implements CompanyAppointmentRepositoryExtension {
 
     private static final String DATA_OFFICER_ROLE = "data.officer_role";
     private final MongoTemplate mongoTemplate;
@@ -83,9 +82,7 @@ class CompanyAppointmentRepositoryImpl implements CompanyAppointmentRepositoryEx
                         where(DATA_OFFICER_ROLE).is(LLP_MEMBER.getRole()),
                         where(DATA_OFFICER_ROLE).is(CORPORATE_LLP_MEMBER.getRole()),
                         where(DATA_OFFICER_ROLE).is(LLP_DESIGNATED_MEMBER.getRole()),
-                        where(DATA_OFFICER_ROLE).is(CORPORATE_LLP_DESIGNATED_MEMBER.getRole()),
-                        where(DATA_OFFICER_ROLE).is(
-                                LIMITED_PARTNER_IN_LIMITED_PARTNERSHIP.getRole()));
+                        where(DATA_OFFICER_ROLE).is(CORPORATE_LLP_DESIGNATED_MEMBER.getRole()));
                 break;
             default:
                 throw new IllegalArgumentException("Invalid registerType of " + registerType);
