@@ -1,4 +1,4 @@
-package uk.gov.companieshouse.company_appointments.tests;
+package uk.gov.companieshouse.company_appointments.repository;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
