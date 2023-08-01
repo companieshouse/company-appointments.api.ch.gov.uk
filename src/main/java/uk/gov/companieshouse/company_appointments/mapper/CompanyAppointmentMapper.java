@@ -35,9 +35,11 @@ public class CompanyAppointmentMapper {
     private static final Logger LOGGER = LoggerFactory.getLogger(CompanyAppointmentsApplication.APPLICATION_NAMESPACE);
     private static final String APPOINTED_BEFORE_DATE_FORMAT = "yyyy-MM-dd";
 
-    private boolean registerView = false;
-
     public OfficerSummary map(CompanyAppointmentData companyAppointmentData) {
+        return map(companyAppointmentData, false);
+    }
+
+    public OfficerSummary map(CompanyAppointmentData companyAppointmentData, boolean registerView) {
         LOGGER.debug("Mapping data for appointment: " + companyAppointmentData.getId());
         boolean isSecretary = RoleHelper.isSecretary(companyAppointmentData);
         LocalDateTime appointedOn = companyAppointmentData.getData().getAppointedOn();
@@ -51,7 +53,7 @@ public class CompanyAppointmentMapper {
                         DateTimeFormatter.ofPattern(APPOINTED_BEFORE_DATE_FORMAT)))
                 .resignedOn(resignedOn == null ? null : resignedOn.toLocalDate())
                 .countryOfResidence(isSecretary ? null : companyAppointmentData.getData().getCountryOfResidence())
-                .dateOfBirth(isSecretary ? null : mapDateOfBirth(companyAppointmentData))
+                .dateOfBirth(isSecretary ? null : mapDateOfBirth(companyAppointmentData, registerView))
                 .links(mapLinks(companyAppointmentData))
                 .nationality(companyAppointmentData.getData().getNationality())
                 .occupation(companyAppointmentData.getData().getOccupation())
@@ -135,7 +137,7 @@ public class CompanyAppointmentMapper {
                 .orElse(null);
     }
 
-    private DateOfBirth mapDateOfBirth(CompanyAppointmentData companyAppointmentData) {
+    private DateOfBirth mapDateOfBirth(CompanyAppointmentData companyAppointmentData, boolean registerView) {
         if (registerView) {
             return Optional.ofNullable(companyAppointmentData.getData().getDateOfBirth())
                     .map(dateOfBirth -> new DateOfBirth()
@@ -168,9 +170,5 @@ public class CompanyAppointmentMapper {
             result = String.join(", ", result, companyAppointmentData.getData().getTitle());
         }
         return result;
-    }
-
-    public void setRegisterView(boolean registerView) {
-        this.registerView = registerView;
     }
 }

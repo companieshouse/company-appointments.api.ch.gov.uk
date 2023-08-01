@@ -6,10 +6,9 @@ public enum LlpRoles {
     LLP_MEMBER("llp-member"),
     CORPORATE_LLP_MEMBER("corporate-llp-member"),
     LLP_DESIGNATED_MEMBER("llp-designated-member"),
-    CORPORATE_LLP_DESIGNATED_MEMBER("corporate-llp-designated-member"),
-    LIMITED_PARTNER_IN_LIMITED_PARTNERSHIP("limited-partner-in-a-limited-partnership");
+    CORPORATE_LLP_DESIGNATED_MEMBER("corporate-llp-designated-member");
 
-    private String role;
+    private final String role;
 
     LlpRoles(String role){
         this.role = role;

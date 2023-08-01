@@ -7,9 +7,9 @@ import uk.gov.companieshouse.company_appointments.exception.BadRequestException;
 @Component
 public class SortMapper {
 
-    private static final String APPOINTED_ON = "appointed_on";
-    private static final String SURNAME = "surname";
-    private static final String RESIGNED_ON = "resigned_on";
+    public static final String APPOINTED_ON = "appointed_on";
+    public static final String SURNAME = "surname";
+    public static final String RESIGNED_ON = "resigned_on";
 
     private static final Sort DEFAULT_SORT = Sort.by(Sort.Direction.ASC, "officer_role_sort_order")
             .and(Sort.by(Sort.Direction.ASC, "data.company_name", "data.surname"))
