@@ -17,12 +17,12 @@ import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentD
 import uk.gov.companieshouse.company_appointments.model.data.DeltaOfficerData;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaSensitiveData;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaTimestamp;
-import uk.gov.companieshouse.company_appointments.repository.CompanyAppointmentFullRecordRepository;
+import uk.gov.companieshouse.company_appointments.repository.CompanyAppointmentRepository;
 
 @ExtendWith(MockitoExtension.class)
 class AppointmentApiRepositoryTest {
     @Spy
-    private CompanyAppointmentFullRecordRepository testRepository;
+    private CompanyAppointmentRepository testRepository;
 
     @Captor
     private ArgumentCaptor<CompanyAppointmentDocument> captor;

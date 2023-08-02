@@ -26,7 +26,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import uk.gov.companieshouse.api.appointment.FullRecordCompanyOfficerApi;
 import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentDocument;
-import uk.gov.companieshouse.company_appointments.repository.CompanyAppointmentFullRecordRepository;
+import uk.gov.companieshouse.company_appointments.repository.CompanyAppointmentRepository;
 
 public class FullRecordAppointmentSteps {
 
@@ -49,7 +49,7 @@ public class FullRecordAppointmentSteps {
     protected TestRestTemplate restTemplate;
 
     @Autowired
-    private CompanyAppointmentFullRecordRepository companyAppointmentFullRecordRepository;
+    private CompanyAppointmentRepository companyAppointmentRepository;
 
     @Given("the user is authenticated and authorised with internal app privileges")
     public void userIsAuthenticatedAndAuthorisedWithInternalAppPrivileges() {
@@ -75,12 +75,12 @@ public class FullRecordAppointmentSteps {
 
     @Given("the record does not already exist in the database")
     public void noRecordsInDatabase() {
-        companyAppointmentFullRecordRepository.deleteAll();
+        companyAppointmentRepository.deleteAll();
     }
 
     @Given("the delta for payload {string} is the most recent delta for {string}")
     public void thisDeltaIsNotStale(String dataFile, String appointmentId) throws IOException {
-        CompanyAppointmentDocument actual = companyAppointmentFullRecordRepository.findById(appointmentId)
+        CompanyAppointmentDocument actual = companyAppointmentRepository.findById(appointmentId)
                 .orElseThrow(IllegalArgumentException :: new);
 
         File file = new ClassPathResource("input/" + dataFile + ".json").getFile();
@@ -93,7 +93,7 @@ public class FullRecordAppointmentSteps {
 
     @Given("the delta for payload {string} is a stale delta for {string}")
     public void thisDeltaIsStale(String payloadFile, String appointmentId) throws IOException {
-        CompanyAppointmentDocument actual = companyAppointmentFullRecordRepository.findById(appointmentId)
+        CompanyAppointmentDocument actual = companyAppointmentRepository.findById(appointmentId)
                 .orElseThrow(IllegalArgumentException::new);
 
         File file = new ClassPathResource("input/" + payloadFile + ".json").getFile();
@@ -106,7 +106,7 @@ public class FullRecordAppointmentSteps {
 
     @Given("the record is not present in the delta_appointment database")
     public void recordNotFoundInDeltaAppointmentDatabase() {
-        companyAppointmentFullRecordRepository.deleteAll();
+        companyAppointmentRepository.deleteAll();
     }
 
     @When("a request is sent to the PUT endpoint to upsert an officers delta")
@@ -169,7 +169,7 @@ public class FullRecordAppointmentSteps {
 
     @Then("the record should be saved")
     public void hasRecordSaved() {
-        CompanyAppointmentDocument appointment = companyAppointmentFullRecordRepository.findById(APPOINTMENT_ID)
+        CompanyAppointmentDocument appointment = companyAppointmentRepository.findById(APPOINTMENT_ID)
                 .orElseThrow(IllegalArgumentException:: new);
         FullRecordCompanyOfficerApi fullRecordCompanyOfficerApi = CONTEXT.get("getRecord");
 
@@ -181,7 +181,7 @@ public class FullRecordAppointmentSteps {
 
     @Then("the changes within the delta for {string} should NOT be persisted in the database")
     public void deltaUpdateNotSavedInDatabase(String appointmentId) {
-        CompanyAppointmentDocument appointment = companyAppointmentFullRecordRepository.findById(appointmentId)
+        CompanyAppointmentDocument appointment = companyAppointmentRepository.findById(appointmentId)
                 .orElseThrow(IllegalArgumentException::new);
         FullRecordCompanyOfficerApi fullRecordCompanyOfficerApi = CONTEXT.get("getRecord");
 
@@ -193,14 +193,14 @@ public class FullRecordAppointmentSteps {
 
     @Then("the record should NOT be deleted")
     public void recordShouldNotBeDeleted() {
-        CompanyAppointmentDocument appointment = companyAppointmentFullRecordRepository.findById(APPOINTMENT_ID)
+        CompanyAppointmentDocument appointment = companyAppointmentRepository.findById(APPOINTMENT_ID)
                 .orElseThrow(IllegalArgumentException:: new);
         assertThat(appointment).isNotNull();
     }
 
     @Then("the record should be deleted successfully")
     public void recordShouldBeDeletedSuccessFully() {
-        Optional<CompanyAppointmentDocument> appointment = companyAppointmentFullRecordRepository.findById(APPOINTMENT_ID);
+        Optional<CompanyAppointmentDocument> appointment = companyAppointmentRepository.findById(APPOINTMENT_ID);
         assertThat(appointment).isEmpty();
     }
 }

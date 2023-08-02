@@ -26,7 +26,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import uk.gov.companieshouse.api.appointment.FullRecordCompanyOfficerApi;
 import uk.gov.companieshouse.company_appointments.CompanyAppointmentsApplication;
 import uk.gov.companieshouse.company_appointments.api.ResourceChangedApiService;
-import uk.gov.companieshouse.company_appointments.repository.CompanyAppointmentFullRecordRepository;
+import uk.gov.companieshouse.company_appointments.repository.CompanyAppointmentRepository;
 
 @Testcontainers
 @AutoConfigureMockMvc
@@ -49,7 +49,7 @@ class CompanyAppointmentFullRecordControllerMongoUnavailableITest {
     private ResourceChangedApiService resourceChangedApiService;
 
     @MockBean
-    private CompanyAppointmentFullRecordRepository fullRecordRepository;
+    private CompanyAppointmentRepository fullRecordRepository;
 
     @Container
     private static final MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:4.4");

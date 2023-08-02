@@ -21,7 +21,7 @@ import uk.gov.companieshouse.company_appointments.model.data.DeltaTimestamp;
 import uk.gov.companieshouse.company_appointments.model.data.ResourceChangedRequest;
 import uk.gov.companieshouse.company_appointments.model.transformer.DeltaAppointmentTransformer;
 import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentFullRecordView;
-import uk.gov.companieshouse.company_appointments.repository.CompanyAppointmentFullRecordRepository;
+import uk.gov.companieshouse.company_appointments.repository.CompanyAppointmentRepository;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.logging.LoggerFactory;
 
@@ -31,14 +31,14 @@ public class CompanyAppointmentFullRecordService {
     private static final Logger LOGGER = LoggerFactory.getLogger(CompanyAppointmentsApplication.APPLICATION_NAMESPACE);
 
     private final DeltaAppointmentTransformer deltaAppointmentTransformer;
-    private final CompanyAppointmentFullRecordRepository companyAppointmentRepository;
+    private final CompanyAppointmentRepository companyAppointmentRepository;
     private final ResourceChangedApiService resourceChangedApiService;
     private final Clock clock;
     
     @Autowired
     public CompanyAppointmentFullRecordService(
             DeltaAppointmentTransformer deltaAppointmentTransformer,
-            CompanyAppointmentFullRecordRepository companyAppointmentRepository, ResourceChangedApiService resourceChangedApiService, Clock clock) {
+            CompanyAppointmentRepository companyAppointmentRepository, ResourceChangedApiService resourceChangedApiService, Clock clock) {
         this.deltaAppointmentTransformer = deltaAppointmentTransformer;
         this.companyAppointmentRepository = companyAppointmentRepository;
         this.resourceChangedApiService = resourceChangedApiService;

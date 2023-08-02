@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Collections;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,13 +18,16 @@ import uk.gov.companieshouse.api.appointment.OfficerLinkTypes;
 import uk.gov.companieshouse.api.appointment.OfficerSummary;
 import uk.gov.companieshouse.api.appointment.PrincipalOfficeAddress;
 import uk.gov.companieshouse.company_appointments.mapper.CompanyAppointmentMapper;
-import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentData;
-import uk.gov.companieshouse.company_appointments.model.data.ContactDetailsData;
-import uk.gov.companieshouse.company_appointments.model.data.FormerNamesData;
-import uk.gov.companieshouse.company_appointments.model.data.IdentificationData;
-import uk.gov.companieshouse.company_appointments.model.data.LinksData;
-import uk.gov.companieshouse.company_appointments.model.data.OfficerData;
-import uk.gov.companieshouse.company_appointments.model.data.ServiceAddressData;
+import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentDocument;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaContactDetails;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaFormerNames;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaIdentification;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaItemLinkTypes;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaOfficerData;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaOfficerLinkTypes;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaPrincipalOfficeAddress;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaSensitiveData;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaServiceAddress;
 import uk.gov.companieshouse.company_appointments.roles.SecretarialRoles;
 
 class CompanyAppointmentMapperTest {
@@ -39,7 +43,8 @@ class CompanyAppointmentMapperTest {
     @Test
     void testCompanyAppointmentMapperForenameAndOtherForenames() {
         //when
-        OfficerSummary actual = companyAppointmentMapper.map(companyAppointmentData(personalAppointmentDataWithOtherForenames()));
+        OfficerSummary actual = companyAppointmentMapper.map(
+                companyAppointmentData(personalAppointmentDataWithOtherForenames()));
 
         //then
         assertEquals(personalAppointmentViewWithOtherForenames(), actual);
@@ -48,7 +53,8 @@ class CompanyAppointmentMapperTest {
     @Test
     void testCompanyAppointmentMapperNoOtherForenames() {
         //when
-        OfficerSummary actual = companyAppointmentMapper.map(companyAppointmentData(personalAppointmentDataWithNoOtherForenames()));
+        OfficerSummary actual = companyAppointmentMapper.map(
+                companyAppointmentData(personalAppointmentDataWithNoOtherForenames()));
 
         //then
         assertEquals(personalAppointmentViewWithNoOtherForenames(), actual);
@@ -57,7 +63,8 @@ class CompanyAppointmentMapperTest {
     @Test
     void testCompanyAppointmentMapperNoForenameOrOtherForenames() {
         //when
-        OfficerSummary actual = companyAppointmentMapper.map(companyAppointmentData(personalAppointmentDataWithNoForenameOrOtherForenames()));
+        OfficerSummary actual = companyAppointmentMapper.map(
+                companyAppointmentData(personalAppointmentDataWithNoForenameOrOtherForenames()));
 
         //then
         assertEquals(personalAppointmentViewWithNoForenamesOrOtherForenames(), actual);
@@ -66,7 +73,8 @@ class CompanyAppointmentMapperTest {
     @Test
     void testCompanyAppointmentMapperNoForenameAndOtherForenames() {
         //when
-        OfficerSummary actual = companyAppointmentMapper.map(companyAppointmentData(personalAppointmentDataWithNoForenameAndOtherForenames()));
+        OfficerSummary actual = companyAppointmentMapper.map(
+                companyAppointmentData(personalAppointmentDataWithNoForenameAndOtherForenames()));
 
         //then
         assertEquals(personalAppointmentViewWithNoForenamesAndOtherForenames(), actual);
@@ -75,7 +83,8 @@ class CompanyAppointmentMapperTest {
     @Test
     void testCompanyAppointmentMapperWithForenamesAndTitle() {
         //when
-        OfficerSummary actual = companyAppointmentMapper.map(companyAppointmentData(personalAppointmentDataWithForenamesAndTitle()));
+        OfficerSummary actual = companyAppointmentMapper.map(
+                companyAppointmentData(personalAppointmentDataWithForenamesAndTitle()));
 
         //then
         assertEquals(personalAppointmentViewWithForenamesAndTitle(), actual);
@@ -84,7 +93,8 @@ class CompanyAppointmentMapperTest {
     @Test
     void testCompanyAppointmentMapperWithForenamesOmitsTitle() {
         //when
-        OfficerSummary actual = companyAppointmentMapper.map(companyAppointmentData(personalAppointmentDataWithNoForenamesOmitsTitle()));
+        OfficerSummary actual = companyAppointmentMapper.map(
+                companyAppointmentData(personalAppointmentDataWithNoForenamesOmitsTitle()));
 
         //then
         assertEquals(personalAppointmentViewWithNoForenamesOmitsTitle(), actual);
@@ -102,7 +112,8 @@ class CompanyAppointmentMapperTest {
     @Test
     void testCompanyAppointmentMapperWithFormerName() {
         //when
-        OfficerSummary actual = companyAppointmentMapper.map(companyAppointmentData(personalAppointmentDataWithFormerNames()));
+        OfficerSummary actual = companyAppointmentMapper.map(
+                companyAppointmentData(personalAppointmentDataWithFormerNames()));
 
         //then
         assertEquals(personalAppointmentViewWithFormerNames(), actual);
@@ -111,7 +122,8 @@ class CompanyAppointmentMapperTest {
     @Test
     void testCompanyAppointmentMapperWithoutServiceAddress() {
         //when
-        OfficerSummary actual = companyAppointmentMapper.map(companyAppointmentData(personalAppointmentDataWithoutServiceAddress()));
+        OfficerSummary actual = companyAppointmentMapper.map(
+                companyAppointmentData(personalAppointmentDataWithoutServiceAddress()));
 
         //then
         assertEquals(personalAppointmentViewWithoutServiceAddress(), actual);
@@ -120,7 +132,8 @@ class CompanyAppointmentMapperTest {
     @Test
     void testCompanyAppointmentMapperWithoutLinks() {
         //when
-        OfficerSummary actual = companyAppointmentMapper.map(companyAppointmentData(personalAppointmentDataWithoutLinks()));
+        OfficerSummary actual = companyAppointmentMapper.map(
+                companyAppointmentData(personalAppointmentDataWithoutLinks()));
 
         //then
         assertEquals(personalAppointmentViewWithoutLinks(), actual);
@@ -129,7 +142,8 @@ class CompanyAppointmentMapperTest {
     @Test
     void testCompanyAppointmentMapperWithoutAppointmentLink() {
         //when
-        OfficerSummary actual = companyAppointmentMapper.map(companyAppointmentData(personalAppointmentDataWithoutAppointmentLink()));
+        OfficerSummary actual = companyAppointmentMapper.map(
+                companyAppointmentData(personalAppointmentDataWithoutAppointmentLink()));
 
         //then
         assertEquals(personalAppointmentViewWithoutAppointmentLink(), actual);
@@ -138,17 +152,19 @@ class CompanyAppointmentMapperTest {
     @Test
     void testCompanyAppointmentMapperWithoutDateOfBirth() {
         //when
-        OfficerSummary actual = companyAppointmentMapper.map(companyAppointmentData(personalAppointmentDataWithoutDateOfBirth()));
+        OfficerSummary actual = companyAppointmentMapper.map(
+                companyAppointmentData(personalAppointmentDataWithoutDateOfBirth()));
 
         //then
         assertEquals(personalAppointmentViewWithoutDateOfBirth(), actual);
     }
 
     @Test
-    void testCompanyAppointmentMapperDoesNotMapCountryOfResidenceOrDOBForSecretarialRoles(){
+    void testCompanyAppointmentMapperDoesNotMapCountryOfResidenceOrDOBForSecretarialRoles() {
         SecretarialRoles.stream().forEach(s -> {
             //when
-            OfficerSummary actual = companyAppointmentMapper.map(companyAppointmentData(personalAppointmentDataForSecretarialRole(s)));
+            OfficerSummary actual = companyAppointmentMapper.map(
+                    companyAppointmentData(personalAppointmentDataForSecretarialRole(s)));
 
             //then
             assertEquals(personalAppointmentViewOmitCountryOfResidenceAndDOBForSecretarialRole(s), actual);
@@ -158,7 +174,8 @@ class CompanyAppointmentMapperTest {
     @Test
     void testCompanyAppointmentMapperWithResponsibilities() {
         //when
-        OfficerSummary actual = companyAppointmentMapper.map(companyAppointmentData(personalAppointmentDataWithResponsibilities()));
+        OfficerSummary actual = companyAppointmentMapper.map(
+                companyAppointmentData(personalAppointmentDataWithResponsibilities()));
 
         //then
         assertEquals(personalAppointmentViewResponsibilities(), actual);
@@ -167,7 +184,8 @@ class CompanyAppointmentMapperTest {
     @Test
     void testCompanyAppointmentMapperWithPrincipalOfficeAddress() {
         //when
-        OfficerSummary actual = companyAppointmentMapper.map(companyAppointmentData(personalAppointmentDataWithPrincipalOfficeAddress()));
+        OfficerSummary actual = companyAppointmentMapper.map(
+                companyAppointmentData(personalAppointmentDataWithPrincipalOfficeAddress()));
 
         //then
         assertEquals(personalAppointmentViewPrincipalOfficeAddress(), actual);
@@ -176,16 +194,18 @@ class CompanyAppointmentMapperTest {
     @Test
     void testCompanyAppointmentMapperContactDetails() {
         //when
-        OfficerSummary actual = companyAppointmentMapper.map(companyAppointmentData(personalAppointmentDataWithContactDetails()));
+        OfficerSummary actual = companyAppointmentMapper.map(
+                companyAppointmentData(personalAppointmentDataWithContactDetails()));
 
         //then
         assertEquals(personalAppointmentViewWithContactDetails(), actual);
     }
 
     @Test
-    void testCompanyAppointmentMapperWithRegisterViewTrue(){
+    void testCompanyAppointmentMapperWithRegisterViewTrue() {
         //when
-        OfficerSummary actual = companyAppointmentMapper.map(companyAppointmentData(personalAppointmentDataWithFullDateOfBirth()), true);
+        OfficerSummary actual = companyAppointmentMapper.map(
+                companyAppointmentData(officerData().build(), sensitiveData()), true);
         //then
         assertEquals(personalAppointmentViewWithFullDateOfBirth(), actual);
     }
@@ -196,72 +216,93 @@ class CompanyAppointmentMapperTest {
         OfficerSummary expected = pre1992AppointmentSummary();
 
         // when
-        OfficerSummary actual = companyAppointmentMapper.map(companyAppointmentData(pre1992AppointmentData()));
+        OfficerSummary actual = companyAppointmentMapper.map(
+                companyAppointmentData(pre1992AppointmentData(), sensitiveData()));
 
         // then
         assertEquals(expected, actual);
     }
 
-    private CompanyAppointmentData companyAppointmentData(OfficerData officerData) {
-        return new CompanyAppointmentData("123", officerData, "active");
+    private CompanyAppointmentDocument companyAppointmentData(DeltaOfficerData officerData) {
+        return companyAppointmentData(officerData, new DeltaSensitiveData());
     }
 
-    private OfficerData.Builder officerData() {
-        return OfficerData.builder()
-                .withAppointedOn(LocalDateTime.of(2020, 8, 26, 12, 0))
-                .withResignedOn(LocalDateTime.of(2020, 8, 26, 13, 0))
-                .withCountryOfResidence("Country")
-                .withDateOfBirth(LocalDateTime.of(1980, 1, 1, 12, 0))
-                .withLinks(new LinksData("/company/12345678/appointment/123", "/officers/abc", "/officers/abc/appointments"))
-                .withNationality("Nationality")
-                .withOccupation("Occupation")
-                .withOfficerRole(OfficerSummary.OfficerRoleEnum.MANAGING_OFFICER.toString())
-                .withEtag("ETAG")
-                .withServiceAddress(ServiceAddressData.builder()
-                        .withAddressLine1("Address 1")
-                        .withAddressLine2("Address 2")
-                        .withCareOf("Care of")
-                        .withCountry("Country")
-                        .withLocality("Locality")
-                        .withPostcode("AB01 9XY")
-                        .withPoBox("PO Box")
-                        .withPremises("Premises")
-                        .withRegion("Region")
-                        .build())
-                .withResponsibilities("responsibilities")
-                .withPrincipalOfficeAddress(ServiceAddressData.builder()
-                        .withAddressLine1("Address 1")
-                        .withAddressLine2("Address 2")
-                        .withCareOf("Care of")
-                        .withCountry("Country")
-                        .withLocality("Locality")
-                        .withPostcode("AB01 9XY")
-                        .withPoBox("PO Box")
-                        .withPremises("Premises")
-                        .withRegion("Region")
-                        .build())
-                .withContactDetails(ContactDetailsData.builder()
-                        .withContactName("Name")
-                        .build());
+    private CompanyAppointmentDocument companyAppointmentData(DeltaOfficerData officerData,
+            DeltaSensitiveData sensitiveData) {
+        return CompanyAppointmentDocument.Builder.builder()
+                .withId("123")
+                .withData(officerData)
+                .withSensitiveData(sensitiveData)
+                .withCompanyStatus("active")
+                .build();
     }
 
-    private OfficerData pre1992AppointmentData() {
-        return OfficerData.builder()
-                .withIsPre1992Appointment(true)
-                .withAppointedBefore("1991-11-10")
-                .withResignedOn(LocalDateTime.of(2020, 8, 26, 13, 0))
-                .withCountryOfResidence("Country")
-                .withDateOfBirth(LocalDateTime.of(1980, 1, 1, 12, 0))
-                .withLinks(new LinksData("/company/12345678/appointment/123", "/officers/abc", "/officers/abc/appointments"))
-                .withNationality("Nationality")
-                .withOccupation("Occupation")
-                .withOfficerRole(OfficerSummary.OfficerRoleEnum.DIRECTOR.toString())
-                .withEtag("ETAG")
-                .withServiceAddress(ServiceAddressData.builder()
-                        .withAddressLine1("Address 1")
-                        .withCountry("Country")
-                        .withLocality("Locality")
-                        .build())
+    private DeltaOfficerData.Builder officerData() {
+        return DeltaOfficerData.Builder.builder()
+                .appointedOn(LocalDateTime.of(2020, 8, 26, 12, 0)
+                        .toInstant(ZoneOffset.UTC))
+                .resignedOn(LocalDateTime.of(2020, 8, 26, 13, 0)
+                        .toInstant(ZoneOffset.UTC))
+                .countryOfResidence("Country")
+                .links(new DeltaItemLinkTypes()
+                        .setSelf("/company/12345678/appointment/123")
+                        .setOfficer(new DeltaOfficerLinkTypes()
+                                .setSelf("/officers/abc")
+                                .setAppointments("/officers/abc/appointments")))
+                .nationality("Nationality")
+                .occupation("Occupation")
+                .officerRole(OfficerSummary.OfficerRoleEnum.MANAGING_OFFICER.toString())
+                .etag("ETAG")
+                .serviceAddress(new DeltaServiceAddress()
+                        .setAddressLine1("Address 1")
+                        .setAddressLine2("Address 2")
+//                        .setCareOf("Care of")
+                        .setCountry("Country")
+                        .setLocality("Locality")
+                        .setPostalCode("AB01 9XY")
+//                        .setPoBox("PO Box")
+                        .setPremises("Premises")
+                        .setRegion("Region"))
+                .responsibilities("responsibilities")
+                .principalOfficeAddress(new DeltaPrincipalOfficeAddress()
+                        .setAddressLine1("Address 1")
+                        .setAddressLine2("Address 2")
+                        .setCareOf("Care of")
+                        .setCountry("Country")
+                        .setLocality("Locality")
+                        .setPostalCode("AB01 9XY")
+                        .setPoBox("PO Box")
+                        .setPremises("Premises")
+                        .setRegion("Region"))
+                .contactDetails(new DeltaContactDetails().setContactName("Name"));
+    }
+
+    private DeltaSensitiveData sensitiveData() {
+        return new DeltaSensitiveData().setDateOfBirth(
+                LocalDateTime.of(1980, 1, 1, 12, 0).toInstant(ZoneOffset.UTC));
+    }
+
+    private DeltaOfficerData pre1992AppointmentData() {
+        return DeltaOfficerData.Builder.builder()
+                .isPre1992Appointment(true)
+                .appointedBefore(LocalDateTime.of(1991, 11, 10, 0, 0)
+                        .toInstant(ZoneOffset.UTC))
+                .resignedOn(LocalDateTime.of(2020, 8, 26, 13, 0)
+                        .toInstant(ZoneOffset.UTC))
+                .countryOfResidence("Country")
+                .links(new DeltaItemLinkTypes()
+                        .setSelf("/company/12345678/appointment/123")
+                        .setOfficer(new DeltaOfficerLinkTypes()
+                                .setSelf("/officers/abc")
+                                .setAppointments("/officers/abc/appointments")))
+                .nationality("Nationality")
+                .occupation("Occupation")
+                .officerRole(OfficerSummary.OfficerRoleEnum.DIRECTOR.toString())
+                .etag("ETAG")
+                .serviceAddress(new DeltaServiceAddress()
+                        .setAddressLine1("Address 1")
+                        .setCountry("Country")
+                        .setLocality("Locality"))
                 .build();
     }
 
@@ -285,133 +326,130 @@ class CompanyAppointmentMapperTest {
                         .locality("Locality"));
     }
 
-    private OfficerData personalAppointmentDataWithOtherForenames() {
-        return officerData().withForename("Forename")
-                .withOtherForenames("Other-Forename")
-                .withSurname("SURNAME")
+    private DeltaOfficerData personalAppointmentDataWithOtherForenames() {
+        return officerData().forename("Forename")
+                .otherForenames("Other-Forename")
+                .surname("SURNAME")
                 .build();
     }
 
-    private OfficerData personalAppointmentDataWithNoOtherForenames() {
-        return officerData().withForename("Forename")
-                .withSurname("SURNAME")
+    private DeltaOfficerData personalAppointmentDataWithNoOtherForenames() {
+        return officerData().forename("Forename")
+                .surname("SURNAME")
                 .build();
     }
 
-    private OfficerData personalAppointmentDataWithNoForenameOrOtherForenames() {
+    private DeltaOfficerData personalAppointmentDataWithNoForenameOrOtherForenames() {
         return officerData()
-                .withSurname("SURNAME")
+                .surname("SURNAME")
                 .build();
     }
 
-    private OfficerData personalAppointmentDataWithNoForenameAndOtherForenames() {
+    private DeltaOfficerData personalAppointmentDataWithNoForenameAndOtherForenames() {
         return officerData()
-                .withSurname("SURNAME")
-                .withOtherForenames("Other-Forename")
+                .surname("SURNAME")
+                .otherForenames("Other-Forename")
                 .build();
     }
 
-    private OfficerData personalAppointmentDataWithForenamesAndTitle() {
-        return officerData().withForename("Forename")
-                .withOtherForenames("Other-Forename")
-                .withSurname("SURNAME")
-                .withTitle("Dr")
+    private DeltaOfficerData personalAppointmentDataWithForenamesAndTitle() {
+        return officerData().forename("Forename")
+                .otherForenames("Other-Forename")
+                .surname("SURNAME")
+                .title("Dr")
                 .build();
     }
 
-    private OfficerData personalAppointmentDataWithNoForenamesOmitsTitle() {
+    private DeltaOfficerData personalAppointmentDataWithNoForenamesOmitsTitle() {
         return officerData()
-                .withSurname("SURNAME")
-                .withTitle("Mr")
+                .surname("SURNAME")
+                .title("Mr")
                 .build();
     }
 
-    private OfficerData corporateAppointmentData() {
+    private DeltaOfficerData corporateAppointmentData() {
         return officerData()
-                .withCompanyName("Company Name")
-                .withIdentification(IdentificationData.builder()
-                .withIdentificationType(IDENTIFICATION_TYPE)
-                .withLegalAuthority("Legal authority")
-                .withLegalForm("Legal form")
-                .withPlaceRegistered("Place registered")
-                .withRegistrationNumber("Registration number")
-                .build())
+                .companyName("Company Name")
+                .identification(new DeltaIdentification()
+                        .setIdentificationType(IDENTIFICATION_TYPE)
+                        .setLegalAuthority("Legal authority")
+                        .setLegalForm("Legal form")
+                        .setPlaceRegistered("Place registered")
+                        .setRegistrationNumber("Registration number"))
                 .build();
     }
 
-    private OfficerData personalAppointmentDataWithFormerNames() {
+    private DeltaOfficerData personalAppointmentDataWithFormerNames() {
         return officerData()
-                .withForename("Forename")
-                .withSurname("SURNAME")
-                .withFormerNames(Collections.singletonList(new FormerNamesData("Forename", "Surname")))
+                .forename("Forename")
+                .surname("SURNAME")
+                .formerNames(Collections.singletonList(new DeltaFormerNames()
+                        .setForenames("Forename")
+                        .setSurname("Surname")))
                 .build();
     }
 
-    private OfficerData personalAppointmentDataWithoutServiceAddress() {
+    private DeltaOfficerData personalAppointmentDataWithoutServiceAddress() {
         return officerData()
-                .withForename("Forename")
-                .withSurname("SURNAME")
-                .withServiceAddress(null)
+                .forename("Forename")
+                .surname("SURNAME")
+                .serviceAddress(null)
                 .build();
     }
 
-    private OfficerData personalAppointmentDataWithoutLinks() {
+    private DeltaOfficerData personalAppointmentDataWithoutLinks() {
         return officerData()
-                .withForename("Forename")
-                .withSurname("SURNAME")
-                .withLinks(null)
+                .forename("Forename")
+                .surname("SURNAME")
+                .links(null)
                 .build();
     }
 
-    private OfficerData personalAppointmentDataWithoutAppointmentLink() {
+    private DeltaOfficerData personalAppointmentDataWithoutAppointmentLink() {
         return officerData()
-                .withForename("Forename")
-                .withSurname("SURNAME")
-                .withLinks(new LinksData(null, null))
+                .forename("Forename")
+                .surname("SURNAME")
+                .links(new DeltaItemLinkTypes())
                 .build();
     }
 
-    private OfficerData personalAppointmentDataWithoutDateOfBirth() {
+    private DeltaOfficerData personalAppointmentDataWithoutDateOfBirth() {
         return officerData()
-                .withForename("Forename")
-                .withSurname("SURNAME")
-                .withDateOfBirth(null)
+                .forename("Forename")
+                .surname("SURNAME")
                 .build();
     }
 
-    private OfficerData personalAppointmentDataForSecretarialRole(SecretarialRoles secretary){
+    private DeltaOfficerData personalAppointmentDataForSecretarialRole(SecretarialRoles secretary) {
         return officerData()
-                .withOfficerRole(secretary.getRole())
+                .officerRole(secretary.getRole())
                 .build();
     }
 
-    private OfficerData personalAppointmentDataWithResponsibilities() {
+    private DeltaOfficerData personalAppointmentDataWithResponsibilities() {
         return officerData()
-                .withResponsibilities("responsibilities")
+                .responsibilities("responsibilities")
                 .build();
     }
 
-    private OfficerData personalAppointmentDataWithPrincipalOfficeAddress() {
+    private DeltaOfficerData personalAppointmentDataWithPrincipalOfficeAddress() {
         return officerData()
-                .withPrincipalOfficeAddress(ServiceAddressData.builder()
-                        .withAddressLine1("Address 1")
-                        .withAddressLine2("Address 2")
-                        .withCareOf("Care of")
-                        .withCountry("Country")
-                        .withLocality("Locality")
-                        .withPostcode("AB01 9XY")
-                        .withPoBox("PO Box")
-                        .withPremises("Premises")
-                        .withRegion("Region")
-                        .build())
+                .principalOfficeAddress(new DeltaPrincipalOfficeAddress()
+                        .setAddressLine1("Address 1")
+                        .setAddressLine2("Address 2")
+//                        .setCareOf("Care of")
+                        .setCountry("Country")
+                        .setLocality("Locality")
+                        .setPostalCode("AB01 9XY")
+//                        .setPoBox("PO Box")
+                        .setPremises("Premises")
+                        .setRegion("Region"))
                 .build();
     }
 
-    private OfficerData personalAppointmentDataWithContactDetails() {
+    private DeltaOfficerData personalAppointmentDataWithContactDetails() {
         return officerData()
-                .withContactDetails(ContactDetailsData.builder()
-                        .withContactName("John")
-                        .build())
+                .contactDetails(new DeltaContactDetails().setContactName("John"))
                 .build();
     }
 
@@ -463,12 +501,6 @@ class CompanyAppointmentMapperTest {
                 .dateOfBirth(new DateOfBirth().day(1).month(1).year(1980));
     }
 
-    private OfficerData personalAppointmentDataWithFullDateOfBirth() {
-        return officerData()
-                .withDateOfBirth(LocalDateTime.of(1980,1, 1, 0, 12))
-                .build();
-    }
-
     private OfficerSummary personalAppointmentViewWithOtherForenames() {
         return expectedCompanyAppointment()
                 .name("SURNAME, Forename Other-Forename");
@@ -503,11 +535,11 @@ class CompanyAppointmentMapperTest {
         return expectedCompanyAppointment()
                 .name("Company Name")
                 .identification(new CorporateIdent()
-                    .identificationType(CorporateIdent.IdentificationTypeEnum.fromValue(IDENTIFICATION_TYPE))
-                .legalAuthority("Legal authority")
-                .legalForm("Legal form")
-                .placeRegistered("Place registered")
-                .registrationNumber("Registration number"));
+                        .identificationType(CorporateIdent.IdentificationTypeEnum.fromValue(IDENTIFICATION_TYPE))
+                        .legalAuthority("Legal authority")
+                        .legalForm("Legal form")
+                        .placeRegistered("Place registered")
+                        .registrationNumber("Registration number"));
     }
 
     private OfficerSummary personalAppointmentViewWithFormerNames() {
@@ -540,7 +572,8 @@ class CompanyAppointmentMapperTest {
                 .dateOfBirth(null);
     }
 
-    private OfficerSummary personalAppointmentViewOmitCountryOfResidenceAndDOBForSecretarialRole(SecretarialRoles secretary){
+    private OfficerSummary personalAppointmentViewOmitCountryOfResidenceAndDOBForSecretarialRole(
+            SecretarialRoles secretary) {
         return expectedCompanyAppointment()
                 .officerRole(OfficerSummary.OfficerRoleEnum.fromValue(secretary.getRole()))
                 .countryOfResidence(null)

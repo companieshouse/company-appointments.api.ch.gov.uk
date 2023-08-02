@@ -25,8 +25,7 @@ import uk.gov.companieshouse.company_appointments.exception.NotFoundException;
 import uk.gov.companieshouse.company_appointments.exception.ServiceUnavailableException;
 import uk.gov.companieshouse.company_appointments.mapper.CompanyAppointmentMapper;
 import uk.gov.companieshouse.company_appointments.model.FetchAppointmentsRequest;
-import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentData;
-import uk.gov.companieshouse.company_appointments.repository.CompanyAppointmentFullRecordRepository;
+import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentDocument;
 import uk.gov.companieshouse.company_appointments.repository.CompanyAppointmentRepository;
 import uk.gov.companieshouse.company_appointments.util.CompanyStatusValidator;
 import uk.gov.companieshouse.logging.Logger;
@@ -48,7 +47,6 @@ public class CompanyAppointmentService {
     private final CompanyStatusValidator companyStatusValidator;
     private final CompanyRegisterService companyRegisterService;
     private final CompanyMetricsApiService companyMetricsApiService;
-    private final CompanyAppointmentFullRecordRepository fullRecordAppointmentRepository;
     private final Clock clock;
 
     public CompanyAppointmentService(CompanyAppointmentRepository companyAppointmentRepository,
@@ -56,20 +54,18 @@ public class CompanyAppointmentService {
             CompanyRegisterService companyRegisterService,
             CompanyMetricsApiService companyMetricsApiService,
             CompanyStatusValidator companyStatusValidator,
-            CompanyAppointmentFullRecordRepository fullRecordAppointmentRepository,
             Clock clock) {
         this.companyAppointmentRepository = companyAppointmentRepository;
         this.companyAppointmentMapper = companyAppointmentMapper;
         this.companyRegisterService = companyRegisterService;
         this.companyMetricsApiService = companyMetricsApiService;
         this.companyStatusValidator = companyStatusValidator;
-        this.fullRecordAppointmentRepository = fullRecordAppointmentRepository;
         this.clock = clock;
     }
 
     public OfficerSummary fetchAppointment(String companyNumber, String appointmentID) throws NotFoundException {
         LOGGER.debug(String.format("Fetching appointment [%s] for company [%s]", appointmentID, companyNumber));
-        CompanyAppointmentData appointmentData = companyAppointmentRepository.readByCompanyNumberAndAppointmentID(companyNumber, appointmentID)
+        CompanyAppointmentDocument appointmentData = companyAppointmentRepository.readByCompanyNumberAndAppointmentID(companyNumber, appointmentID)
                 .orElseThrow(() -> new NotFoundException(String.format("Appointment [%s] for company [%s] not found", appointmentID, companyNumber)));
         return companyAppointmentMapper.map(appointmentData)
                 .etag(appointmentData.getData().getEtag());
@@ -97,7 +93,7 @@ public class CompanyAppointmentService {
             throw new NotFoundException("Register not held at Companies House");
         }
 
-        List<CompanyAppointmentData> allAppointmentData = companyAppointmentRepository.getCompanyAppointmentData(
+        List<CompanyAppointmentDocument> allAppointmentData = companyAppointmentRepository.getCompanyAppointments(
                 companyNumber, orderBy, registerType, startIndex, itemsPerPage, registerView,
                 filterActiveOnly);
 
@@ -146,7 +142,7 @@ public class CompanyAppointmentService {
                 companyName, companyStatus, companyNumber, getContextId()));
 
         try {
-            long updatedCount = fullRecordAppointmentRepository.patchAppointmentNameStatusInCompany(
+            long updatedCount = companyAppointmentRepository.patchAppointmentNameStatusInCompany(
                     companyNumber,
                     companyName, companyStatus, Instant.now(clock),
                     GenerateEtagUtil.generateEtag());
@@ -180,7 +176,7 @@ public class CompanyAppointmentService {
         LOGGER.debug(String.format("Patching company name: [%s] and company status [%s] for company [%s] with appointment [%s]",
                 companyName, companyStatus, companyNumber, appointmentId));
         try {
-            boolean isUpdated = fullRecordAppointmentRepository.patchAppointmentNameStatus(appointmentId, companyName, companyStatus, Instant.now(clock), GenerateEtagUtil.generateEtag()) == 1L;
+            boolean isUpdated = companyAppointmentRepository.patchAppointmentNameStatus(appointmentId, companyName, companyStatus, Instant.now(clock), GenerateEtagUtil.generateEtag()) == 1L;
             if (!isUpdated) {
                 throw new NotFoundException(String.format("Appointment [%s] for company [%s] not found during PATCH request", appointmentId, companyNumber));
             }
