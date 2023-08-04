@@ -66,19 +66,19 @@ class DeltaAppointmentTransformerIntegrationTest {
         when(client.getCompanyProfile(anyString())).thenReturn(Optional.of(companyProfileData));
 
         CompanyAppointmentDocument expected = new CompanyAppointmentDocument()
-                .setId("id")
-                .setData(deltaOfficerData)
-                .setSensitiveData(deltaSensitiveData)
-                .setInternalId("internalId")
-                .setAppointmentId("id")
-                .setOfficerId("officerId")
-                .setPreviousOfficerId("previousOfficerId")
-                .setCompanyNumber(COMPANY_NUMBER)
-                .setUpdatedBy("updatedBy")
-                .setDeltaAt(Instant.parse("2022-01-12T00:00:00.000000Z"))
-                .setOfficerRoleSortOrder(22)
-                .setCompanyName(COMPANY_NAME)
-                .setCompanyStatus(COMPANY_STATUS);
+                .id("id")
+                .data(deltaOfficerData)
+                .sensitiveData(deltaSensitiveData)
+                .internalId("internalId")
+                .appointmentId("id")
+                .officerId("officerId")
+                .previousOfficerId("previousOfficerId")
+                .companyNumber(COMPANY_NUMBER)
+                .updatedBy("updatedBy")
+                .deltaAt(Instant.parse("2022-01-12T00:00:00.000000Z"))
+                .officerRoleSortOrder(22)
+                .companyName(COMPANY_NAME)
+                .companyStatus(COMPANY_STATUS);
 
         // when
         CompanyAppointmentDocument actual = transformer.transform(buildFullRecordOfficer());

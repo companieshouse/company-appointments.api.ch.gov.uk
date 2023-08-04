@@ -36,23 +36,22 @@ class AppointmentApiRepositoryTest {
 
     @Test
     void insertOrUpdate() {
-        final CompanyAppointmentDocument document = CompanyAppointmentDocument.Builder.builder()
-                .withId("id")
-                .withData(new DeltaOfficerData())
-                .withSensitiveData(new DeltaSensitiveData())
-                .withInternalId("internalId")
-                .withAppointmentId("appointmentId")
-                .withOfficerId("officerId")
-                .withPreviousOfficerId("previousOfficerId")
-                .withCompanyNumber("companyNumber")
-                .withUpdated(new DeltaTimestamp(UPDATED_AT))
-                .withUpdatedBy("updatedBy")
-                .withCreated(new DeltaTimestamp(CREATED_AT))
-                .withDeltaAt(Instant.parse("2022-01-12T00:00:00.000000Z"))
-                .withOfficerRoleSortOrder(22)
-                .withCompanyName("company name")
-                .withCompanyStatus("company status")
-                .build();
+        final CompanyAppointmentDocument document = new CompanyAppointmentDocument()
+                .id("id")
+                .data(new DeltaOfficerData())
+                .sensitiveData(new DeltaSensitiveData())
+                .internalId("internalId")
+                .appointmentId("appointmentId")
+                .officerId("officerId")
+                .previousOfficerId("previousOfficerId")
+                .companyNumber("companyNumber")
+                .updated(new DeltaTimestamp(UPDATED_AT))
+                .updatedBy("updatedBy")
+                .created(new DeltaTimestamp(CREATED_AT))
+                .deltaAt(Instant.parse("2022-01-12T00:00:00.000000Z"))
+                .officerRoleSortOrder(22)
+                .companyName("company name")
+                .companyStatus("company status");
         testRepository.insertOrUpdate(document);
 
         verify(testRepository).save(captor.capture());

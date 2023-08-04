@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.springframework.stereotype.Component;
@@ -37,7 +38,7 @@ import uk.gov.companieshouse.logging.LoggerFactory;
 @Component
 public class CompanyAppointmentMapper {
 
-    private static final String REGEX = "^(?i)(?=m)(?:mrs?|miss|ms|master)$";
+    private static final Pattern REGEX = Pattern.compile("^(?i)(?=m)(?:mrs?|miss|ms|master)$");
     private static final Logger LOGGER = LoggerFactory.getLogger(CompanyAppointmentsApplication.APPLICATION_NAMESPACE);
 
     public OfficerSummary map(CompanyAppointmentDocument companyAppointmentData) {
@@ -115,7 +116,7 @@ public class CompanyAppointmentMapper {
 //                        .careOf(address.getCareOf())
                         .country(address.getCountry())
                         .locality(address.getLocality())
-//                        .postalCode(address.getPostcode())
+                        .postalCode(address.getPostalCode())
 //                        .poBox(address.getPoBox())
 //                      TODO: Map these fields once specs have been fixed to add them
                         .premises(address.getPremises())
@@ -185,7 +186,7 @@ public class CompanyAppointmentMapper {
                             .filter(Objects::nonNull)
                             .collect(Collectors.joining(" ")));
         }
-        if (data.getTitle() != null && !REGEX.matches(data.getTitle())) {
+        if (data.getTitle() != null && !REGEX.matcher(data.getTitle()).matches()) {
             result = String.join(", ", result, data.getTitle());
         }
         return result;

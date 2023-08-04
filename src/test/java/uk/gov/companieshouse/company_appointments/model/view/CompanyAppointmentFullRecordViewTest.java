@@ -42,8 +42,8 @@ class CompanyAppointmentFullRecordViewTest {
     void setUp() {
 
         CompanyAppointmentDocument companyAppointmentDocument = new CompanyAppointmentDocument();
-        companyAppointmentDocument.setData(new DeltaOfficerData());
-        companyAppointmentDocument.setSensitiveData(new DeltaSensitiveData());
+        companyAppointmentDocument.data(new DeltaOfficerData());
+        companyAppointmentDocument.sensitiveData(new DeltaSensitiveData());
 
         companyAppointmentDocument.getData().setServiceAddress(createServiceAddress());
         companyAppointmentDocument.getSensitiveData().setUsualResidentialAddress(createUsualResidentialAddress());

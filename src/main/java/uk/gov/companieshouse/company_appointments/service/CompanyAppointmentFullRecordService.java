@@ -68,7 +68,7 @@ public class CompanyAppointmentFullRecordService {
             DeltaOfficerData officer = companyAppointmentDocument.getData();
 
             if (officer != null) {
-                companyAppointmentDocument.setUpdated(instant);
+                companyAppointmentDocument.updated(instant);
             }
             try {
                 Optional<CompanyAppointmentDocument> existingAppointment = getExistingDelta(companyAppointmentDocument);
@@ -111,7 +111,7 @@ public class CompanyAppointmentFullRecordService {
         LOGGER.debug(String.format("ChsKafka api CHANGED invoked updated successfully for context id: %s and company number: %s",
                 contextId,
                 document.getCompanyNumber()));
-        document.setCreated(instant);
+        document.created(instant);
         companyAppointmentRepository.insertOrUpdate(document);
     }
 

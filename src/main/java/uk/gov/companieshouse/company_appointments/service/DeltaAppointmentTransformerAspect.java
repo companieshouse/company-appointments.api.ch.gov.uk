@@ -41,8 +41,8 @@ public class DeltaAppointmentTransformerAspect {
                                 String companyStatus = data.getCompanyStatus();
                                 String appointmentId = document.getAppointmentId();
 
-                                document.setCompanyName(companyName);
-                                document.setCompanyStatus(companyStatus);
+                                document.companyName(companyName)
+                                        .companyStatus(companyStatus);
 
                                 LOGGER.debug(String.format("Company name [%s] and company status [%s] set on appointment [%s]", companyName, companyStatus, appointmentId));
                             },

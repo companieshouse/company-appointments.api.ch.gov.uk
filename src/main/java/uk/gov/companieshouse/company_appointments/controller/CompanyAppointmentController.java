@@ -45,7 +45,7 @@ public class CompanyAppointmentController {
         }
     }
 
-    @GetMapping(path = "/officers-test")
+    @GetMapping(path = "/officers")
     public ResponseEntity<OfficerList> fetchAppointmentsForCompany(
             @PathVariable("company_number") String companyNumber,
             @RequestParam(required = false) String filter,

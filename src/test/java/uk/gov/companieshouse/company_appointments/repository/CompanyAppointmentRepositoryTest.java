@@ -68,8 +68,8 @@ class CompanyAppointmentRepositoryTest {
 
     @BeforeEach
     void setup() throws IOException {
-        mongoTemplate.dropCollection("appointments");
-        mongoTemplate.createCollection("appointments");
+        mongoTemplate.dropCollection("delta_appointments");
+        mongoTemplate.createCollection("delta_appointments");
 
         templateDocument = Document.parse(
                 IOUtils.resourceToString("/appointment-data.json", StandardCharsets.UTF_8));
@@ -386,6 +386,6 @@ class CompanyAppointmentRepositoryTest {
             officerData.put("resigned_on", resignedOn.toInstant(ZoneOffset.UTC));
         }
 
-        mongoTemplate.insert(templateDocument, "appointments");
+        mongoTemplate.insert(templateDocument, "delta_appointments");
     }
 }

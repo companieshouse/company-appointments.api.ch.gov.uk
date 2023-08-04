@@ -46,17 +46,17 @@ class DeltaAppointmentTransformerTest {
     void testDeltaIsTransformedSuccessfully() throws FailedToTransformException {
         // given
         CompanyAppointmentDocument expected = new CompanyAppointmentDocument()
-                .setId("id")
-                .setData(deltaOfficerData)
-                .setSensitiveData(deltaSensitiveData)
-                .setInternalId("internalId")
-                .setAppointmentId("id")
-                .setOfficerId("officerId")
-                .setPreviousOfficerId("previousOfficerId")
-                .setCompanyNumber("companyNumber")
-                .setUpdatedBy("updatedBy")
-                .setDeltaAt(Instant.parse("2022-01-12T00:00:00.000000Z"))
-                .setOfficerRoleSortOrder(22);
+                .id("id")
+                .data(deltaOfficerData)
+                .sensitiveData(deltaSensitiveData)
+                .internalId("internalId")
+                .appointmentId("id")
+                .officerId("officerId")
+                .previousOfficerId("previousOfficerId")
+                .companyNumber("companyNumber")
+                .updatedBy("updatedBy")
+                .deltaAt(Instant.parse("2022-01-12T00:00:00.000000Z"))
+                .officerRoleSortOrder(22);
 
         FullRecordCompanyOfficerApi fullRecordCompanyOfficerApi = buildFullRecordOfficer();
 

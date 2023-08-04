@@ -8,6 +8,7 @@ import org.springframework.data.mongodb.core.mapping.Field;
 
 @Document(collection = "delta_appointments")
 public class CompanyAppointmentDocument {
+
     @Id
     private String id;
     @Field("data")
@@ -39,32 +40,11 @@ public class CompanyAppointmentDocument {
     @Field("company_status")
     private String companyStatus;
 
-    public CompanyAppointmentDocument() {
-    }
-
-    private CompanyAppointmentDocument(Builder builder) {
-        id = builder.id;
-        data = builder.data;
-        sensitiveData = builder.sensitiveData;
-        internalId = builder.internalId;
-        appointmentId = builder.appointmentId;
-        officerId = builder.officerId;
-        previousOfficerId = builder.previousOfficerId;
-        companyNumber = builder.companyNumber;
-        updated = builder.updated;
-        updatedBy = builder.updatedBy;
-        created = builder.created;
-        deltaAt = builder.deltaAt;
-        officerRoleSortOrder = builder.officerRoleSortOrder;
-        companyName = builder.companyName;
-        companyStatus = builder.companyStatus;
-    }
-
     public String getId() {
         return id;
     }
 
-    public CompanyAppointmentDocument setId(String id) {
+    public CompanyAppointmentDocument id(String id) {
         this.id = id;
         return this;
     }
@@ -73,7 +53,7 @@ public class CompanyAppointmentDocument {
         return data;
     }
 
-    public CompanyAppointmentDocument setData(DeltaOfficerData data) {
+    public CompanyAppointmentDocument data(DeltaOfficerData data) {
         this.data = data;
         return this;
     }
@@ -82,7 +62,8 @@ public class CompanyAppointmentDocument {
         return sensitiveData;
     }
 
-    public CompanyAppointmentDocument setSensitiveData(DeltaSensitiveData sensitiveData) {
+    public CompanyAppointmentDocument sensitiveData(
+            DeltaSensitiveData sensitiveData) {
         this.sensitiveData = sensitiveData;
         return this;
     }
@@ -91,7 +72,7 @@ public class CompanyAppointmentDocument {
         return internalId;
     }
 
-    public CompanyAppointmentDocument setInternalId(String internalId) {
+    public CompanyAppointmentDocument internalId(String internalId) {
         this.internalId = internalId;
         return this;
     }
@@ -100,7 +81,7 @@ public class CompanyAppointmentDocument {
         return appointmentId;
     }
 
-    public CompanyAppointmentDocument setAppointmentId(String appointmentId) {
+    public CompanyAppointmentDocument appointmentId(String appointmentId) {
         this.appointmentId = appointmentId;
         return this;
     }
@@ -109,7 +90,7 @@ public class CompanyAppointmentDocument {
         return officerId;
     }
 
-    public CompanyAppointmentDocument setOfficerId(String officerId) {
+    public CompanyAppointmentDocument officerId(String officerId) {
         this.officerId = officerId;
         return this;
     }
@@ -118,7 +99,7 @@ public class CompanyAppointmentDocument {
         return previousOfficerId;
     }
 
-    public CompanyAppointmentDocument setPreviousOfficerId(String previousOfficerId) {
+    public CompanyAppointmentDocument previousOfficerId(String previousOfficerId) {
         this.previousOfficerId = previousOfficerId;
         return this;
     }
@@ -127,7 +108,7 @@ public class CompanyAppointmentDocument {
         return companyNumber;
     }
 
-    public CompanyAppointmentDocument setCompanyNumber(String companyNumber) {
+    public CompanyAppointmentDocument companyNumber(String companyNumber) {
         this.companyNumber = companyNumber;
         return this;
     }
@@ -136,7 +117,8 @@ public class CompanyAppointmentDocument {
         return updated;
     }
 
-    public CompanyAppointmentDocument setUpdated(DeltaTimestamp updated) {
+    public CompanyAppointmentDocument updated(
+            DeltaTimestamp updated) {
         this.updated = updated;
         return this;
     }
@@ -145,7 +127,7 @@ public class CompanyAppointmentDocument {
         return updatedBy;
     }
 
-    public CompanyAppointmentDocument setUpdatedBy(String updatedBy) {
+    public CompanyAppointmentDocument updatedBy(String updatedBy) {
         this.updatedBy = updatedBy;
         return this;
     }
@@ -154,7 +136,8 @@ public class CompanyAppointmentDocument {
         return created;
     }
 
-    public CompanyAppointmentDocument setCreated(DeltaTimestamp created) {
+    public CompanyAppointmentDocument created(
+            DeltaTimestamp created) {
         this.created = created;
         return this;
     }
@@ -163,7 +146,7 @@ public class CompanyAppointmentDocument {
         return deltaAt;
     }
 
-    public CompanyAppointmentDocument setDeltaAt(Instant deltaAt) {
+    public CompanyAppointmentDocument deltaAt(Instant deltaAt) {
         this.deltaAt = deltaAt;
         return this;
     }
@@ -172,7 +155,7 @@ public class CompanyAppointmentDocument {
         return officerRoleSortOrder;
     }
 
-    public CompanyAppointmentDocument setOfficerRoleSortOrder(int officerRoleSortOrder) {
+    public CompanyAppointmentDocument officerRoleSortOrder(int officerRoleSortOrder) {
         this.officerRoleSortOrder = officerRoleSortOrder;
         return this;
     }
@@ -181,7 +164,7 @@ public class CompanyAppointmentDocument {
         return companyName;
     }
 
-    public CompanyAppointmentDocument setCompanyName(String companyName) {
+    public CompanyAppointmentDocument companyName(String companyName) {
         this.companyName = companyName;
         return this;
     }
@@ -190,113 +173,9 @@ public class CompanyAppointmentDocument {
         return companyStatus;
     }
 
-    public CompanyAppointmentDocument setCompanyStatus(String companyStatus) {
+    public CompanyAppointmentDocument companyStatus(String companyStatus) {
         this.companyStatus = companyStatus;
         return this;
-    }
-
-    public static final class Builder {
-        private String id;
-        private DeltaOfficerData data;
-        private DeltaSensitiveData sensitiveData;
-        private String internalId;
-        private String appointmentId;
-        private String officerId;
-        private String previousOfficerId;
-        private String companyNumber;
-        private DeltaTimestamp updated;
-        private String updatedBy;
-        private DeltaTimestamp created;
-        private Instant deltaAt;
-        private int officerRoleSortOrder;
-        private String companyName;
-        private String companyStatus;
-
-        private Builder() {
-        }
-
-        public static Builder builder() {
-            return new Builder();
-        }
-
-        public Builder withId(String id) {
-            this.id = id;
-            return this;
-        }
-
-        public Builder withData(DeltaOfficerData data) {
-            this.data = data;
-            return this;
-        }
-
-        public Builder withSensitiveData(DeltaSensitiveData sensitiveData) {
-            this.sensitiveData = sensitiveData;
-            return this;
-        }
-
-        public Builder withInternalId(String internalId) {
-            this.internalId = internalId;
-            return this;
-        }
-
-        public Builder withAppointmentId(String appointmentId) {
-            this.appointmentId = appointmentId;
-            return this;
-        }
-
-        public Builder withOfficerId(String officerId) {
-            this.officerId = officerId;
-            return this;
-        }
-
-        public Builder withPreviousOfficerId(String previousOfficerId) {
-            this.previousOfficerId = previousOfficerId;
-            return this;
-        }
-
-        public Builder withCompanyNumber(String companyNumber) {
-            this.companyNumber = companyNumber;
-            return this;
-        }
-
-        public Builder withUpdated(DeltaTimestamp updated) {
-            this.updated = updated;
-            return this;
-        }
-
-        public Builder withUpdatedBy(String updatedBy) {
-            this.updatedBy = updatedBy;
-            return this;
-        }
-
-        public Builder withCreated(DeltaTimestamp created) {
-            this.created = created;
-            return this;
-        }
-
-        public Builder withDeltaAt(Instant deltaAt) {
-            this.deltaAt = deltaAt;
-            return this;
-        }
-
-        public Builder withOfficerRoleSortOrder(int officerRoleSortOrder) {
-            this.officerRoleSortOrder = officerRoleSortOrder;
-            return this;
-        }
-
-        public Builder withCompanyName(String companyName) {
-            this.companyName = companyName;
-            return this;
-        }
-
-        public Builder withCompanyStatus(String companyStatus) {
-            this.companyStatus = companyStatus;
-            return this;
-        }
-
-        public CompanyAppointmentDocument build() {
-            return new CompanyAppointmentDocument(this);
-        }
     }
 
     @Override

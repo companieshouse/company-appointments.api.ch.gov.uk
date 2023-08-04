@@ -110,10 +110,9 @@ class RoleHelperTest {
     }
 
     private CompanyAppointmentDocument buildCompanyAppointmentDocument(DeltaOfficerData data) {
-        return CompanyAppointmentDocument.Builder.builder()
-                .withId("1")
-                .withData(data)
-                .withCompanyStatus("active")
-                .build();
+        return new CompanyAppointmentDocument()
+                .id("1")
+                .data(data)
+                .companyStatus("active");
     }
 }

@@ -802,12 +802,11 @@ class CompanyAppointmentServiceTest {
 
     private CompanyAppointmentDocument buildCompanyAppointmentDocument(DeltaOfficerData data,
             String status) {
-        return CompanyAppointmentDocument.Builder.builder()
-                .withId("1")
-                .withData(data)
-                .withSensitiveData(buildSensitiveData())
-                .withCompanyStatus(status)
-                .build();
+        return new CompanyAppointmentDocument()
+                .id("1")
+                .data(data)
+                .sensitiveData(buildSensitiveData())
+                .companyStatus(status);
     }
 
     private DeltaOfficerData.Builder buildOfficerData() {

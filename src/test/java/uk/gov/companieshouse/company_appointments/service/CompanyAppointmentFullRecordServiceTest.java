@@ -103,6 +103,7 @@ class CompanyAppointmentFullRecordServiceTest {
         DeltaOfficerData data = DeltaOfficerData.Builder.builder()
                 .officerRole("director")
                 .links(new DeltaItemLinkTypes()
+                        .setSelf("self")
                         .setOfficer(new DeltaOfficerLinkTypes()
                                 .setSelf("self")))
                 .build();
@@ -337,38 +338,37 @@ class CompanyAppointmentFullRecordServiceTest {
     @NotNull
     private static CompanyAppointmentDocument buildDeltaAppointmentDocument(Instant existingDeltaAt,
             DeltaOfficerData data, DeltaSensitiveData sensitiveData) {
-        return CompanyAppointmentDocument.Builder.builder()
-                .withId("id")
-                .withData(data)
-                .withSensitiveData(sensitiveData)
-                .withInternalId("internalId")
-                .withAppointmentId("appointmentId")
-                .withOfficerId("officerId")
-                .withPreviousOfficerId("previousOfficerId")
-                .withCompanyNumber("companyNumber")
-                .withUpdated(null)
-                .withUpdatedBy("updatedBy")
-                .withCreated(null)
-                .withDeltaAt(existingDeltaAt)
-                .withOfficerRoleSortOrder(22)
-                .withCompanyName("company name")
-                .withCompanyStatus("company status")
-                .build();
+        return new CompanyAppointmentDocument()
+                .id("id")
+                .data(data)
+                .sensitiveData(sensitiveData)
+                .internalId("internalId")
+                .appointmentId("appointmentId")
+                .officerId("officerId")
+                .previousOfficerId("previousOfficerId")
+                .companyNumber("companyNumber")
+                .updated(null)
+                .updatedBy("updatedBy")
+                .created(null)
+                .deltaAt(existingDeltaAt)
+                .officerRoleSortOrder(22)
+                .companyName("company name")
+                .companyStatus("company status");
     }
 
     private static CompanyAppointmentDocument builtDeltaAppointmentApi(DeltaOfficerData data,
             DeltaSensitiveData sensitiveData, Instant deltaAt) {
         return new CompanyAppointmentDocument()
-                .setId("id")
-                .setData(data)
-                .setSensitiveData(sensitiveData)
-                .setInternalId("internalId")
-                .setAppointmentId("id")
-                .setOfficerId("officerId")
-                .setPreviousOfficerId("previousOfficerId")
-                .setCompanyNumber("companyNumber")
-                .setUpdatedBy("updatedBy")
-                .setDeltaAt(deltaAt)
-                .setOfficerRoleSortOrder(22);
+                .id("id")
+                .data(data)
+                .sensitiveData(sensitiveData)
+                .internalId("internalId")
+                .appointmentId("id")
+                .officerId("officerid")
+                .previousOfficerId("previousOfficerId")
+                .companyNumber("companyNumber")
+                .updatedBy("updatedBy")
+                .deltaAt(deltaAt)
+                .officerRoleSortOrder(22);
     }
 }

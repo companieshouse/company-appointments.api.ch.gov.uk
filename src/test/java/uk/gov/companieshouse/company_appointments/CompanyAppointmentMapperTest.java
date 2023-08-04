@@ -153,7 +153,8 @@ class CompanyAppointmentMapperTest {
     void testCompanyAppointmentMapperWithoutDateOfBirth() {
         //when
         OfficerSummary actual = companyAppointmentMapper.map(
-                companyAppointmentData(personalAppointmentDataWithoutDateOfBirth()));
+                companyAppointmentData(personalAppointmentDataWithoutDateOfBirth())
+                        .sensitiveData(new DeltaSensitiveData()));
 
         //then
         assertEquals(personalAppointmentViewWithoutDateOfBirth(), actual);
@@ -205,7 +206,7 @@ class CompanyAppointmentMapperTest {
     void testCompanyAppointmentMapperWithRegisterViewTrue() {
         //when
         OfficerSummary actual = companyAppointmentMapper.map(
-                companyAppointmentData(officerData().build(), sensitiveData()), true);
+                companyAppointmentData(officerData().build()), true);
         //then
         assertEquals(personalAppointmentViewWithFullDateOfBirth(), actual);
     }
@@ -217,24 +218,18 @@ class CompanyAppointmentMapperTest {
 
         // when
         OfficerSummary actual = companyAppointmentMapper.map(
-                companyAppointmentData(pre1992AppointmentData(), sensitiveData()));
+                companyAppointmentData(pre1992AppointmentData()));
 
         // then
         assertEquals(expected, actual);
     }
 
     private CompanyAppointmentDocument companyAppointmentData(DeltaOfficerData officerData) {
-        return companyAppointmentData(officerData, new DeltaSensitiveData());
-    }
-
-    private CompanyAppointmentDocument companyAppointmentData(DeltaOfficerData officerData,
-            DeltaSensitiveData sensitiveData) {
-        return CompanyAppointmentDocument.Builder.builder()
-                .withId("123")
-                .withData(officerData)
-                .withSensitiveData(sensitiveData)
-                .withCompanyStatus("active")
-                .build();
+        return new CompanyAppointmentDocument()
+                .id("123")
+                .data(officerData)
+                .sensitiveData(sensitiveData())
+                .companyStatus("active");
     }
 
     private DeltaOfficerData.Builder officerData() {
@@ -437,11 +432,11 @@ class CompanyAppointmentMapperTest {
                 .principalOfficeAddress(new DeltaPrincipalOfficeAddress()
                         .setAddressLine1("Address 1")
                         .setAddressLine2("Address 2")
-//                        .setCareOf("Care of")
+                        .setCareOf("Care of")
                         .setCountry("Country")
                         .setLocality("Locality")
                         .setPostalCode("AB01 9XY")
-//                        .setPoBox("PO Box")
+                        .setPoBox("PO Box")
                         .setPremises("Premises")
                         .setRegion("Region"))
                 .build();
@@ -473,11 +468,11 @@ class CompanyAppointmentMapperTest {
                 .address(new Address()
                         .addressLine1("Address 1")
                         .addressLine2("Address 2")
-                        .careOf("Care of")
+//                        .careOf("Care of")
                         .country("Country")
                         .locality("Locality")
                         .postalCode("AB01 9XY")
-                        .poBox("PO Box")
+//                        .poBox("PO Box")
                         .premises("Premises")
                         .region("Region"))
                 .responsibilities("responsibilities")
@@ -587,7 +582,7 @@ class CompanyAppointmentMapperTest {
 
     private OfficerSummary personalAppointmentViewPrincipalOfficeAddress() {
         return expectedCompanyAppointment()
-                .address(new Address()
+                .principalOfficeAddress(new PrincipalOfficeAddress()
                         .addressLine1("Address 1")
                         .addressLine2("Address 2")
                         .careOf("Care of")

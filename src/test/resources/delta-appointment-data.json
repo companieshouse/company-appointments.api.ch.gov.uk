@@ -24,10 +24,10 @@
     },
     "nationality" : "British",
     "occupation" : "Lawyer",
-    "officer_role" : "DIRECTOR",
+    "officer_role" : "director",
     "is_secure_officer" : false,
     "identification" : {
-      "identification_type" : "EEA",
+      "identification_type" : "eea",
       "legal_authority" : "Chapter 32",
       "legal_form" : "Hong Kong",
       "place_registered" : "United Kingdom",
@@ -79,5 +79,7 @@
     "at" : ISODate("2023-02-02T10:36:28.595Z")
   },
   "delta_at" : "2021-04-23T18:25:43.511Z",
-  "officer_role_sort_order" : 20
+  "officer_role_sort_order" : 20,
+  "company_name" : "ART SPACE MERSEYSIDE",
+  "company_status" : "active"
 }
