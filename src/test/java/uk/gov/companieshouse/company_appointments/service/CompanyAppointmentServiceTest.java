@@ -131,7 +131,7 @@ class CompanyAppointmentServiceTest {
 
     @Test
     void testFetchAppointmentForCompanyThrowsNotFoundExceptionIfAppointmentDoesntExist()
-            throws ServiceUnavailableException {
+            throws ServiceUnavailableException, NotFoundException {
         FetchAppointmentsRequest request =
                 FetchAppointmentsRequest.Builder.builder()
                         .withCompanyNumber(COMPANY_NUMBER)
@@ -371,7 +371,7 @@ class CompanyAppointmentServiceTest {
 
     @Test
     void testFetchAppointmentsForCompanyThrowsNotFoundExceptionIfRegisterViewAndNotHeldInCompaniesHouse()
-            throws ServiceUnavailableException {
+            throws ServiceUnavailableException, NotFoundException {
         FetchAppointmentsRequest request =
                 FetchAppointmentsRequest.Builder.builder()
                         .withCompanyNumber(COMPANY_NUMBER)
