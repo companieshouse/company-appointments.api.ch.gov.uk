@@ -20,8 +20,10 @@ class DeltaServiceAddressTransformerTest {
         ServiceAddress source = new ServiceAddress()
                 .addressLine1("address line 1")
                 .addressLine2("address line 2")
+                .careOf("care of")
                 .country("country")
                 .locality("locality")
+                .poBox("po box")
                 .postalCode("postal code")
                 .premises("premises")
                 .region("region");
@@ -29,8 +31,10 @@ class DeltaServiceAddressTransformerTest {
         DeltaServiceAddress expected = new DeltaServiceAddress()
                 .setAddressLine1("address line 1")
                 .setAddressLine2("address line 2")
+                .setCareOf("care of")
                 .setCountry("country")
                 .setLocality("locality")
+                .setPoBox("po box")
                 .setPostalCode("postal code")
                 .setPremises("premises")
                 .setRegion("region");
