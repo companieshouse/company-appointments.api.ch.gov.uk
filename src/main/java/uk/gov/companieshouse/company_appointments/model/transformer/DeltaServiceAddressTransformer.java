@@ -17,11 +17,11 @@ public class DeltaServiceAddressTransformer implements
     public DeltaServiceAddress transform(ServiceAddress source, DeltaServiceAddress entity) {
         entity.setAddressLine1(source.getAddressLine1());
         entity.setAddressLine2(source.getAddressLine2());
-//        entity.setCareOf(source.getCareOf());
+        entity.setCareOf(source.getCareOf());
         entity.setCountry(source.getCountry());
         entity.setLocality(source.getLocality());
+        entity.setPoBox(source.getPoBox());
         entity.setPostalCode(source.getPostalCode());
-//        entity.setPoBox(source.setPoBox());
         entity.setPremises(source.getPremises());
         entity.setRegion(source.getRegion());
         return entity;

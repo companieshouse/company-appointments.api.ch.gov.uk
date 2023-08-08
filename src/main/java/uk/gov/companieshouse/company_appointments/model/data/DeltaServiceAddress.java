@@ -14,10 +14,16 @@ public class DeltaServiceAddress {
   @JsonProperty("address_line_2")
   @Field("address_line_2")
   private String addressLine2;
+  @JsonProperty("care_of")
+  @Field("care_of")
+  private String careOf;
   @Field("country")
   private String country;
   @Field("locality")
   private String locality;
+  @JsonProperty("po_box")
+  @Field("po_box")
+  private String poBox;
   @JsonProperty("postal_code")
   @Field("postal_code")
   private String postalCode;
@@ -44,6 +50,15 @@ public class DeltaServiceAddress {
     return this;
   }
 
+  public String getCareOf() {
+    return careOf;
+  }
+
+  public DeltaServiceAddress setCareOf(String careOf) {
+    this.careOf = careOf;
+    return this;
+  }
+
   public String getCountry() {
     return country;
   }
@@ -59,6 +74,15 @@ public class DeltaServiceAddress {
 
   public DeltaServiceAddress setLocality(String locality) {
     this.locality = locality;
+    return this;
+  }
+
+  public String getPoBox() {
+    return poBox;
+  }
+
+  public DeltaServiceAddress setPoBox(String poBox) {
+    this.poBox = poBox;
     return this;
   }
 
@@ -100,8 +124,10 @@ public class DeltaServiceAddress {
     DeltaServiceAddress serviceAddress = (DeltaServiceAddress) o;
     return Objects.equals(this.addressLine1, serviceAddress.addressLine1) &&
         Objects.equals(this.addressLine2, serviceAddress.addressLine2) &&
+        Objects.equals(this.careOf, serviceAddress.careOf) &&
         Objects.equals(this.country, serviceAddress.country) &&
         Objects.equals(this.locality, serviceAddress.locality) &&
+        Objects.equals(this.poBox, serviceAddress.poBox) &&
         Objects.equals(this.postalCode, serviceAddress.postalCode) &&
         Objects.equals(this.premises, serviceAddress.premises) &&
         Objects.equals(this.region, serviceAddress.region);
@@ -109,7 +135,7 @@ public class DeltaServiceAddress {
 
   @Override
   public int hashCode() {
-    return Objects.hash(addressLine1, addressLine2, country, locality, postalCode, premises, region);
+    return Objects.hash(addressLine1, addressLine2, careOf, country, locality, poBox, postalCode, premises, region);
   }
 
   @Override
@@ -117,8 +143,10 @@ public class DeltaServiceAddress {
     return "class ServiceAddress {\n"
             + "    addressLine1: " + toIndentedString(addressLine1) + "\n"
             + "    addressLine2: " + toIndentedString(addressLine2) + "\n"
+            + "    careOf: " + toIndentedString(careOf) + "\n"
             + "    country: " + toIndentedString(country) + "\n"
             + "    locality: " + toIndentedString(locality) + "\n"
+            + "    poBox: " + toIndentedString(poBox) + "\n"
             + "    postalCode: " + toIndentedString(postalCode) + "\n"
             + "    premises: " + toIndentedString(premises) + "\n"
             + "    region: " + toIndentedString(region) + "\n"
