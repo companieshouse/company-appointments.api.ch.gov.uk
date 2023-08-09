@@ -77,7 +77,6 @@ public class CompanyAppointmentMapper {
                 .contactDetails(mapContactDetails(data.getContactDetails()))
                 .isPre1992Appointment(data.getPre1992Appointment())
                 .personNumber(data.getPersonNumber());
-        // TODO: Map person number when switching to delta_appointments collection
         LOGGER.debug("Mapped data for appointment: " + companyAppointment.getId());
         return result;
     }
@@ -113,12 +112,11 @@ public class CompanyAppointmentMapper {
                 .map(address -> new Address()
                         .addressLine1(address.getAddressLine1())
                         .addressLine2(address.getAddressLine2())
-//                        .careOf(address.getCareOf())
+                        .careOf(address.getCareOf())
                         .country(address.getCountry())
                         .locality(address.getLocality())
                         .postalCode(address.getPostalCode())
-//                        .poBox(address.getPoBox())
-//                      TODO: Map these fields once specs have been fixed to add them
+                        .poBox(address.getPoBox())
                         .premises(address.getPremises())
                         .region(address.getRegion()))
                 .orElse(null);
