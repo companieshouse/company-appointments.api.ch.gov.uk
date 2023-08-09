@@ -6,13 +6,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -29,12 +30,13 @@ import uk.gov.companieshouse.api.officer.FormerNames;
 import uk.gov.companieshouse.api.officer.NameElements;
 import uk.gov.companieshouse.api.officer.OfficerAppointmentSummary;
 import uk.gov.companieshouse.api.officer.OfficerAppointmentSummary.OfficerRoleEnum;
-import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentData;
-import uk.gov.companieshouse.company_appointments.model.data.ContactDetailsData;
-import uk.gov.companieshouse.company_appointments.model.data.FormerNamesData;
-import uk.gov.companieshouse.company_appointments.model.data.IdentificationData;
-import uk.gov.companieshouse.company_appointments.model.data.OfficerData;
-import uk.gov.companieshouse.company_appointments.model.data.ServiceAddressData;
+import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentDocument;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaContactDetails;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaFormerNames;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaIdentification;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaOfficerData;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaPrincipalOfficeAddress;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaServiceAddress;
 
 @ExtendWith(MockitoExtension.class)
 class ItemsMapperTest {
@@ -45,6 +47,8 @@ class ItemsMapperTest {
     private AddressMapper addressMapper;
     @Mock
     private Address address;
+    @Mock
+    private Address principalOfficeAddress;
     @Mock
     private ContactDetailsMapper contactDetailsMapper;
     @Mock
@@ -64,31 +68,39 @@ class ItemsMapperTest {
     @Mock
     private OfficerRoleMapper roleMapper;
     @Mock
-    private ServiceAddressData serviceAddressData;
+    private DeltaServiceAddress serviceAddressData;
     @Mock
-    private ContactDetailsData contactDetailsData;
+    private DeltaPrincipalOfficeAddress deltaPrincipalOfficeAddress;
     @Mock
-    private FormerNamesData formerNamesData;
+    private DeltaContactDetails contactDetailsData;
     @Mock
-    private IdentificationData identificationData;
+    private DeltaFormerNames formerNamesData;
+    @Mock
+    private DeltaIdentification identificationData;
     @Mock
     private NameElements nameElements;
+
+    private final Instant appointedBefore = Instant.from(LocalDate.of(1993, 3, 13).atStartOfDay(ZoneOffset.UTC));
+    private final Instant appointedOn = Instant.from(LocalDate.of(2018, 1, 1).atStartOfDay(ZoneOffset.UTC));
+    private final Instant resignedOn = Instant.from(LocalDate.of(2019, 1, 1).atStartOfDay(ZoneOffset.UTC));
 
     @Test
     @DisplayName("Should map a list of appointments to a list of officer appointments")
     void mapItems() {
         // given
-        when(addressMapper.map(any())).thenReturn(address);
+        when(addressMapper.map(any(DeltaServiceAddress.class))).thenReturn(address);
+        when(addressMapper.map(any(DeltaPrincipalOfficeAddress.class))).thenReturn(principalOfficeAddress);
         when(contactDetailsMapper.map(any())).thenReturn(contactDetails);
         when(nameMapper.map(any())).thenReturn("forename secondForename surname");
-        when(localDateMapper.map(anyString())).thenReturn(LocalDate.of(1993, 3, 13));
-        when(localDateMapper.map((LocalDateTime) any())).thenReturn(LocalDate.of(2018, 1, 1));
+        when(localDateMapper.map(appointedBefore)).thenReturn(LocalDate.of(1993, 3, 13)); // was a string
+        when(localDateMapper.map(appointedOn)).thenReturn(LocalDate.of(2018, 1, 1));
+        when(localDateMapper.map(resignedOn)).thenReturn(LocalDate.of(2019, 1, 1));
         when(formerNamesMapper.map(any())).thenReturn(singletonList(formerNames));
         when(identificationMapper.map(any())).thenReturn(corporateIdent);
         when(roleMapper.mapOfficerRole(anyString())).thenReturn(OfficerRoleEnum.DIRECTOR);
         when(nameMapper.mapNameElements(any())).thenReturn(nameElements);
 
-        List<CompanyAppointmentData> appointmentList = getAppointmentList();
+        List<CompanyAppointmentDocument> appointmentList = getAppointmentList();
 
         List<OfficerAppointmentSummary> expected = getOfficerAppointments();
         // when
@@ -96,9 +108,11 @@ class ItemsMapperTest {
 
         // then
         assertEquals(expected, actual);
-        verify(addressMapper, times(2)).map(serviceAddressData);
-        verify(localDateMapper).map("1993-03-13");
-        verify(localDateMapper, times(2)).map(LocalDateTime.of(2020, 1, 1, 0, 0));
+        verify(addressMapper).map(serviceAddressData);
+        verify(addressMapper).map(deltaPrincipalOfficeAddress);
+        verify(localDateMapper).map(LocalDate.of(1993, 3, 13).atStartOfDay().toInstant(ZoneOffset.UTC));
+        verify(localDateMapper).map(LocalDateTime.of(2018, 1, 1, 0, 0).toInstant(ZoneOffset.UTC));
+        verify(localDateMapper).map(LocalDateTime.of(2019, 1, 1, 0, 0).toInstant(ZoneOffset.UTC));
         verify(contactDetailsMapper).map(contactDetailsData);
         verify(nameMapper).map(buildOfficerData());
         verify(formerNamesMapper).map(singletonList(formerNamesData));
@@ -110,7 +124,7 @@ class ItemsMapperTest {
     @DisplayName("Should return an empty list if the list of appointments is empty")
     void mapEmptyAppointmentsList() {
         // given
-        List<CompanyAppointmentData> appointmentList = emptyList();
+        List<CompanyAppointmentDocument> appointmentList = emptyList();
 
         // when
         List<OfficerAppointmentSummary> actual = mapper.map(appointmentList);
@@ -131,7 +145,7 @@ class ItemsMapperTest {
     @DisplayName("Should return an empty optional if the list of appointments within the aggregate has null officer data")
     void mapNullOfficerData() {
         // given
-        List<CompanyAppointmentData> appointmentList = singletonList(new CompanyAppointmentData());
+        List<CompanyAppointmentDocument> appointmentList = singletonList(new CompanyAppointmentDocument());
 
         // when
         List<OfficerAppointmentSummary> actual = mapper.map(appointmentList);
@@ -148,10 +162,10 @@ class ItemsMapperTest {
         verifyNoInteractions(roleMapper);
     }
 
-    private List<CompanyAppointmentData> getAppointmentList() {
-        OfficerData officerData = buildOfficerData();
+    private List<CompanyAppointmentDocument> getAppointmentList() {
+        DeltaOfficerData officerData = buildOfficerData();
 
-        CompanyAppointmentData data = new CompanyAppointmentData();
+        CompanyAppointmentDocument data = new CompanyAppointmentDocument();
         data.setCompanyStatus("active");
         data.setData(officerData);
         data.setCompanyName("company name");
@@ -159,35 +173,34 @@ class ItemsMapperTest {
         return singletonList(data);
     }
 
-    private OfficerData buildOfficerData() {
-        return OfficerData.builder()
-                .withCompanyNumber("12345678")
-                .withOfficerRole("director")
-                .withTitle("Mrs")
-                .withFormerNames(singletonList(formerNamesData))
-                .withIdentification(identificationData)
-                .withCountryOfResidence("UK")
-                .withContactDetails(contactDetailsData)
-                .withIsPre1992Appointment(false)
-                .withNationality("British")
-                .withForename("forename")
-                .withSurname("surname")
-                .withHonours("FCA")
-                .withResignedOn(LocalDateTime.of(2020, 1, 1, 0, 0))
-                .withOtherForenames("secondForename")
-                .withAppointedOn(LocalDateTime.of(2020, 1, 1, 0, 0))
-                .withAppointedBefore("1993-03-13")
-                .withOccupation("Company Director")
-                .withServiceAddress(serviceAddressData)
-                .withPrincipalOfficeAddress(serviceAddressData)
-                .build();
+    private DeltaOfficerData buildOfficerData() {
+        return new DeltaOfficerData()
+                .setCompanyNumber("12345678")
+                .setOfficerRole("director")
+                .setTitle("Mrs")
+                .setFormerNames(singletonList(formerNamesData))
+                .setIdentification(identificationData)
+                .setCountryOfResidence("UK")
+                .setContactDetails(contactDetailsData)
+                .setPre1992Appointment(false)
+                .setNationality("British")
+                .setForename("forename")
+                .setSurname("surname")
+                .setHonours("FCA")
+                .setResignedOn(resignedOn)
+                .setOtherForenames("secondForename")
+                .setAppointedOn(appointedOn)
+                .setAppointedBefore(appointedBefore)
+                .setOccupation("Company Director")
+                .setServiceAddress(serviceAddressData)
+                .setPrincipalOfficeAddress(deltaPrincipalOfficeAddress);
     }
 
     private List<OfficerAppointmentSummary> getOfficerAppointments() {
         return singletonList(new OfficerAppointmentSummary()
                 .address(address)
-                .appointedBefore(LocalDate.of(1993, 3, 13))
-                .appointedOn(LocalDate.of(2018, 1, 1))
+                .appointedBefore(LocalDate.from(appointedBefore.atZone(ZoneOffset.UTC)))
+                .appointedOn(LocalDate.from(appointedOn.atZone(ZoneOffset.UTC)))
                 .appointedTo(new AppointedTo()
                         .companyName("company name")
                         .companyNumber("12345678")
@@ -203,7 +216,7 @@ class ItemsMapperTest {
                 .nationality("British")
                 .occupation("Company Director")
                 .officerRole(OfficerRoleEnum.DIRECTOR)
-                .principalOfficeAddress(address)
-                .resignedOn(LocalDate.of(2018, 1, 1)));
+                .principalOfficeAddress(principalOfficeAddress)
+                .resignedOn(LocalDate.from(resignedOn.atZone(ZoneOffset.UTC))));
     }
 }

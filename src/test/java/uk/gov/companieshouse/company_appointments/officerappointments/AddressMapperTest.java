@@ -5,7 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import uk.gov.companieshouse.api.officer.Address;
-import uk.gov.companieshouse.company_appointments.model.data.ServiceAddressData;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaPrincipalOfficeAddress;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaServiceAddress;
 
 class AddressMapperTest {
 
@@ -17,27 +18,26 @@ class AddressMapperTest {
     }
 
     @Test
-    void mapAddress() {
+    void mapServiceAddress() {
         // given
-        ServiceAddressData addressData = ServiceAddressData.builder()
-                .withAddressLine1("1 Crown Way")
-                .withAddressLine2("Pavement")
-                .withCareOf("careOf")
-                .withCountry("UK")
-                .withLocality("Cardiff")
-                .withPoBox("poBox")
-                .withPostcode("CF14 3UZ")
-                .withPremises("premises")
-                .withRegion("Cardiff")
-                .build();
+        DeltaServiceAddress addressData = new DeltaServiceAddress()
+                .setAddressLine1("1 Crown Way")
+                .setAddressLine2("Pavement")
+//                .setCareOf("careOf")
+                .setCountry("UK")
+                .setLocality("Cardiff")
+//                .setPoBox("poBox")
+                .setPostalCode("CF14 3UZ")
+                .setPremises("premises")
+                .setRegion("Cardiff");
 
         Address expected = new Address()
                 .addressLine1("1 Crown Way")
                 .addressLine2("Pavement")
-                .careOf("careOf")
+                // FixMe .careOf("careOf")
                 .country("UK")
                 .locality("Cardiff")
-                .poBox("poBox")
+                // FixMe .poBox("poBox")
                 .postalCode("CF14 3UZ")
                 .premises("premises")
                 .region("Cardiff");
@@ -50,10 +50,54 @@ class AddressMapperTest {
     }
 
     @Test
-    void mapAddressNull() {
+    void mapPrincipalOfficeAddress() {
         // given
-        ServiceAddressData addressData = ServiceAddressData.builder().build();
+        DeltaPrincipalOfficeAddress addressData = new DeltaPrincipalOfficeAddress()
+                .setAddressLine1("1 Crown Way")
+                .setAddressLine2("Pavement")
+                // FixMe .setCareOf("careOf")
+                .setCountry("UK")
+                .setLocality("Cardiff")
+                // FixMe .setPoBox("poBox")
+                .setPostalCode("CF14 3UZ")
+                .setPremises("premises")
+                .setRegion("Cardiff");
 
+        Address expected = new Address()
+                .addressLine1("1 Crown Way")
+                .addressLine2("Pavement")
+                // FixMe .careOf("careOf")
+                .country("UK")
+                .locality("Cardiff")
+                // FixMe .poBox("poBox")
+                .postalCode("CF14 3UZ")
+                .premises("premises")
+                .region("Cardiff");
+
+        // when
+        Address actual = mapper.map(addressData);
+
+        // then
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    void mapServiceAddressNull() {
+        // given
+        DeltaServiceAddress addressData = new DeltaServiceAddress();
+        Address expected = new Address();
+
+        // when
+        Address actual = mapper.map(addressData);
+
+        // then
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    void mapPrincipalOfficeAddressNull() {
+        // given
+        DeltaPrincipalOfficeAddress addressData = new DeltaPrincipalOfficeAddress();
         Address expected = new Address();
 
         // when

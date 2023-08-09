@@ -2,7 +2,10 @@ package uk.gov.companieshouse.company_appointments.officerappointments;
 
 import static java.util.Optional.ofNullable;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoField;
 import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.api.officer.DateOfBirth;
 import uk.gov.companieshouse.company_appointments.roles.SecretarialRoles;
@@ -16,15 +19,16 @@ class DateOfBirthMapper {
         this.officerRoleMapper = officerRoleMapper;
     }
 
-    DateOfBirth map(LocalDateTime dateOfBirth, String officerRole) {
+    DateOfBirth map(Instant dateOfBirth, String officerRole) {
         if (SecretarialRoles.stream().anyMatch(roles -> roles.getRole().equals(officerRole))
                 || officerRoleMapper.mapIsCorporateOfficer(officerRole)) {
             return null;
         } else {
             return ofNullable(dateOfBirth)
-                    .map(dob -> new DateOfBirth()
-                            .month(dob.getMonthValue())
-                            .year(dob.getYear()))
+                    .map(dob -> ZonedDateTime.ofInstant(dob, ZoneOffset.UTC))
+                    .map(zdt -> new DateOfBirth()
+                            .month(zdt.get(ChronoField.MONTH_OF_YEAR))
+                            .year(zdt.get(ChronoField.YEAR)))
                     .orElse(null);
         }
     }

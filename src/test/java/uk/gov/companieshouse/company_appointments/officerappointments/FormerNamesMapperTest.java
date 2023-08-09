@@ -9,7 +9,7 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import uk.gov.companieshouse.api.officer.FormerNames;
-import uk.gov.companieshouse.company_appointments.model.data.FormerNamesData;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaFormerNames;
 
 class FormerNamesMapperTest {
 
@@ -23,7 +23,7 @@ class FormerNamesMapperTest {
     @Test
     void mapFormerNames() {
         // given
-        List<FormerNamesData> formerNames = singletonList(new FormerNamesData("forenames", "surname"));
+        List<DeltaFormerNames> formerNames = singletonList(new DeltaFormerNames("forenames", "surname"));
 
         List<FormerNames> expected = singletonList(new FormerNames()
                 .forenames("forenames")
@@ -38,7 +38,7 @@ class FormerNamesMapperTest {
     @Test
     void mapFormerNamesNoNames() {
         // given
-        List<FormerNamesData> formerNames = singletonList(new FormerNamesData());
+        List<DeltaFormerNames> formerNames = singletonList(new DeltaFormerNames());
 
         List<FormerNames> expected = singletonList(new FormerNames());
         // when
@@ -51,7 +51,7 @@ class FormerNamesMapperTest {
     @Test
     void mapFormerNamesEmpty() {
         // given
-        List<FormerNamesData> formerNames = emptyList();
+        List<DeltaFormerNames> formerNames = emptyList();
 
         List<FormerNames> expected = emptyList();
         // when

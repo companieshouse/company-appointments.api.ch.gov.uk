@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import uk.gov.companieshouse.api.officer.NameElements;
-import uk.gov.companieshouse.company_appointments.model.data.OfficerData;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaOfficerData;
 
 class NameMapperTest {
 
@@ -20,12 +20,11 @@ class NameMapperTest {
     @Test
     void mapName() {
         // given
-        OfficerData data = OfficerData.builder()
-                .withTitle("Dr")
-                .withForename("John")
-                .withOtherForenames("Tester")
-                .withSurname("Smith")
-                .build();
+        DeltaOfficerData data = new DeltaOfficerData()
+                .setTitle("Dr")
+                .setForename("John")
+                .setOtherForenames("Tester")
+                .setSurname("Smith");
 
         // when
         String actual = mapper.map(data);
@@ -37,12 +36,11 @@ class NameMapperTest {
     @Test
     void mapNameCommonTitle() {
         // given
-        OfficerData data = OfficerData.builder()
-                .withTitle("Mr")
-                .withForename("John")
-                .withOtherForenames("Tester")
-                .withSurname("Smith")
-                .build();
+        DeltaOfficerData data = new DeltaOfficerData()
+                .setTitle("Mr")
+                .setForename("John")
+                .setOtherForenames("Tester")
+                .setSurname("Smith");
 
         // when
         String actual = mapper.map(data);
@@ -54,10 +52,9 @@ class NameMapperTest {
     @Test
     void mapNameNulls() {
         // given
-        OfficerData data = OfficerData.builder()
-                .withForename("John")
-                .withSurname("Smith")
-                .build();
+        DeltaOfficerData data = new DeltaOfficerData()
+                .setForename("John")
+                .setSurname("Smith");
 
         // when
         String actual = mapper.map(data);
@@ -69,7 +66,7 @@ class NameMapperTest {
     @Test
     void mapNameAllNull() {
         // given
-        OfficerData data = OfficerData.builder().build();
+        DeltaOfficerData data = new DeltaOfficerData();
 
         // when
         String actual = mapper.map(data);
@@ -81,13 +78,12 @@ class NameMapperTest {
     @Test
     void mapNameElements() {
         // given
-        OfficerData data = OfficerData.builder()
-                .withTitle("Dr")
-                .withForename("John")
-                .withOtherForenames("Tester")
-                .withSurname("Smith")
-                .withHonours("PhD")
-                .build();
+        DeltaOfficerData data = new DeltaOfficerData()
+                .setTitle("Dr")
+                .setForename("John")
+                .setOtherForenames("Tester")
+                .setSurname("Smith")
+                .setHonours("PhD");
 
         NameElements expected = new NameElements()
                 .forename("John")
@@ -105,7 +101,7 @@ class NameMapperTest {
     @Test
     void mapEmptyNameElements() {
         // given
-        OfficerData data = OfficerData.builder().build();
+        DeltaOfficerData data = new DeltaOfficerData();
 
         // when
         NameElements actual = mapper.mapNameElements(data);

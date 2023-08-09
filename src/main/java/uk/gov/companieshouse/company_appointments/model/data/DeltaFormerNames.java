@@ -12,6 +12,14 @@ public class DeltaFormerNames {
   @Field("surname")
   private String surname;
 
+  public DeltaFormerNames() {
+  }
+
+  public DeltaFormerNames(String forenames, String surname) {
+    this.forenames = forenames;
+    this.surname = surname;
+  }
+
   public String getForenames() {
     return forenames;
   }

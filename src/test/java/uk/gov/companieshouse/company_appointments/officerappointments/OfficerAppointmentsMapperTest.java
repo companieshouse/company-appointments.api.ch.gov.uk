@@ -11,6 +11,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -24,8 +25,10 @@ import uk.gov.companieshouse.api.officer.AppointmentList;
 import uk.gov.companieshouse.api.officer.DateOfBirth;
 import uk.gov.companieshouse.api.officer.OfficerAppointmentSummary;
 import uk.gov.companieshouse.api.officer.OfficerLinkTypes;
-import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentData;
-import uk.gov.companieshouse.company_appointments.model.data.OfficerData;
+import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentDocument;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaOfficerData;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaSensitiveData;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaUsualResidentialAddress;
 import uk.gov.companieshouse.company_appointments.officerappointments.OfficerAppointmentsMapper.MapperRequest;
 
 @ExtendWith(MockitoExtension.class)
@@ -61,24 +64,24 @@ class OfficerAppointmentsMapperTest {
         when(roleMapper.mapIsCorporateOfficer(anyString())).thenReturn(false);
 
         OfficerAppointmentsAggregate officerAppointmentsAggregate = getOfficerAppointmentsAggregateWithMultipleResults();
-        CompanyAppointmentData companyAppointmentData = getCompanyAppointmentData(getOfficerData(DIRECTOR));
-        List<CompanyAppointmentData> companyAppointmentDataList = getListOfCompanyAppointmentData();
+        CompanyAppointmentDocument CompanyAppointmentDocument = getCompanyAppointmentDocument(getOfficerData(DIRECTOR), getSensitiveOfficerData());
+        List<CompanyAppointmentDocument> CompanyAppointmentDocumentList = getListOfCompanyAppointmentDocument();
         AppointmentList expected = getExpectedOfficerAppointmentsWithMultipleAppointments();
 
         // when
         Optional<AppointmentList> actual = mapper.mapOfficerAppointments(new MapperRequest()
                 .startIndex(START_INDEX)
                 .itemsPerPage(ITEMS_PER_PAGE)
-                .firstAppointment(companyAppointmentData)
+                .firstAppointment(CompanyAppointmentDocument)
                 .aggregate(officerAppointmentsAggregate));
 
         // then
         assertTrue(actual.isPresent());
         assertEquals(expected, actual.get());
 
-        verify(dobMapper).map(LocalDateTime.of(2000, 1, 1, 0, 0), DIRECTOR);
+        verify(dobMapper).map(LocalDateTime.of(2000, 1, 1, 0, 0).toInstant(ZoneOffset.UTC), DIRECTOR);
         verify(roleMapper).mapIsCorporateOfficer(DIRECTOR);
-        verify(itemsMapper).map(companyAppointmentDataList);
+        verify(itemsMapper).map(CompanyAppointmentDocumentList);
         verify(nameMapper).map(getOfficerData(DIRECTOR));
     }
 
@@ -91,23 +94,23 @@ class OfficerAppointmentsMapperTest {
         when(dobMapper.map(any(), anyString())).thenReturn(dateOfBirth);
         when(roleMapper.mapIsCorporateOfficer(anyString())).thenReturn(true);
         OfficerAppointmentsAggregate officerAppointmentsAggregate = getOfficerAppointmentsAggregate();
-        CompanyAppointmentData companyAppointmentData = getCompanyAppointmentData(
-                getOfficerData(CORPORATE_MANAGING_OFFICER));
+        CompanyAppointmentDocument CompanyAppointmentDocument = getCompanyAppointmentDocument(
+                getOfficerData(CORPORATE_MANAGING_OFFICER), getSensitiveOfficerData());
 
         AppointmentList expected = getExpectedOfficerAppointments(true);
         // when
         Optional<AppointmentList> actual = mapper.mapOfficerAppointments(new MapperRequest()
                 .startIndex(START_INDEX)
                 .itemsPerPage(ITEMS_PER_PAGE)
-                .firstAppointment(companyAppointmentData)
+                .firstAppointment(CompanyAppointmentDocument)
                 .aggregate(officerAppointmentsAggregate));
 
         // then
         assertTrue(actual.isPresent());
         assertEquals(expected, actual.get());
-        verify(dobMapper).map(LocalDateTime.of(2000, 1, 1, 0, 0), CORPORATE_MANAGING_OFFICER);
+        verify(dobMapper).map(LocalDateTime.of(2000, 1, 1, 0, 0).toInstant(ZoneOffset.UTC), CORPORATE_MANAGING_OFFICER);
         verify(roleMapper).mapIsCorporateOfficer(CORPORATE_MANAGING_OFFICER);
-        verify(itemsMapper).map(singletonList(companyAppointmentData));
+        verify(itemsMapper).map(singletonList(CompanyAppointmentDocument));
         verify(nameMapper).map(getOfficerData(CORPORATE_MANAGING_OFFICER));
     }
 
@@ -124,7 +127,7 @@ class OfficerAppointmentsMapperTest {
                 .totalResults(0)
                 .inactiveCount(0)
                 .resignedCount(0);
-        CompanyAppointmentData companyAppointmentData = getCompanyAppointmentData(getOfficerData(DIRECTOR));
+        CompanyAppointmentDocument CompanyAppointmentDocument = getCompanyAppointmentDocument(getOfficerData(DIRECTOR), getSensitiveOfficerData());
         AppointmentList expected = getExpectedOfficerAppointments(false);
         expected.setItems(emptyList());
         expected.setTotalResults(0);
@@ -136,13 +139,13 @@ class OfficerAppointmentsMapperTest {
         Optional<AppointmentList> actual = mapper.mapOfficerAppointments(new MapperRequest()
                 .startIndex(START_INDEX)
                 .itemsPerPage(ITEMS_PER_PAGE)
-                .firstAppointment(companyAppointmentData)
+                .firstAppointment(CompanyAppointmentDocument)
                 .aggregate(aggregate));
 
         // then
         assertTrue(actual.isPresent());
         assertEquals(expected, actual.get());
-        verify(dobMapper).map(LocalDateTime.of(2000, 1, 1, 0, 0), DIRECTOR);
+        verify(dobMapper).map(LocalDateTime.of(2000, 1, 1, 0, 0).toInstant(ZoneOffset.UTC), DIRECTOR);
         verify(roleMapper).mapIsCorporateOfficer(DIRECTOR);
         verify(itemsMapper).map(emptyList());
         verify(nameMapper).map(getOfficerData(DIRECTOR));
@@ -157,7 +160,7 @@ class OfficerAppointmentsMapperTest {
         Optional<AppointmentList> actual = mapper.mapOfficerAppointments(new MapperRequest()
                 .startIndex(START_INDEX)
                 .itemsPerPage(ITEMS_PER_PAGE)
-                .firstAppointment(getCompanyAppointmentData(null))
+                .firstAppointment(getCompanyAppointmentDocument(null, null))
                 .aggregate(new OfficerAppointmentsAggregate()));
 
         // then
@@ -169,8 +172,8 @@ class OfficerAppointmentsMapperTest {
     }
 
     private OfficerAppointmentsAggregate getOfficerAppointmentsAggregate() {
-        CompanyAppointmentData data = getCompanyAppointmentData(getOfficerData(
-                OfficerAppointmentsMapperTest.CORPORATE_MANAGING_OFFICER));
+        CompanyAppointmentDocument data = getCompanyAppointmentDocument(getOfficerData(
+                OfficerAppointmentsMapperTest.CORPORATE_MANAGING_OFFICER), getSensitiveOfficerData());
         return new OfficerAppointmentsAggregate()
                 .totalResults(1)
                 .officerAppointments(singletonList(data))
@@ -179,7 +182,7 @@ class OfficerAppointmentsMapperTest {
     }
 
     private OfficerAppointmentsAggregate getOfficerAppointmentsAggregateWithMultipleResults() {
-        List<CompanyAppointmentData> data = getListOfCompanyAppointmentData();
+        List<CompanyAppointmentDocument> data = getListOfCompanyAppointmentDocument();
 
         return new OfficerAppointmentsAggregate()
                 .totalResults(10)
@@ -188,32 +191,47 @@ class OfficerAppointmentsMapperTest {
                 .resignedCount(2);
     }
 
-    private List<CompanyAppointmentData> getListOfCompanyAppointmentData() {
-        List<CompanyAppointmentData> companyAppointmentDataList = new ArrayList<>();
+    private List<CompanyAppointmentDocument> getListOfCompanyAppointmentDocument() {
+        List<CompanyAppointmentDocument> CompanyAppointmentDocumentList = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
-            companyAppointmentDataList.add(getCompanyAppointmentData(getOfficerData(
-                    OfficerAppointmentsMapperTest.DIRECTOR)));
+            CompanyAppointmentDocumentList.add(getCompanyAppointmentDocument(getOfficerData(
+                    OfficerAppointmentsMapperTest.DIRECTOR), getSensitiveOfficerData()));
         }
-        return companyAppointmentDataList;
+        return CompanyAppointmentDocumentList;
     }
 
-    private CompanyAppointmentData getCompanyAppointmentData(OfficerData officerData) {
-        CompanyAppointmentData data = new CompanyAppointmentData();
-        data.setOfficerId("officerId");
-        data.setId("id");
-        data.setCompanyStatus("active");
-        data.setData(officerData);
-        data.setCompanyName("company name");
-        return data;
+    private DeltaSensitiveData getSensitiveOfficerData() {
+        return new DeltaSensitiveData()
+                .setUsualResidentialAddress(new DeltaUsualResidentialAddress()
+                        .setAddressLine1("address-line-1")
+                        .setAddressLine2("address-line-2")
+                        .setCareOf("care-of")
+                        .setCountry("United Kingdom")
+                        .setLocality("Cardiff")
+                        .setPoBox("po-box")
+                        .setPostalCode("CF2 1B6")
+                        .setPremises("URA")
+                        .setRegion("ura-region"))
+                .setResidentialAddressSameAsServiceAddress(false)
+                .setDateOfBirth(LocalDateTime.of(2000, 1, 1, 0, 0).toInstant(ZoneOffset.UTC));
     }
 
-    private OfficerData getOfficerData(String role) {
-        return OfficerData.builder()
-                .withEtag("etag")
-                .withOfficerRole(role)
-                .withTitle("Mrs")
-                .withDateOfBirth(LocalDateTime.of(2000, 1, 1, 0, 0))
-                .build();
+    private CompanyAppointmentDocument getCompanyAppointmentDocument(DeltaOfficerData officerData,
+            DeltaSensitiveData sensitiveData) {
+        return new CompanyAppointmentDocument()
+            .setOfficerId("officerId")
+            .setId("id")
+            .setCompanyStatus("active")
+            .setData(officerData)
+            .setSensitiveData(sensitiveData)
+            .setCompanyName("company name");
+    }
+
+    private DeltaOfficerData getOfficerData(String role) {
+        return new DeltaOfficerData()
+                .setEtag("etag")
+                .setOfficerRole(role)
+                .setTitle("Mrs");
     }
 
     private AppointmentList getExpectedOfficerAppointments(boolean isCorporateOfficer) {

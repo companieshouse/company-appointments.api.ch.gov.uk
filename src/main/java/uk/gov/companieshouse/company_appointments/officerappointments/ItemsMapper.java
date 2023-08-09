@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.api.officer.AppointedTo;
 import uk.gov.companieshouse.api.officer.AppointmentLinkTypes;
 import uk.gov.companieshouse.api.officer.OfficerAppointmentSummary;
-import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentData;
+import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentDocument;
 
 @Component
 class ItemsMapper {
@@ -37,7 +37,7 @@ class ItemsMapper {
         this.roleMapper = roleMapper;
     }
 
-    List<OfficerAppointmentSummary> map(List<CompanyAppointmentData> appointments) {
+    List<OfficerAppointmentSummary> map(List<CompanyAppointmentDocument> appointments) {
         return appointments.stream()
                 .map(appointment -> ofNullable(appointment.getData())
                         .map(data -> new OfficerAppointmentSummary()
@@ -51,9 +51,9 @@ class ItemsMapper {
                                 .contactDetails(contactDetailsMapper.map(data.getContactDetails()))
                                 .name(nameMapper.map(data))
                                 .countryOfResidence(data.getCountryOfResidence())
-                                .formerNames(formerNamesMapper.map(data.getFormerNameData()))
-                                .identification(identificationMapper.map(data.getIdentificationData()))
-                                .isPre1992Appointment(data.getIsPre1992Appointment())
+                                .formerNames(formerNamesMapper.map(data.getFormerNames()))
+                                .identification(identificationMapper.map(data.getIdentification()))
+                                .isPre1992Appointment(data.getPre1992Appointment())
                                 .links(new AppointmentLinkTypes()
                                         .company(String.format("/company/%s", data.getCompanyNumber())))
                                 .nameElements(nameMapper.mapNameElements(data))

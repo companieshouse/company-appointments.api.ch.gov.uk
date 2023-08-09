@@ -23,7 +23,7 @@ import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import uk.gov.companieshouse.company_appointments.CompanyAppointmentsApplication;
-import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentData;
+import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentDocument;
 
 @Testcontainers
 @AutoConfigureMockMvc
@@ -51,6 +51,12 @@ class OfficerAppointmentsRepositoryITest {
         System.setProperty("spring.data.mongodb.uri", mongoDBContainer.getReplicaSetUrl());
         MongoTemplate mongoTemplate = new MongoTemplate(new SimpleMongoClientDatabaseFactory(mongoDBContainer.getReplicaSetUrl()));
         mongoTemplate.createCollection("appointments");
+
+        Document document = Document.parse(IOUtils.resourceToString("/delta-appointment-data.json", StandardCharsets.UTF_8));
+        document.put("_id", "active_1");
+        document.put("appointment_id", "active_1");
+        document.put("officer_role", "director");
+
         mongoTemplate.insert(Document.parse(IOUtils.resourceToString("/appointment-data.json", StandardCharsets.UTF_8)), "appointments");
         mongoTemplate.insert(Document.parse(IOUtils.resourceToString("/appointment-data2.json", StandardCharsets.UTF_8)), "appointments");
         mongoTemplate.insert(Document.parse(IOUtils.resourceToString("/appointment-data3.json", StandardCharsets.UTF_8)), "appointments");
@@ -61,7 +67,7 @@ class OfficerAppointmentsRepositoryITest {
 
         // Adding over 50 appointments for a second officer to test pagination works
         for (int i = 0; i < SECOND_OFFICER_TOTAL_RESULTS; i++) {
-            CompanyAppointmentData appointment = new CompanyAppointmentData();
+            CompanyAppointmentDocument appointment = new CompanyAppointmentDocument();
             appointment.setOfficerId(SECOND_OFFICER_ID);
             mongoTemplate.insert(appointment);
         }
@@ -236,7 +242,7 @@ class OfficerAppointmentsRepositoryITest {
         // given
 
         // when
-        Optional<CompanyAppointmentData> actual = repository.findFirstByOfficerId(OFFICER_ID);
+        Optional<CompanyAppointmentDocument> actual = repository.findFirstByOfficerId(OFFICER_ID);
 
         // then
         assertTrue(actual.isPresent());
@@ -249,7 +255,7 @@ class OfficerAppointmentsRepositoryITest {
         // given
 
         // when
-        Optional<CompanyAppointmentData> actual = repository.findFirstByOfficerId("not an officer id");
+        Optional<CompanyAppointmentDocument> actual = repository.findFirstByOfficerId("not an officer id");
 
         // then
         assertTrue(actual.isEmpty());
