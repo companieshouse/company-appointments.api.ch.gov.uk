@@ -2,7 +2,9 @@ package uk.gov.companieshouse.company_appointments.service;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -18,7 +20,7 @@ import static uk.gov.companieshouse.logging.util.LogContextProperties.REQUEST_ID
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,7 +32,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.MDC;
 import org.springframework.dao.DataAccessResourceFailureException;
+import uk.gov.companieshouse.api.appointment.LinkTypes;
 import uk.gov.companieshouse.api.appointment.OfficerList;
+import uk.gov.companieshouse.api.appointment.OfficerList.KindEnum;
 import uk.gov.companieshouse.api.appointment.OfficerSummary;
 import uk.gov.companieshouse.api.metrics.AppointmentsApi;
 import uk.gov.companieshouse.api.metrics.CountsApi;
@@ -78,7 +82,7 @@ class CompanyAppointmentServiceTest {
 
     private static final String COMPANY_NUMBER = "123456";
     private static final String APPOINTMENT_ID = "345678";
-    private static final String FILTER = "active";
+    private static final String ACTIVE = "active";
     private static final String ORDER_BY = "surname";
     private static final String REGISTER_TYPE_DIRECTORS = "directors";
     private static final String REGISTER_TYPE_SECRETARIES = "secretaries";
@@ -104,7 +108,7 @@ class CompanyAppointmentServiceTest {
     void testFetchAppointmentReturnsMappedAppointmentData() throws NotFoundException {
         CompanyAppointmentDocument appointmentDocument = buildCompanyAppointmentDocument(
                 buildOfficerData().etag("etag").build(),
-                "active");
+                ACTIVE);
 
         // given
         when(companyAppointmentRepository.readByCompanyNumberAndAppointmentID(COMPANY_NUMBER, APPOINTMENT_ID))
@@ -130,45 +134,24 @@ class CompanyAppointmentServiceTest {
     }
 
     @Test
-    void testFetchAppointmentForCompanyThrowsNotFoundExceptionIfAppointmentDoesntExist()
-            throws ServiceUnavailableException, NotFoundException {
-        FetchAppointmentsRequest request =
-                FetchAppointmentsRequest.Builder.builder()
-                        .withCompanyNumber(COMPANY_NUMBER)
-                        .withFilter("filter")
-                        .withOrderBy(ORDER_BY)
-                        .build();
-
-        when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(
-                new ApiResponse<>(200, null, metricsApi));
-        when(companyAppointmentRepository.getCompanyAppointments(any(), any(), any(), anyInt(),
-                anyInt(), anyBoolean(), anyBoolean())).thenReturn(new ArrayList<>());
-
-        Executable result = () -> companyAppointmentService.fetchAppointmentsForCompany(request);
-
-        assertThrows(NotFoundException.class, result);
-    }
-
-    @Test
-    void testFetchAppointmentForCompanyNumberReturnsMappedAppointmentData() throws Exception {
+    void testFetchAppointmentsForCompanyNumberReturnsMappedAppointmentData() throws Exception {
         CompanyAppointmentDocument appointmentDocument = buildCompanyAppointmentDocument(buildOfficerData().build(),
-                "active");
+                ACTIVE);
         List<CompanyAppointmentDocument> allAppointmentData = List.of(appointmentDocument);
 
         FetchAppointmentsRequest request =
                 FetchAppointmentsRequest.Builder.builder()
                         .withCompanyNumber(COMPANY_NUMBER)
-                        .withFilter("filter")
                         .withOrderBy(ORDER_BY)
                         .build();
-
-        when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(
-                new ApiResponse<>(200, null, metricsApi));
 
         CountsApi countsApi = new CountsApi().appointments(new AppointmentsApi()
                 .totalCount(1)
                 .activeCount(1)
                 .resignedCount(0));
+
+        when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(
+                new ApiResponse<>(200, null, metricsApi));
         when(metricsApi.getCounts()).thenReturn(countsApi);
         when(companyAppointmentRepository.getCompanyAppointments(any(), any(), any(), anyInt(),
                 anyInt(), anyBoolean(), anyBoolean())).thenReturn(allAppointmentData);
@@ -185,19 +168,18 @@ class CompanyAppointmentServiceTest {
     }
 
     @Test
-    void testFetchAppointmentForCompanyReturnInactiveOrActiveCountInCompanyOfficersGETDependingOnCompanyStatusReturnsActive()
+    void testFetchAppointmentsForCompanyWithActiveCompanyStatusHasZeroInactiveAppointments()
             throws Exception {
         DeltaOfficerData officer = buildOfficerData()
                 .resignedOn(null)
                 .build();
-        CompanyAppointmentDocument officerData = buildCompanyAppointmentDocument(officer, "active");
+        CompanyAppointmentDocument officerData = buildCompanyAppointmentDocument(officer, ACTIVE);
 
         List<CompanyAppointmentDocument> allAppointmentData = List.of(officerData);
 
         FetchAppointmentsRequest request =
                 FetchAppointmentsRequest.Builder.builder()
                         .withCompanyNumber(COMPANY_NUMBER)
-                        .withFilter("filter")
                         .withOrderBy(ORDER_BY)
                         .build();
 
@@ -218,7 +200,7 @@ class CompanyAppointmentServiceTest {
     }
 
     @Test
-    void testFetchAppointmentForCompanyReturnInactiveOrActiveCountInCompanyOfficersGETDependingOnCompanyStatusReturnsInactive()
+    void testFetchAppointmentsForCompanyWithAnInactiveCompanyStatusHasZeroActiveAppointments()
             throws Exception {
         DeltaOfficerData officer = buildOfficerData()
                 .resignedOn(null)
@@ -230,40 +212,58 @@ class CompanyAppointmentServiceTest {
         FetchAppointmentsRequest request =
                 FetchAppointmentsRequest.Builder.builder()
                         .withCompanyNumber(COMPANY_NUMBER)
-                        .withFilter("filter")
                         .withOrderBy(ORDER_BY)
                         .build();
 
         when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(
                 new ApiResponse<>(200, null, metricsApi));
         when(metricsApi.getCounts()).thenReturn(new CountsApi().appointments(new AppointmentsApi()
-                .totalCount(1)
-                .activeCount(1)
+                .totalCount(2)
+                .activeCount(2) // metrics returns active even when considered inactive
                 .resignedCount(0)));
         when(companyAppointmentRepository.getCompanyAppointments(any(), any(), any(), anyInt(),
                 anyInt(), anyBoolean(), anyBoolean())).thenReturn(allAppointmentData);
 
         OfficerList result = companyAppointmentService.fetchAppointmentsForCompany(request);
 
-        assertEquals(1, result.getTotalResults());
-        assertEquals(1, result.getInactiveCount());
+        assertEquals(2, result.getTotalResults());
+        assertEquals(2, result.getInactiveCount());
         assertEquals(0, result.getActiveCount());
     }
 
     @Test
-    void testFetchAppointmentForCompanyReturnTotalCountOfZeroWhenCompanyStatusIsInactiveAndActiveFilterIsApplied()
+    void testFetchAppointmentsForCompanyWithAnInactiveCompanyStatusHasZeroActiveAppointmentsWhenFilterIsApplied()
             throws Exception {
-        DeltaOfficerData officer = buildOfficerData()
-                .resignedOn(null)
-                .build();
-        CompanyAppointmentDocument appointmentDocument = buildCompanyAppointmentDocument(officer, "dissolved");
-
-        List<CompanyAppointmentDocument> allAppointmentData = List.of(appointmentDocument);
-
         FetchAppointmentsRequest request =
                 FetchAppointmentsRequest.Builder.builder()
                         .withCompanyNumber(COMPANY_NUMBER)
-                        .withFilter(FILTER)
+                        .withOrderBy(ORDER_BY)
+                        .withFilter("active")
+                        .build();
+
+        when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(
+                new ApiResponse<>(200, null, metricsApi));
+        when(metricsApi.getCounts()).thenReturn(new CountsApi().appointments(new AppointmentsApi()
+                .totalCount(2)
+                .activeCount(2) // metrics returns active even when considered inactive
+                .resignedCount(0)));
+        when(companyAppointmentRepository.getCompanyAppointments(any(), any(), any(), anyInt(),
+                anyInt(), anyBoolean(), anyBoolean())).thenReturn(Collections.emptyList());
+
+        OfficerList result = companyAppointmentService.fetchAppointmentsForCompany(request);
+
+        assertEquals(0, result.getTotalResults());
+        assertEquals(0, result.getInactiveCount());
+        assertEquals(0, result.getActiveCount());
+    }
+
+    @Test
+    void testFetchAppointmentsForCompanyReturnEmptyResponseWhenCompanyIsInactiveAndFilterIsApplied()
+            throws Exception {
+        FetchAppointmentsRequest request =
+                FetchAppointmentsRequest.Builder.builder()
+                        .withCompanyNumber(COMPANY_NUMBER)
+                        .withFilter(ACTIVE)
                         .withOrderBy(ORDER_BY)
                         .build();
 
@@ -274,13 +274,34 @@ class CompanyAppointmentServiceTest {
                 .activeCount(1)
                 .resignedCount(0)));
         when(companyAppointmentRepository.getCompanyAppointments(any(), any(), any(), anyInt(),
-                anyInt(), anyBoolean(), anyBoolean())).thenReturn(allAppointmentData);
+                anyInt(), anyBoolean(), anyBoolean())).thenReturn(Collections.emptyList());
 
         OfficerList result = companyAppointmentService.fetchAppointmentsForCompany(request);
 
         assertEquals(0, result.getTotalResults());
-        assertEquals(1, result.getInactiveCount());
+        assertEquals(0, result.getInactiveCount());
         assertEquals(0, result.getActiveCount());
+        assertTrue(result.getItems().isEmpty());
+        assertEquals(KindEnum.OFFICER_LIST, result.getKind());
+        assertEquals(0, result.getStartIndex());
+        assertEquals(35, result.getItemsPerPage());
+        assertEquals(new LinkTypes(), result.getLinks());
+        assertNull(result.getLinks().getSelf());
+        assertEquals("", result.getEtag());
+    }
+
+    @Test
+    void testFetchAppointmentsForCompanyThrowsBadRequestExceptionWhenInvalidFilterSupplied() {
+        FetchAppointmentsRequest request =
+                FetchAppointmentsRequest.Builder.builder()
+                        .withCompanyNumber(COMPANY_NUMBER)
+                        .withFilter("incorrect filter")
+                        .build();
+
+        BadRequestException exception = assertThrows(BadRequestException.class,
+                () -> companyAppointmentService.fetchAppointmentsForCompany(request));
+        assertEquals("Invalid filter parameter supplied: incorrect filter, company number: 123456",
+                exception.getMessage());
     }
 
     @Test
@@ -289,37 +310,38 @@ class CompanyAppointmentServiceTest {
         DeltaOfficerData officer = buildOfficerData()
                 .resignedOn(null)
                 .build();
-        CompanyAppointmentDocument appointmentDocument = buildCompanyAppointmentDocument(officer, "active");
+        CompanyAppointmentDocument appointmentDocument = buildCompanyAppointmentDocument(officer, ACTIVE);
 
         List<CompanyAppointmentDocument> allAppointmentData = List.of(appointmentDocument);
 
         FetchAppointmentsRequest request =
                 FetchAppointmentsRequest.Builder.builder()
                         .withCompanyNumber(COMPANY_NUMBER)
-                        .withFilter(FILTER)
+                        .withFilter(ACTIVE)
                         .withOrderBy(ORDER_BY)
                         .build();
 
         when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(
                 new ApiResponse<>(200, null, metricsApi));
         when(metricsApi.getCounts()).thenReturn(new CountsApi().appointments(new AppointmentsApi()
-                .totalCount(1)
-                .activeCount(1)
-                .resignedCount(0)));
+                .totalCount(3)
+                .activeCount(2)
+                .resignedCount(1)));
         when(companyAppointmentRepository.getCompanyAppointments(any(), any(), any(), anyInt(),
                 anyInt(), anyBoolean(), anyBoolean())).thenReturn(allAppointmentData);
 
         OfficerList result = companyAppointmentService.fetchAppointmentsForCompany(request);
 
-        assertEquals(1, result.getTotalResults());
+        assertEquals(2, result.getTotalResults());
         assertEquals(0, result.getInactiveCount());
-        assertEquals(1, result.getActiveCount());
+        assertEquals(2, result.getActiveCount());
+        assertEquals(1, result.getResignedCount());
     }
 
     @Test
-    void testRegisterViewIsFalse() throws Exception {
+    void testRegisterViewIsFalseShouldNotCheckMetricsForRegisterView() throws Exception {
         CompanyAppointmentDocument appointmentDocument = buildCompanyAppointmentDocument(buildOfficerData().build(),
-                "active");
+                ACTIVE);
 
         List<CompanyAppointmentDocument> allAppointmentData = List.of(appointmentDocument);
 
@@ -344,9 +366,9 @@ class CompanyAppointmentServiceTest {
     }
 
     @Test
-    void testNoRegisterViewIsNull() throws Exception {
+    void testNoRegisterViewIsNullShouldNotCheckMetricsForRegisterView() throws Exception {
         CompanyAppointmentDocument appointmentDocument = buildCompanyAppointmentDocument(buildOfficerData().build(),
-                "active");
+                ACTIVE);
 
         List<CompanyAppointmentDocument> allAppointmentData = List.of(appointmentDocument);
 
@@ -384,14 +406,16 @@ class CompanyAppointmentServiceTest {
         when(companyRegisterService.isRegisterHeldInCompaniesHouse(eq(REGISTER_TYPE_DIRECTORS), any())).thenReturn(
                 false);
 
-        assertThrows(NotFoundException.class,
+        NotFoundException exception = assertThrows(NotFoundException.class,
                 () -> companyAppointmentService.fetchAppointmentsForCompany(request));
+        assertEquals("Register not held at Companies House", exception.getMessage());
     }
 
     @Test
-    void throwNotFoundExceptionIfCountsAppointmentIsNull() throws Exception {
+    void testFetchAppointmentsForCompanyThrowsBadRequestExceptionIfRegisterViewAndInvalidRegisterTypeFindingCounts()
+            throws ServiceUnavailableException, NotFoundException {
         CompanyAppointmentDocument appointmentDocument = buildCompanyAppointmentDocument(buildOfficerData().build(),
-                "active");
+                ACTIVE);
 
         List<CompanyAppointmentDocument> allAppointmentData = List.of(appointmentDocument);
 
@@ -399,49 +423,66 @@ class CompanyAppointmentServiceTest {
                 FetchAppointmentsRequest.Builder.builder()
                         .withCompanyNumber(COMPANY_NUMBER)
                         .withRegisterView(true)
-                        .withRegisterType("secretaries")
+                        .withRegisterType("invalid register type")
+                        .build();
+
+        when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(
+                new ApiResponse<>(200, null, metricsApi));
+        when(metricsApi.getCounts()).thenReturn(new CountsApi()
+                .appointments(new AppointmentsApi()
+                        .totalCount(3)
+                        .activeCount(2)
+                        .resignedCount(1)));
+        when(companyRegisterService.isRegisterHeldInCompaniesHouse(any(), any())).thenReturn(
+                true);
+        when(companyAppointmentRepository.getCompanyAppointments(any(), any(), any(), anyInt(),
+                anyInt(), anyBoolean(), anyBoolean())).thenReturn(allAppointmentData);
+
+        BadRequestException exception = assertThrows(BadRequestException.class,
+                () -> companyAppointmentService.fetchAppointmentsForCompany(request));
+        assertEquals("Incorrect register type, must be directors, secretaries or llp_members", exception.getMessage());
+    }
+
+    @Test
+    void testFetchAppointmentsForCompanyThrowsNotFoundExceptionIfNoAppointmentsInMetrics()
+            throws ServiceUnavailableException, NotFoundException {
+        FetchAppointmentsRequest request =
+                FetchAppointmentsRequest.Builder.builder()
+                        .withCompanyNumber(COMPANY_NUMBER)
+                        .build();
+
+        when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(
+                new ApiResponse<>(200, null, metricsApi));
+
+        Executable result = () -> companyAppointmentService.fetchAppointmentsForCompany(request);
+
+        NotFoundException exception = assertThrows(NotFoundException.class, result);
+        assertEquals("Appointments metrics for company number [" + COMPANY_NUMBER + "] not found",
+                exception.getMessage());
+    }
+
+    @Test
+    void throwNotFoundExceptionIfCountsAppointmentIsNull() throws Exception {
+        FetchAppointmentsRequest request =
+                FetchAppointmentsRequest.Builder.builder()
+                        .withCompanyNumber(COMPANY_NUMBER)
                         .build();
 
         when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(
                 new ApiResponse<>(200, null, metricsApi));
         when(metricsApi.getCounts()).thenReturn(new CountsApi());
-        when(companyAppointmentRepository.getCompanyAppointments(any(), any(), any(), anyInt(),
-                anyInt(), anyBoolean(), anyBoolean())).thenReturn(allAppointmentData);
-        when(companyRegisterService.isRegisterHeldInCompaniesHouse(eq("secretaries"), any())).thenReturn(true);
 
-        assertThrows(NotFoundException.class,
+        NotFoundException exception = assertThrows(NotFoundException.class,
                 () -> companyAppointmentService.fetchAppointmentsForCompany(request));
-    }
-
-    @Test
-    void throwNotFoundExceptionIfCountsIsNull() throws Exception {
-        CompanyAppointmentDocument appointmentDocument = buildCompanyAppointmentDocument(buildOfficerData().build(),
-                "active");
-
-        List<CompanyAppointmentDocument> allAppointmentData = List.of(appointmentDocument);
-
-        FetchAppointmentsRequest request =
-                FetchAppointmentsRequest.Builder.builder()
-                        .withCompanyNumber(COMPANY_NUMBER)
-                        .withRegisterView(true)
-                        .withRegisterType("secretaries")
-                        .build();
-
-        when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(
-                new ApiResponse<>(200, null, metricsApi));
-        when(companyAppointmentRepository.getCompanyAppointments(any(), any(), any(), anyInt(),
-                anyInt(), anyBoolean(), anyBoolean())).thenReturn(allAppointmentData);
-        when(companyRegisterService.isRegisterHeldInCompaniesHouse(eq("secretaries"), any())).thenReturn(true);
-
-        assertThrows(NotFoundException.class,
-                () -> companyAppointmentService.fetchAppointmentsForCompany(request));
+        assertEquals("Appointments metrics for company number [" + COMPANY_NUMBER + "] not found",
+                exception.getMessage());
     }
 
     @Test
     void testFetchAppointmentsForCompanyReturnsAppointmentsIfRegisterTypeMatchesDirectorsAndRoleTypeIsDirector()
             throws Exception {
         CompanyAppointmentDocument appointmentDocument = buildCompanyAppointmentDocument(
-                buildOfficerData().officerRole("director").build(), "active");
+                buildOfficerData().officerRole("director").build(), ACTIVE);
 
         List<CompanyAppointmentDocument> allAppointmentData = List.of(appointmentDocument);
 
@@ -474,7 +515,7 @@ class CompanyAppointmentServiceTest {
     void testFetchAppointmentsForCompanyReturnsAppointmentsIfRegisterTypeMatchesSecretariesAndRoleTypeIsSecretary()
             throws Exception {
         CompanyAppointmentDocument appointmentDocument = buildCompanyAppointmentDocument(
-                buildOfficerData().officerRole("secretary").build(), "active");
+                buildOfficerData().officerRole("secretary").build(), ACTIVE);
 
         List<CompanyAppointmentDocument> allAppointmentData = List.of(appointmentDocument);
 
@@ -507,7 +548,7 @@ class CompanyAppointmentServiceTest {
     void testFetchAppointmentsForCompanyReturnsAppointmentsIfRegisterTypeMatchesLLPMembersAndRoleTypeIsLLPMember()
             throws Exception {
         CompanyAppointmentDocument appointmentDocument = buildCompanyAppointmentDocument(
-                buildOfficerData().officerRole("llp-member").build(), "active");
+                buildOfficerData().officerRole("llp-member").build(), ACTIVE);
 
         List<CompanyAppointmentDocument> allAppointmentData = List.of(appointmentDocument);
 
@@ -534,38 +575,6 @@ class CompanyAppointmentServiceTest {
 
         assertEquals(1, result.getTotalResults());
         assertEquals(1, result.getItems().size());
-    }
-
-    @Test
-    void testFetchAppointmentsForCompanyReturnsAppointmentsIfRegisterTypeDoesNotMatch() throws Exception {
-        CompanyAppointmentDocument appointmentDocument = buildCompanyAppointmentDocument(
-                buildOfficerData().officerRole("director").build(), "active");
-
-        List<CompanyAppointmentDocument> allAppointmentData = List.of(appointmentDocument);
-
-        FetchAppointmentsRequest request =
-                FetchAppointmentsRequest.Builder.builder()
-                        .withCompanyNumber(COMPANY_NUMBER)
-                        .withRegisterView(true)
-                        .withRegisterType("registerType")
-                        .build();
-
-        when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(
-                new ApiResponse<>(200, null, metricsApi));
-        when(metricsApi.getCounts()).thenReturn(new CountsApi().appointments(new AppointmentsApi()
-                .totalCount(1)
-                .activeCount(0)
-                .resignedCount(1)));
-        when(companyAppointmentRepository.getCompanyAppointments(any(), any(), any(), anyInt(),
-                anyInt(), anyBoolean(), anyBoolean())).thenReturn(allAppointmentData);
-        when(companyRegisterService.isRegisterHeldInCompaniesHouse(eq("registerType"), any())).thenReturn(
-                true);
-
-        OfficerList result = companyAppointmentService.fetchAppointmentsForCompany(request);
-
-        assertEquals(1, result.getTotalResults());
-        assertEquals(0, result.getActiveCount());
-        assertEquals(1, result.getResignedCount());
     }
 
     @Test

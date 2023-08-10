@@ -1,6 +1,5 @@
 package uk.gov.companieshouse.company_appointments.service;
 
-import static java.util.Collections.emptyList;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static uk.gov.companieshouse.logging.util.LogContextProperties.REQUEST_ID;
 
@@ -10,7 +9,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.MDC;
 import org.springframework.dao.DataAccessException;
@@ -38,8 +36,7 @@ import uk.gov.companieshouse.logging.LoggerFactory;
 @Service
 public class CompanyAppointmentService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(
-            CompanyAppointmentsApplication.APPLICATION_NAMESPACE);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CompanyAppointmentsApplication.APPLICATION_NAMESPACE);
     private static final String PATCH_APPOINTMENT_ERROR_MESSAGE = "Request failed for company [%s] with appointment [%s], contextId: [%s]: ";
     private static final String PATCH_APPOINTMENTS_ERROR_MESSAGE = "Request failed for company [%s], contextId: [%s]: ";
     private static final int DEFAULT_ITEMS_PER_PAGE = 35;
@@ -54,11 +51,11 @@ public class CompanyAppointmentService {
     private final Clock clock;
 
     public CompanyAppointmentService(CompanyAppointmentRepository companyAppointmentRepository,
-                                     CompanyAppointmentMapper companyAppointmentMapper,
-                                     CompanyRegisterService companyRegisterService,
-                                     CompanyMetricsApiService companyMetricsApiService,
-                                     CompanyStatusValidator companyStatusValidator,
-                                     Clock clock) {
+            CompanyAppointmentMapper companyAppointmentMapper,
+            CompanyRegisterService companyRegisterService,
+            CompanyMetricsApiService companyMetricsApiService,
+            CompanyStatusValidator companyStatusValidator,
+            Clock clock) {
         this.companyAppointmentRepository = companyAppointmentRepository;
         this.companyAppointmentMapper = companyAppointmentMapper;
         this.companyRegisterService = companyRegisterService;
@@ -69,13 +66,16 @@ public class CompanyAppointmentService {
 
     public OfficerSummary fetchAppointment(String companyNumber, String appointmentID) throws NotFoundException {
         LOGGER.debug(String.format("Fetching appointment [%s] for company [%s]", appointmentID, companyNumber));
-        CompanyAppointmentDocument appointmentData = companyAppointmentRepository.readByCompanyNumberAndAppointmentID(companyNumber, appointmentID)
-                .orElseThrow(() -> new NotFoundException(String.format("Appointment [%s] for company [%s] not found", appointmentID, companyNumber)));
+        CompanyAppointmentDocument appointmentData = companyAppointmentRepository.readByCompanyNumberAndAppointmentID(
+                        companyNumber, appointmentID)
+                .orElseThrow(() -> new NotFoundException(
+                        String.format("Appointment [%s] for company [%s] not found", appointmentID, companyNumber)));
         return companyAppointmentMapper.map(appointmentData)
                 .etag(appointmentData.getData().getEtag());
     }
 
-    public OfficerList fetchAppointmentsForCompany(FetchAppointmentsRequest request) throws NotFoundException, ServiceUnavailableException {
+    public OfficerList fetchAppointmentsForCompany(FetchAppointmentsRequest request)
+            throws NotFoundException, ServiceUnavailableException {
         String companyNumber = request.getCompanyNumber();
         String orderBy = request.getOrderBy();
         String filter = request.getFilter();
@@ -97,14 +97,14 @@ public class CompanyAppointmentService {
             throw new NotFoundException("Register not held at Companies House");
         }
 
-        List<CompanyAppointmentDocument> allAppointmentData = companyAppointmentRepository.getCompanyAppointments(
-                companyNumber, orderBy, registerType, startIndex, itemsPerPage, registerView,
-                filterEnabled);
-
         AppointmentsApi appointmentsCounts = Optional.ofNullable(metricsApi.getCounts())
                 .map(CountsApi::getAppointments)
                 .orElseThrow(() -> new NotFoundException(
                         String.format("Appointments metrics for company number [%s] not found", companyNumber)));
+
+        List<CompanyAppointmentDocument> allAppointmentData = companyAppointmentRepository.getCompanyAppointments(
+                companyNumber, orderBy, registerType, startIndex, itemsPerPage, registerView,
+                filterEnabled);
 
         if (allAppointmentData.isEmpty()) {
             return new OfficerList()
@@ -128,16 +128,16 @@ public class CompanyAppointmentService {
                 .collect(Collectors.toList());
 
         return new OfficerList()
-                    .totalResults(counts.getTotalResults())
-                    .items(officerSummaries)
-                    .activeCount(counts.getActive())
-                    .inactiveCount(counts.getInactive())
-                    .resignedCount(counts.getResigned())
-                    .kind(OfficerList.KindEnum.OFFICER_LIST)
-                    .startIndex(startIndex)
-                    .itemsPerPage(itemsPerPage)
-                    .links(new LinkTypes().self(String.format("/company/%s/officers", companyNumber)))
-                    .etag(officerSummaries.isEmpty() ? "" : officerSummaries.get(0).getEtag());
+                .totalResults(counts.getTotalResults())
+                .items(officerSummaries)
+                .activeCount(counts.getActive())
+                .inactiveCount(counts.getInactive())
+                .resignedCount(counts.getResigned())
+                .kind(OfficerList.KindEnum.OFFICER_LIST)
+                .startIndex(startIndex)
+                .itemsPerPage(itemsPerPage)
+                .links(new LinkTypes().self(String.format("/company/%s/officers", companyNumber)))
+                .etag(officerSummaries.isEmpty() ? "" : officerSummaries.get(0).getEtag());
     }
 
     public void patchCompanyNameStatus(String companyNumber, String companyName,
@@ -188,14 +188,20 @@ public class CompanyAppointmentService {
                     getContextId()));
         }
 
-        LOGGER.debug(String.format("Patching company name: [%s] and company status [%s] for company [%s] with appointment [%s]",
+        LOGGER.debug(String.format(
+                "Patching company name: [%s] and company status [%s] for company [%s] with appointment [%s]",
                 companyName, companyStatus, companyNumber, appointmentId));
         try {
-            boolean isUpdated = companyAppointmentRepository.patchAppointmentNameStatus(appointmentId, companyName, companyStatus, Instant.now(clock), GenerateEtagUtil.generateEtag()) == 1L;
+            boolean isUpdated =
+                    companyAppointmentRepository.patchAppointmentNameStatus(appointmentId, companyName, companyStatus,
+                            Instant.now(clock), GenerateEtagUtil.generateEtag()) == 1L;
             if (!isUpdated) {
-                throw new NotFoundException(String.format("Appointment [%s] for company [%s] not found during PATCH request", appointmentId, companyNumber));
+                throw new NotFoundException(
+                        String.format("Appointment [%s] for company [%s] not found during PATCH request", appointmentId,
+                                companyNumber));
             }
-            LOGGER.debug(String.format("Appointment [%s] for company [%s] updated successfully", appointmentId, companyNumber));
+            LOGGER.debug(String.format("Appointment [%s] for company [%s] updated successfully", appointmentId,
+                    companyNumber));
         } catch (DataAccessException ex) {
             throw new ServiceUnavailableException(
                     String.format(PATCH_APPOINTMENT_ERROR_MESSAGE + "error connecting to MongoDB.",
@@ -246,9 +252,8 @@ public class CompanyAppointmentService {
                     totalResults = appointments.getActiveLlpMembersCount();
                     break;
                 default:
-                    active = appointments.getActiveCount();
-                    resigned = appointments.getResignedCount();
-                    totalResults = appointments.getTotalCount();
+                    throw new BadRequestException(
+                            "Incorrect register type, must be directors, secretaries or llp_members");
             }
             inactive = null;
         }
@@ -260,21 +265,13 @@ public class CompanyAppointmentService {
                 case "converted-closed":
                     active = 0;
                     inactive = appointments.getActiveCount();
-                    if(isFilterEnabled) {
-                        totalResults = 0;
-                    } else {
-                        totalResults = appointments.getTotalCount();
-                    }
                     break;
                 default:
                     active = appointments.getActiveCount();
                     inactive = 0;
-                    if(isFilterEnabled){
-                        totalResults = appointments.getActiveCount();
-                    } else {
-                        totalResults = appointments.getTotalCount();
-                    }
+
             }
+            totalResults = isFilterEnabled ? appointments.getActiveCount() : appointments.getTotalCount();
             resigned = appointments.getResignedCount();
         }
 
