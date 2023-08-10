@@ -1,13 +1,17 @@
 package uk.gov.companieshouse.company_appointments.service;
 
+import static java.util.Collections.emptyList;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static uk.gov.companieshouse.logging.util.LogContextProperties.REQUEST_ID;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.MDC;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
@@ -50,11 +54,11 @@ public class CompanyAppointmentService {
     private final Clock clock;
 
     public CompanyAppointmentService(CompanyAppointmentRepository companyAppointmentRepository,
-            CompanyAppointmentMapper companyAppointmentMapper,
-            CompanyRegisterService companyRegisterService,
-            CompanyMetricsApiService companyMetricsApiService,
-            CompanyStatusValidator companyStatusValidator,
-            Clock clock) {
+                                     CompanyAppointmentMapper companyAppointmentMapper,
+                                     CompanyRegisterService companyRegisterService,
+                                     CompanyMetricsApiService companyMetricsApiService,
+                                     CompanyStatusValidator companyStatusValidator,
+                                     Clock clock) {
         this.companyAppointmentRepository = companyAppointmentRepository;
         this.companyAppointmentMapper = companyAppointmentMapper;
         this.companyRegisterService = companyRegisterService;
@@ -81,7 +85,7 @@ public class CompanyAppointmentService {
         int itemsPerPage = Optional.ofNullable(request.getItemsPerPage())
                 .orElse(DEFAULT_ITEMS_PER_PAGE);
         final boolean registerView = request.getRegisterView() != null && request.getRegisterView();
-        boolean filterActiveOnly = (filter != null && filter.equals(ACTIVE)) || registerView;
+        boolean filterEnabled = checkFilterEnabled(filter, companyNumber);
 
         LOGGER.debug(
                 String.format("Fetching appointments for company [%s] with order by [%s]", companyNumber, orderBy));
@@ -95,18 +99,29 @@ public class CompanyAppointmentService {
 
         List<CompanyAppointmentDocument> allAppointmentData = companyAppointmentRepository.getCompanyAppointments(
                 companyNumber, orderBy, registerType, startIndex, itemsPerPage, registerView,
-                filterActiveOnly);
+                filterEnabled);
 
-        if (allAppointmentData.isEmpty()) {
-            throw new NotFoundException(String.format("Appointments for company [%s] not found", companyNumber));
-        }
         AppointmentsApi appointmentsCounts = Optional.ofNullable(metricsApi.getCounts())
                 .map(CountsApi::getAppointments)
                 .orElseThrow(() -> new NotFoundException(
                         String.format("Appointments metrics for company number [%s] not found", companyNumber)));
 
-        Counts counts = registerView? new Counts(appointmentsCounts, registerType) :
-                new Counts(appointmentsCounts, allAppointmentData.get(0).getCompanyStatus(), filterActiveOnly);
+        if (allAppointmentData.isEmpty()) {
+            return new OfficerList()
+                    .totalResults(0)
+                    .items(Collections.emptyList())
+                    .activeCount(0)
+                    .inactiveCount(0)
+                    .resignedCount(0)
+                    .kind(OfficerList.KindEnum.OFFICER_LIST)
+                    .startIndex(startIndex)
+                    .itemsPerPage(itemsPerPage)
+                    .links(new LinkTypes())
+                    .etag("");
+        }
+
+        Counts counts = registerView ? new Counts(appointmentsCounts, registerType) :
+                new Counts(appointmentsCounts, allAppointmentData.get(0).getCompanyStatus(), filterEnabled);
 
         List<OfficerSummary> officerSummaries = allAppointmentData.stream()
                 .map(appointment -> companyAppointmentMapper.map(appointment, registerView))
@@ -185,6 +200,20 @@ public class CompanyAppointmentService {
             throw new ServiceUnavailableException(
                     String.format(PATCH_APPOINTMENT_ERROR_MESSAGE + "error connecting to MongoDB.",
                             companyNumber, appointmentId, getContextId()));
+        }
+    }
+
+    private boolean checkFilterEnabled(String filter, String companyNumber) {
+        if (StringUtils.isNotBlank(filter)) {
+            if (ACTIVE.equals(filter)) {
+                return true;
+            } else {
+                throw new BadRequestException(
+                        String.format("Invalid filter parameter supplied: %s, company number: %s",
+                                filter, companyNumber));
+            }
+        } else {
+            return false;
         }
     }
 
