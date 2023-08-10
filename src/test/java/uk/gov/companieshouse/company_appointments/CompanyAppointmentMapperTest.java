@@ -239,26 +239,12 @@ class CompanyAppointmentMapperTest {
                             .officerRole(secretary.getRole())
                             .build()));
 
-
             //then
             assertEquals(expectedCompanyAppointment()
                     .officerRole(OfficerSummary.OfficerRoleEnum.fromValue(secretary.getRole()))
                     .countryOfResidence(null)
                     .dateOfBirth(null), actual);
         });
-    }
-
-    @Test
-    void testCompanyAppointmentMapperWithResponsibilities() {
-        //when
-        OfficerSummary actual = companyAppointmentMapper.map(
-                companyAppointmentData(officerData()
-                        .responsibilities("responsibilities")
-                        .build()));
-
-        //then
-        assertEquals(expectedCompanyAppointment()
-                .responsibilities("responsibilities"), actual);
     }
 
     @Test
@@ -293,20 +279,6 @@ class CompanyAppointmentMapperTest {
     }
 
     @Test
-    void testCompanyAppointmentMapperContactDetails() {
-        //when
-        OfficerSummary actual = companyAppointmentMapper.map(
-                companyAppointmentData(officerData()
-                        .contactDetails(new DeltaContactDetails().setContactName("John"))
-                        .build()));
-
-        //then
-        assertEquals(expectedCompanyAppointment()
-                .contactDetails(new ContactDetails()
-                        .contactName("John")), actual);
-    }
-
-    @Test
     void testCompanyAppointmentMapperWithRegisterViewTrue() {
         //when
         OfficerSummary actual = companyAppointmentMapper.map(
@@ -324,16 +296,6 @@ class CompanyAppointmentMapperTest {
 
         // then
         assertEquals(pre1992AppointmentSummary(), actual);
-    }
-
-    @Test
-    void testCompanyAppointmentMapperWithPersonNumber() {
-        //when
-        OfficerSummary actual = companyAppointmentMapper.map(
-                companyAppointmentData(officerData().personNumber("personNumber").build()));
-
-        //then
-        assertEquals(expectedCompanyAppointment().personNumber("personNumber"), actual);
     }
 
     private CompanyAppointmentDocument companyAppointmentData(DeltaOfficerData officerData) {
@@ -416,17 +378,8 @@ class CompanyAppointmentMapperTest {
                         .setPremises("Premises")
                         .setRegion("Region"))
                 .responsibilities("responsibilities")
-                .principalOfficeAddress(new DeltaPrincipalOfficeAddress()
-                        .setAddressLine1("Address 1")
-                        .setAddressLine2("Address 2")
-                        .setCareOf("Care of")
-                        .setCountry("Country")
-                        .setLocality("Locality")
-                        .setPostalCode("AB01 9XY")
-                        .setPoBox("PO Box")
-                        .setPremises("Premises")
-                        .setRegion("Region"))
-                .contactDetails(new DeltaContactDetails().setContactName("Name"));
+                .contactDetails(new DeltaContactDetails().setContactName("Name"))
+                .personNumber("personNumber");
     }
 
     private OfficerSummary expectedCompanyAppointment() {
@@ -457,17 +410,8 @@ class CompanyAppointmentMapperTest {
                         .premises("Premises")
                         .region("Region"))
                 .responsibilities("responsibilities")
-                .principalOfficeAddress(new PrincipalOfficeAddress()
-                        .addressLine1("Address 1")
-                        .addressLine2("Address 2")
-                        .careOf("Care of")
-                        .country("Country")
-                        .locality("Locality")
-                        .postalCode("AB01 9XY")
-                        .poBox("PO Box")
-                        .premises("Premises")
-                        .region("Region"))
                 .contactDetails(new ContactDetails()
-                        .contactName("Name"));
+                        .contactName("Name"))
+                .personNumber("personNumber");
     }
 }
