@@ -87,6 +87,38 @@ public class DeltaOfficerData {
   @Valid
   private List<DeltaFormerNames> formerNames = null;
 
+  public DeltaOfficerData() {
+  }
+
+  private DeltaOfficerData(Builder builder) {
+    personNumber = builder.personNumber;
+    etag = builder.etag;
+    serviceAddress = builder.serviceAddress;
+    serviceAddressSameAsRegisteredOfficeAddress = builder.serviceAddressSameAsRegisteredOfficeAddress;
+    countryOfResidence = builder.countryOfResidence;
+    appointedOn = builder.appointedOn;
+    appointedBefore = builder.appointedBefore;
+    isPre1992Appointment = builder.isPre1992Appointment;
+    links = builder.links;
+    nationality = builder.nationality;
+    occupation = builder.occupation;
+    officerRole = builder.officerRole;
+    isSecureOfficer = builder.isSecureOfficer;
+    identification = builder.identification;
+    companyName = builder.companyName;
+    surname = builder.surname;
+    forename = builder.forename;
+    honours = builder.honours;
+    otherForenames = builder.otherForenames;
+    title = builder.title;
+    companyNumber = builder.companyNumber;
+    contactDetails = builder.contactDetails;
+    principalOfficeAddress = builder.principalOfficeAddress;
+    resignedOn = builder.resignedOn;
+    responsibilities = builder.responsibilities;
+    formerNames = builder.formerNames;
+  }
+
   public String getPersonNumber() {
     return personNumber;
   }
@@ -109,7 +141,8 @@ public class DeltaOfficerData {
     return serviceAddress;
   }
 
-  public DeltaOfficerData setServiceAddress(DeltaServiceAddress serviceAddress) {
+  public DeltaOfficerData setServiceAddress(
+          DeltaServiceAddress serviceAddress) {
     this.serviceAddress = serviceAddress;
     return this;
   }
@@ -209,7 +242,8 @@ public class DeltaOfficerData {
     return identification;
   }
 
-  public DeltaOfficerData setIdentification(DeltaIdentification identification) {
+  public DeltaOfficerData setIdentification(
+          DeltaIdentification identification) {
     this.identification = identification;
     return this;
   }
@@ -281,7 +315,8 @@ public class DeltaOfficerData {
     return contactDetails;
   }
 
-  public DeltaOfficerData setContactDetails(DeltaContactDetails contactDetails) {
+  public DeltaOfficerData setContactDetails(
+          DeltaContactDetails contactDetails) {
     this.contactDetails = contactDetails;
     return this;
   }
@@ -407,5 +442,176 @@ public class DeltaOfficerData {
       return "null";
     }
     return o.toString().replace("\n", "\n    ");
+  }
+
+  public static final class Builder {
+
+    private String personNumber;
+    private String etag;
+    private DeltaServiceAddress serviceAddress;
+    private Boolean serviceAddressSameAsRegisteredOfficeAddress;
+    private String countryOfResidence;
+    private Instant appointedOn;
+    private Instant appointedBefore;
+    private Boolean isPre1992Appointment;
+    private @Valid DeltaItemLinkTypes links;
+    private String nationality;
+    private String occupation;
+    private String officerRole;
+    private Boolean isSecureOfficer;
+    private DeltaIdentification identification;
+    private String companyName;
+    private String surname;
+    private String forename;
+    private String honours;
+    private String otherForenames;
+    private String title;
+    private String companyNumber;
+    private DeltaContactDetails contactDetails;
+    private DeltaPrincipalOfficeAddress principalOfficeAddress;
+    private Instant resignedOn;
+    private String responsibilities;
+    private @Valid List<DeltaFormerNames> formerNames;
+
+    private Builder() {
+    }
+
+    public static Builder builder() {
+      return new Builder();
+    }
+
+    public Builder personNumber(String personNumber) {
+      this.personNumber = personNumber;
+      return this;
+    }
+
+    public Builder etag(String etag) {
+      this.etag = etag;
+      return this;
+    }
+
+    public Builder serviceAddress(DeltaServiceAddress serviceAddress) {
+      this.serviceAddress = serviceAddress;
+      return this;
+    }
+
+    public Builder serviceAddressSameAsRegisteredOfficeAddress(Boolean serviceAddressSameAsRegisteredOfficeAddress) {
+      this.serviceAddressSameAsRegisteredOfficeAddress = serviceAddressSameAsRegisteredOfficeAddress;
+      return this;
+    }
+
+    public Builder countryOfResidence(String countryOfResidence) {
+      this.countryOfResidence = countryOfResidence;
+      return this;
+    }
+
+    public Builder appointedOn(Instant appointedOn) {
+      this.appointedOn = appointedOn;
+      return this;
+    }
+
+    public Builder appointedBefore(Instant appointedBefore) {
+      this.appointedBefore = appointedBefore;
+      return this;
+    }
+
+    public Builder isPre1992Appointment(Boolean isPre1992Appointment) {
+      this.isPre1992Appointment = isPre1992Appointment;
+      return this;
+    }
+
+    public Builder links(@Valid DeltaItemLinkTypes links) {
+      this.links = links;
+      return this;
+    }
+
+    public Builder nationality(String nationality) {
+      this.nationality = nationality;
+      return this;
+    }
+
+    public Builder occupation(String occupation) {
+      this.occupation = occupation;
+      return this;
+    }
+
+    public Builder officerRole(String officerRole) {
+      this.officerRole = officerRole;
+      return this;
+    }
+
+    public Builder isSecureOfficer(Boolean isSecureOfficer) {
+      this.isSecureOfficer = isSecureOfficer;
+      return this;
+    }
+
+    public Builder identification(DeltaIdentification identification) {
+      this.identification = identification;
+      return this;
+    }
+
+    public Builder companyName(String companyName) {
+      this.companyName = companyName;
+      return this;
+    }
+
+    public Builder surname(String surname) {
+      this.surname = surname;
+      return this;
+    }
+
+    public Builder forename(String forename) {
+      this.forename = forename;
+      return this;
+    }
+
+    public Builder honours(String honours) {
+      this.honours = honours;
+      return this;
+    }
+
+    public Builder otherForenames(String otherForenames) {
+      this.otherForenames = otherForenames;
+      return this;
+    }
+
+    public Builder title(String title) {
+      this.title = title;
+      return this;
+    }
+
+    public Builder companyNumber(String companyNumber) {
+      this.companyNumber = companyNumber;
+      return this;
+    }
+
+    public Builder contactDetails(DeltaContactDetails contactDetails) {
+      this.contactDetails = contactDetails;
+      return this;
+    }
+
+    public Builder principalOfficeAddress(DeltaPrincipalOfficeAddress principalOfficeAddress) {
+      this.principalOfficeAddress = principalOfficeAddress;
+      return this;
+    }
+
+    public Builder resignedOn(Instant resignedOn) {
+      this.resignedOn = resignedOn;
+      return this;
+    }
+
+    public Builder responsibilities(String responsibilities) {
+      this.responsibilities = responsibilities;
+      return this;
+    }
+
+    public Builder formerNames(@Valid List<DeltaFormerNames> formerNames) {
+      this.formerNames = formerNames;
+      return this;
+    }
+
+    public DeltaOfficerData build() {
+      return new DeltaOfficerData(this);
+    }
   }
 }

@@ -43,8 +43,8 @@ class DeltaAppointmentTransformerAspectTest {
     void populateCompanyNameAndStatus() throws Exception {
         // given
         CompanyAppointmentDocument document = new CompanyAppointmentDocument()
-                .setAppointmentId(APPOINTMENT_ID)
-                .setCompanyNumber(COMPANY_NUMBER);
+                .appointmentId(APPOINTMENT_ID)
+                .companyNumber(COMPANY_NUMBER);
         Data data = new Data()
                 .companyName(COMPANY_NAME)
                 .companyStatus(COMPANY_STATUS);
@@ -79,8 +79,8 @@ class DeltaAppointmentTransformerAspectTest {
     void companyProfileClientReturnsNotFound() throws Exception {
         // given
         CompanyAppointmentDocument document = new CompanyAppointmentDocument()
-                .setAppointmentId(APPOINTMENT_ID)
-                .setCompanyNumber(COMPANY_NUMBER);
+                .appointmentId(APPOINTMENT_ID)
+                .companyNumber(COMPANY_NUMBER);
 
         when(companyProfileClient.getCompanyProfile(any())).thenThrow(NotFoundException.class);
 
@@ -97,8 +97,8 @@ class DeltaAppointmentTransformerAspectTest {
     void companyProfileClientReturns5xx() throws Exception {
         // given
         CompanyAppointmentDocument document = new CompanyAppointmentDocument()
-                .setAppointmentId(APPOINTMENT_ID)
-                .setCompanyNumber(COMPANY_NUMBER);
+                .appointmentId(APPOINTMENT_ID)
+                .companyNumber(COMPANY_NUMBER);
 
         when(companyProfileClient.getCompanyProfile(any())).thenThrow(ServiceUnavailableException.class);
 
@@ -115,8 +115,8 @@ class DeltaAppointmentTransformerAspectTest {
     void companyProfileClientReturnsNullData() throws Exception {
         // given
         CompanyAppointmentDocument document = new CompanyAppointmentDocument()
-                .setAppointmentId(APPOINTMENT_ID)
-                .setCompanyNumber(COMPANY_NUMBER);
+                .appointmentId(APPOINTMENT_ID)
+                .companyNumber(COMPANY_NUMBER);
 
         when(companyProfileClient.getCompanyProfile(any())).thenReturn(Optional.empty());
 

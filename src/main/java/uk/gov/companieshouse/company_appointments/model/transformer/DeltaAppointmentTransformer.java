@@ -1,6 +1,7 @@
 package uk.gov.companieshouse.company_appointments.model.transformer;
 
 import org.springframework.stereotype.Component;
+import uk.gov.companieshouse.api.appointment.ExternalData;
 import uk.gov.companieshouse.api.appointment.FullRecordCompanyOfficerApi;
 import uk.gov.companieshouse.api.appointment.InternalData;
 import uk.gov.companieshouse.company_appointments.exception.FailedToTransformException;
@@ -35,27 +36,24 @@ public class DeltaAppointmentTransformer implements Transformative<FullRecordCom
     @AddCompanyNameAndStatus
     public CompanyAppointmentDocument transform(FullRecordCompanyOfficerApi api, CompanyAppointmentDocument entity) throws FailedToTransformException {
         try {
-            var externalData = api.getExternalData();
-            entity.setData(officerDataTransformer.transform(externalData.getData()));
-            entity.setSensitiveData(externalData.getSensitiveData() != null?
-                    sensitiveDataTransformer.transform(externalData.getSensitiveData()) : null);
-            entity.setId(externalData.getAppointmentId());
-            entity.setInternalId(externalData.getInternalId());
-            entity.setAppointmentId(externalData.getAppointmentId());
-            entity.setOfficerId(externalData.getOfficerId());
-            entity.setPreviousOfficerId(externalData.getPreviousOfficerId());
-            entity.setCompanyNumber(externalData.getCompanyNumber());
-            populateInternalFields(entity, api.getInternalData());
+            ExternalData externalData = api.getExternalData();
+            InternalData internalData = api.getInternalData();
 
-            return entity;
+            return entity.data(officerDataTransformer.transform(externalData.getData()))
+                    .sensitiveData(externalData.getSensitiveData() != null ?
+                            sensitiveDataTransformer.transform(externalData.getSensitiveData()) : null)
+                    .id(externalData.getAppointmentId())
+                    .internalId(externalData.getInternalId())
+                    .appointmentId(externalData.getAppointmentId())
+                    .officerId(externalData.getOfficerId())
+                    .previousOfficerId(externalData.getPreviousOfficerId())
+                    .companyNumber(externalData.getCompanyNumber())
+                    .deltaAt(internalData.getDeltaAt().toInstant())
+                    .updatedBy(internalData.getUpdatedBy())
+                    .officerRoleSortOrder(internalData.getOfficerRoleSortOrder());
         } catch(Exception e) {
             throw new FailedToTransformException(String.format("Failed to transform API payload: %s", e.getMessage()));
         }
     }
 
-    private void populateInternalFields(CompanyAppointmentDocument entity, InternalData internalData) {
-        entity.setDeltaAt(internalData.getDeltaAt().toInstant());
-        entity.setUpdatedBy(internalData.getUpdatedBy());
-        entity.setOfficerRoleSortOrder(internalData.getOfficerRoleSortOrder());
-    }
 }

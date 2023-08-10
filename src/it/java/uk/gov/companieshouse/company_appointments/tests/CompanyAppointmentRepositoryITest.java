@@ -26,13 +26,13 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import uk.gov.companieshouse.company_appointments.CompanyAppointmentsApplication;
 import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentDocument;
-import uk.gov.companieshouse.company_appointments.repository.CompanyAppointmentFullRecordRepository;
+import uk.gov.companieshouse.company_appointments.repository.CompanyAppointmentRepository;
 
 @Testcontainers
 @AutoConfigureMockMvc
 @SpringBootTest(classes = CompanyAppointmentsApplication.class, webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
-class CompanyAppointmentFullRecordRepositoryITest {
+class CompanyAppointmentRepositoryITest {
 
     private static final String APPOINTMENT_ID = "7IjxamNGLlqtIingmTZJJ42Hw9Q";
     private static final String APPOINTMENT_ID_2 = "app2";
@@ -43,7 +43,7 @@ class CompanyAppointmentFullRecordRepositoryITest {
     private static final String INITIAL_APPOINTMENT_ID = "fedb91fa70ce4ef335d6d2e24f2f7242c9360a69";
 
     @Autowired
-    private CompanyAppointmentFullRecordRepository repository;
+    private CompanyAppointmentRepository repository;
 
     @Autowired
     private MongoTemplate mongoTemplate;

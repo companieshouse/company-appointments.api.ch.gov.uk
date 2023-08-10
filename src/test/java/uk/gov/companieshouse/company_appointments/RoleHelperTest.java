@@ -7,8 +7,8 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentData;
-import uk.gov.companieshouse.company_appointments.model.data.OfficerData;
+import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentDocument;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaOfficerData;
 import uk.gov.companieshouse.company_appointments.roles.DirectorRoles;
 import uk.gov.companieshouse.company_appointments.roles.LlpRoles;
 import uk.gov.companieshouse.company_appointments.roles.RoleHelper;
@@ -19,93 +19,100 @@ class RoleHelperTest {
 
     @Test
     void testIsDirectorTrue() {
-        for(String role: DirectorRoles.stream().map(DirectorRoles::getRole).collect(Collectors.toList())){
-            OfficerData officerData = OfficerData.builder().withOfficerRole(role).build();
-            CompanyAppointmentData companyAppointmentData = new CompanyAppointmentData("1", officerData, "active");
-            boolean result = RoleHelper.isDirector(companyAppointmentData);
+        for (String role : DirectorRoles.stream().map(DirectorRoles::getRole).collect(Collectors.toList())) {
+            DeltaOfficerData officerData = DeltaOfficerData.Builder.builder().officerRole(role).build();
+            CompanyAppointmentDocument appointmentDocument = buildCompanyAppointmentDocument(officerData);
+            boolean result = RoleHelper.isDirector(appointmentDocument);
             assertTrue(result);
         }
     }
 
     @Test
     void testIsSecretariesTrue() {
-        for(String role: SecretarialRoles.stream().map(SecretarialRoles::getRole).collect(Collectors.toList())){
-            OfficerData officerData = OfficerData.builder().withOfficerRole(role).build();
-            CompanyAppointmentData companyAppointmentData = new CompanyAppointmentData("1", officerData, "active");
-            boolean result = RoleHelper.isSecretary(companyAppointmentData);
+        for (String role : SecretarialRoles.stream().map(SecretarialRoles::getRole).collect(Collectors.toList())) {
+            DeltaOfficerData officerData = DeltaOfficerData.Builder.builder().officerRole(role).build();
+            CompanyAppointmentDocument appointmentDocument = buildCompanyAppointmentDocument(officerData);
+            boolean result = RoleHelper.isSecretary(appointmentDocument);
             assertTrue(result);
         }
     }
 
     @Test
     void testIsLlpMemberTrue() {
-        for(String role: LlpRoles.stream().map(LlpRoles::getRole).collect(Collectors.toList())){
-            OfficerData officerData = OfficerData.builder().withOfficerRole(role).build();
-            CompanyAppointmentData companyAppointmentData = new CompanyAppointmentData("1", officerData, "active");
-            boolean result = RoleHelper.isLlpMember(companyAppointmentData);
+        for (String role : LlpRoles.stream().map(LlpRoles::getRole).collect(Collectors.toList())) {
+            DeltaOfficerData officerData = DeltaOfficerData.Builder.builder().officerRole(role).build();
+            CompanyAppointmentDocument appointmentDocument = buildCompanyAppointmentDocument(officerData);
+            boolean result = RoleHelper.isLlpMember(appointmentDocument);
             assertTrue(result);
         }
     }
 
     @Test
     void testIsDirectorFalse() {
-        OfficerData officerData = OfficerData.builder().withOfficerRole("not director").build();
-        CompanyAppointmentData companyAppointmentData = new CompanyAppointmentData("1", officerData, "active");
-        boolean result = RoleHelper.isDirector(companyAppointmentData);
+        DeltaOfficerData officerData = DeltaOfficerData.Builder.builder().officerRole("not director").build();
+        CompanyAppointmentDocument appointmentDocument = buildCompanyAppointmentDocument(officerData);
+        boolean result = RoleHelper.isDirector(appointmentDocument);
         assertFalse(result);
     }
 
     @Test
     void testIsSecretaryFalse() {
-        OfficerData officerData = OfficerData.builder().withOfficerRole("not secretary").build();
-        CompanyAppointmentData companyAppointmentData = new CompanyAppointmentData("1", officerData, "active");
-        boolean result = RoleHelper.isSecretary(companyAppointmentData);
+        DeltaOfficerData officerData = DeltaOfficerData.Builder.builder().officerRole("not secretary").build();
+        CompanyAppointmentDocument appointmentDocument = buildCompanyAppointmentDocument(officerData);
+        boolean result = RoleHelper.isSecretary(appointmentDocument);
         assertFalse(result);
     }
 
     @Test
     void testIsLlpMemberFalse() {
-        OfficerData officerData = OfficerData.builder().withOfficerRole("not llp member").build();
-        CompanyAppointmentData companyAppointmentData = new CompanyAppointmentData("1", officerData, "active");
-        boolean result = RoleHelper.isLlpMember(companyAppointmentData);
+        DeltaOfficerData officerData = DeltaOfficerData.Builder.builder().officerRole("not llp member").build();
+        CompanyAppointmentDocument appointmentDocument = buildCompanyAppointmentDocument(officerData);
+        boolean result = RoleHelper.isLlpMember(appointmentDocument);
         assertFalse(result);
     }
 
     @Test
     void testIsRegisterTypeDirectorTrue() {
-        for(String role: DirectorRoles.stream().map(DirectorRoles::getRole).collect(Collectors.toList())){
-            OfficerData officerData = OfficerData.builder().withOfficerRole(role).build();
-            CompanyAppointmentData companyAppointmentData = new CompanyAppointmentData("1", officerData, "active");
-            boolean result = RoleHelper.isRegisterType(companyAppointmentData, "directors");
+        for (String role : DirectorRoles.stream().map(DirectorRoles::getRole).collect(Collectors.toList())) {
+            DeltaOfficerData officerData = DeltaOfficerData.Builder.builder().officerRole(role).build();
+            CompanyAppointmentDocument appointmentDocument = buildCompanyAppointmentDocument(officerData);
+            boolean result = RoleHelper.isRegisterType(appointmentDocument, "directors");
             assertTrue(result);
         }
     }
 
     @Test
     void testIsRegisterTypeSecretariesTrue() {
-        for(String role: SecretarialRoles.stream().map(SecretarialRoles::getRole).collect(Collectors.toList())){
-            OfficerData officerData = OfficerData.builder().withOfficerRole(role).build();
-            CompanyAppointmentData companyAppointmentData = new CompanyAppointmentData("1", officerData, "active");
-            boolean result = RoleHelper.isRegisterType(companyAppointmentData, "secretaries");
+        for (String role : SecretarialRoles.stream().map(SecretarialRoles::getRole).collect(Collectors.toList())) {
+            DeltaOfficerData officerData = DeltaOfficerData.Builder.builder().officerRole(role).build();
+            CompanyAppointmentDocument appointmentDocument = buildCompanyAppointmentDocument(officerData);
+            boolean result = RoleHelper.isRegisterType(appointmentDocument, "secretaries");
             assertTrue(result);
         }
     }
 
     @Test
     void testIsRegisterTypeLlpMemberTrue() {
-        for(String role: LlpRoles.stream().map(LlpRoles::getRole).collect(Collectors.toList())){
-            OfficerData officerData = OfficerData.builder().withOfficerRole(role).build();
-            CompanyAppointmentData companyAppointmentData = new CompanyAppointmentData("1", officerData, "active");
-            boolean result = RoleHelper.isRegisterType(companyAppointmentData, "llp_members");
+        for (String role : LlpRoles.stream().map(LlpRoles::getRole).collect(Collectors.toList())) {
+            DeltaOfficerData officerData = DeltaOfficerData.Builder.builder().officerRole(role).build();
+            CompanyAppointmentDocument appointmentDocument = buildCompanyAppointmentDocument(officerData);
+            boolean result = RoleHelper.isRegisterType(appointmentDocument, "llp_members");
             assertTrue(result);
         }
     }
 
     @Test
     void testIsRegisterTypeInvalidReturnsFalse() {
-        OfficerData officerData = OfficerData.builder().withOfficerRole("director").build();
-        CompanyAppointmentData companyAppointmentData = new CompanyAppointmentData("1", officerData, "active");
-        boolean result = RoleHelper.isRegisterType(companyAppointmentData, "invalid");
+        DeltaOfficerData officerData = DeltaOfficerData.Builder.builder().officerRole("director").build();
+        CompanyAppointmentDocument appointmentDocument = buildCompanyAppointmentDocument(officerData);
+        boolean result = RoleHelper.isRegisterType(appointmentDocument, "invalid");
         assertFalse(result);
+    }
+
+    private CompanyAppointmentDocument buildCompanyAppointmentDocument(DeltaOfficerData data) {
+        return new CompanyAppointmentDocument()
+                .id("1")
+                .data(data)
+                .companyStatus("active");
     }
 }

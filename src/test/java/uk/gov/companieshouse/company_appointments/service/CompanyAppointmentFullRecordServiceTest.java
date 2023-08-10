@@ -1,6 +1,5 @@
 package uk.gov.companieshouse.company_appointments.service;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -50,7 +49,7 @@ import uk.gov.companieshouse.company_appointments.model.data.DeltaSensitiveData;
 import uk.gov.companieshouse.company_appointments.model.transformer.DeltaAppointmentTransformer;
 import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentFullRecordView;
 import uk.gov.companieshouse.company_appointments.model.view.DateOfBirthView;
-import uk.gov.companieshouse.company_appointments.repository.CompanyAppointmentFullRecordRepository;
+import uk.gov.companieshouse.company_appointments.repository.CompanyAppointmentRepository;
 
 @ExtendWith(MockitoExtension.class)
 class CompanyAppointmentFullRecordServiceTest {
@@ -60,7 +59,7 @@ class CompanyAppointmentFullRecordServiceTest {
     @Mock
     private DeltaAppointmentTransformer deltaAppointmentTransformer;
     @Mock
-    private CompanyAppointmentFullRecordRepository companyAppointmentRepository;
+    private CompanyAppointmentRepository companyAppointmentRepository;
     @Mock
     private ResourceChangedApiService resourceChangedApiService;
     @Captor
@@ -101,12 +100,13 @@ class CompanyAppointmentFullRecordServiceTest {
     @Test
     void testFetchAppointmentReturnsMappedAppointmentData() throws NotFoundException {
         // given
-        DeltaOfficerData data = new DeltaOfficerData();
-        data.setOfficerRole("director");
-        DeltaItemLinkTypes linkItem = new DeltaItemLinkTypes();
-        linkItem.setOfficer(new DeltaOfficerLinkTypes());
-        linkItem.setSelf("self");
-        data.setLinks(linkItem);
+        DeltaOfficerData data = DeltaOfficerData.Builder.builder()
+                .officerRole("director")
+                .links(new DeltaItemLinkTypes()
+                        .setSelf("self")
+                        .setOfficer(new DeltaOfficerLinkTypes()
+                                .setSelf("self")))
+                .build();
         DeltaSensitiveData sensitiveData = new DeltaSensitiveData()
                 .setDateOfBirth(Instant.parse("1990-01-12T01:02:30.456789Z"));
         CompanyAppointmentDocument deltaAppointmentDocument = buildDeltaAppointmentDocument(
@@ -139,9 +139,10 @@ class CompanyAppointmentFullRecordServiceTest {
     @Test
     void testPutAppointmentData() throws Exception {
         // given
-        DeltaOfficerData data = new DeltaOfficerData()
-                .setOfficerRole("director")
-                .setEtag("etag");
+        DeltaOfficerData data = DeltaOfficerData.Builder.builder()
+                .officerRole("director")
+                .etag("etag")
+                .build();
         DeltaSensitiveData sensitiveData = new DeltaSensitiveData()
                 .setDateOfBirth(Instant.parse("1990-01-12T01:02:30.456789Z"));
         CompanyAppointmentDocument deltaAppointmentDocument = buildDeltaAppointmentDocument(
@@ -167,12 +168,15 @@ class CompanyAppointmentFullRecordServiceTest {
     @Test
     void testPutAppointmentDataThrowsServiceUnavailableException() throws Exception {
         // given
-        when(deltaAppointmentTransformer.transform(any(FullRecordCompanyOfficerApi.class))).thenReturn(new CompanyAppointmentDocument());
+        when(deltaAppointmentTransformer.transform(any(FullRecordCompanyOfficerApi.class))).thenReturn(
+                new CompanyAppointmentDocument());
         when(companyAppointmentRepository.readByCompanyNumberAndID(any(),
-                any())).thenThrow(new DataAccessException("..."){ });
+                any())).thenThrow(new DataAccessException("...") {
+        });
 
         // When
-        Executable executable = () -> companyAppointmentService.upsertAppointmentDelta(CONTEXT_ID, fullRecordCompanyOfficerApi);
+        Executable executable = () -> companyAppointmentService.upsertAppointmentDelta(CONTEXT_ID,
+                fullRecordCompanyOfficerApi);
 
         // then
         assertThrows(ServiceUnavailableException.class, executable);
@@ -181,11 +185,13 @@ class CompanyAppointmentFullRecordServiceTest {
     @Test
     void testPutAppointmentDataThrowsServiceUnavailableExceptionWhenIllegalArgumentExceptionCaught() throws Exception {
         // given
-        when(deltaAppointmentTransformer.transform(any(FullRecordCompanyOfficerApi.class))).thenReturn(new CompanyAppointmentDocument());
+        when(deltaAppointmentTransformer.transform(any(FullRecordCompanyOfficerApi.class))).thenReturn(
+                new CompanyAppointmentDocument());
         when(resourceChangedApiService.invokeChsKafkaApi(any())).thenThrow(IllegalArgumentException.class);
 
         // When
-        Executable executable = () -> companyAppointmentService.upsertAppointmentDelta(CONTEXT_ID, fullRecordCompanyOfficerApi);
+        Executable executable = () -> companyAppointmentService.upsertAppointmentDelta(CONTEXT_ID,
+                fullRecordCompanyOfficerApi);
 
         // then
         assertThrows(ServiceUnavailableException.class, executable);
@@ -198,7 +204,8 @@ class CompanyAppointmentFullRecordServiceTest {
                 .when(deltaAppointmentTransformer).transform(any(FullRecordCompanyOfficerApi.class));
 
         // When
-        Executable executable = () -> companyAppointmentService.upsertAppointmentDelta(CONTEXT_ID, fullRecordCompanyOfficerApi);
+        Executable executable = () -> companyAppointmentService.upsertAppointmentDelta(CONTEXT_ID,
+                fullRecordCompanyOfficerApi);
 
         // then
         assertThrows(NotFoundException.class, executable);
@@ -215,7 +222,7 @@ class CompanyAppointmentFullRecordServiceTest {
         // given
         fullRecordCompanyOfficerApi.getInternalData().setDeltaAt(incomingDeltaAt);
 
-        DeltaOfficerData data = new DeltaOfficerData();
+        DeltaOfficerData data = DeltaOfficerData.Builder.builder().build();
         DeltaSensitiveData sensitiveData = new DeltaSensitiveData();
         String expectedCompanyNumber = "companyNumber";
         String expectedId = "id";
@@ -278,24 +285,28 @@ class CompanyAppointmentFullRecordServiceTest {
     void testDeleteAppointmentDataThrowsServiceUnavailableException() {
         // given
         when(companyAppointmentRepository.readByCompanyNumberAndID(any(),
-                any())).thenThrow(new DataAccessException("..."){ });
+                any())).thenThrow(new DataAccessException("...") {
+        });
 
         // When
-        Executable executable = () -> companyAppointmentService.deleteAppointmentDelta(CONTEXT_ID, COMPANY_NUMBER, APPOINTMENT_ID);
+        Executable executable = () -> companyAppointmentService.deleteAppointmentDelta(CONTEXT_ID, COMPANY_NUMBER,
+                APPOINTMENT_ID);
 
         // then
         assertThrows(ServiceUnavailableException.class, executable);
     }
 
     @Test
-    void testDeleteAppointmentDataThrowsServiceUnavailableExceptionWhenIllegalArgumentExceptionCaught() throws ServiceUnavailableException {
+    void testDeleteAppointmentDataThrowsServiceUnavailableExceptionWhenIllegalArgumentExceptionCaught()
+            throws ServiceUnavailableException {
         // given
         when(companyAppointmentRepository.readByCompanyNumberAndID(COMPANY_NUMBER, APPOINTMENT_ID))
                 .thenReturn(Optional.of(new CompanyAppointmentDocument()));
         when(resourceChangedApiService.invokeChsKafkaApi(any())).thenThrow(IllegalArgumentException.class);
 
         // When
-        Executable executable = () -> companyAppointmentService.deleteAppointmentDelta(CONTEXT_ID, COMPANY_NUMBER, APPOINTMENT_ID);
+        Executable executable = () -> companyAppointmentService.deleteAppointmentDelta(CONTEXT_ID, COMPANY_NUMBER,
+                APPOINTMENT_ID);
 
         // then
         assertThrows(ServiceUnavailableException.class, executable);
@@ -327,38 +338,37 @@ class CompanyAppointmentFullRecordServiceTest {
     @NotNull
     private static CompanyAppointmentDocument buildDeltaAppointmentDocument(Instant existingDeltaAt,
             DeltaOfficerData data, DeltaSensitiveData sensitiveData) {
-        return CompanyAppointmentDocument.Builder.builder()
-                .withId("id")
-                .withData(data)
-                .withSensitiveData(sensitiveData)
-                .withInternalId("internalId")
-                .withAppointmentId("appointmentId")
-                .withOfficerId("officerId")
-                .withPreviousOfficerId("previousOfficerId")
-                .withCompanyNumber("companyNumber")
-                .withUpdated(null)
-                .withUpdatedBy("updatedBy")
-                .withCreated(null)
-                .withDeltaAt(existingDeltaAt)
-                .withOfficerRoleSortOrder(22)
-                .withCompanyName("company name")
-                .withCompanyStatus("company status")
-                .build();
+        return new CompanyAppointmentDocument()
+                .id("id")
+                .data(data)
+                .sensitiveData(sensitiveData)
+                .internalId("internalId")
+                .appointmentId("appointmentId")
+                .officerId("officerId")
+                .previousOfficerId("previousOfficerId")
+                .companyNumber("companyNumber")
+                .updated(null)
+                .updatedBy("updatedBy")
+                .created(null)
+                .deltaAt(existingDeltaAt)
+                .officerRoleSortOrder(22)
+                .companyName("company name")
+                .companyStatus("company status");
     }
 
     private static CompanyAppointmentDocument builtDeltaAppointmentApi(DeltaOfficerData data,
             DeltaSensitiveData sensitiveData, Instant deltaAt) {
         return new CompanyAppointmentDocument()
-                .setId("id")
-                .setData(data)
-                .setSensitiveData(sensitiveData)
-                .setInternalId("internalId")
-                .setAppointmentId("id")
-                .setOfficerId("officerId")
-                .setPreviousOfficerId("previousOfficerId")
-                .setCompanyNumber("companyNumber")
-                .setUpdatedBy("updatedBy")
-                .setDeltaAt(deltaAt)
-                .setOfficerRoleSortOrder(22);
+                .id("id")
+                .data(data)
+                .sensitiveData(sensitiveData)
+                .internalId("internalId")
+                .appointmentId("id")
+                .officerId("officerid")
+                .previousOfficerId("previousOfficerId")
+                .companyNumber("companyNumber")
+                .updatedBy("updatedBy")
+                .deltaAt(deltaAt)
+                .officerRoleSortOrder(22);
     }
 }

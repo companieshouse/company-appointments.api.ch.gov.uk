@@ -21,7 +21,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.company_appointments.mapper.SortMapper;
-import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentData;
+import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentDocument;
 
 @Component
 public class CompanyAppointmentRepositoryImpl implements CompanyAppointmentRepositoryExtension {
@@ -36,7 +36,7 @@ public class CompanyAppointmentRepositoryImpl implements CompanyAppointmentRepos
     }
 
     @Override
-    public List<CompanyAppointmentData> getCompanyAppointmentData(String companyNumber,
+    public List<CompanyAppointmentDocument> getCompanyAppointments(String companyNumber,
             String orderBy, String registerType, int startIndex, int itemsPerPage,
             boolean registerView, boolean filterActiveOnly) {
 
@@ -55,7 +55,7 @@ public class CompanyAppointmentRepositoryImpl implements CompanyAppointmentRepos
                 .skip(startIndex)
                 .limit(itemsPerPage);
 
-        return mongoTemplate.query(CompanyAppointmentData.class)
+        return mongoTemplate.query(CompanyAppointmentDocument.class)
                 .matching(query)
                 .all();
     }

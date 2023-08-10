@@ -22,6 +22,7 @@ public class DeltaServiceAddressTransformer implements
         entity.setLocality(source.getLocality());
         entity.setPoBox(source.getPoBox());
         entity.setPostalCode(source.getPostalCode());
+        entity.setPoBox(source.getPoBox());
         entity.setPremises(source.getPremises());
         entity.setRegion(source.getRegion());
         return entity;

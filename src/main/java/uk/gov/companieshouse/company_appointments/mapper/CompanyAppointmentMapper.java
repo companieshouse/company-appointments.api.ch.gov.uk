@@ -1,15 +1,15 @@
 package uk.gov.companieshouse.company_appointments.mapper;
 
+import static java.time.ZoneOffset.UTC;
+
+import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.api.appointment.Address;
 import uk.gov.companieshouse.api.appointment.ContactDetails;
@@ -22,8 +22,15 @@ import uk.gov.companieshouse.api.appointment.OfficerSummary;
 import uk.gov.companieshouse.api.appointment.OfficerSummary.OfficerRoleEnum;
 import uk.gov.companieshouse.api.appointment.PrincipalOfficeAddress;
 import uk.gov.companieshouse.company_appointments.CompanyAppointmentsApplication;
-import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentData;
-import uk.gov.companieshouse.company_appointments.model.data.OfficerLinksData;
+import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentDocument;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaContactDetails;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaFormerNames;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaIdentification;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaItemLinkTypes;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaOfficerData;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaOfficerLinkTypes;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaPrincipalOfficeAddress;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaServiceAddress;
 import uk.gov.companieshouse.company_appointments.roles.RoleHelper;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.logging.LoggerFactory;
@@ -31,143 +38,154 @@ import uk.gov.companieshouse.logging.LoggerFactory;
 @Component
 public class CompanyAppointmentMapper {
 
-    private static final String REGEX = "^(?i)(?=m)(?:mrs?|miss|ms|master)$";
+    private static final Pattern REGEX = Pattern.compile("^(?i)(?=m)(?:mrs?|miss|ms|master)$");
     private static final Logger LOGGER = LoggerFactory.getLogger(CompanyAppointmentsApplication.APPLICATION_NAMESPACE);
-    private static final String APPOINTED_BEFORE_DATE_FORMAT = "yyyy-MM-dd";
 
-    public OfficerSummary map(CompanyAppointmentData companyAppointmentData) {
+    public OfficerSummary map(CompanyAppointmentDocument companyAppointmentData) {
         return map(companyAppointmentData, false);
     }
 
-    public OfficerSummary map(CompanyAppointmentData companyAppointmentData, boolean registerView) {
-        LOGGER.debug("Mapping data for appointment: " + companyAppointmentData.getId());
-        boolean isSecretary = RoleHelper.isSecretary(companyAppointmentData);
-        LocalDateTime appointedOn = companyAppointmentData.getData().getAppointedOn();
-        String appointedBefore = companyAppointmentData.getData().getAppointedBefore();
-        LocalDateTime resignedOn = companyAppointmentData.getData().getResignedOn();
+    public OfficerSummary map(CompanyAppointmentDocument companyAppointment, boolean registerView) {
+        LOGGER.debug("Mapping data for appointment: " + companyAppointment.getId());
+
+        DeltaOfficerData data = Optional.ofNullable(companyAppointment.getData())
+                .orElseThrow(() -> new IllegalArgumentException("Missing data element"));
+
+        boolean isSecretary = RoleHelper.isSecretary(companyAppointment);
+
+        LocalDate appointedOn = extractDate(data.getAppointedOn());
+        LocalDate appointedBefore = extractDate(data.getAppointedBefore());
+        LocalDate resignedOn = extractDate(data.getResignedOn());
 
         OfficerSummary result = new OfficerSummary()
-                .appointedOn(appointedOn == null ? null : appointedOn.toLocalDate())
-                .appointedBefore(StringUtils.isBlank(appointedBefore) ? null : LocalDate.parse(
-                        appointedBefore,
-                        DateTimeFormatter.ofPattern(APPOINTED_BEFORE_DATE_FORMAT)))
-                .resignedOn(resignedOn == null ? null : resignedOn.toLocalDate())
-                .countryOfResidence(isSecretary ? null : companyAppointmentData.getData().getCountryOfResidence())
-                .dateOfBirth(isSecretary ? null : mapDateOfBirth(companyAppointmentData, registerView))
-                .links(mapLinks(companyAppointmentData))
-                .nationality(companyAppointmentData.getData().getNationality())
-                .occupation(companyAppointmentData.getData().getOccupation())
-                .officerRole(OfficerRoleEnum.fromValue(companyAppointmentData.getData().getOfficerRole()))
-                .address(mapAddress(companyAppointmentData))
-                .identification(mapCorporateInfo(companyAppointmentData))
-                .formerNames(mapFormerNames(companyAppointmentData))
-                .name(mapOfficerName(companyAppointmentData))
-                .responsibilities(companyAppointmentData.getData().getResponsibilities())
-                .principalOfficeAddress(mapPrincipalOfficeAddress(companyAppointmentData))
-                .contactDetails(mapContactDetails(companyAppointmentData))
-                .isPre1992Appointment(companyAppointmentData.getData().getIsPre1992Appointment());
-                // TODO: Map person number when switching to delta_appointments collection
-        LOGGER.debug("Mapped data for appointment: " + companyAppointmentData.getId());
+                .appointedOn(appointedOn)
+                .appointedBefore(appointedBefore)
+                .resignedOn(resignedOn)
+                .countryOfResidence(isSecretary ? null : data.getCountryOfResidence())
+                .dateOfBirth(isSecretary ? null
+                        : mapDateOfBirth(companyAppointment.getSensitiveData().getDateOfBirth(), registerView))
+                .links(mapLinks(data.getLinks()))
+                .nationality(data.getNationality())
+                .occupation(data.getOccupation())
+                .officerRole(OfficerRoleEnum.fromValue(data.getOfficerRole()))
+                .address(mapAddress(data.getServiceAddress()))
+                .identification(mapCorporateInfo(data.getIdentification()))
+                .formerNames(mapFormerNames(data.getFormerNames()))
+                .name(mapOfficerName(data))
+                .responsibilities(data.getResponsibilities())
+                .principalOfficeAddress(mapPrincipalOfficeAddress(data.getPrincipalOfficeAddress()))
+                .contactDetails(mapContactDetails(data.getContactDetails()))
+                .isPre1992Appointment(data.getPre1992Appointment())
+                .personNumber(data.getPersonNumber());
+        LOGGER.debug("Mapped data for appointment: " + companyAppointment.getId());
         return result;
     }
 
-    private List<FormerNames> mapFormerNames(CompanyAppointmentData companyAppointmentData) {
-        return Optional.ofNullable(companyAppointmentData.getData().getFormerNameData())
-                .map(formerNames -> formerNames.stream().map(
-                        formerName -> new FormerNames().forenames(formerName.getForenames()).surname(formerName.getSurname()))
-                        .collect(Collectors.toList())).orElse(null);
-    }
-
-    private CorporateIdent mapCorporateInfo(CompanyAppointmentData companyAppointmentData) {
-        return Optional.ofNullable(companyAppointmentData.getData().getIdentificationData())
-                .map(corporateData -> new CorporateIdent()
-                        .identificationType(CorporateIdent.IdentificationTypeEnum.fromValue(corporateData.getIdentificationType()))
-                        .legalAuthority(corporateData.getLegalAuthority())
-                        .legalForm(corporateData.getLegalForm())
-                        .placeRegistered(corporateData.getPlaceRegistered())
-                        .registrationNumber(corporateData.getRegistrationNumber()))
+    private static LocalDate extractDate(Instant data) {
+        return Optional.ofNullable(data)
+                .map(date -> LocalDate.from(date.atZone(UTC)))
                 .orElse(null);
     }
 
-    private Address mapAddress(CompanyAppointmentData companyAppointmentData) {
-        return Optional.ofNullable(companyAppointmentData.getData().getServiceAddress())
+    private List<FormerNames> mapFormerNames(List<DeltaFormerNames> names) {
+        return Optional.ofNullable(names)
+                .map(formerNames -> formerNames.stream().map(
+                                formerName -> new FormerNames().forenames(formerName.getForenames())
+                                        .surname(formerName.getSurname()))
+                        .collect(Collectors.toList())).orElse(null);
+    }
+
+    private CorporateIdent mapCorporateInfo(DeltaIdentification deltaIdentification) {
+        return Optional.ofNullable(deltaIdentification)
+                .map(identification -> new CorporateIdent()
+                        .identificationType(
+                                CorporateIdent.IdentificationTypeEnum.fromValue(identification.getIdentificationType()))
+                        .legalAuthority(identification.getLegalAuthority())
+                        .legalForm(identification.getLegalForm())
+                        .placeRegistered(identification.getPlaceRegistered())
+                        .registrationNumber(identification.getRegistrationNumber()))
+                .orElse(null);
+    }
+
+    private Address mapAddress(DeltaServiceAddress serviceAddress) {
+        return Optional.ofNullable(serviceAddress)
                 .map(address -> new Address()
                         .addressLine1(address.getAddressLine1())
                         .addressLine2(address.getAddressLine2())
                         .careOf(address.getCareOf())
                         .country(address.getCountry())
                         .locality(address.getLocality())
-                        .postalCode(address.getPostcode())
+                        .postalCode(address.getPostalCode())
                         .poBox(address.getPoBox())
                         .premises(address.getPremises())
                         .region(address.getRegion()))
                 .orElse(null);
     }
 
-    private PrincipalOfficeAddress mapPrincipalOfficeAddress(CompanyAppointmentData companyAppointmentData) {
-        return Optional.ofNullable(companyAppointmentData.getData().getPrincipalOfficeAddress())
+    private PrincipalOfficeAddress mapPrincipalOfficeAddress(DeltaPrincipalOfficeAddress principalOfficeAddress) {
+        return Optional.ofNullable(principalOfficeAddress)
                 .map(address -> new PrincipalOfficeAddress()
                         .addressLine1(address.getAddressLine1())
                         .addressLine2(address.getAddressLine2())
                         .careOf(address.getCareOf())
                         .country(address.getCountry())
                         .locality(address.getLocality())
-                        .postalCode(address.getPostcode())
+                        .postalCode(address.getPostalCode())
                         .poBox(address.getPoBox())
                         .premises(address.getPremises())
                         .region(address.getRegion()))
                 .orElse(null);
     }
 
-    private ContactDetails mapContactDetails(CompanyAppointmentData companyAppointmentData) {
-        return Optional.ofNullable(companyAppointmentData.getData().getContactDetails())
+    private ContactDetails mapContactDetails(DeltaContactDetails deltaContactDetails) {
+        return Optional.ofNullable(deltaContactDetails)
                 .map(contactDetails -> new ContactDetails()
                         .contactName(contactDetails.getContactName()))
                 .orElse(null);
     }
 
-    private ItemLinkTypes mapLinks(CompanyAppointmentData companyAppointmentData) {
-        return Optional.ofNullable(companyAppointmentData.getData().getLinksData())
+    private ItemLinkTypes mapLinks(DeltaItemLinkTypes itemLinkTypes) {
+        return Optional.ofNullable(itemLinkTypes)
                 .map(links -> new ItemLinkTypes()
-                        .self(links.getSelfLink())
-                        .officer(
-                            new OfficerLinkTypes()
-                                .appointments(Optional.ofNullable(links.getOfficerLinksData())
-                                    .map(OfficerLinksData::getAppointmentsLink).orElse(null))))
+                        .self(links.getSelf())
+                        .officer(new OfficerLinkTypes()
+                                .appointments(Optional.ofNullable(links.getOfficer())
+                                        .map(DeltaOfficerLinkTypes::getAppointments)
+                                        .orElse(null))))
                 .orElse(null);
     }
 
-    private DateOfBirth mapDateOfBirth(CompanyAppointmentData companyAppointmentData, boolean registerView) {
-        if (registerView) {
-            return Optional.ofNullable(companyAppointmentData.getData().getDateOfBirth())
-                    .map(dateOfBirth -> new DateOfBirth()
-                            .day(dateOfBirth.getDayOfMonth())
-                            .month(dateOfBirth.getMonthValue())
-                            .year(dateOfBirth.getYear()))
-                    .orElse(null);
-        } else {
-            return Optional.ofNullable(companyAppointmentData.getData().getDateOfBirth())
-                    .map(dateOfBirth -> new DateOfBirth()
-                            .month(dateOfBirth.getMonthValue())
-                            .year(dateOfBirth.getYear()))
-                    .orElse(null);
-        }
+    private DateOfBirth mapDateOfBirth(Instant dob, boolean registerView) {
+        return Optional.ofNullable(dob)
+                .map(dateOfBirth -> registerView ? mapDateOfBirth(dateOfBirth, dateOfBirth.atZone(UTC).getDayOfMonth())
+                        : mapDateOfBirth(dateOfBirth, null))
+                .orElse(null);
     }
 
-    private String mapOfficerName(CompanyAppointmentData companyAppointmentData) {
-        return Optional.ofNullable(companyAppointmentData.getData().getCompanyName())
-                .orElseGet(() -> this.individualOfficerName(companyAppointmentData));
+    private DateOfBirth mapDateOfBirth(Instant dob, Integer day) {
+        return Optional.ofNullable(dob)
+                .map(dateOfBirth -> new DateOfBirth()
+                        .day(day)
+                        .month(dateOfBirth.atZone(UTC).getMonthValue())
+                        .year(dateOfBirth.atZone(UTC).getYear()))
+                .orElse(null);
     }
 
-    private String individualOfficerName(CompanyAppointmentData companyAppointmentData) {
-        String result = companyAppointmentData.getData().getSurname();
-        if (companyAppointmentData.getData().getForename() != null || companyAppointmentData.getData().getOtherForenames() != null) {
-            result = String.join(", ", companyAppointmentData.getData().getSurname(), Stream.of(companyAppointmentData.getData().getForename(), companyAppointmentData.getData().getOtherForenames())
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.joining(" ")));
+    private String mapOfficerName(DeltaOfficerData data) {
+        return Optional.ofNullable(data.getCompanyName())
+                .orElseGet(() -> individualOfficerName(data));
+    }
+
+    private String individualOfficerName(DeltaOfficerData data) {
+        String result = data.getSurname();
+        if (data.getForename() != null || data.getOtherForenames() != null) {
+            result = String.join(", ", data.getSurname(),
+                    Stream.of(data.getForename(), data.getOtherForenames())
+                            .filter(Objects::nonNull)
+                            .collect(Collectors.joining(" ")));
         }
-        if (companyAppointmentData.getData().getTitle() != null && !companyAppointmentData.getData().getTitle().matches(REGEX)) {
-            result = String.join(", ", result, companyAppointmentData.getData().getTitle());
+        if (data.getTitle() != null && !REGEX.matcher(data.getTitle()).matches()) {
+            result = String.join(", ", result, data.getTitle());
         }
         return result;
     }

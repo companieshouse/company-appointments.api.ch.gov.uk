@@ -29,7 +29,7 @@ import org.springframework.data.mongodb.core.SimpleMongoClientDatabaseFactory;
 import org.springframework.http.HttpStatus;
 import uk.gov.companieshouse.api.chskafka.ChangedResource;
 import uk.gov.companieshouse.company_appointments.config.WiremockTestConfig;
-import uk.gov.companieshouse.company_appointments.repository.CompanyAppointmentFullRecordRepository;
+import uk.gov.companieshouse.company_appointments.repository.CompanyAppointmentRepository;
 
 public class CommonSteps {
 
@@ -42,7 +42,7 @@ public class CommonSteps {
     protected TestRestTemplate restTemplate;
 
     @Autowired
-    private CompanyAppointmentFullRecordRepository companyAppointmentFullRecordRepository;
+    private CompanyAppointmentRepository companyAppointmentRepository;
 
     @BeforeAll
     public static void setup() throws IOException {
@@ -56,7 +56,7 @@ public class CommonSteps {
     public void beforeEachTest() throws IOException {
         CONTEXT.clear();
         setupWiremock();
-        companyAppointmentFullRecordRepository.deleteAll();
+        companyAppointmentRepository.deleteAll();
         mongoTemplate.insert(Document.parse(
                         IOUtils.resourceToString("/delta-appointment-data.json", StandardCharsets.UTF_8)),
                 "delta_appointments");

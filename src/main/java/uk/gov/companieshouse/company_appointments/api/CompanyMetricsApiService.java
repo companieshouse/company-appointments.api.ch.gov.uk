@@ -1,13 +1,13 @@
 package uk.gov.companieshouse.company_appointments.api;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import uk.gov.companieshouse.api.InternalApiClient;
 import uk.gov.companieshouse.api.error.ApiErrorResponseException;
 import uk.gov.companieshouse.api.handler.metrics.request.PrivateCompanyMetricsGet;
 import uk.gov.companieshouse.api.metrics.MetricsApi;
 import uk.gov.companieshouse.api.model.ApiResponse;
+import uk.gov.companieshouse.company_appointments.exception.NotFoundException;
 import uk.gov.companieshouse.company_appointments.exception.ServiceUnavailableException;
 import uk.gov.companieshouse.logging.Logger;
 
@@ -27,30 +27,32 @@ public class CompanyMetricsApiService {
         this.apiClientService = apiClientService;
     }
 
-    public ApiResponse<MetricsApi> invokeGetMetricsApi(String companyNumber) throws ServiceUnavailableException {
+    public ApiResponse<MetricsApi> invokeGetMetricsApi(String companyNumber)
+            throws ServiceUnavailableException, NotFoundException {
         InternalApiClient internalApiClient = apiClientService.getInternalApiClient();
         internalApiClient.setBasePath(metricsUrl);
 
         PrivateCompanyMetricsGet companyMetricsGet =
                 internalApiClient.privateCompanyMetricsResourceHandler().getCompanyMetrics(String.format("/company/%s/metrics", companyNumber));
 
-        return handleApiCall(companyMetricsGet);
+        return handleApiCall(companyMetricsGet, companyNumber);
     }
 
-    private ApiResponse<MetricsApi> handleApiCall(PrivateCompanyMetricsGet companyMetricsGet) throws ServiceUnavailableException {
+    private ApiResponse<MetricsApi> handleApiCall(PrivateCompanyMetricsGet companyMetricsGet, String companyNumber)
+            throws ServiceUnavailableException, NotFoundException {
         try {
             return companyMetricsGet.execute();
-        } catch (ApiErrorResponseException exp) {
-            HttpStatus statusCode = HttpStatus.valueOf(exp.getStatusCode());
-            if (!statusCode.is2xxSuccessful()) {
-                logger.error("Unsuccessful call to /company-metrics endpoint", exp);
+        } catch (ApiErrorResponseException exception) {
+            if (exception.getStatusCode() == 404) {
+                logger.error(String.format("Metrics not found for company number %s", companyNumber), exception);
+                throw new NotFoundException(exception.getMessage());
             } else {
-                logger.error("Error occurred while calling /company-metrics endpoint", exp);
+                logger.error("Error occurred while calling /company-metrics endpoint", exception);
+                throw new ServiceUnavailableException(exception.getMessage());
             }
-            throw new ServiceUnavailableException(exp.getMessage());
-        } catch (Exception e) {
-            logger.error("Error occurred while calling /company-metrics endpoint", e);
-            throw new ServiceUnavailableException(e.getMessage());
+        } catch (Exception exception) {
+            logger.error("Error occurred while calling /company-metrics endpoint", exception);
+            throw new ServiceUnavailableException(exception.getMessage());
         }
     }
 }

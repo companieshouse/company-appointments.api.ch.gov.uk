@@ -30,7 +30,7 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import uk.gov.companieshouse.company_appointments.CompanyAppointmentsApplication;
 import uk.gov.companieshouse.company_appointments.mapper.SortMapper;
-import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentData;
+import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentDocument;
 import uk.gov.companieshouse.company_appointments.roles.DirectorRoles;
 import uk.gov.companieshouse.company_appointments.roles.LlpRoles;
 import uk.gov.companieshouse.company_appointments.roles.SecretarialRoles;
@@ -68,8 +68,8 @@ class CompanyAppointmentRepositoryTest {
 
     @BeforeEach
     void setup() throws IOException {
-        mongoTemplate.dropCollection("appointments");
-        mongoTemplate.createCollection("appointments");
+        mongoTemplate.dropCollection("delta_appointments");
+        mongoTemplate.createCollection("delta_appointments");
 
         templateDocument = Document.parse(
                 IOUtils.resourceToString("/appointment-data.json", StandardCharsets.UTF_8));
@@ -83,7 +83,7 @@ class CompanyAppointmentRepositoryTest {
         insertAppointment(APPOINTMENT_ID + 2, SURNAME + 1, DIRECTOR.getRole(),
                 APPOINTED_ON_BASE.plusDays(1), null);
         // when
-        List<CompanyAppointmentData> result = repository.getCompanyAppointmentData(COMPANY_NUMBER,
+        List<CompanyAppointmentDocument> result = repository.getCompanyAppointments(COMPANY_NUMBER,
                 null, null, 0, 5, false, false);
 
         // then
@@ -99,7 +99,7 @@ class CompanyAppointmentRepositoryTest {
         }
 
         // when
-        List<CompanyAppointmentData> result = repository.getCompanyAppointmentData(COMPANY_NUMBER,
+        List<CompanyAppointmentDocument> result = repository.getCompanyAppointments(COMPANY_NUMBER,
                 null, null, 0, 5, false, false);
 
         // then
@@ -115,7 +115,7 @@ class CompanyAppointmentRepositoryTest {
         }
 
         // when
-        List<CompanyAppointmentData> result = repository.getCompanyAppointmentData(COMPANY_NUMBER,
+        List<CompanyAppointmentDocument> result = repository.getCompanyAppointments(COMPANY_NUMBER,
                 null, null, 5, 5, false, false);
 
         // then
@@ -134,7 +134,7 @@ class CompanyAppointmentRepositoryTest {
         insertAppointment(APPOINTMENT_ID + 4, SURNAME + "A", DIRECTOR.getRole(),
                 APPOINTED_ON_BASE.plusDays(1), null);
         // when
-        List<CompanyAppointmentData> result = repository.getCompanyAppointmentData(COMPANY_NUMBER,
+        List<CompanyAppointmentDocument> result = repository.getCompanyAppointments(COMPANY_NUMBER,
                 null, null, 0, 5, false, false);
 
         // then
@@ -159,7 +159,7 @@ class CompanyAppointmentRepositoryTest {
         insertAppointment(APPOINTMENT_ID + 4, SURNAME + "A", DIRECTOR.getRole(),
                 APPOINTED_ON_BASE.plusDays(1), RESIGNED_ON_BASE);
         // when
-        List<CompanyAppointmentData> result = repository.getCompanyAppointmentData(COMPANY_NUMBER,
+        List<CompanyAppointmentDocument> result = repository.getCompanyAppointments(COMPANY_NUMBER,
                 null, null, 0, 5, false, false);
 
         // then
@@ -184,7 +184,7 @@ class CompanyAppointmentRepositoryTest {
         insertAppointment(APPOINTMENT_ID + 4, SURNAME + "A", DIRECTOR.getRole(),
                 APPOINTED_ON_BASE.plusDays(1), RESIGNED_ON_BASE);
         // when
-        List<CompanyAppointmentData> result = repository.getCompanyAppointmentData(COMPANY_NUMBER,
+        List<CompanyAppointmentDocument> result = repository.getCompanyAppointments(COMPANY_NUMBER,
                 null, null, 0, 5, false, false);
 
         // then
@@ -209,7 +209,7 @@ class CompanyAppointmentRepositoryTest {
         insertAppointment(APPOINTMENT_ID + 4, SURNAME + "A", DIRECTOR.getRole(),
                 APPOINTED_ON_BASE.plusDays(1), RESIGNED_ON_BASE);
         // when
-        List<CompanyAppointmentData> result = repository.getCompanyAppointmentData(COMPANY_NUMBER,
+        List<CompanyAppointmentDocument> result = repository.getCompanyAppointments(COMPANY_NUMBER,
                 null, null, 0, 5, false, true);
 
         // then
@@ -232,7 +232,7 @@ class CompanyAppointmentRepositoryTest {
         insertAppointment(APPOINTMENT_ID + 4, SURNAME + "A", DIRECTOR.getRole(),
                 APPOINTED_ON_BASE.plusDays(1), RESIGNED_ON_BASE);
         // when
-        List<CompanyAppointmentData> result = repository.getCompanyAppointmentData(COMPANY_NUMBER,
+        List<CompanyAppointmentDocument> result = repository.getCompanyAppointments(COMPANY_NUMBER,
                 null, REGISTER_TYPE_SECRETARIES, 0, 5, true, true);
 
         // then
@@ -254,7 +254,7 @@ class CompanyAppointmentRepositoryTest {
         insertAppointment(APPOINTMENT_ID + 4, SURNAME + "A", role.getRole(),
                 APPOINTED_ON_BASE.plusDays(1), RESIGNED_ON_BASE);
         // when
-        List<CompanyAppointmentData> result = repository.getCompanyAppointmentData(COMPANY_NUMBER,
+        List<CompanyAppointmentDocument> result = repository.getCompanyAppointments(COMPANY_NUMBER,
                 null, REGISTER_TYPE_DIRECTORS, 0, 5, true, true);
 
         // then
@@ -275,7 +275,7 @@ class CompanyAppointmentRepositoryTest {
         insertAppointment(APPOINTMENT_ID + 4, SURNAME + "A", role.getRole(),
                 APPOINTED_ON_BASE.plusDays(1), RESIGNED_ON_BASE);
         // when
-        List<CompanyAppointmentData> result = repository.getCompanyAppointmentData(COMPANY_NUMBER,
+        List<CompanyAppointmentDocument> result = repository.getCompanyAppointments(COMPANY_NUMBER,
                 null, REGISTER_TYPE_LLP_MEMBERS, 0, 5, true, true);
 
         // then
@@ -288,7 +288,7 @@ class CompanyAppointmentRepositoryTest {
     void shouldThrowIllegalArgumentExceptionWithInvalidRegisterView() {
         // given
         // when
-        Executable executable = () -> repository.getCompanyAppointmentData(COMPANY_NUMBER,
+        Executable executable = () -> repository.getCompanyAppointments(COMPANY_NUMBER,
                 null, "imposter", 0, 5, true, true);
 
         // then
@@ -304,7 +304,7 @@ class CompanyAppointmentRepositoryTest {
         insertAppointment(APPOINTMENT_ID + 2, SURNAME + 2, DIRECTOR.getRole(),
                 APPOINTED_ON_BASE.plusDays(1), null);
         // when
-        List<CompanyAppointmentData> result = repository.getCompanyAppointmentData(COMPANY_NUMBER,
+        List<CompanyAppointmentDocument> result = repository.getCompanyAppointments(COMPANY_NUMBER,
                 SortMapper.APPOINTED_ON, null, 0, 5, false, false);
 
         // then
@@ -321,7 +321,7 @@ class CompanyAppointmentRepositoryTest {
         insertAppointment(APPOINTMENT_ID + 2, SURNAME + "A", DIRECTOR.getRole(),
                 APPOINTED_ON_BASE.plusDays(1), null);
         // when
-        List<CompanyAppointmentData> result = repository.getCompanyAppointmentData(COMPANY_NUMBER,
+        List<CompanyAppointmentDocument> result = repository.getCompanyAppointments(COMPANY_NUMBER,
                 SortMapper.SURNAME, null, 0, 5, false, false);
 
         // then
@@ -341,7 +341,7 @@ class CompanyAppointmentRepositoryTest {
         insertAppointment(APPOINTMENT_ID + 4, SURNAME + "A", DIRECTOR.getRole(),
                 APPOINTED_ON_BASE.plusDays(1), null);
 
-        List<CompanyAppointmentData> result = repository.getCompanyAppointmentData(COMPANY_NUMBER,
+        List<CompanyAppointmentDocument> result = repository.getCompanyAppointments(COMPANY_NUMBER,
                 null, null, 4, 5, false, false);
 
         assertTrue(result.isEmpty());
@@ -386,6 +386,6 @@ class CompanyAppointmentRepositoryTest {
             officerData.put("resigned_on", resignedOn.toInstant(ZoneOffset.UTC));
         }
 
-        mongoTemplate.insert(templateDocument, "appointments");
+        mongoTemplate.insert(templateDocument, "delta_appointments");
     }
 }

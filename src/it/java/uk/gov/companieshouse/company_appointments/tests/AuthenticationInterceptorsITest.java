@@ -68,8 +68,8 @@ class AuthenticationInterceptorsITest {
         DeltaSensitiveData sensitiveData = new DeltaSensitiveData();
         sensitiveData.setDateOfBirth(Instant.parse("1990-01-12T01:02:30.456789Z"));
         CompanyAppointmentDocument companyAppointmentDocument = new CompanyAppointmentDocument();
-        companyAppointmentDocument.setData(data);
-        companyAppointmentDocument.setSensitiveData(sensitiveData);
+        companyAppointmentDocument.data(data);
+        companyAppointmentDocument.sensitiveData(sensitiveData);
         companyAppointmentFullRecordView =
                 CompanyAppointmentFullRecordView.Builder.view(companyAppointmentDocument).withName(NAME)
                         .build();

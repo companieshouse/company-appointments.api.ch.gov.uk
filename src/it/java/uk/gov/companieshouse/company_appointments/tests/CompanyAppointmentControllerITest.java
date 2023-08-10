@@ -67,19 +67,13 @@ class CompanyAppointmentControllerITest {
     @Mock
     private MetricsApi metricsApi;
 
-    private static final AppointmentsApi APPOINTMENTS_COUNTS = new AppointmentsApi()
-            .totalCount(2)
-            .activeCount(1)
-            .resignedCount(1);
-
     @BeforeAll
     static void start() throws IOException {
         System.setProperty("spring.data.mongodb.uri", mongoDBContainer.getReplicaSetUrl());
         MongoTemplate mongoTemplate = new MongoTemplate(new SimpleMongoClientDatabaseFactory(mongoDBContainer.getReplicaSetUrl()));
-        mongoTemplate.createCollection("appointments");
-        mongoTemplate.insert(Document.parse(IOUtils.resourceToString("/appointment-data.json", StandardCharsets.UTF_8)), "appointments");
-        mongoTemplate.insert(Document.parse(IOUtils.resourceToString("/appointment-data2.json", StandardCharsets.UTF_8)), "appointments");
         mongoTemplate.createCollection("delta_appointments");
+        mongoTemplate.insert(Document.parse(IOUtils.resourceToString("/appointment-data.json", StandardCharsets.UTF_8)), "delta_appointments");
+        mongoTemplate.insert(Document.parse(IOUtils.resourceToString("/appointment-data2.json", StandardCharsets.UTF_8)), "delta_appointments");
         mongoTemplate.insert(Document.parse(
                         IOUtils.resourceToString("/delta-appointment-data.json", StandardCharsets.UTF_8)),
                 "delta_appointments");
@@ -132,8 +126,11 @@ class CompanyAppointmentControllerITest {
     void testReturn200OKIfAllOfficersAreFound() throws Exception {
         //when
         when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(new ApiResponse<>(200, null, metricsApi));
-        when(metricsApi.getCounts()).thenReturn(new CountsApi().appointments(APPOINTMENTS_COUNTS));
-        ResultActions result = mockMvc.perform(get("/company/{company_number}/officers-test", COMPANY_NUMBER)
+        when(metricsApi.getCounts()).thenReturn(new CountsApi().appointments(new AppointmentsApi()
+                .totalCount(3)
+                .activeCount(2)
+                .resignedCount(1)));
+        ResultActions result = mockMvc.perform(get("/company/{company_number}/officers", COMPANY_NUMBER)
                 .header(ERIC_IDENTITY, "123")
                 .header(ERIC_IDENTITY_TYPE, "key")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -142,10 +139,11 @@ class CompanyAppointmentControllerITest {
         //then
         result.andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.items.[0].name", is("Doe, John Forename")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.items.[1].name", is("NOSURNAME, Noname1 Noname2")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.active_count", is(1)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.items.[1].name", is("GLOVER, PHIL Peter")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.items.[2].name", is("NOSURNAME, Noname1 Noname2")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.active_count", is(2)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.resigned_count", is(1)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.total_results", is(2)));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.total_results", is(3)));
     }
     @Test
     void testReturn404IfOfficersForCompanyIsNotFound() throws Exception {
@@ -165,10 +163,10 @@ class CompanyAppointmentControllerITest {
         //when
         when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(new ApiResponse<>(200, null, metricsApi));
         when(metricsApi.getCounts()).thenReturn(new CountsApi().appointments(new AppointmentsApi()
-                .totalCount(1)
-                .activeCount(1)
+                .totalCount(2)
+                .activeCount(2)
                 .resignedCount(0)));
-        ResultActions result = mockMvc.perform(get("/company/{company_number}/officers-test?filter=active", COMPANY_NUMBER)
+        ResultActions result = mockMvc.perform(get("/company/{company_number}/officers?filter=active", COMPANY_NUMBER)
                 .header(ERIC_IDENTITY, "123")
                 .header(ERIC_IDENTITY_TYPE, "key")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -176,17 +174,21 @@ class CompanyAppointmentControllerITest {
 
         //then
         result.andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.items.[0].name", is("NOSURNAME, Noname1 Noname2")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.active_count", is(1)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.items.[0].name", is("GLOVER, PHIL Peter")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.items.[1].name", is("NOSURNAME, Noname1 Noname2")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.active_count", is(2)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.resigned_count", is(0)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.total_results", is(1)));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.total_results", is(2)));
     }
 
     @Test
     void testReturn200OkWithOfficersOrderedByAppointedOn() throws Exception {
         when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(new ApiResponse<>(200, null, metricsApi));
-        when(metricsApi.getCounts()).thenReturn(new CountsApi().appointments(APPOINTMENTS_COUNTS));
-        ResultActions result = mockMvc.perform(get("/company/{company_number}/officers-test?order_by=appointed_on", COMPANY_NUMBER)
+        when(metricsApi.getCounts()).thenReturn(new CountsApi().appointments(new AppointmentsApi()
+                .totalCount(2)
+                .activeCount(2)
+                .resignedCount(0)));
+        ResultActions result = mockMvc.perform(get("/company/{company_number}/officers?order_by=appointed_on", COMPANY_NUMBER)
                 .header(ERIC_IDENTITY, "123")
                 .header(ERIC_IDENTITY_TYPE, "key")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -194,14 +196,20 @@ class CompanyAppointmentControllerITest {
 
         result.andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.items.[0].name", is("NOSURNAME, Noname1 Noname2")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.items.[1].name", is("Doe, John Forename")));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.items.[1].name", is("Doe, John Forename")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.active_count", is(2)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.resigned_count", is(0)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.total_results", is(2)));
     }
 
     @Test
     void testReturn200OkWithOfficersOrderedBySurname() throws Exception {
         when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(new ApiResponse<>(200, null, metricsApi));
-        when(metricsApi.getCounts()).thenReturn(new CountsApi().appointments(APPOINTMENTS_COUNTS));
-        ResultActions result = mockMvc.perform(get("/company/{company_number}/officers-test?order_by=surname", COMPANY_NUMBER)
+        when(metricsApi.getCounts()).thenReturn(new CountsApi().appointments(new AppointmentsApi()
+                .totalCount(3)
+                .activeCount(2)
+                .resignedCount(1)));
+        ResultActions result = mockMvc.perform(get("/company/{company_number}/officers?order_by=surname", COMPANY_NUMBER)
                 .header(ERIC_IDENTITY, "123")
                 .header(ERIC_IDENTITY_TYPE, "key")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -209,13 +217,17 @@ class CompanyAppointmentControllerITest {
 
         result.andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.items.[0].name", is("Doe, John Forename")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.items.[1].name", is("NOSURNAME, Noname1 Noname2")));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.items.[1].name", is("GLOVER, PHIL Peter")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.items.[2].name", is("NOSURNAME, Noname1 Noname2")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.active_count", is(2)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.resigned_count", is(1)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.total_results", is(3)));
     }
 
     @Test
     void testReturn400BadRequestWithIncorrectOrderBy() throws Exception {
         when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(new ApiResponse<>(200, null, metricsApi));
-        ResultActions result = mockMvc.perform(get("/company/{company_number}/officers-test?order_by=invalid", COMPANY_NUMBER)
+        ResultActions result = mockMvc.perform(get("/company/{company_number}/officers?order_by=invalid", COMPANY_NUMBER)
                 .header(ERIC_IDENTITY, "123")
                 .header(ERIC_IDENTITY_TYPE, "key")
                 .contentType(MediaType.APPLICATION_JSON)
