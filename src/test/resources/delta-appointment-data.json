@@ -65,7 +65,7 @@
       "premises" : "URA",
       "region" : "ura_region"
     },
-    "date_of_birth" : ISODate("1985-06-30T00:00:00.000Z")
+    "date_of_birth" : ISODate("1985-06-30T00:00:00.000Z"),
   },
   "internal_id" : "0025987375",
   "appointment_id" : "7IjxamNGLlqtIingmTZJJ42Hw9Q",
@@ -78,7 +78,7 @@
   "created" : {
     "at" : ISODate("2023-02-02T10:36:28.595Z")
   },
-  "delta_at" : "2021-04-23T18:25:43.511Z",
+  "delta_at" : ISODate("2021-04-23T18:25:43.511Z"),
   "officer_role_sort_order" : 20,
   "company_name" : "ART SPACE MERSEYSIDE",
   "company_status" : "active"
