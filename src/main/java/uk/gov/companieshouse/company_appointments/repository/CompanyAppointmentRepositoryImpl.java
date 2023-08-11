@@ -31,6 +31,9 @@ public class CompanyAppointmentRepositoryImpl implements CompanyAppointmentRepos
     private static final String REMOVED = "removed";
     private static final String DISSOLVED = "dissolved";
     private static final String CONVERTED_CLOSED = "converted-closed";
+    private static final String COMPANY_NUMBER_FIELD = "company_number";
+    private static final String DATA_RESIGNED_ON_FIELD = "data.resigned_on";
+    private static final String COMPANY_STATUS_FIELD = "company_status";
     private final MongoTemplate mongoTemplate;
     private final SortMapper sortMapper;
 
@@ -41,17 +44,17 @@ public class CompanyAppointmentRepositoryImpl implements CompanyAppointmentRepos
 
     @Override
     public List<CompanyAppointmentDocument> getCompanyAppointments(String companyNumber,
-                                                                   String orderBy, String registerType, int startIndex, int itemsPerPage,
-                                                                   boolean registerView, boolean filterEnabled) {
+            String orderBy, String registerType, int startIndex, int itemsPerPage,
+            boolean registerView, boolean filterEnabled) {
 
-        Criteria criteria = where("company_number").is(companyNumber);
+        Criteria criteria = where(COMPANY_NUMBER_FIELD).is(companyNumber);
 
         if (registerView) {
-            criteria.and("data.resigned_on").exists(false);
+            criteria.and(DATA_RESIGNED_ON_FIELD).exists(false);
             filterByRegisterType(criteria, registerType);
         } else if (filterEnabled) {
-            criteria.and("data.resigned_on").exists(false)
-                    .and("company_status").nin(List.of(DISSOLVED, REMOVED, CONVERTED_CLOSED));
+            criteria.and(DATA_RESIGNED_ON_FIELD).exists(false)
+                    .and(COMPANY_STATUS_FIELD).nin(List.of(DISSOLVED, REMOVED, CONVERTED_CLOSED));
         }
 
         Query query = query(criteria)

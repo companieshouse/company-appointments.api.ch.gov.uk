@@ -238,7 +238,7 @@ class CompanyAppointmentServiceTest {
                 FetchAppointmentsRequest.Builder.builder()
                         .withCompanyNumber(COMPANY_NUMBER)
                         .withOrderBy(ORDER_BY)
-                        .withFilter("active")
+                        .withFilter(ACTIVE)
                         .build();
 
         when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(
@@ -444,7 +444,7 @@ class CompanyAppointmentServiceTest {
     }
 
     @Test
-    void testFetchAppointmentsForCompanyThrowsNotFoundExceptionIfNoAppointmentsInMetrics()
+    void testFetchAppointmentsForCompanyThrowsNotFoundExceptionIfNoCountsInMetrics()
             throws ServiceUnavailableException, NotFoundException {
         FetchAppointmentsRequest request =
                 FetchAppointmentsRequest.Builder.builder()
@@ -462,7 +462,7 @@ class CompanyAppointmentServiceTest {
     }
 
     @Test
-    void throwNotFoundExceptionIfCountsAppointmentIsNull() throws Exception {
+    void throwNotFoundExceptionIfCountsAppointmentsIsNull() throws Exception {
         FetchAppointmentsRequest request =
                 FetchAppointmentsRequest.Builder.builder()
                         .withCompanyNumber(COMPANY_NUMBER)
@@ -476,6 +476,7 @@ class CompanyAppointmentServiceTest {
                 () -> companyAppointmentService.fetchAppointmentsForCompany(request));
         assertEquals("Appointments metrics for company number [" + COMPANY_NUMBER + "] not found",
                 exception.getMessage());
+        verifyNoInteractions(companyAppointmentRepository);
     }
 
     @Test

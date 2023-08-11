@@ -66,12 +66,12 @@ public class CompanyAppointmentService {
 
     public OfficerSummary fetchAppointment(String companyNumber, String appointmentID) throws NotFoundException {
         LOGGER.debug(String.format("Fetching appointment [%s] for company [%s]", appointmentID, companyNumber));
-        CompanyAppointmentDocument appointmentData = companyAppointmentRepository.readByCompanyNumberAndAppointmentID(
+        CompanyAppointmentDocument appointmentDocument = companyAppointmentRepository.readByCompanyNumberAndAppointmentID(
                         companyNumber, appointmentID)
                 .orElseThrow(() -> new NotFoundException(
                         String.format("Appointment [%s] for company [%s] not found", appointmentID, companyNumber)));
-        return companyAppointmentMapper.map(appointmentData)
-                .etag(appointmentData.getData().getEtag());
+        return companyAppointmentMapper.map(appointmentDocument)
+                .etag(appointmentDocument.getData().getEtag());
     }
 
     public OfficerList fetchAppointmentsForCompany(FetchAppointmentsRequest request)
