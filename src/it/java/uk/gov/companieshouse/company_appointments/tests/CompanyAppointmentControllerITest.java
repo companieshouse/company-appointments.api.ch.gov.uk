@@ -130,7 +130,7 @@ class CompanyAppointmentControllerITest {
                 .totalCount(3)
                 .activeCount(2)
                 .resignedCount(1)));
-        ResultActions result = mockMvc.perform(get("/company/{company_number}/officers", COMPANY_NUMBER)
+        ResultActions result = mockMvc.perform(get("/company/{company_number}/officers-test", COMPANY_NUMBER)
                 .header(ERIC_IDENTITY, "123")
                 .header(ERIC_IDENTITY_TYPE, "key")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -166,7 +166,7 @@ class CompanyAppointmentControllerITest {
                 .totalCount(2)
                 .activeCount(2)
                 .resignedCount(0)));
-        ResultActions result = mockMvc.perform(get("/company/{company_number}/officers?filter=active", COMPANY_NUMBER)
+        ResultActions result = mockMvc.perform(get("/company/{company_number}/officers-test?filter=active", COMPANY_NUMBER)
                 .header(ERIC_IDENTITY, "123")
                 .header(ERIC_IDENTITY_TYPE, "key")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -188,7 +188,7 @@ class CompanyAppointmentControllerITest {
                 .totalCount(2)
                 .activeCount(2)
                 .resignedCount(0)));
-        ResultActions result = mockMvc.perform(get("/company/{company_number}/officers?order_by=appointed_on", COMPANY_NUMBER)
+        ResultActions result = mockMvc.perform(get("/company/{company_number}/officers-test?order_by=appointed_on", COMPANY_NUMBER)
                 .header(ERIC_IDENTITY, "123")
                 .header(ERIC_IDENTITY_TYPE, "key")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -209,7 +209,7 @@ class CompanyAppointmentControllerITest {
                 .totalCount(3)
                 .activeCount(2)
                 .resignedCount(1)));
-        ResultActions result = mockMvc.perform(get("/company/{company_number}/officers?order_by=surname", COMPANY_NUMBER)
+        ResultActions result = mockMvc.perform(get("/company/{company_number}/officers-test?order_by=surname", COMPANY_NUMBER)
                 .header(ERIC_IDENTITY, "123")
                 .header(ERIC_IDENTITY_TYPE, "key")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -227,7 +227,7 @@ class CompanyAppointmentControllerITest {
     @Test
     void testReturn400BadRequestWithIncorrectOrderBy() throws Exception {
         when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(new ApiResponse<>(200, null, metricsApi));
-        ResultActions result = mockMvc.perform(get("/company/{company_number}/officers?order_by=invalid", COMPANY_NUMBER)
+        ResultActions result = mockMvc.perform(get("/company/{company_number}/officers-test?order_by=invalid", COMPANY_NUMBER)
                 .header(ERIC_IDENTITY, "123")
                 .header(ERIC_IDENTITY_TYPE, "key")
                 .contentType(MediaType.APPLICATION_JSON)
