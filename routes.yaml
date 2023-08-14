@@ -3,5 +3,5 @@ group: api
 weight: 900
 routes:
   1: ^/company/.*?/appointments(/.*?|$)$
-  2: ^/company/(.){0,10}/officers-test$
+  2: ^/company/(.){0,10}/officers$
   3: ^/officers/.*/appointments$
