@@ -80,19 +80,24 @@ class ItemsMapperTest {
     @Mock
     private NameElements nameElements;
 
-    private final Instant appointedBefore = Instant.from(LocalDate.of(1993, 3, 13).atStartOfDay(ZoneOffset.UTC));
-    private final Instant appointedOn = Instant.from(LocalDate.of(2018, 1, 1).atStartOfDay(ZoneOffset.UTC));
-    private final Instant resignedOn = Instant.from(LocalDate.of(2019, 1, 1).atStartOfDay(ZoneOffset.UTC));
+    private final Instant appointedBefore = Instant.from(
+            LocalDate.of(1993, 3, 13).atStartOfDay(ZoneOffset.UTC));
+    private final Instant appointedOn = Instant.from(
+            LocalDate.of(2018, 1, 1).atStartOfDay(ZoneOffset.UTC));
+    private final Instant resignedOn = Instant.from(
+            LocalDate.of(2019, 1, 1).atStartOfDay(ZoneOffset.UTC));
 
     @Test
     @DisplayName("Should map a list of appointments to a list of officer appointments")
     void mapItems() {
         // given
         when(addressMapper.map(any(DeltaServiceAddress.class))).thenReturn(address);
-        when(addressMapper.map(any(DeltaPrincipalOfficeAddress.class))).thenReturn(principalOfficeAddress);
+        when(addressMapper.map(any(DeltaPrincipalOfficeAddress.class))).thenReturn(
+                principalOfficeAddress);
         when(contactDetailsMapper.map(any())).thenReturn(contactDetails);
         when(nameMapper.map(any())).thenReturn("forename secondForename surname");
-        when(localDateMapper.map(appointedBefore)).thenReturn(LocalDate.of(1993, 3, 13)); // was a string
+        when(localDateMapper.map(appointedBefore)).thenReturn(
+                LocalDate.of(1993, 3, 13)); // was a string
         when(localDateMapper.map(appointedOn)).thenReturn(LocalDate.of(2018, 1, 1));
         when(localDateMapper.map(resignedOn)).thenReturn(LocalDate.of(2019, 1, 1));
         when(formerNamesMapper.map(any())).thenReturn(singletonList(formerNames));
@@ -110,7 +115,8 @@ class ItemsMapperTest {
         assertEquals(expected, actual);
         verify(addressMapper).map(serviceAddressData);
         verify(addressMapper).map(deltaPrincipalOfficeAddress);
-        verify(localDateMapper).map(LocalDate.of(1993, 3, 13).atStartOfDay().toInstant(ZoneOffset.UTC));
+        verify(localDateMapper).map(
+                LocalDate.of(1993, 3, 13).atStartOfDay().toInstant(ZoneOffset.UTC));
         verify(localDateMapper).map(LocalDateTime.of(2018, 1, 1, 0, 0).toInstant(ZoneOffset.UTC));
         verify(localDateMapper).map(LocalDateTime.of(2019, 1, 1, 0, 0).toInstant(ZoneOffset.UTC));
         verify(contactDetailsMapper).map(contactDetailsData);
@@ -145,7 +151,8 @@ class ItemsMapperTest {
     @DisplayName("Should return an empty optional if the list of appointments within the aggregate has null officer data")
     void mapNullOfficerData() {
         // given
-        List<CompanyAppointmentDocument> appointmentList = singletonList(new CompanyAppointmentDocument());
+        List<CompanyAppointmentDocument> appointmentList = singletonList(
+                new CompanyAppointmentDocument());
 
         // when
         List<OfficerAppointmentSummary> actual = mapper.map(appointmentList);
@@ -165,10 +172,10 @@ class ItemsMapperTest {
     private List<CompanyAppointmentDocument> getAppointmentList() {
         DeltaOfficerData officerData = buildOfficerData();
 
-        CompanyAppointmentDocument data = new CompanyAppointmentDocument();
-        data.setCompanyStatus("active");
-        data.setData(officerData);
-        data.setCompanyName("company name");
+        CompanyAppointmentDocument data = new CompanyAppointmentDocument()
+                .companyStatus("active")
+                .data(officerData)
+                .companyName("company name");
 
         return singletonList(data);
     }

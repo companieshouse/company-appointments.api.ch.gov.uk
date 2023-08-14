@@ -19,22 +19,8 @@ class LocalDateMapperTest {
         mapper = new LocalDateMapper();
     }
 
-//    @Test
-//    void mapAppointedBefore() {
-//        // given
-//        String appointedBefore = "1990-01-20";
-//
-//        Instant expected = LocalDate.of(1990, 1, 20).atStartOfDay().toInstant(ZoneOffset.UTC);
-//
-//        // when
-//        LocalDate actual = mapper.map(appointedBefore);
-//
-//        // then
-//        assertEquals(expected, actual);
-//    }
-
     @Test
-    void mapAppointedBeforeNull() {
+    void mapNullValue() {
         // given
         // when
         LocalDate actual = mapper.map(null);
@@ -44,7 +30,7 @@ class LocalDateMapperTest {
     }
 
     @Test
-    void mapAppointedOn() {
+    void mapInstant() {
         // given
         Instant appointedOn = LocalDateTime.of(1990, 1, 20, 0, 0).toInstant(ZoneOffset.UTC);
 
@@ -55,15 +41,5 @@ class LocalDateMapperTest {
 
         // then
         assertEquals(expected, actual);
-    }
-
-    @Test
-    void mapAppointedOnNull() {
-        // given
-        // when
-        LocalDate actual = mapper.map(null);
-
-        // then
-        assertNull(actual);
     }
 }

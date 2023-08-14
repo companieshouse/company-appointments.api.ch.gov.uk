@@ -219,12 +219,12 @@ class OfficerAppointmentsMapperTest {
     private CompanyAppointmentDocument getCompanyAppointmentDocument(DeltaOfficerData officerData,
             DeltaSensitiveData sensitiveData) {
         return new CompanyAppointmentDocument()
-            .setOfficerId("officerId")
-            .setId("id")
-            .setCompanyStatus("active")
-            .setData(officerData)
-            .setSensitiveData(sensitiveData)
-            .setCompanyName("company name");
+            .officerId("officerId")
+            .id("id")
+            .companyStatus("active")
+            .data(officerData)
+            .sensitiveData(sensitiveData)
+            .companyName("company name");
     }
 
     private DeltaOfficerData getOfficerData(String role) {
