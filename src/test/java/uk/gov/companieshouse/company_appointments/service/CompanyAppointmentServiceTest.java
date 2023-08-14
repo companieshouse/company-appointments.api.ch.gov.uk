@@ -163,6 +163,7 @@ class CompanyAppointmentServiceTest {
         assertEquals(0, result.getInactiveCount());
         assertEquals(0, result.getResignedCount());
         assertEquals(OfficerList.class, result.getClass());
+        assertEquals("etag", result.getEtag());
         verify(companyAppointmentRepository).getCompanyAppointments(eq(COMPANY_NUMBER),
                 eq(ORDER_BY), isNull(), eq(0), eq(35), eq(false), eq(false));
     }
@@ -855,7 +856,8 @@ class CompanyAppointmentServiceTest {
                         .setPoBox("PO Box")
                         .setPremises("Premises")
                         .setRegion("Region"))
-                .contactDetails(new DeltaContactDetails().setContactName("Name"));
+                .contactDetails(new DeltaContactDetails().setContactName("Name"))
+                .etag("etag");
     }
 
     private DeltaSensitiveData buildSensitiveData() {

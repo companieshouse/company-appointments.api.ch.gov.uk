@@ -137,7 +137,7 @@ public class CompanyAppointmentService {
                 .startIndex(startIndex)
                 .itemsPerPage(itemsPerPage)
                 .links(new LinkTypes().self(String.format("/company/%s/officers", companyNumber)))
-                .etag(officerSummaries.isEmpty() ? "" : officerSummaries.get(0).getEtag());
+                .etag(allAppointmentData.get(0).getData().getEtag());
     }
 
     public void patchCompanyNameStatus(String companyNumber, String companyName,
