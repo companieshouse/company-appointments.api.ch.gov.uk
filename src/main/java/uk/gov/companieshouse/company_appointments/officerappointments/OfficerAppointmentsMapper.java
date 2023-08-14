@@ -47,8 +47,7 @@ class OfficerAppointmentsMapper {
                                     .kind(KindEnum.PERSONAL_APPOINTMENT)
                                     .links(new OfficerLinkTypes().self(
                                             String.format("/officers/%s/appointments",
-                                                    mapperRequest.getFirstAppointment()
-                                                            .getOfficerId())))
+                                                    firstAppointment.getOfficerId())))
                                     .items(itemsMapper.map(aggregate.getOfficerAppointments()))
                                     .name(nameMapper.map(data))
                                     .startIndex(mapperRequest.getStartIndex())
