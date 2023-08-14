@@ -7,5 +7,5 @@ public interface CompanyAppointmentRepositoryExtension {
 
     List<CompanyAppointmentDocument> getCompanyAppointments(String companyNumber,
             String orderBy, String registerType, int startIndex, int itemsPerPage,
-            boolean registerView, boolean filterActiveOnly);
+            boolean registerView, boolean filterEnabled);
 }

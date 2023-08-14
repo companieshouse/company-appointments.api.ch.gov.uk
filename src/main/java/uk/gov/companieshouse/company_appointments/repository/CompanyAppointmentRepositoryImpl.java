@@ -16,6 +16,7 @@ import static uk.gov.companieshouse.company_appointments.roles.SecretarialRoles.
 import static uk.gov.companieshouse.company_appointments.roles.SecretarialRoles.SECRETARY;
 
 import java.util.List;
+
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -27,6 +28,12 @@ import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentD
 public class CompanyAppointmentRepositoryImpl implements CompanyAppointmentRepositoryExtension {
 
     private static final String DATA_OFFICER_ROLE = "data.officer_role";
+    private static final String REMOVED = "removed";
+    private static final String DISSOLVED = "dissolved";
+    private static final String CONVERTED_CLOSED = "converted-closed";
+    private static final String COMPANY_NUMBER_FIELD = "company_number";
+    private static final String DATA_RESIGNED_ON_FIELD = "data.resigned_on";
+    private static final String COMPANY_STATUS_FIELD = "company_status";
     private final MongoTemplate mongoTemplate;
     private final SortMapper sortMapper;
 
@@ -38,16 +45,16 @@ public class CompanyAppointmentRepositoryImpl implements CompanyAppointmentRepos
     @Override
     public List<CompanyAppointmentDocument> getCompanyAppointments(String companyNumber,
             String orderBy, String registerType, int startIndex, int itemsPerPage,
-            boolean registerView, boolean filterActiveOnly) {
+            boolean registerView, boolean filterEnabled) {
 
-        Criteria criteria = where("company_number").is(companyNumber);
-
-        if (filterActiveOnly) {
-            criteria.and("data.resigned_on").exists(false);
-        }
+        Criteria criteria = where(COMPANY_NUMBER_FIELD).is(companyNumber);
 
         if (registerView) {
+            criteria.and(DATA_RESIGNED_ON_FIELD).exists(false);
             filterByRegisterType(criteria, registerType);
+        } else if (filterEnabled) {
+            criteria.and(DATA_RESIGNED_ON_FIELD).exists(false)
+                    .and(COMPANY_STATUS_FIELD).nin(List.of(DISSOLVED, REMOVED, CONVERTED_CLOSED));
         }
 
         Query query = query(criteria)
@@ -55,34 +62,35 @@ public class CompanyAppointmentRepositoryImpl implements CompanyAppointmentRepos
                 .skip(startIndex)
                 .limit(itemsPerPage);
 
-        return mongoTemplate.query(CompanyAppointmentDocument.class)
-                .matching(query)
-                .all();
+        return mongoTemplate.find(query, CompanyAppointmentDocument.class);
     }
 
     private void filterByRegisterType(Criteria criteria, String registerType) {
 
         switch (registerType) {
             case "directors":
-                criteria.orOperator(
-                        where(DATA_OFFICER_ROLE).is(DIRECTOR.getRole()),
-                        where(DATA_OFFICER_ROLE).is(CORPORATE_DIRECTOR.getRole()),
-                        where(DATA_OFFICER_ROLE).is(NOMINEE_DIRECTOR.getRole()),
-                        where(DATA_OFFICER_ROLE).is(CORPORATE_NOMINEE_DIRECTOR.getRole()));
+                criteria.and(DATA_OFFICER_ROLE)
+                        .in(List.of(
+                                DIRECTOR.getRole(),
+                                CORPORATE_DIRECTOR.getRole(),
+                                NOMINEE_DIRECTOR.getRole(),
+                                CORPORATE_NOMINEE_DIRECTOR.getRole()));
                 break;
             case "secretaries":
-                criteria.orOperator(
-                        where(DATA_OFFICER_ROLE).is(SECRETARY.getRole()),
-                        where(DATA_OFFICER_ROLE).is(CORPORATE_SECRETARY.getRole()),
-                        where(DATA_OFFICER_ROLE).is(NOMINEE_SECRETARY.getRole()),
-                        where(DATA_OFFICER_ROLE).is(CORPORATE_NOMINEE_SECRETARY.getRole()));
+                criteria.and(DATA_OFFICER_ROLE)
+                        .in(List.of(
+                                SECRETARY.getRole(),
+                                CORPORATE_SECRETARY.getRole(),
+                                NOMINEE_SECRETARY.getRole(),
+                                CORPORATE_NOMINEE_SECRETARY.getRole()));
                 break;
             case "llp_members":
-                criteria.orOperator(
-                        where(DATA_OFFICER_ROLE).is(LLP_MEMBER.getRole()),
-                        where(DATA_OFFICER_ROLE).is(CORPORATE_LLP_MEMBER.getRole()),
-                        where(DATA_OFFICER_ROLE).is(LLP_DESIGNATED_MEMBER.getRole()),
-                        where(DATA_OFFICER_ROLE).is(CORPORATE_LLP_DESIGNATED_MEMBER.getRole()));
+                criteria.and(DATA_OFFICER_ROLE)
+                        .in(List.of(
+                                LLP_MEMBER.getRole(),
+                                CORPORATE_LLP_MEMBER.getRole(),
+                                LLP_DESIGNATED_MEMBER.getRole(),
+                                CORPORATE_LLP_DESIGNATED_MEMBER.getRole()));
                 break;
             default:
                 throw new IllegalArgumentException("Invalid registerType of " + registerType);
