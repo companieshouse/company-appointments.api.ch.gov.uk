@@ -14,7 +14,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.companieshouse.api.officer.CorporateIdent;
 import uk.gov.companieshouse.api.officer.CorporateIdent.IdentificationTypeEnum;
-import uk.gov.companieshouse.company_appointments.model.data.IdentificationData;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaIdentification;
 
 @ExtendWith(MockitoExtension.class)
 class IdentificationMapperTest {
@@ -28,13 +28,12 @@ class IdentificationMapperTest {
     void mapIdentification() {
         // given
         when(identificationTypeMapper.map(anyString())).thenReturn(IdentificationTypeEnum.UK_LIMITED_COMPANY);
-        IdentificationData identificationData = IdentificationData.builder()
-                .withIdentificationType("uk-limited-company")
-                .withLegalAuthority("legal authority")
-                .withLegalForm("legal form")
-                .withPlaceRegistered("place registered")
-                .withRegistrationNumber("registration number")
-                .build();
+        DeltaIdentification identificationData = new DeltaIdentification()
+                .setIdentificationType("uk-limited-company")
+                .setLegalAuthority("legal authority")
+                .setLegalForm("legal form")
+                .setPlaceRegistered("place registered")
+                .setRegistrationNumber("registration number");
 
         CorporateIdent expected = new CorporateIdent()
                 .identificationType(IdentificationTypeEnum.UK_LIMITED_COMPANY)
@@ -54,7 +53,7 @@ class IdentificationMapperTest {
     @Test
     void mapIdentificationEmpty() {
         // given
-        IdentificationData identificationData = IdentificationData.builder().build();
+        DeltaIdentification identificationData = new DeltaIdentification();
 
         CorporateIdent expected = new CorporateIdent();
 

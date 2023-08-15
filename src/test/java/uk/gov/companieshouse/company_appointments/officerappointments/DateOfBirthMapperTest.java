@@ -3,7 +3,9 @@ package uk.gov.companieshouse.company_appointments.officerappointments;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import uk.gov.companieshouse.api.officer.DateOfBirth;
@@ -20,7 +22,7 @@ class DateOfBirthMapperTest {
     @Test
     void mapDateOfBirth() {
         // given
-        LocalDateTime dateOfBirth = LocalDateTime.of(2000, 2, 5, 0, 0);
+        Instant dateOfBirth = LocalDateTime.of(2000, 2, 5, 0, 0).toInstant(ZoneOffset.UTC);
 
         DateOfBirth expected = new DateOfBirth()
                 .month(2)
@@ -36,7 +38,7 @@ class DateOfBirthMapperTest {
     @Test
     void mapDateOfBirthSecretary() {
         // given
-        LocalDateTime dateOfBirth = LocalDateTime.of(2000, 2, 5, 0, 0);
+        Instant dateOfBirth = LocalDateTime.of(2000, 2, 5, 0, 0).toInstant(ZoneOffset.UTC);
 
 
         // when
@@ -60,7 +62,7 @@ class DateOfBirthMapperTest {
     @Test
     void mapDateOfBirthCorporateOfficer() {
         // given
-        LocalDateTime dateOfBirth = LocalDateTime.of(2000, 2, 5, 0, 0);
+        Instant dateOfBirth = LocalDateTime.of(2000, 2, 5, 0, 0).toInstant(ZoneOffset.UTC);
 
         // when
         DateOfBirth actual = mapper.map(dateOfBirth, "corporate-director");
@@ -72,7 +74,7 @@ class DateOfBirthMapperTest {
     @Test
     void mapDateOfBirthNullOfficerRole() {
         // given
-        LocalDateTime dateOfBirth = LocalDateTime.of(2000, 2, 5, 0, 0);
+        Instant dateOfBirth = LocalDateTime.of(2000, 2, 5, 0, 0).toInstant(ZoneOffset.UTC);
 
         DateOfBirth expected = new DateOfBirth()
                 .month(2)

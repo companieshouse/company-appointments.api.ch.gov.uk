@@ -4,12 +4,12 @@ import static java.util.Optional.ofNullable;
 
 import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.api.officer.ContactDetails;
-import uk.gov.companieshouse.company_appointments.model.data.ContactDetailsData;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaContactDetails;
 
 @Component
 class ContactDetailsMapper {
 
-    ContactDetails map(ContactDetailsData contactDetailsData) {
+    ContactDetails map(DeltaContactDetails contactDetailsData) {
         return ofNullable(contactDetailsData)
                 .map(contactDetails -> new ContactDetails()
                         .contactName(contactDetails.getContactName()))

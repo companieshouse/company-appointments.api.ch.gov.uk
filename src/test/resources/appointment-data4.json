@@ -50,7 +50,7 @@
     },
     "date_of_birth" : ISODate("1980-01-01T00:00:00.000Z")
   },
-  "delta_at" : ISODate("2020-06-23T12:13:03.006Z")
+  "delta_at" : ISODate("2020-06-23T12:13:03.006Z"),
   "internal_id" : "2500085646",
   "officer_id" : "5VEOBB4a9dlB_iugw_vieHjWpCk",
   "officer_role_sort_order" : 200,

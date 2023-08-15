@@ -7,17 +7,17 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.api.officer.NameElements;
-import uk.gov.companieshouse.company_appointments.model.data.OfficerData;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaOfficerData;
 
 @Component
 class NameMapper {
 
-    String map(OfficerData data) {
+    String map(DeltaOfficerData data) {
         return ofNullable(data.getCompanyName())
                 .orElse(buildOfficerName(data));
     }
 
-    NameElements mapNameElements(OfficerData data) {
+    NameElements mapNameElements(DeltaOfficerData data) {
         NameElements nameElements = new NameElements()
                 .forename(data.getForename())
                 .title(data.getTitle())
@@ -30,7 +30,7 @@ class NameMapper {
         return nameElements;
     }
 
-    private static String buildOfficerName(OfficerData data) {
+    private static String buildOfficerName(DeltaOfficerData data) {
         return Stream.of(data.getForename(), data.getOtherForenames(), data.getSurname())
                 .filter(Objects::nonNull)
                 .collect(Collectors.joining(" "));

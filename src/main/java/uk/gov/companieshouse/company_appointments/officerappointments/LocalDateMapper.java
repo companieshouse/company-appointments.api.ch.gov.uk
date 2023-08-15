@@ -1,25 +1,18 @@
 package uk.gov.companieshouse.company_appointments.officerappointments;
 
+import static java.time.ZoneOffset.UTC;
 import static java.util.Optional.ofNullable;
 
+import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Locale;
 import org.springframework.stereotype.Component;
 
 @Component
 class LocalDateMapper {
 
-    LocalDate map(String dateString) {
-        return ofNullable(dateString)
-                .map(appointed -> LocalDate.parse(appointed, DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.UK)))
-                .orElse(null);
-    }
-
-    LocalDate map(LocalDateTime dateTime) {
+    LocalDate map(Instant dateTime) {
         return ofNullable(dateTime)
-                .map(LocalDateTime::toLocalDate)
+                .map(dt -> LocalDate.ofInstant(dt, UTC))
                 .orElse(null);
     }
 }

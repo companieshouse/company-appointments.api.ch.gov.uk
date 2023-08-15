@@ -6,12 +6,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.api.officer.FormerNames;
-import uk.gov.companieshouse.company_appointments.model.data.FormerNamesData;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaFormerNames;
 
 @Component
 class FormerNamesMapper {
 
-    List<FormerNames> map(List<FormerNamesData> formerNames) {
+    List<FormerNames> map(List<DeltaFormerNames> formerNames) {
         return ofNullable(formerNames)
                 .map(formerNamesData -> formerNamesData.stream()
                         .map(names -> new FormerNames()

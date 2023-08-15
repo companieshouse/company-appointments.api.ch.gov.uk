@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import uk.gov.companieshouse.api.officer.ContactDetails;
-import uk.gov.companieshouse.company_appointments.model.data.ContactDetailsData;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaContactDetails;
 
 class ContactDetailsMapperTest {
 
@@ -20,14 +20,13 @@ class ContactDetailsMapperTest {
     @Test
     void mapContactDetails() {
         // given
-        ContactDetailsData contactDetailsData = ContactDetailsData.builder()
-                .withContactName("contactName")
-                .build();
+        DeltaContactDetails contactDetails = new DeltaContactDetails()
+                .setContactName("contactName");
 
         ContactDetails expected = new ContactDetails()
                 .contactName("contactName");
         // when
-        ContactDetails actual = mapper.map(contactDetailsData);
+        ContactDetails actual = mapper.map(contactDetails);
 
         // then
         assertEquals(expected, actual);
@@ -36,11 +35,11 @@ class ContactDetailsMapperTest {
     @Test
     void mapContactDetailsNullContactName() {
         // given
-        ContactDetailsData contactDetailsData = ContactDetailsData.builder().build();
+        DeltaContactDetails contactDetails = new DeltaContactDetails();
 
         ContactDetails expected = new ContactDetails();
         // when
-        ContactDetails actual = mapper.map(contactDetailsData);
+        ContactDetails actual = mapper.map(contactDetails);
 
         // then
         assertEquals(expected, actual);

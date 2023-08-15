@@ -25,7 +25,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.companieshouse.api.officer.AppointmentList;
 import uk.gov.companieshouse.company_appointments.exception.BadRequestException;
-import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentData;
+import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentDocument;
 import uk.gov.companieshouse.company_appointments.officerappointments.OfficerAppointmentsMapper.MapperRequest;
 
 @ExtendWith(MockitoExtension.class)
@@ -52,7 +52,7 @@ class OfficerAppointmentsServiceTest {
     @Mock
     private OfficerAppointmentsAggregate officerAppointmentsAggregate;
     @Mock
-    private CompanyAppointmentData companyAppointmentData;
+    private CompanyAppointmentDocument companyAppointmentDocument;
 
     private static Stream<Arguments> serviceTestParameters() {
         return Stream.of(
@@ -141,7 +141,8 @@ class OfficerAppointmentsServiceTest {
         // given
         Filter filter = new Filter(argument.isFilterEnabled(), argument.getFilterStatuses());
 
-        when(repository.findFirstByOfficerId(anyString())).thenReturn(Optional.of(companyAppointmentData));
+        when(repository.findFirstByOfficerId(anyString())).thenReturn(Optional.of(
+                companyAppointmentDocument));
         when(filterService.prepareFilter(any(), any())).thenReturn(filter);
         when(repository.findOfficerAppointments(anyString(), anyBoolean(), any(), anyInt(), anyInt())).thenReturn(
                 officerAppointmentsAggregate);
@@ -159,7 +160,7 @@ class OfficerAppointmentsServiceTest {
         verify(mapper).mapOfficerAppointments(new MapperRequest()
                 .startIndex(argument.getStartIndex())
                 .itemsPerPage(argument.getItemsPerPage())
-                .firstAppointment(companyAppointmentData)
+                .firstAppointment(companyAppointmentDocument)
                 .aggregate(officerAppointmentsAggregate));
     }
 
