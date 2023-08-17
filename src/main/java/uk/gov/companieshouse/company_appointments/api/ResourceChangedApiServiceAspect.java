@@ -5,6 +5,7 @@ import org.aspectj.lang.annotation.Aspect;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.company_appointments.CompanyAppointmentsApplication;
+import uk.gov.companieshouse.company_appointments.logging.DataMapHolder;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.logging.LoggerFactory;
 
@@ -17,7 +18,8 @@ public class ResourceChangedApiServiceAspect {
 
     @Around("@annotation(StreamEvents)")
     public Object checkStreamEventsEnabled() {
-            LOGGER.debug("Stream events disabled; not publishing change to chs-kafka-api");
+            LOGGER.debug("Stream events disabled; not publishing change to chs-kafka-api",
+                    DataMapHolder.getLogMap());
             return null;
     }
 }

@@ -9,6 +9,7 @@ import uk.gov.companieshouse.api.metrics.MetricsApi;
 import uk.gov.companieshouse.api.model.ApiResponse;
 import uk.gov.companieshouse.company_appointments.exception.NotFoundException;
 import uk.gov.companieshouse.company_appointments.exception.ServiceUnavailableException;
+import uk.gov.companieshouse.company_appointments.logging.DataMapHolder;
 import uk.gov.companieshouse.logging.Logger;
 
 @Service
@@ -30,6 +31,7 @@ public class CompanyMetricsApiService {
     public ApiResponse<MetricsApi> invokeGetMetricsApi(String companyNumber)
             throws ServiceUnavailableException, NotFoundException {
         InternalApiClient internalApiClient = apiClientService.getInternalApiClient();
+        internalApiClient.getHttpClient().setRequestId(DataMapHolder.getRequestId());
         internalApiClient.setBasePath(metricsUrl);
 
         PrivateCompanyMetricsGet companyMetricsGet =

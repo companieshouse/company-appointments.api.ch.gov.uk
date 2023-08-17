@@ -1,6 +1,5 @@
 package uk.gov.companieshouse.company_appointments.interceptor;
 
-import java.util.HashMap;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringUtils;
@@ -8,6 +7,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
+import uk.gov.companieshouse.company_appointments.logging.DataMapHolder;
 import uk.gov.companieshouse.logging.Logger;
 
 @Component
@@ -30,18 +30,18 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
 
         if (StringUtils.isEmpty(request.getHeader(ERIC_IDENTITY)) ||
                 (StringUtils.isEmpty(identityType) || isInvalidIdentityType(identityType))) {
-            logger.infoRequest(request, "User not authenticated", new HashMap<>());
+            logger.infoRequest(request, "User not authenticated", DataMapHolder.getLogMap());
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return false;
         }
 
         if (!isKeyAuthorised(request, identityType)) {
-            logger.info("Supplied key does not have sufficient privilege for the action");
+            logger.info("Supplied key does not have sufficient privilege for the action", DataMapHolder.getLogMap());
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
             return false;
         }
 
-        logger.debugRequest(request, "User authenticated", new HashMap<>());
+        logger.debugRequest(request, "User authenticated", DataMapHolder.getLogMap());
         return true;
     }
 

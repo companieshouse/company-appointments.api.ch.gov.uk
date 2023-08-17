@@ -9,6 +9,7 @@ import uk.gov.companieshouse.company_appointments.CompanyAppointmentsApplication
 import uk.gov.companieshouse.company_appointments.exception.FailedToTransformException;
 import uk.gov.companieshouse.company_appointments.exception.NotFoundException;
 import uk.gov.companieshouse.company_appointments.exception.ServiceUnavailableException;
+import uk.gov.companieshouse.company_appointments.logging.DataMapHolder;
 import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentDocument;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.logging.LoggerFactory;
@@ -44,7 +45,8 @@ public class DeltaAppointmentTransformerAspect {
                                 document.companyName(companyName)
                                         .companyStatus(companyStatus);
 
-                                LOGGER.debug(String.format("Company name [%s] and company status [%s] set on appointment [%s]", companyName, companyStatus, appointmentId));
+                                LOGGER.debug(String.format("Company name [%s] and company status [%s] set on appointment [%s]",
+                                        companyName, companyStatus, appointmentId), DataMapHolder.getLogMap());
                             },
                             () -> {
                                 throw new IllegalArgumentException(COMPANY_PROFILE_NOT_FOUND);

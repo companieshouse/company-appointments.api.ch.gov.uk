@@ -8,7 +8,7 @@ public enum SecretarialRoles{
     NOMINEE_SECRETARY("nominee-secretary"),
     CORPORATE_NOMINEE_SECRETARY("corporate-nominee-secretary");
 
-    private String role;
+    private final String role;
 
     SecretarialRoles(String role){
         this.role = role;

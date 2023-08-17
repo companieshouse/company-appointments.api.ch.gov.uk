@@ -8,7 +8,7 @@ public enum DirectorRoles {
     NOMINEE_DIRECTOR("nominee-director"),
     CORPORATE_NOMINEE_DIRECTOR("corporate-nominee-director");
 
-    private String role;
+    private final String role;
 
     DirectorRoles(String role){
         this.role = role;

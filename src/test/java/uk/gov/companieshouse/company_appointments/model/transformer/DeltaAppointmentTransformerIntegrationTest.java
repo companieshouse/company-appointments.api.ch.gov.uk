@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.company_appointments.model.transformer;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,7 @@ import uk.gov.companieshouse.api.appointment.FullRecordCompanyOfficerApi;
 import uk.gov.companieshouse.api.appointment.InternalData;
 import uk.gov.companieshouse.api.appointment.ItemLinkTypes;
 import uk.gov.companieshouse.api.appointment.SensitiveData;
+import uk.gov.companieshouse.company_appointments.logging.DataMapHolder;
 import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentDocument;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaOfficerData;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaSensitiveData;
@@ -36,6 +38,7 @@ class DeltaAppointmentTransformerIntegrationTest {
     private static final String COMPANY_NAME = "companyName";
     private static final String COMPANY_STATUS = "companyStatus";
     private static final String COMPANY_NUMBER = "12345678";
+    private static final String CONTEXT_ID = "contextId";
 
     @Autowired
     private DeltaAppointmentTransformer transformer;
@@ -55,6 +58,11 @@ class DeltaAppointmentTransformerIntegrationTest {
     private DeltaSensitiveDataTransformer sensitiveDataTransformer;
     @MockBean
     private CompanyProfileClient client;
+
+    @BeforeEach
+    void setup() {
+        DataMapHolder.initialise(CONTEXT_ID);
+    }
 
     @Test
     void successfullyCallAspect() throws Exception {

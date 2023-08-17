@@ -13,6 +13,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import uk.gov.companieshouse.api.appointment.ExternalData;
 import uk.gov.companieshouse.api.appointment.FullRecordCompanyOfficerApi;
 import uk.gov.companieshouse.company_appointments.controller.CompanyAppointmentFullRecordController;
 import uk.gov.companieshouse.company_appointments.exception.NotFoundException;
@@ -35,7 +36,6 @@ class CompanyAppointmentFullRecordControllerTest {
 
     private final static String COMPANY_NUMBER = "123456";
     private final static String APPOINTMENT_ID = "345678";
-    private final static String CONTEXT_ID = "contextId";
 
     @BeforeEach
     void setUp() {
@@ -73,21 +73,34 @@ class CompanyAppointmentFullRecordControllerTest {
     @Test
     void testControllerReturns200WhenDataSubmitted() {
         // given
+        when(appointment.getExternalData()).thenReturn(new ExternalData().companyNumber(COMPANY_NUMBER));
 
         // when
-        ResponseEntity<Void> response = companyAppointmentFullRecordController.submitOfficerData(CONTEXT_ID, appointment);
+        ResponseEntity<Void> response = companyAppointmentFullRecordController.submitOfficerData(appointment);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
+    }
+
+    @Test
+    void testControllerReturns400WhenDataSubmittedIsMissingCompanyNumber() {
+        // given
+        when(appointment.getExternalData()).thenReturn(new ExternalData());
+
+        // when
+        ResponseEntity<Void> response = companyAppointmentFullRecordController.submitOfficerData(appointment);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
     @Test
     void testControllerReturns503StatusWhenPutEndpointIsCalled() throws Exception {
         // given
         doThrow(ServiceUnavailableException.class)
-                .when(companyAppointmentService).upsertAppointmentDelta(any(), any());
+                .when(companyAppointmentService).upsertAppointmentDelta(any());
+        when(appointment.getExternalData()).thenReturn(new ExternalData().companyNumber(COMPANY_NUMBER));
 
         // when
-        ResponseEntity<Void> response = companyAppointmentFullRecordController.submitOfficerData(CONTEXT_ID, appointment);
+        ResponseEntity<Void> response = companyAppointmentFullRecordController.submitOfficerData(appointment);
 
         // then
         assertEquals(HttpStatus.SERVICE_UNAVAILABLE, response.getStatusCode());
@@ -97,10 +110,11 @@ class CompanyAppointmentFullRecordControllerTest {
     void testControllerReturns404StatusWhenPutEndpointIsCalled() throws ServiceUnavailableException, NotFoundException {
         // given
         doThrow(NotFoundException.class)
-                .when(companyAppointmentService).upsertAppointmentDelta(any(), any());
+                .when(companyAppointmentService).upsertAppointmentDelta(any());
+        when(appointment.getExternalData()).thenReturn(new ExternalData().companyNumber(COMPANY_NUMBER));
 
         // when
-        ResponseEntity<Void> response = companyAppointmentFullRecordController.submitOfficerData(CONTEXT_ID, appointment);
+        ResponseEntity<Void> response = companyAppointmentFullRecordController.submitOfficerData(appointment);
 
         // then
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
@@ -109,16 +123,16 @@ class CompanyAppointmentFullRecordControllerTest {
     @Test
     void testControllerReturns200WhenOfficerDeleted() {
 
-        ResponseEntity<Void> response = companyAppointmentFullRecordController.deleteOfficerData(CONTEXT_ID, COMPANY_NUMBER, APPOINTMENT_ID);
+        ResponseEntity<Void> response = companyAppointmentFullRecordController.deleteOfficerData(COMPANY_NUMBER, APPOINTMENT_ID);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 
     @Test
     void testControllerReturns404WhenOfficerNotDeleted() throws Exception{
-        doThrow(NotFoundException.class).when(companyAppointmentService).deleteAppointmentDelta(any(), any(), any());
+        doThrow(NotFoundException.class).when(companyAppointmentService).deleteAppointmentDelta(any(), any());
 
-        ResponseEntity<Void> response = companyAppointmentFullRecordController.deleteOfficerData(CONTEXT_ID, COMPANY_NUMBER, APPOINTMENT_ID);
+        ResponseEntity<Void> response = companyAppointmentFullRecordController.deleteOfficerData(COMPANY_NUMBER, APPOINTMENT_ID);
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
@@ -127,10 +141,10 @@ class CompanyAppointmentFullRecordControllerTest {
     void testControllerReturns503StatusWhenDeleteEndpointIsCalled() throws ServiceUnavailableException, NotFoundException {
         // given
         doThrow(ServiceUnavailableException.class)
-                .when(companyAppointmentService).deleteAppointmentDelta(any(), any(), any());
+                .when(companyAppointmentService).deleteAppointmentDelta(any(), any());
 
         // when
-        ResponseEntity<Void> response = companyAppointmentFullRecordController.deleteOfficerData(CONTEXT_ID, COMPANY_NUMBER, APPOINTMENT_ID);
+        ResponseEntity<Void> response = companyAppointmentFullRecordController.deleteOfficerData(COMPANY_NUMBER, APPOINTMENT_ID);
 
         // then
         assertEquals(HttpStatus.SERVICE_UNAVAILABLE, response.getStatusCode());

@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.Map;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -69,7 +70,7 @@ class OfficerAppointmentsControllerTest {
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         assertNull(response.getBody());
         verify(service).getOfficerAppointments(new OfficerAppointmentsRequest(OFFICER_ID, null, null, null));
-        verify(logger).error(loggerCaptor.capture());
+        verify(logger).error(loggerCaptor.capture(), any(Map.class));
         assertEquals(String.format("No appointments found for officer ID %s", OFFICER_ID), loggerCaptor.getValue());
     }
 
@@ -86,7 +87,7 @@ class OfficerAppointmentsControllerTest {
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertNull(response.getBody());
         verify(service).getOfficerAppointments(new OfficerAppointmentsRequest(OFFICER_ID, "invalid", null, null));
-        verify(logger).error(loggerCaptor.capture());
+        verify(logger).error(loggerCaptor.capture(), any(Map.class));
         assertEquals(String.format("Invalid filter parameter supplied: %s, officer ID %s", "invalid", OFFICER_ID), loggerCaptor.getValue());
     }
 }
