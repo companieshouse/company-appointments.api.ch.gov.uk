@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 import com.google.api.client.http.HttpHeaders;
 import com.google.api.client.http.HttpResponseException;
 import java.util.stream.Stream;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Named;
 import org.junit.jupiter.api.Test;
@@ -25,6 +26,7 @@ import uk.gov.companieshouse.api.chskafka.ChangedResource;
 import uk.gov.companieshouse.api.error.ApiErrorResponseException;
 import uk.gov.companieshouse.api.handler.chskafka.PrivateChangedResourceHandler;
 import uk.gov.companieshouse.api.handler.chskafka.request.PrivateChangedResourcePost;
+import uk.gov.companieshouse.api.http.HttpClient;
 import uk.gov.companieshouse.api.model.ApiResponse;
 import uk.gov.companieshouse.company_appointments.exception.ServiceUnavailableException;
 import uk.gov.companieshouse.company_appointments.mapper.ResourceChangedRequestMapper;
@@ -61,8 +63,17 @@ class ResourceChangedApiServiceTest {
     @Mock
     private ChangedResource changedResource;
 
+    @Mock
+    private HttpClient httpClient;
+
+
     @InjectMocks
     private ResourceChangedApiService resourceChangedApiService;
+
+    @BeforeEach
+    void setup() {
+        when(internalApiClient.getHttpClient()).thenReturn(httpClient);
+    }
 
     @Test
     @DisplayName("Test should successfully invoke chs-kafka-api")
