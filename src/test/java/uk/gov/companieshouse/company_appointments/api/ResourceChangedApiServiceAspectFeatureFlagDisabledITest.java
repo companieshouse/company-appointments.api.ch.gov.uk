@@ -4,6 +4,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ import uk.gov.companieshouse.api.chskafka.ChangedResource;
 import uk.gov.companieshouse.api.error.ApiErrorResponseException;
 import uk.gov.companieshouse.api.handler.chskafka.PrivateChangedResourceHandler;
 import uk.gov.companieshouse.api.handler.chskafka.request.PrivateChangedResourcePost;
+import uk.gov.companieshouse.api.http.HttpClient;
 import uk.gov.companieshouse.api.model.ApiResponse;
 import uk.gov.companieshouse.company_appointments.exception.ServiceUnavailableException;
 import uk.gov.companieshouse.company_appointments.mapper.ResourceChangedRequestMapper;
@@ -42,6 +44,13 @@ class ResourceChangedApiServiceAspectFeatureFlagDisabledITest {
     private PrivateChangedResourcePost changedResourcePost;
     @Mock
     private ApiResponse<Void> response;
+    @Mock
+    private HttpClient httpClient;
+
+    @BeforeEach
+    void setup() {
+        when(internalApiClient.getHttpClient()).thenReturn(httpClient);
+    }
 
     @Test
     void testThatKafkaApiShouldBeCalledWhenFeatureFlagDisabled()

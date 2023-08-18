@@ -70,7 +70,6 @@ class CompanyAppointmentFullRecordServiceTest {
 
     private final static String COMPANY_NUMBER = "123456";
     private final static String APPOINTMENT_ID = "345678";
-    private final static String CONTEXT_ID = "contextId";
     private final static OffsetDateTime DELTA_AT_LATER = OffsetDateTime.parse("2022-01-14T00:00:00.000000Z");
     private final static OffsetDateTime DELTA_AT_STALE = OffsetDateTime.parse("2022-01-12T00:00:00.000000Z");
     private final static Clock CLOCK = Clock.fixed(Instant.parse("2021-08-01T00:00:00.000000Z"),
@@ -158,7 +157,7 @@ class CompanyAppointmentFullRecordServiceTest {
                 .thenReturn(transformedAppointmentApi);
 
         // When
-        companyAppointmentService.upsertAppointmentDelta(CONTEXT_ID, fullRecordCompanyOfficerApi);
+        companyAppointmentService.upsertAppointmentDelta(fullRecordCompanyOfficerApi);
 
         // then
         verify(companyAppointmentRepository).insertOrUpdate(captor.capture());
@@ -175,7 +174,7 @@ class CompanyAppointmentFullRecordServiceTest {
         });
 
         // When
-        Executable executable = () -> companyAppointmentService.upsertAppointmentDelta(CONTEXT_ID,
+        Executable executable = () -> companyAppointmentService.upsertAppointmentDelta(
                 fullRecordCompanyOfficerApi);
 
         // then
@@ -190,7 +189,7 @@ class CompanyAppointmentFullRecordServiceTest {
         when(resourceChangedApiService.invokeChsKafkaApi(any())).thenThrow(IllegalArgumentException.class);
 
         // When
-        Executable executable = () -> companyAppointmentService.upsertAppointmentDelta(CONTEXT_ID,
+        Executable executable = () -> companyAppointmentService.upsertAppointmentDelta(
                 fullRecordCompanyOfficerApi);
 
         // then
@@ -204,7 +203,7 @@ class CompanyAppointmentFullRecordServiceTest {
                 .when(deltaAppointmentTransformer).transform(any(FullRecordCompanyOfficerApi.class));
 
         // When
-        Executable executable = () -> companyAppointmentService.upsertAppointmentDelta(CONTEXT_ID,
+        Executable executable = () -> companyAppointmentService.upsertAppointmentDelta(
                 fullRecordCompanyOfficerApi);
 
         // then
@@ -240,7 +239,7 @@ class CompanyAppointmentFullRecordServiceTest {
                 : Optional.empty());
 
         // When
-        companyAppointmentService.upsertAppointmentDelta(CONTEXT_ID, fullRecordCompanyOfficerApi);
+        companyAppointmentService.upsertAppointmentDelta(fullRecordCompanyOfficerApi);
 
         // then
         VerificationMode expectedTimes = (deltaExists && shouldBeStale) ? never() : times(1);
@@ -254,7 +253,7 @@ class CompanyAppointmentFullRecordServiceTest {
                 APPOINTMENT_ID))
                 .thenReturn(Optional.of(new CompanyAppointmentDocument()));
 
-        companyAppointmentService.deleteAppointmentDelta(CONTEXT_ID, COMPANY_NUMBER, APPOINTMENT_ID);
+        companyAppointmentService.deleteAppointmentDelta(COMPANY_NUMBER, APPOINTMENT_ID);
 
         verify(companyAppointmentRepository).deleteByCompanyNumberAndID(COMPANY_NUMBER,
                 APPOINTMENT_ID);
@@ -266,7 +265,7 @@ class CompanyAppointmentFullRecordServiceTest {
                 .thenThrow(new FailedToTransformException("message"));
 
         Assert.assertThrows(ServiceUnavailableException.class, () ->
-                companyAppointmentService.upsertAppointmentDelta(CONTEXT_ID, new FullRecordCompanyOfficerApi()));
+                companyAppointmentService.upsertAppointmentDelta(new FullRecordCompanyOfficerApi()));
     }
 
     @Test
@@ -275,7 +274,7 @@ class CompanyAppointmentFullRecordServiceTest {
                 APPOINTMENT_ID))
                 .thenReturn(Optional.empty());
 
-        Executable executable = () -> companyAppointmentService.deleteAppointmentDelta(CONTEXT_ID, COMPANY_NUMBER,
+        Executable executable = () -> companyAppointmentService.deleteAppointmentDelta(COMPANY_NUMBER,
                 APPOINTMENT_ID);
 
         assertThrows(NotFoundException.class, executable);
@@ -289,7 +288,7 @@ class CompanyAppointmentFullRecordServiceTest {
         });
 
         // When
-        Executable executable = () -> companyAppointmentService.deleteAppointmentDelta(CONTEXT_ID, COMPANY_NUMBER,
+        Executable executable = () -> companyAppointmentService.deleteAppointmentDelta(COMPANY_NUMBER,
                 APPOINTMENT_ID);
 
         // then
@@ -305,7 +304,7 @@ class CompanyAppointmentFullRecordServiceTest {
         when(resourceChangedApiService.invokeChsKafkaApi(any())).thenThrow(IllegalArgumentException.class);
 
         // When
-        Executable executable = () -> companyAppointmentService.deleteAppointmentDelta(CONTEXT_ID, COMPANY_NUMBER,
+        Executable executable = () -> companyAppointmentService.deleteAppointmentDelta(COMPANY_NUMBER,
                 APPOINTMENT_ID);
 
         // then

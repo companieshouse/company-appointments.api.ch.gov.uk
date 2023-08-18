@@ -22,6 +22,7 @@ import uk.gov.companieshouse.api.appointment.OfficerSummary;
 import uk.gov.companieshouse.api.appointment.OfficerSummary.OfficerRoleEnum;
 import uk.gov.companieshouse.api.appointment.PrincipalOfficeAddress;
 import uk.gov.companieshouse.company_appointments.CompanyAppointmentsApplication;
+import uk.gov.companieshouse.company_appointments.logging.DataMapHolder;
 import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentDocument;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaContactDetails;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaFormerNames;
@@ -46,7 +47,7 @@ public class CompanyAppointmentMapper {
     }
 
     public OfficerSummary map(CompanyAppointmentDocument companyAppointment, boolean registerView) {
-        LOGGER.debug("Mapping data for appointment: " + companyAppointment.getId());
+        LOGGER.debug("Mapping data for appointment: " + companyAppointment.getId(), DataMapHolder.getLogMap());
 
         DeltaOfficerData data = Optional.ofNullable(companyAppointment.getData())
                 .orElseThrow(() -> new IllegalArgumentException("Missing data element"));
@@ -77,7 +78,7 @@ public class CompanyAppointmentMapper {
                 .contactDetails(mapContactDetails(data.getContactDetails()))
                 .isPre1992Appointment(data.getPre1992Appointment())
                 .personNumber(data.getPersonNumber());
-        LOGGER.debug("Mapped data for appointment: " + companyAppointment.getId());
+        LOGGER.debug("Mapped data for appointment: " + companyAppointment.getId(), DataMapHolder.getLogMap());
         return result;
     }
 

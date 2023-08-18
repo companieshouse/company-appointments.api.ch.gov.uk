@@ -16,7 +16,7 @@
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
-        <spring-boot-dependencies.version>2.7.11</spring-boot-dependencies.version>
+        <spring-boot-dependencies.version>2.7.13</spring-boot-dependencies.version>
         <testcontainers.version>1.18.0</testcontainers.version>
         <maven-surefire-plugin.version>3.0.0</maven-surefire-plugin.version>
         <maven-failsafe-plugin.version>3.0.0</maven-failsafe-plugin.version>
@@ -28,7 +28,7 @@
         <skip.integration.tests>false</skip.integration.tests>
         <skip.unit.tests>false</skip.unit.tests>
 
-        <structured-logging.version>1.9.11</structured-logging.version>
+        <structured-logging.version>1.9.25</structured-logging.version>
         <sdk-manager-java.version>1.5.17</sdk-manager-java.version>
         <api-sdk-manager-java-library.version>1.0.8</api-sdk-manager-java-library.version>
         <private-api-sdk-java.version>2.0.288</private-api-sdk-java.version>
@@ -73,6 +73,12 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-aop</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.yaml</groupId>
+                    <artifactId>snakeyaml</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -204,6 +210,10 @@
                 <exclusion>
                     <groupId>commons-fileupload</groupId>
                     <artifactId>commons-fileupload</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.eclipse.jetty</groupId>
+                    <artifactId>jetty-xml</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>

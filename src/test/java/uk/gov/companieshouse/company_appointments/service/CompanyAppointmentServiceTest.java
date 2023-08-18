@@ -15,7 +15,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
-import static uk.gov.companieshouse.logging.util.LogContextProperties.REQUEST_ID;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
@@ -30,7 +29,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.function.Executable;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.slf4j.MDC;
 import org.springframework.dao.DataAccessResourceFailureException;
 import uk.gov.companieshouse.api.appointment.LinkTypes;
 import uk.gov.companieshouse.api.appointment.OfficerList;
@@ -90,7 +88,6 @@ class CompanyAppointmentServiceTest {
     private static final String COMPANY_NAME = "ACME LTD";
     private static final String OPEN_STATUS = "open";
     private static final String FAKE_STATUS = "fake";
-    private static final String CONTEXT_ID = "ABC123";
 
     @BeforeEach
     void setUp() {
@@ -101,7 +98,6 @@ class CompanyAppointmentServiceTest {
                 companyMetricsApiService,
                 companyStatusValidator,
                 clock);
-        MDC.put(REQUEST_ID.value(), CONTEXT_ID);
     }
 
     @Test
@@ -608,7 +604,7 @@ class CompanyAppointmentServiceTest {
         // then
         BadRequestException exception = assertThrows(BadRequestException.class, executable);
         assertEquals(
-                "Request failed for company [123456], contextId: [ABC123]: company name and/or company status missing.",
+                "Request failed for company [123456]: company name and/or company status missing.",
                 exception.getMessage());
         verifyNoInteractions(companyStatusValidator);
         verifyNoInteractions(companyAppointmentRepository);
@@ -625,7 +621,7 @@ class CompanyAppointmentServiceTest {
         // then
         BadRequestException exception = assertThrows(BadRequestException.class, executable);
         assertEquals(
-                "Request failed for company [123456], contextId: [ABC123]: company name and/or company status missing.",
+                "Request failed for company [123456]: company name and/or company status missing.",
                 exception.getMessage());
         verifyNoInteractions(companyStatusValidator);
         verifyNoInteractions(companyAppointmentRepository);
@@ -643,7 +639,7 @@ class CompanyAppointmentServiceTest {
         // then
         BadRequestException exception = assertThrows(BadRequestException.class, executable);
         assertEquals(
-                "Request failed for company [123456], contextId: [ABC123]: invalid company status provided.",
+                "Request failed for company [123456]: invalid company status provided.",
                 exception.getMessage());
         verify(companyStatusValidator).isValidCompanyStatus(FAKE_STATUS);
         verifyNoInteractions(companyAppointmentRepository);
@@ -665,7 +661,7 @@ class CompanyAppointmentServiceTest {
         ServiceUnavailableException exception = assertThrows(ServiceUnavailableException.class,
                 executable);
         assertEquals(
-                "Request failed for company [123456], contextId: [ABC123]: error connecting to MongoDB.",
+                "Request failed for company [123456]: error connecting to MongoDB.",
                 exception.getMessage());
         verify(companyStatusValidator).isValidCompanyStatus(OPEN_STATUS);
         verify(companyAppointmentRepository).patchAppointmentNameStatusInCompany(
@@ -725,7 +721,7 @@ class CompanyAppointmentServiceTest {
         // then
         BadRequestException exception = assertThrows(BadRequestException.class, executable);
         assertEquals(
-                "Request failed for company [123456] with appointment [345678], contextId: [ABC123]: company name and/or company status missing.",
+                "Request failed for company [123456] with appointment [345678]: company name and/or company status missing.",
                 exception.getMessage());
         verifyNoInteractions(companyStatusValidator);
         verifyNoInteractions(companyAppointmentRepository);
@@ -743,7 +739,7 @@ class CompanyAppointmentServiceTest {
         // then
         BadRequestException exception = assertThrows(BadRequestException.class, executable);
         assertEquals(
-                "Request failed for company [123456] with appointment [345678], contextId: [ABC123]: company name and/or company status missing.",
+                "Request failed for company [123456] with appointment [345678]: company name and/or company status missing.",
                 exception.getMessage());
         verifyNoInteractions(companyStatusValidator);
         verifyNoInteractions(companyAppointmentRepository);
@@ -762,7 +758,7 @@ class CompanyAppointmentServiceTest {
         // then
         BadRequestException exception = assertThrows(BadRequestException.class, executable);
         assertEquals(
-                "Request failed for company [123456] with appointment [345678], contextId: [ABC123]: invalid company status provided.",
+                "Request failed for company [123456] with appointment [345678]: invalid company status provided.",
                 exception.getMessage());
         verify(companyStatusValidator).isValidCompanyStatus(FAKE_STATUS);
         verifyNoInteractions(companyAppointmentRepository);
@@ -804,7 +800,7 @@ class CompanyAppointmentServiceTest {
         ServiceUnavailableException exception = assertThrows(ServiceUnavailableException.class,
                 executable);
         assertEquals(
-                "Request failed for company [123456] with appointment [345678], contextId: [ABC123]: error connecting to MongoDB.",
+                "Request failed for company [123456] with appointment [345678]: error connecting to MongoDB.",
                 exception.getMessage());
         verify(companyStatusValidator).isValidCompanyStatus(OPEN_STATUS);
         verify(companyAppointmentRepository).patchAppointmentNameStatus(any(), any(), any(),

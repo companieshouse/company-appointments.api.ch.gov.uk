@@ -18,6 +18,7 @@ import uk.gov.companieshouse.company_appointments.CompanyAppointmentsApplication
 import uk.gov.companieshouse.company_appointments.exception.BadRequestException;
 import uk.gov.companieshouse.company_appointments.exception.NotFoundException;
 import uk.gov.companieshouse.company_appointments.exception.ServiceUnavailableException;
+import uk.gov.companieshouse.company_appointments.logging.DataMapHolder;
 import uk.gov.companieshouse.company_appointments.service.CompanyAppointmentService;
 import uk.gov.companieshouse.company_appointments.model.FetchAppointmentsRequest;
 import uk.gov.companieshouse.logging.Logger;
@@ -37,10 +38,13 @@ public class CompanyAppointmentController {
 
     @GetMapping(path = "/appointments/{appointment_id}")
     public ResponseEntity<OfficerSummary> fetchAppointment(@PathVariable("company_number") String companyNumber, @PathVariable("appointment_id") String appointmentID) {
+
+        DataMapHolder.get()
+                .companyNumber(companyNumber);
         try {
             return ResponseEntity.ok(companyAppointmentService.fetchAppointment(companyNumber, appointmentID));
         } catch (NotFoundException e) {
-            LOGGER.info(e.getMessage());
+            LOGGER.info(e.getMessage(), DataMapHolder.getLogMap());
             return ResponseEntity.notFound().build();
         }
     }
@@ -55,6 +59,9 @@ public class CompanyAppointmentController {
             @RequestParam(required = false, name = "register_view") Boolean registerView,
             @RequestParam(required = false, name = "register_type") String registerType) {
 
+        DataMapHolder.get()
+                .companyNumber(companyNumber);
+
         FetchAppointmentsRequest request = FetchAppointmentsRequest.Builder.builder()
                         .withCompanyNumber(companyNumber)
                         .withFilter(filter)
@@ -67,13 +74,13 @@ public class CompanyAppointmentController {
         try {
             return ResponseEntity.ok(companyAppointmentService.fetchAppointmentsForCompany(request));
         } catch (NotFoundException e) {
-            LOGGER.info(e.getMessage());
+            LOGGER.info(e.getMessage(), DataMapHolder.getLogMap());
             return ResponseEntity.notFound().build();
         } catch (BadRequestException e) {
-            LOGGER.info(e.getMessage());
+            LOGGER.info(e.getMessage(), DataMapHolder.getLogMap());
             return ResponseEntity.badRequest().build();
         } catch (ServiceUnavailableException e) {
-            LOGGER.info(e.getMessage());
+            LOGGER.info(e.getMessage(), DataMapHolder.getLogMap());
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();
         }
     }
@@ -82,6 +89,9 @@ public class CompanyAppointmentController {
     public ResponseEntity<Void> patchCompanyNameStatus(
             @PathVariable("company_number") String companyNumber,
             @RequestBody PatchAppointmentNameStatusApi requestBody) {
+
+        DataMapHolder.get()
+                .companyNumber(companyNumber);
         try {
             companyAppointmentService.patchCompanyNameStatus(companyNumber,
                     requestBody.getCompanyName(), requestBody.getCompanyStatus());
@@ -89,13 +99,13 @@ public class CompanyAppointmentController {
                     .header(HttpHeaders.LOCATION, String.format("/company/%s/officers", companyNumber))
                     .build();
         } catch (BadRequestException e) {
-            LOGGER.info(e.getMessage());
+            LOGGER.info(e.getMessage(), DataMapHolder.getLogMap());
             return ResponseEntity.badRequest().build();
         } catch (NotFoundException e) {
-            LOGGER.info(e.getMessage());
+            LOGGER.info(e.getMessage(), DataMapHolder.getLogMap());
             return ResponseEntity.notFound().build();
         } catch (ServiceUnavailableException e) {
-            LOGGER.info(e.getMessage());
+            LOGGER.info(e.getMessage(), DataMapHolder.getLogMap());
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();
         }
     }
@@ -105,6 +115,9 @@ public class CompanyAppointmentController {
             @PathVariable("company_number") String companyNumber,
             @PathVariable("appointment_id") String appointmentId,
             @Valid @RequestBody PatchAppointmentNameStatusApi requestBody) {
+
+        DataMapHolder.get()
+                .companyNumber(companyNumber);
         try {
             companyAppointmentService.patchNewAppointmentCompanyNameStatus(companyNumber, appointmentId,
                     requestBody.getCompanyName(), requestBody.getCompanyStatus());
@@ -112,13 +125,13 @@ public class CompanyAppointmentController {
                     .header(HttpHeaders.LOCATION, String.format("/company/%s/appointments/%s", companyNumber, appointmentId))
                     .build();
         } catch (BadRequestException e) {
-            LOGGER.info(e.getMessage());
+            LOGGER.info(e.getMessage(), DataMapHolder.getLogMap());
             return ResponseEntity.badRequest().build();
         } catch (NotFoundException e) {
-            LOGGER.info(e.getMessage());
+            LOGGER.info(e.getMessage(), DataMapHolder.getLogMap());
             return ResponseEntity.notFound().build();
         } catch (ServiceUnavailableException e) {
-            LOGGER.info(e.getMessage());
+            LOGGER.info(e.getMessage(), DataMapHolder.getLogMap());
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();
         }
     }

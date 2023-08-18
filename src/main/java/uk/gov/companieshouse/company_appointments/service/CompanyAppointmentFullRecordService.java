@@ -2,7 +2,6 @@ package uk.gov.companieshouse.company_appointments.service;
 
 import java.time.Clock;
 import java.time.Instant;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
@@ -15,6 +14,7 @@ import uk.gov.companieshouse.company_appointments.api.ResourceChangedApiService;
 import uk.gov.companieshouse.company_appointments.exception.FailedToTransformException;
 import uk.gov.companieshouse.company_appointments.exception.NotFoundException;
 import uk.gov.companieshouse.company_appointments.exception.ServiceUnavailableException;
+import uk.gov.companieshouse.company_appointments.logging.DataMapHolder;
 import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentDocument;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaOfficerData;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaTimestamp;
@@ -46,16 +46,16 @@ public class CompanyAppointmentFullRecordService {
     }
 
     public CompanyAppointmentFullRecordView getAppointment(String companyNumber, String appointmentID) throws NotFoundException {
-        LOGGER.debug(String.format("Fetching appointment [%s] for company [%s]", appointmentID, companyNumber));
+        LOGGER.debug(String.format("Fetching appointment [%s] for company [%s]", appointmentID, companyNumber), DataMapHolder.getLogMap());
         Optional<CompanyAppointmentDocument> appointmentData = companyAppointmentRepository.readByCompanyNumberAndID(companyNumber, appointmentID);
-        appointmentData.ifPresent(appt -> LOGGER.debug(String.format("Found appointment [%s] for company [%s]", appointmentID, companyNumber)));
+        appointmentData.ifPresent(appt -> LOGGER.debug(String.format("Found appointment [%s] for company [%s]", appointmentID, companyNumber), DataMapHolder.getLogMap()));
 
         return appointmentData.map(app -> CompanyAppointmentFullRecordView.Builder.view(app).build())
                 .orElseThrow(() -> new NotFoundException(
                         String.format("Appointment [%s] for company [%s] not found", appointmentID, companyNumber)));
     }
 
-    public void upsertAppointmentDelta(String contextId, final FullRecordCompanyOfficerApi requestBody) throws ServiceUnavailableException, NotFoundException {
+    public void upsertAppointmentDelta(final FullRecordCompanyOfficerApi requestBody) throws ServiceUnavailableException, NotFoundException {
             CompanyAppointmentDocument companyAppointmentDocument;
             try {
                 companyAppointmentDocument = deltaAppointmentTransformer.transform(requestBody);
@@ -73,9 +73,9 @@ public class CompanyAppointmentFullRecordService {
             try {
                 Optional<CompanyAppointmentDocument> existingAppointment = getExistingDelta(companyAppointmentDocument);
                 if (existingAppointment.isPresent()) {
-                    updateAppointment(contextId, companyAppointmentDocument, existingAppointment.get());
+                    updateAppointment(companyAppointmentDocument, existingAppointment.get());
                 } else {
-                    saveAppointment(contextId, companyAppointmentDocument, instant);
+                    saveAppointment(companyAppointmentDocument, instant);
                 }
             } catch (DataAccessException e) {
                 throw new ServiceUnavailableException("Error connecting to MongoDB");
@@ -84,18 +84,17 @@ public class CompanyAppointmentFullRecordService {
             }
     }
 
-    public void deleteAppointmentDelta(String contextId, String companyNumber, String appointmentId) throws NotFoundException, ServiceUnavailableException {
-        LOGGER.debug(String.format("Deleting appointment [%s] for company [%s]", appointmentId, companyNumber));
+    public void deleteAppointmentDelta(String companyNumber, String appointmentId) throws NotFoundException, ServiceUnavailableException {
+        LOGGER.debug(String.format("Deleting appointment [%s] for company [%s]", appointmentId, companyNumber), DataMapHolder.getLogMap());
         try {
             Optional<CompanyAppointmentDocument> appointmentData = companyAppointmentRepository.readByCompanyNumberAndID(companyNumber, appointmentId);
             if (appointmentData.isEmpty()) {
                 throw new NotFoundException(String.format("Appointment [%s] for company [%s] not found", appointmentId, companyNumber));
             }
 
-            resourceChangedApiService.invokeChsKafkaApi(new ResourceChangedRequest(contextId, companyNumber, appointmentId, appointmentData, true));
-            LOGGER.debug(String.format("ChsKafka api DELETED invoked updated successfully for context id: %s and company number: %s",
-                    contextId,
-                    companyNumber));
+            resourceChangedApiService.invokeChsKafkaApi(new ResourceChangedRequest(DataMapHolder.getRequestId(),
+                    companyNumber, appointmentId, appointmentData, true));
+            LOGGER.debug(String.format("ChsKafka api DELETED invoked updated successfully for company number: %s", companyNumber), DataMapHolder.getLogMap());
 
             companyAppointmentRepository.deleteByCompanyNumberAndID(companyNumber, appointmentId);
         } catch (DataAccessException e) {
@@ -105,22 +104,21 @@ public class CompanyAppointmentFullRecordService {
         }
     }
 
-    private void saveAppointment(String contextId, CompanyAppointmentDocument document, DeltaTimestamp instant) throws ServiceUnavailableException {
+    private void saveAppointment(CompanyAppointmentDocument document, DeltaTimestamp instant) throws ServiceUnavailableException {
         resourceChangedApiService.invokeChsKafkaApi(
-                new ResourceChangedRequest(contextId, document.getCompanyNumber(), document.getAppointmentId(), null, false));
-        LOGGER.debug(String.format("ChsKafka api CHANGED invoked updated successfully for context id: %s and company number: %s",
-                contextId,
-                document.getCompanyNumber()));
+                new ResourceChangedRequest(DataMapHolder.getRequestId(), document.getCompanyNumber(), document.getAppointmentId(), null, false));
+        LOGGER.debug(String.format("ChsKafka api CHANGED invoked updated successfully for company number: %s",
+                document.getCompanyNumber()), DataMapHolder.getLogMap());
         document.created(instant);
         companyAppointmentRepository.insertOrUpdate(document);
     }
 
-    private void updateAppointment(String contextId, CompanyAppointmentDocument document, CompanyAppointmentDocument existingAppointment) throws ServiceUnavailableException {
+    private void updateAppointment(CompanyAppointmentDocument document, CompanyAppointmentDocument existingAppointment) throws ServiceUnavailableException {
 
         if (isDeltaStale(document.getDeltaAt(), existingAppointment.getDeltaAt())) {
             logStaleIncomingDelta(document, existingAppointment.getDeltaAt());
         } else {
-            saveAppointment(contextId, document, existingAppointment.getCreated());
+            saveAppointment(document, existingAppointment.getCreated());
         }
     }
 
@@ -138,7 +136,7 @@ public class CompanyAppointmentFullRecordService {
 
     private void logStaleIncomingDelta(final CompanyAppointmentDocument appointmentAPI, final Instant existingDelta) {
 
-        Map<String, Object> logInfo = new HashMap<>();
+        Map<String, Object> logInfo = DataMapHolder.getLogMap();
         logInfo.put("incomingDeltaAt", appointmentAPI.getDeltaAt().toString());
         logInfo.put("existingDeltaAt", StringUtils.defaultString(existingDelta.toString(), "No existing delta"));
         final String context = appointmentAPI.getAppointmentId();

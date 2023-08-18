@@ -52,6 +52,7 @@ class CompanyAppointmentControllerITest {
     private static final String ERIC_IDENTITY = "ERIC-Identity";
     private static final String ERIC_IDENTITY_TYPE = "ERIC-Identity-Type";
     private static final String ERIC_AUTHORISED_KEY_PRIVILEGES = "ERIC-Authorised-Key-Privileges";
+    private static final String CONTEXT_ID = "context_id";
     @Autowired
     private MockMvc mockMvc;
 
@@ -84,6 +85,7 @@ class CompanyAppointmentControllerITest {
     void testReturn200OKIfOfficerIsFound() throws Exception {
         //when
         ResultActions result = mockMvc.perform(get("/company/{company_number}/appointments/{appointment_id}", COMPANY_NUMBER, "active_1")
+                .header(X_REQUEST_ID, CONTEXT_ID)
                 .header(ERIC_IDENTITY, "123")
                 .header(ERIC_IDENTITY_TYPE, "key")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -103,8 +105,11 @@ class CompanyAppointmentControllerITest {
         // when
         ResultActions result = mockMvc
                 .perform(get("/company/{company_number}/appointments/{appointment_id}", COMPANY_NUMBER, "missing")
-                        .header(ERIC_IDENTITY, "123").header(ERIC_IDENTITY_TYPE, "oauth2")
-                        .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON));
+                        .header(X_REQUEST_ID, CONTEXT_ID)
+                        .header(ERIC_IDENTITY, "123")
+                        .header(ERIC_IDENTITY_TYPE, "oauth2")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON));
 
         // then
         result.andExpect(MockMvcResultMatchers.status().isNotFound());
@@ -131,6 +136,7 @@ class CompanyAppointmentControllerITest {
                 .activeCount(2)
                 .resignedCount(1)));
         ResultActions result = mockMvc.perform(get("/company/{company_number}/officers", COMPANY_NUMBER)
+                .header(X_REQUEST_ID, CONTEXT_ID)
                 .header(ERIC_IDENTITY, "123")
                 .header(ERIC_IDENTITY_TYPE, "key")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -151,8 +157,11 @@ class CompanyAppointmentControllerITest {
         when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(new ApiResponse<>(200, null, metricsApi));
         ResultActions result = mockMvc
                 .perform(get("/company/{company_number}/officers", "87654321")
-                        .header(ERIC_IDENTITY, "123").header(ERIC_IDENTITY_TYPE, "oauth2")
-                        .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON));
+                        .header(X_REQUEST_ID, CONTEXT_ID)
+                        .header(ERIC_IDENTITY, "123")
+                        .header(ERIC_IDENTITY_TYPE, "oauth2")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON));
 
         // then
         result.andExpect(MockMvcResultMatchers.status().isNotFound());
@@ -167,6 +176,7 @@ class CompanyAppointmentControllerITest {
                 .activeCount(2)
                 .resignedCount(0)));
         ResultActions result = mockMvc.perform(get("/company/{company_number}/officers?filter=active", COMPANY_NUMBER)
+                .header(X_REQUEST_ID, CONTEXT_ID)
                 .header(ERIC_IDENTITY, "123")
                 .header(ERIC_IDENTITY_TYPE, "key")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -189,6 +199,7 @@ class CompanyAppointmentControllerITest {
                 .activeCount(2)
                 .resignedCount(0)));
         ResultActions result = mockMvc.perform(get("/company/{company_number}/officers?order_by=appointed_on", COMPANY_NUMBER)
+                .header(X_REQUEST_ID, CONTEXT_ID)
                 .header(ERIC_IDENTITY, "123")
                 .header(ERIC_IDENTITY_TYPE, "key")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -210,6 +221,7 @@ class CompanyAppointmentControllerITest {
                 .activeCount(2)
                 .resignedCount(1)));
         ResultActions result = mockMvc.perform(get("/company/{company_number}/officers?order_by=surname", COMPANY_NUMBER)
+                .header(X_REQUEST_ID, CONTEXT_ID)
                 .header(ERIC_IDENTITY, "123")
                 .header(ERIC_IDENTITY_TYPE, "key")
                 .contentType(MediaType.APPLICATION_JSON)

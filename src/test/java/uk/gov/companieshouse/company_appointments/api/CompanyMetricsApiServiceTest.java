@@ -17,6 +17,7 @@ import uk.gov.companieshouse.api.error.ApiErrorResponseException;
 import uk.gov.companieshouse.api.handler.exception.URIValidationException;
 import uk.gov.companieshouse.api.handler.metrics.PrivateCompanyMetricsResourceHandler;
 import uk.gov.companieshouse.api.handler.metrics.request.PrivateCompanyMetricsGet;
+import uk.gov.companieshouse.api.http.HttpClient;
 import uk.gov.companieshouse.api.metrics.MetricsApi;
 import uk.gov.companieshouse.api.model.ApiResponse;
 import uk.gov.companieshouse.company_appointments.exception.ServiceUnavailableException;
@@ -39,11 +40,15 @@ class CompanyMetricsApiServiceTest {
     PrivateCompanyMetricsGet get;
     @Mock
     Logger logger;
+    @Mock
+    private HttpClient httpClient;
+
 
     @BeforeEach
     void setup() {
         when(apiClientService.getInternalApiClient()).thenReturn(internalApiClient);
         when(internalApiClient.privateCompanyMetricsResourceHandler()).thenReturn(handler);
+        when(internalApiClient.getHttpClient()).thenReturn(httpClient);
         when(handler.getCompanyMetrics(anyString())).thenReturn(get);
 
         service = new CompanyMetricsApiService("url", logger, apiClientService);

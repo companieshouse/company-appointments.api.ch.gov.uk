@@ -11,6 +11,7 @@ import uk.gov.companieshouse.company_appointments.exception.ServiceUnavailableEx
 
 import java.util.Optional;
 import java.util.function.Supplier;
+import uk.gov.companieshouse.company_appointments.logging.DataMapHolder;
 
 @Component
 public class CompanyProfileClient {
@@ -23,6 +24,7 @@ public class CompanyProfileClient {
 
     public Optional<Data> getCompanyProfile(String companyNumber) throws URIValidationException, NotFoundException, ServiceUnavailableException {
         InternalApiClient client = internalApiClientSupplier.get();
+        client.getHttpClient().setRequestId(DataMapHolder.getRequestId());
 
         try {
             return Optional.ofNullable(client.privateCompanyResourceHandler()

@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.company_appointments;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -11,6 +12,7 @@ import uk.gov.companieshouse.api.company.Data;
 import uk.gov.companieshouse.company_appointments.exception.FailedToTransformException;
 import uk.gov.companieshouse.company_appointments.exception.NotFoundException;
 import uk.gov.companieshouse.company_appointments.exception.ServiceUnavailableException;
+import uk.gov.companieshouse.company_appointments.logging.DataMapHolder;
 import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentDocument;
 import uk.gov.companieshouse.company_appointments.service.DeltaAppointmentTransformerAspect;
 import uk.gov.companieshouse.company_appointments.service.CompanyProfileClient;
@@ -31,12 +33,19 @@ class DeltaAppointmentTransformerAspectTest {
     private static final String APPOINTMENT_ID = "123456";
     private static final String COMPANY_NAME = "company name";
     private static final String COMPANY_STATUS = "company status";
+    private static final String CONTEXT_ID = "contextId";
+
 
     @InjectMocks
     private DeltaAppointmentTransformerAspect aspect;
 
     @Mock
     private CompanyProfileClient companyProfileClient;
+
+    @BeforeEach
+    void setup() {
+        DataMapHolder.initialise(CONTEXT_ID);
+    }
 
     @Test
     @DisplayName("Successfully populate company name and status fields")

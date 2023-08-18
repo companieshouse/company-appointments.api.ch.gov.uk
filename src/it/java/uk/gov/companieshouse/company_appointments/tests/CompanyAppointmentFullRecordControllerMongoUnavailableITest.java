@@ -23,6 +23,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import uk.gov.companieshouse.api.appointment.ExternalData;
 import uk.gov.companieshouse.api.appointment.FullRecordCompanyOfficerApi;
 import uk.gov.companieshouse.company_appointments.CompanyAppointmentsApplication;
 import uk.gov.companieshouse.company_appointments.api.ResourceChangedApiService;
@@ -70,7 +71,8 @@ class CompanyAppointmentFullRecordControllerMongoUnavailableITest {
     void testPutNewAppointmentCompanyNameStatusMongoUnavailable() throws Exception {
         doThrow(new DataAccessException("..."){ }).when(fullRecordRepository).insertOrUpdate(any());
 
-        FullRecordCompanyOfficerApi requestBody = new  FullRecordCompanyOfficerApi();
+        FullRecordCompanyOfficerApi requestBody = new FullRecordCompanyOfficerApi()
+                .externalData(new ExternalData().companyNumber(COMPANY_NUMBER));
 
         mockMvc.perform(put(FULL_RECORD_PUT_ENDPOINT, COMPANY_NUMBER, APPOINTMENT_ID)
                         .contentType(MediaType.APPLICATION_JSON)

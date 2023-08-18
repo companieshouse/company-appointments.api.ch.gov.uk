@@ -2,6 +2,7 @@ package uk.gov.companieshouse.company_appointments;
 
 import com.google.api.client.http.HttpHeaders;
 import com.google.api.client.http.HttpResponseException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,6 +17,7 @@ import uk.gov.companieshouse.api.error.ApiErrorResponseException;
 import uk.gov.companieshouse.api.handler.company.PrivateCompanyResourceHandler;
 import uk.gov.companieshouse.api.handler.company.request.PrivateCompanyFullProfileGet;
 import uk.gov.companieshouse.api.handler.exception.URIValidationException;
+import uk.gov.companieshouse.api.http.HttpClient;
 import uk.gov.companieshouse.api.model.ApiResponse;
 import uk.gov.companieshouse.company_appointments.exception.NotFoundException;
 import uk.gov.companieshouse.company_appointments.exception.ServiceUnavailableException;
@@ -39,12 +41,19 @@ class CompanyProfileClientTest {
     @Mock
     private InternalApiClient internalApiClient;
     @Mock
+    private HttpClient httpClient;
+    @Mock
     private PrivateCompanyResourceHandler privateCompanyResourceHandler;
     @Mock
     private PrivateCompanyFullProfileGet privateCompanyFullProfileGet;
 
     @InjectMocks
     private CompanyProfileClient companyProfileClient;
+
+    @BeforeEach
+    void setup() {
+        when(internalApiClient.getHttpClient()).thenReturn(httpClient);
+    }
 
     @Test
     @DisplayName("Successfully returns data")

@@ -8,6 +8,7 @@ import uk.gov.companieshouse.api.error.ApiErrorResponseException;
 import uk.gov.companieshouse.api.handler.chskafka.request.PrivateChangedResourcePost;
 import uk.gov.companieshouse.api.model.ApiResponse;
 import uk.gov.companieshouse.company_appointments.exception.ServiceUnavailableException;
+import uk.gov.companieshouse.company_appointments.logging.DataMapHolder;
 import uk.gov.companieshouse.company_appointments.mapper.ResourceChangedRequestMapper;
 import uk.gov.companieshouse.company_appointments.model.data.ResourceChangedRequest;
 import uk.gov.companieshouse.logging.Logger;
@@ -43,6 +44,8 @@ public class ResourceChangedApiService {
     @StreamEvents
     public ApiResponse<Void> invokeChsKafkaApi(ResourceChangedRequest resourceChangedRequest) throws ServiceUnavailableException {
         InternalApiClient internalApiClient = apiClientService.getInternalApiClient(); //NOSONAR
+        internalApiClient.getHttpClient().setRequestId(DataMapHolder.getRequestId());
+
         internalApiClient.setBasePath(chsKafkaUrl);
 
         PrivateChangedResourcePost changedResourcePost =
@@ -57,9 +60,9 @@ public class ResourceChangedApiService {
             return changedResourcePost.execute();
         } catch (ApiErrorResponseException ex) {
             if (!HttpStatus.valueOf(ex.getStatusCode()).is2xxSuccessful()) {
-                logger.error("Unsuccessful call to /resource-changed endpoint", ex);
+                logger.error("Unsuccessful call to /resource-changed endpoint", ex, DataMapHolder.getLogMap());
             } else {
-                logger.error("Error occurred while calling /resource-changed endpoint", ex);
+                logger.error("Error occurred while calling /resource-changed endpoint", ex, DataMapHolder.getLogMap());
             }
             throw new ServiceUnavailableException(ex.getMessage());
         }
