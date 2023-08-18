@@ -167,7 +167,7 @@ public class CompanyAppointmentService {
                                 companyNumber));
             }
             LOGGER.debug(String.format("Appointments for company [%s] updated successfully",
-                    companyNumber));
+                    companyNumber), DataMapHolder.getLogMap());
         } catch (DataAccessException ex) {
             throw new ServiceUnavailableException(
                     String.format(PATCH_APPOINTMENTS_ERROR_MESSAGE + "error connecting to MongoDB.",
@@ -199,7 +199,7 @@ public class CompanyAppointmentService {
                                 companyNumber));
             }
             LOGGER.debug(String.format("Appointment [%s] for company [%s] updated successfully", appointmentId,
-                    companyNumber));
+                    companyNumber), DataMapHolder.getLogMap());
         } catch (DataAccessException ex) {
             throw new ServiceUnavailableException(
                     String.format(PATCH_APPOINTMENT_ERROR_MESSAGE + "error connecting to MongoDB.",

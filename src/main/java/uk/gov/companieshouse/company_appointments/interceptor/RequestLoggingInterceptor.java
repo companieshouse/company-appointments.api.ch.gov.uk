@@ -34,4 +34,11 @@ public class RequestLoggingInterceptor implements HandlerInterceptor, RequestLog
         logEndRequestProcessing(request, response, logger);
         DataMapHolder.clear();
     }
+
+    @Override
+    public void afterCompletion(HttpServletRequest request, HttpServletResponse response,
+            Object handler, Exception ex) throws Exception {
+        DataMapHolder.clear();
+        HandlerInterceptor.super.afterCompletion(request, response, handler, ex);
+    }
 }
