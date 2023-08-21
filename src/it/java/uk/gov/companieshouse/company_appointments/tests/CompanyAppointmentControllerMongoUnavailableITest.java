@@ -59,7 +59,7 @@ class CompanyAppointmentControllerMongoUnavailableITest {
     static void start() {
         System.setProperty("spring.data.mongodb.uri", mongoDBContainer.getReplicaSetUrl());
         MongoTemplate mongoTemplate = new MongoTemplate(new SimpleMongoClientDatabaseFactory(mongoDBContainer.getReplicaSetUrl()));
-        mongoTemplate.createCollection("appointments");
+        mongoTemplate.createCollection("delta_appointments");
         System.setProperty("company-metrics-api.endpoint", "localhost");
     }
 
@@ -67,13 +67,13 @@ class CompanyAppointmentControllerMongoUnavailableITest {
     @DisplayName("Patch endpoint returns 503 service unavailable when MongoDB is unavailable")
     void testPatchNewAppointmentCompanyNameStatusMongoUnavailable() throws Exception {
         when(fullRecordRepository.existsById(any())).thenReturn(true);
-        when(fullRecordRepository.patchAppointmentNameStatus(any(), any(), any(), any(), any())).thenThrow(DataAccessResourceFailureException.class);
+        when(fullRecordRepository.patchAppointmentNameStatusInCompany(any(), any(), any(), any(), any())).thenThrow(DataAccessResourceFailureException.class);
 
         PatchAppointmentNameStatusApi requestBody = new PatchAppointmentNameStatusApi()
                 .companyName("company name")
                 .companyStatus("active");
 
-        mockMvc.perform(patch("/company/{company_number}/appointments/{appointment_id}", COMPANY_NUMBER, APPOINTMENT_ID)
+        mockMvc.perform(patch("/company/{company_number}/appointments", COMPANY_NUMBER, APPOINTMENT_ID)
                         .contentType(MediaType.APPLICATION_JSON)
                         .header(X_REQUEST_ID, "5342342")
                         .header(ERIC_IDENTITY, "SOME_IDENTITY")

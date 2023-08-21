@@ -75,46 +75,6 @@ class CompanyAppointmentRepositoryITest {
         mongoTemplate.insert(document, "delta_appointments");
     }
 
-    @DisplayName("Repository successfully updates the company name and status of an appointment")
-    @Test
-    void patchAppointmentNameStatus() {
-        // given
-        Instant at = Instant.now().truncatedTo(ChronoUnit.SECONDS);
-
-        // when
-        long result = repository.patchAppointmentNameStatus(APPOINTMENT_ID, "test name",
-                "test status", at, "etag");
-
-        // then
-        try {
-            assertEquals(1L, result);
-            Optional<CompanyAppointmentDocument> actual = repository.findById(APPOINTMENT_ID);
-            assertTrue(actual.isPresent());
-            assertEquals("test name", actual.get().getCompanyName());
-            assertEquals("test status", actual.get().getCompanyStatus());
-            assertEquals(at, actual.get().getUpdated().getAt());
-            assertEquals("etag", actual.get().getData().getEtag());
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @DisplayName("Repository unable to retrieve an existing appointment")
-    @Test
-    void patchAppointmentNameStatusMissingAppointment() {
-        // given
-        Instant at = Instant.now().truncatedTo(ChronoUnit.SECONDS);
-
-        // when
-        long result = repository.patchAppointmentNameStatus(FAKE_APPOINTMENT_ID, "test name",
-                "test status", at, "etag");
-
-        // then
-        assertEquals(0L, result);
-        Optional<CompanyAppointmentDocument> actual = repository.findById(FAKE_APPOINTMENT_ID);
-        assertTrue(actual.isEmpty());
-    }
-
     @DisplayName("Repository successfully updates the company name and status for all appointments in company")
     @Test
     void shouldPatchAllAppointmentsNameStatusInCompany() {

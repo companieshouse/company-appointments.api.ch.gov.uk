@@ -76,7 +76,9 @@
     "appointment_id":"7IjxamNGLlqtIingmTZJJ42Hw9Q",
     "officer_id":"r4Aq2-D3appznoESN24MtsLovfo",
     "previous_officer_id":"vuIAhYYbRDhqzx9b3e_jd6Uhres",
-    "company_number":"12345678"
+    "company_number":"12345678",
+    "company_name": "ACME LTD",
+    "company_status": "active"
   },
   "internal_data":{
     "delta_at":1.411661403E9,

@@ -6,7 +6,6 @@ import uk.gov.companieshouse.api.appointment.FullRecordCompanyOfficerApi;
 import uk.gov.companieshouse.api.appointment.InternalData;
 import uk.gov.companieshouse.company_appointments.exception.FailedToTransformException;
 import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentDocument;
-import uk.gov.companieshouse.company_appointments.service.AddCompanyNameAndStatus;
 
 @Component
 public class DeltaAppointmentTransformer implements Transformative<FullRecordCompanyOfficerApi, CompanyAppointmentDocument> {
@@ -27,13 +26,11 @@ public class DeltaAppointmentTransformer implements Transformative<FullRecordCom
     }
 
     @Override
-    @AddCompanyNameAndStatus
     public CompanyAppointmentDocument transform(FullRecordCompanyOfficerApi source) throws FailedToTransformException {
         return transform(source, factory());
     }
 
     @Override
-    @AddCompanyNameAndStatus
     public CompanyAppointmentDocument transform(FullRecordCompanyOfficerApi api, CompanyAppointmentDocument entity) throws FailedToTransformException {
         try {
             ExternalData externalData = api.getExternalData();
@@ -50,7 +47,9 @@ public class DeltaAppointmentTransformer implements Transformative<FullRecordCom
                     .companyNumber(externalData.getCompanyNumber())
                     .deltaAt(internalData.getDeltaAt().toInstant())
                     .updatedBy(internalData.getUpdatedBy())
-                    .officerRoleSortOrder(internalData.getOfficerRoleSortOrder());
+                    .officerRoleSortOrder(internalData.getOfficerRoleSortOrder())
+                    .companyName(externalData.getCompanyName())
+                    .companyStatus(externalData.getCompanyStatus().getValue());
         } catch(Exception e) {
             throw new FailedToTransformException(String.format("Failed to transform API payload: %s", e.getMessage()));
         }

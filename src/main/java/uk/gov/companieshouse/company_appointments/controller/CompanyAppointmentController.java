@@ -1,6 +1,5 @@
 package uk.gov.companieshouse.company_appointments.controller;
 
-import javax.validation.Valid;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -97,32 +96,6 @@ public class CompanyAppointmentController {
                     requestBody.getCompanyName(), requestBody.getCompanyStatus());
             return ResponseEntity.ok()
                     .header(HttpHeaders.LOCATION, String.format("/company/%s/officers", companyNumber))
-                    .build();
-        } catch (BadRequestException e) {
-            LOGGER.info(e.getMessage(), DataMapHolder.getLogMap());
-            return ResponseEntity.badRequest().build();
-        } catch (NotFoundException e) {
-            LOGGER.info(e.getMessage(), DataMapHolder.getLogMap());
-            return ResponseEntity.notFound().build();
-        } catch (ServiceUnavailableException e) {
-            LOGGER.info(e.getMessage(), DataMapHolder.getLogMap());
-            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();
-        }
-    }
-
-    @PatchMapping(path = "/appointments/{appointment_id}")
-    public ResponseEntity<Void> patchNewAppointmentCompanyNameStatus(
-            @PathVariable("company_number") String companyNumber,
-            @PathVariable("appointment_id") String appointmentId,
-            @Valid @RequestBody PatchAppointmentNameStatusApi requestBody) {
-
-        DataMapHolder.get()
-                .companyNumber(companyNumber);
-        try {
-            companyAppointmentService.patchNewAppointmentCompanyNameStatus(companyNumber, appointmentId,
-                    requestBody.getCompanyName(), requestBody.getCompanyStatus());
-            return ResponseEntity.ok()
-                    .header(HttpHeaders.LOCATION, String.format("/company/%s/appointments/%s", companyNumber, appointmentId))
                     .build();
         } catch (BadRequestException e) {
             LOGGER.info(e.getMessage(), DataMapHolder.getLogMap());

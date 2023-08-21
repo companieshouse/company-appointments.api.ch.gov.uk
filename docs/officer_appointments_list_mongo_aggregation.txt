@@ -1,4 +1,4 @@
-db.getCollection("appointments").aggregate([
+db.getCollection("delta_appointments").aggregate([
 
     {
         $match: {

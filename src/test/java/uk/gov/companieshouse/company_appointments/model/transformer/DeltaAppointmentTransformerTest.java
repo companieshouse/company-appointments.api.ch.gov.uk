@@ -16,6 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.companieshouse.api.appointment.Data;
 import uk.gov.companieshouse.api.appointment.DateOfBirth;
 import uk.gov.companieshouse.api.appointment.ExternalData;
+import uk.gov.companieshouse.api.appointment.ExternalData.CompanyStatusEnum;
 import uk.gov.companieshouse.api.appointment.FullRecordCompanyOfficerApi;
 import uk.gov.companieshouse.api.appointment.InternalData;
 import uk.gov.companieshouse.api.appointment.SensitiveData;
@@ -56,7 +57,9 @@ class DeltaAppointmentTransformerTest {
                 .companyNumber("companyNumber")
                 .updatedBy("updatedBy")
                 .deltaAt(Instant.parse("2022-01-12T00:00:00.000000Z"))
-                .officerRoleSortOrder(22);
+                .officerRoleSortOrder(22)
+                .companyName("companyName")
+                .companyStatus("active");
 
         FullRecordCompanyOfficerApi fullRecordCompanyOfficerApi = buildFullRecordOfficer();
 
@@ -105,6 +108,8 @@ class DeltaAppointmentTransformerTest {
         externalData.setInternalId("internalId");
         externalData.setOfficerId("officerId");
         externalData.setPreviousOfficerId("previousOfficerId");
+        externalData.setCompanyName("companyName");
+        externalData.setCompanyStatus(CompanyStatusEnum.ACTIVE);
         InternalData internalData = new InternalData();
         internalData.setOfficerRoleSortOrder(22);
         internalData.setDeltaAt(OffsetDateTime.parse("2022-01-12T00:00:00Z"));

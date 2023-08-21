@@ -44,7 +44,7 @@ class OfficerAppointmentsControllerITest {
     static void start() throws IOException {
         System.setProperty("spring.data.mongodb.uri", mongoDBContainer.getReplicaSetUrl());
         MongoTemplate mongoTemplate = new MongoTemplate(new SimpleMongoClientDatabaseFactory(mongoDBContainer.getReplicaSetUrl()));
-        mongoTemplate.createCollection("appointments");
+        mongoTemplate.createCollection("delta_appointments");
         mongoTemplate.insert(Document.parse(IOUtils.resourceToString("/appointment-data.json", StandardCharsets.UTF_8)), "delta_appointments");
         mongoTemplate.insert(Document.parse(IOUtils.resourceToString("/appointment-data2.json", StandardCharsets.UTF_8)), "delta_appointments");
         mongoTemplate.insert(Document.parse(IOUtils.resourceToString("/appointment-data3.json", StandardCharsets.UTF_8)), "delta_appointments");
