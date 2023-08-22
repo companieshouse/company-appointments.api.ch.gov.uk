@@ -20,9 +20,9 @@ public class AuthenticationHelperImpl implements AuthenticationHelper {
     public static final int USER_EMAIL_INDEX = 0;
     public static final int USER_FORENAME_INDEX = 1;
     public static final int USER_SURNAME_INDEX = 2;
-    private static final String INTERNAL_APP_PRIVILEGE = "internal-app";
+    public static final String INTERNAL_APP_PRIVILEGE = "internal-app";
     private static final String SENSITIVE_DATA_PRIVILEGE = "sensitive-data";
-    private static final String ERIC_AUTHORISED_KEY_PRIVILEGES_HEADER
+    public static final String ERIC_AUTHORISED_KEY_PRIVILEGES_HEADER
             = "ERIC-Authorised-Key-Privileges";
     private static final String ERIC_AUTHORISED_TOKEN_PERMISSIONS_HEADER
             = "ERIC-Authorised-Token-Permissions";
