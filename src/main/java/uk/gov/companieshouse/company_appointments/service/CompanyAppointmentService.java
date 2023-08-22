@@ -36,7 +36,6 @@ import uk.gov.companieshouse.logging.LoggerFactory;
 public class CompanyAppointmentService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CompanyAppointmentsApplication.APPLICATION_NAMESPACE);
-    private static final String PATCH_APPOINTMENT_ERROR_MESSAGE = "Request failed for company [%s] with appointment [%s]: ";
     private static final String PATCH_APPOINTMENTS_ERROR_MESSAGE = "Request failed for company [%s]: ";
     private static final int DEFAULT_ITEMS_PER_PAGE = 35;
     private static final int DEFAULT_START_INDEX = 0;
@@ -172,38 +171,6 @@ public class CompanyAppointmentService {
             throw new ServiceUnavailableException(
                     String.format(PATCH_APPOINTMENTS_ERROR_MESSAGE + "error connecting to MongoDB.",
                             companyNumber));
-        }
-    }
-
-    public void patchNewAppointmentCompanyNameStatus(String companyNumber, String appointmentId, String companyName,
-            String companyStatus) throws BadRequestException, NotFoundException, ServiceUnavailableException {
-        if (isBlank(companyName) || isBlank(companyStatus)) {
-            throw new BadRequestException(String.format(PATCH_APPOINTMENT_ERROR_MESSAGE +
-                            "company name and/or company status missing.", companyNumber, appointmentId));
-        }
-        if (!companyStatusValidator.isValidCompanyStatus(companyStatus)) {
-            throw new BadRequestException(String.format(PATCH_APPOINTMENT_ERROR_MESSAGE +
-                            "invalid company status provided.", companyNumber, appointmentId));
-        }
-
-        LOGGER.debug(String.format(
-                "Patching company name: [%s] and company status [%s] for company [%s] with appointment [%s]",
-                companyName, companyStatus, companyNumber, appointmentId), DataMapHolder.getLogMap());
-        try {
-            boolean isUpdated =
-                    companyAppointmentRepository.patchAppointmentNameStatus(appointmentId, companyName, companyStatus,
-                            Instant.now(clock), GenerateEtagUtil.generateEtag()) == 1L;
-            if (!isUpdated) {
-                throw new NotFoundException(
-                        String.format("Appointment [%s] for company [%s] not found during PATCH request", appointmentId,
-                                companyNumber));
-            }
-            LOGGER.debug(String.format("Appointment [%s] for company [%s] updated successfully", appointmentId,
-                    companyNumber), DataMapHolder.getLogMap());
-        } catch (DataAccessException ex) {
-            throw new ServiceUnavailableException(
-                    String.format(PATCH_APPOINTMENT_ERROR_MESSAGE + "error connecting to MongoDB.",
-                            companyNumber, appointmentId));
         }
     }
 

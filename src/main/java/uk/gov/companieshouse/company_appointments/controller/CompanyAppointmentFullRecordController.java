@@ -62,9 +62,6 @@ public class CompanyAppointmentFullRecordController {
         } catch (ServiceUnavailableException e) {
             LOGGER.info(e.getMessage(), DataMapHolder.getLogMap());
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();
-        } catch (NotFoundException ex) {
-            LOGGER.info(ex.getMessage(), DataMapHolder.getLogMap());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         } catch (IllegalArgumentException ex) {
             LOGGER.info(ex.getMessage(), DataMapHolder.getLogMap());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
