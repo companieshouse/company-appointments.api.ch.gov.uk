@@ -41,7 +41,7 @@ class ItemsPerPageServiceTest {
                                         .expectedItemsPerPage(35)
                                         .build())),
                 Arguments.of(
-                        Named.of("Null items per page returns default 35 items per page",
+                        Named.of("Zero items per page returns default 35 items per page",
                                 ItemsPerPageTestArgument.Builder.builder()
                                         .itemsPerPage(0)
                                         .authPrivileges(null)
