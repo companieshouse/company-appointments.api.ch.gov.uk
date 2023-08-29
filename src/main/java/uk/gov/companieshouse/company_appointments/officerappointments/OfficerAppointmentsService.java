@@ -8,8 +8,6 @@ import uk.gov.companieshouse.company_appointments.officerappointments.OfficerApp
 @Service
 class OfficerAppointmentsService {
 
-    private static final int ITEMS_PER_PAGE = 35;
-    private static final int MAX_ITEMS_PER_PAGE = 50;
     private static final int START_INDEX = 0;
 
     private final OfficerAppointmentsRepository repository;
@@ -23,13 +21,13 @@ class OfficerAppointmentsService {
         this.filterService = filterService;
     }
 
-    Optional<AppointmentList> getOfficerAppointments(OfficerAppointmentsRequest request) {
-        String officerId = request.getOfficerId();
+    Optional<AppointmentList> getOfficerAppointments(OfficerAppointmentsRequest params) {
+        String officerId = params.getOfficerId();
         return repository.findFirstByOfficerId(officerId)
                 .flatMap(firstAppointment -> {
-                    int startIndex = getStartIndex(request);
-                    int itemsPerPage = getItemsPerPage(request);
-                    Filter filter = filterService.prepareFilter(request.getFilter(), request.getOfficerId());
+                    int startIndex = getStartIndex(params);
+                    int itemsPerPage = params.getItemsPerPage();
+                    Filter filter = filterService.prepareFilter(params.getFilter(), params.getOfficerId());
 
                     OfficerAppointmentsAggregate aggregate = repository.findOfficerAppointments(officerId,
                             filter.isFilterEnabled(), filter.getFilterStatuses(), startIndex, itemsPerPage);
@@ -40,18 +38,6 @@ class OfficerAppointmentsService {
                             .firstAppointment(firstAppointment)
                             .aggregate(aggregate));
                 });
-    }
-
-    private static int getItemsPerPage(OfficerAppointmentsRequest request) {
-        int itemsPerPage;
-        if (request.getItemsPerPage() == null || request.getItemsPerPage() == 0) {
-            itemsPerPage = ITEMS_PER_PAGE;
-        } else if (Math.abs(request.getItemsPerPage()) > 50) {
-            itemsPerPage = MAX_ITEMS_PER_PAGE;
-        } else {
-            itemsPerPage = Math.abs(request.getItemsPerPage());
-        }
-        return itemsPerPage;
     }
 
     private static int getStartIndex(OfficerAppointmentsRequest request) {

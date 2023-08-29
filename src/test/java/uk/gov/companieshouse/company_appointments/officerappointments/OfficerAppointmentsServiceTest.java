@@ -34,7 +34,7 @@ class OfficerAppointmentsServiceTest {
     private static final String OFFICER_ID = "officerId";
     private static final int START_INDEX = 0;
     private static final int ITEMS_PER_PAGE = 35;
-    private static final int MAX_ITEMS_PER_PAGE = 50;
+    private static final int MAX_ITEMS_PER_PAGE_INTERNAL = 500;
     private static final String REMOVED = "removed";
     private static final String CONVERTED_CLOSED = "converted-closed";
     private static final String DISSOLVED = "dissolved";
@@ -60,7 +60,7 @@ class OfficerAppointmentsServiceTest {
                         Named.of("Get officer appointments returns an officer appointments api",
                                 new ServiceTestArgument.Builder()
                                         .withRequest(
-                                                new OfficerAppointmentsRequest(OFFICER_ID, null, null, null))
+                                                new OfficerAppointmentsRequest(OFFICER_ID, null, null, 35))
                                         .withOfficerId(OFFICER_ID)
                                         .withFilterEnabled(false)
                                         .withStartIndex(START_INDEX)
@@ -69,7 +69,7 @@ class OfficerAppointmentsServiceTest {
                 Arguments.of(
                         Named.of("Get officer appointments returns an officer appointments api when filter is empty",
                                 new ServiceTestArgument.Builder()
-                                        .withRequest(new OfficerAppointmentsRequest(OFFICER_ID, "", null, null))
+                                        .withRequest(new OfficerAppointmentsRequest(OFFICER_ID, "", null, 35))
                                         .withOfficerId(OFFICER_ID)
                                         .withFilterEnabled(false)
                                         .withStartIndex(START_INDEX)
@@ -79,7 +79,7 @@ class OfficerAppointmentsServiceTest {
                         Named.of("Get officer appointments returns an officer appointments api when filter is active",
                                 new ServiceTestArgument.Builder()
                                         .withRequest(
-                                                new OfficerAppointmentsRequest(OFFICER_ID, "active", null, null))
+                                                new OfficerAppointmentsRequest(OFFICER_ID, "active", null, 35))
                                         .withOfficerId(OFFICER_ID)
                                         .withFilterEnabled(true)
                                         .withFilterStatuses(List.of(DISSOLVED, CONVERTED_CLOSED, REMOVED))
@@ -98,40 +98,22 @@ class OfficerAppointmentsServiceTest {
                                         .withItemsPerPage(3)
                                         .build())),
                 Arguments.of(
-                        Named.of("Get officer appointments returns default paging when itemsPerPage is 0",
+                        Named.of("Get officer appointments successfully handles paging values over 35",
                                 new ServiceTestArgument.Builder()
-                                        .withRequest(new OfficerAppointmentsRequest(OFFICER_ID, null, null, 0))
-                                        .withOfficerId(OFFICER_ID)
-                                        .withFilterEnabled(false)
-                                        .withStartIndex(0)
-                                        .withItemsPerPage(35)
-                                        .build())),
-                Arguments.of(
-                        Named.of("Get officer appointments successfully handles negative paging values",
-                                new ServiceTestArgument.Builder()
-                                        .withRequest(new OfficerAppointmentsRequest(OFFICER_ID, null, -1, -5))
+                                        .withRequest(new OfficerAppointmentsRequest(OFFICER_ID, null, 1, 36))
                                         .withOfficerId(OFFICER_ID)
                                         .withFilterEnabled(false)
                                         .withStartIndex(1)
-                                        .withItemsPerPage(5)
+                                        .withItemsPerPage(36)
                                         .build())),
                 Arguments.of(
-                        Named.of("Get officer appointments successfully handles paging values over 50",
+                        Named.of("Get officer appointments successfully handles paging values of 500",
                                 new ServiceTestArgument.Builder()
-                                        .withRequest(new OfficerAppointmentsRequest(OFFICER_ID, null, 1, 55))
+                                        .withRequest(new OfficerAppointmentsRequest(OFFICER_ID, null, 1, 500))
                                         .withOfficerId(OFFICER_ID)
                                         .withFilterEnabled(false)
                                         .withStartIndex(1)
-                                        .withItemsPerPage(MAX_ITEMS_PER_PAGE)
-                                        .build())),
-                Arguments.of(
-                        Named.of("Get officer appointments successfully handles negative paging values over 50",
-                                new ServiceTestArgument.Builder()
-                                        .withRequest(new OfficerAppointmentsRequest(OFFICER_ID, null, -1, -55))
-                                        .withOfficerId(OFFICER_ID)
-                                        .withFilterEnabled(false)
-                                        .withStartIndex(1)
-                                        .withItemsPerPage(MAX_ITEMS_PER_PAGE)
+                                        .withItemsPerPage(MAX_ITEMS_PER_PAGE_INTERNAL)
                                         .build())));
     }
 
