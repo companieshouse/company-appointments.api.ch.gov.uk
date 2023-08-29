@@ -1,5 +1,7 @@
 package uk.gov.companieshouse.company_appointments.officerappointments;
 
+import static uk.gov.companieshouse.company_appointments.interceptor.AuthenticationHelperImpl.ERIC_AUTHORISED_KEY_PRIVILEGES_HEADER;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,8 +14,6 @@ import uk.gov.companieshouse.company_appointments.exception.BadRequestException;
 import uk.gov.companieshouse.company_appointments.logging.DataMapHolder;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.logging.LoggerFactory;
-
-import static uk.gov.companieshouse.company_appointments.interceptor.AuthenticationHelperImpl.ERIC_AUTHORISED_KEY_PRIVILEGES_HEADER;
 
 @Controller
 class OfficerAppointmentsController {

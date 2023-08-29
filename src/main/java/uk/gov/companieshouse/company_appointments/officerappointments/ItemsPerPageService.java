@@ -33,7 +33,7 @@ public class ItemsPerPageService {
 
     private boolean hasInternalAppPrivileges(String authPrivileges) {
         return Optional.ofNullable(authPrivileges)
-                .map(v -> v.split(","))
+                .map(rawAuthPrivileges -> rawAuthPrivileges.split(","))
                 .map(privileges -> ArrayUtils.contains(privileges, INTERNAL_APP_PRIVILEGE))
                 .orElse(false);
     }
