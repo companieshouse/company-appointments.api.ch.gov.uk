@@ -34,19 +34,32 @@ interface OfficerAppointmentsRepository extends MongoRepository<CompanyAppointme
         +           "]"
         +       "}"
         +   "}",
+
+           "{ $project: { "
+        +   "        'officer_id': 1, "
+        +   "        'company_status': 1, "
+        +   "        'data.resigned_on': 1, "
+        +   "        'data.appointed_on': 1, "
+        +   "        'data.appointed_before': 1 "
+        +   "    }"
+        +   "}",
+
             "{"
         +       "$addFields: {"
         +           "'__sort_active__': { $ifNull: ['$data.appointed_on', { $toDate: '$data.appointed_before' } ] }"
         +       "}"
         +   "}",
+
             "{ $facet: {"
         +           "'active': ["
         +               "{ $match: {'data.resigned_on': {$exists: false} } },"
-        +               "{ $sort:  {'__sort_active__': -1 } }"
+        +               "{ $sort:  {'__sort_active__': -1 } },"
+        +               "{ $project: { '_id': 1,   } }"
         +               "],"
         +           "'resigned': ["
         +               "{ $match: {'data.resigned_on': {$exists: true} } },"
         +               "{ $sort:  {'data.resigned_on': -1} }"
+        +               "{ $project: { '_id': 1,   } }"
         +               "],"
         +           "'inactive': ["
         +               "{ $match: {"
@@ -61,16 +74,19 @@ interface OfficerAppointmentsRepository extends MongoRepository<CompanyAppointme
         +           "'total_results': [{ '$count': 'count' }]"
         +       "}"
         +   "}",
+
             "{ $unwind: {"
         +           "'path': '$total_results',"
         +           "'preserveNullAndEmptyArrays': true"
         +       "}"
         +   "}",
+
             "{ $unwind: {"
         +           "'path': '$inactive',"
         +           "'preserveNullAndEmptyArrays': true"
         +       "}"
         +   "}",
+
             "{ $project: {"
         +           "'total_results': { '$ifNull': ['$total_results.count', NumberInt(0)] },"
         +           "'officer_appointments': { $slice: [{ $concatArrays: ['$active', '$resigned'] },  ?3, ?4] },"
@@ -79,7 +95,10 @@ interface OfficerAppointmentsRepository extends MongoRepository<CompanyAppointme
         +       "}"
         +   "}"
     })
-    OfficerAppointmentsAggregate findOfficerAppointments(String officerId, boolean filterEnabled, List<String> filterStatuses, int startIndex, int pageSize);
+    OfficerAppointmentsAggregate findOfficerAppointments(String officerId, boolean filterEnabled,
+            List<String> filterStatuses, int startIndex, int pageSize);
+
+    List<CompanyAppointmentDocument> findByIdIn(Iterable<String> ids);
 
     Optional<CompanyAppointmentDocument> findFirstByOfficerId(String officerId);
 }
