@@ -31,7 +31,7 @@ import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentD
 @SpringBootTest(classes = CompanyAppointmentsApplication.class, webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @TestPropertySource(properties = { "logging.level.org.springframework.data.mongodb.core.MongoTemplate=DEBUG" })
-class OfficerAppointmentsRepositoryITest {
+class OfficerAppointmentsRepositoryTest {
 
     private static final String OFFICER_ID = "5VEOBB4a9dlB_iugw_vieHjWpCk";
     private static final String SECOND_OFFICER_ID = "1234";
