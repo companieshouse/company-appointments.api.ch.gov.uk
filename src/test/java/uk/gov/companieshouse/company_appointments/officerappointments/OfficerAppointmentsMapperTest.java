@@ -3,6 +3,7 @@ package uk.gov.companieshouse.company_appointments.officerappointments;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -176,6 +177,44 @@ class OfficerAppointmentsMapperTest {
         verifyNoInteractions(roleMapper);
         verifyNoInteractions(itemsMapper);
         verifyNoInteractions(nameMapper);
+    }
+
+    @Test
+    void testEqualsAndHashCode() {
+        OfficerAppointmentsAggregate aggregate = new OfficerAppointmentsAggregate()
+                .totalResults(0)
+                .inactiveCount(0)
+                .resignedCount(0)
+                .officerAppointments(Collections.emptyList());
+        CompanyAppointmentDocument companyAppointmentDocument = getCompanyAppointmentDocument(getOfficerData(DIRECTOR), getSensitiveOfficerData());
+
+        // when
+        MapperRequest request1 = new MapperRequest()
+                .startIndex(START_INDEX)
+                .itemsPerPage(ITEMS_PER_PAGE)
+                .firstAppointment(companyAppointmentDocument)
+                .officerAppointments(Collections.emptyList())
+                .aggregate(aggregate);
+
+        MapperRequest request2 = new MapperRequest()
+                .startIndex(START_INDEX)
+                .itemsPerPage(ITEMS_PER_PAGE)
+                .firstAppointment(companyAppointmentDocument)
+                .officerAppointments(Collections.emptyList())
+                .aggregate(aggregate);
+
+        MapperRequest request3 = new MapperRequest()
+                .startIndex(10)
+                .itemsPerPage(10)
+                .firstAppointment(companyAppointmentDocument)
+                .officerAppointments(Collections.emptyList())
+                .aggregate(aggregate);
+
+        assertEquals(request1, request1);
+        assertEquals(request1, request2);
+        assertNotEquals(request1, request3);
+        assertNotEquals(request1, null);
+        assertEquals(request1.hashCode(), request2.hashCode());
     }
 
     private OfficerAppointmentsAggregate getOfficerAppointmentsAggregate() {
