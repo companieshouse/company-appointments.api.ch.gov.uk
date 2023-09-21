@@ -122,13 +122,17 @@ class OfficerAppointmentsServiceTest {
     void getOfficerAppointments(ServiceTestArgument argument) throws BadRequestException {
         // given
         Filter filter = new Filter(argument.isFilterEnabled(), argument.getFilterStatuses());
+        List<CompanyAppointmentDocument> companyAppointmentDocuments = List.of(companyAppointmentDocument);
 
         when(repository.findFirstByOfficerId(anyString())).thenReturn(Optional.of(
                 companyAppointmentDocument));
         when(filterService.prepareFilter(any(), any())).thenReturn(filter);
         when(repository.findOfficerAppointments(anyString(), anyBoolean(), any(), anyInt(), anyInt())).thenReturn(
                 officerAppointmentsAggregate);
+        when(repository.findByIdIn(any())).thenReturn(companyAppointmentDocuments);
         when(mapper.mapOfficerAppointments(any())).thenReturn(Optional.of(officerAppointments));
+        when(officerAppointmentsAggregate.getOfficerAppointments()).thenReturn(List.of(
+                new CompanyAppointmentDocumentId().id(argument.getOfficerId())));
 
         // when
         Optional<AppointmentList> actual = service.getOfficerAppointments(argument.getRequest());
@@ -143,6 +147,7 @@ class OfficerAppointmentsServiceTest {
                 .startIndex(argument.getStartIndex())
                 .itemsPerPage(argument.getItemsPerPage())
                 .firstAppointment(companyAppointmentDocument)
+                .officerAppointments(companyAppointmentDocuments)
                 .aggregate(officerAppointmentsAggregate));
     }
 

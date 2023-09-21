@@ -10,6 +10,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static uk.gov.companieshouse.company_appointments.interceptor.AuthenticationHelperImpl.ERIC_AUTHORISED_KEY_PRIVILEGES_HEADER;
 
+import com.mongodb.client.result.DeleteResult;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -170,7 +171,7 @@ class OfficerAppointmentsControllerITest {
         // clean up
         Query query = new Query()
                 .addCriteria(Criteria.where("officer_id").is(officerId));
-        mongoTemplate.findAllAndRemove(query, DELTA_APPOINTMENTS_COLLECTION);
+        mongoTemplate.remove(query, DELTA_APPOINTMENTS_COLLECTION);
 
         assertTrue(mongoTemplate.find(query, CompanyAppointmentDocument.class).isEmpty());
     }
@@ -218,7 +219,7 @@ class OfficerAppointmentsControllerITest {
         // clean up
         Query query = new Query()
                 .addCriteria(Criteria.where("officer_id").is(officerId));
-        mongoTemplate.findAllAndRemove(query, DELTA_APPOINTMENTS_COLLECTION);
+        mongoTemplate.remove(query, DELTA_APPOINTMENTS_COLLECTION);
 
         assertTrue(mongoTemplate.find(query, CompanyAppointmentDocument.class).isEmpty());
     }
@@ -266,7 +267,57 @@ class OfficerAppointmentsControllerITest {
         // clean up
         Query query = new Query()
                 .addCriteria(Criteria.where("officer_id").is(officerId));
-        mongoTemplate.findAllAndRemove(query, DELTA_APPOINTMENTS_COLLECTION);
+        mongoTemplate.remove(query, DELTA_APPOINTMENTS_COLLECTION);
+
+        assertTrue(mongoTemplate.find(query, CompanyAppointmentDocument.class).isEmpty());
+    }
+
+    @DisplayName("Should return HTTP 200 OK and a list of 500K appointments for an officer with 400K appointments")
+    @Test
+    void getOfficerAppointmentsInternalWhenOfficerHas150KAppointments() throws Exception {
+        // given
+        final String officerId = UUID.randomUUID().toString();
+        final int expectedItemsPerPage = 500;
+        final int requestedItemsPerPage = 500;
+        final int appointmentCount = 400_000;
+
+        List<Document> documentsToInsert = new ArrayList<>();
+        for (int i = 0; i < appointmentCount; i++) {
+            String rawJson = IOUtils.resourceToString("/internal-appointment-data.json", StandardCharsets.UTF_8);
+            Document document = Document.parse(rawJson
+                    .replaceAll("<id>", UUID.randomUUID().toString())
+                    .replaceAll("<officerId>", officerId));
+            documentsToInsert.add(document);
+        }
+        mongoTemplate.insert(documentsToInsert, DELTA_APPOINTMENTS_COLLECTION);
+
+        //when
+        ResultActions result = mockMvc.perform(get("/officers/{officer_id}/appointments?items_per_page={itemsPerPage}", officerId, requestedItemsPerPage)
+                .header("ERIC-Identity", "123")
+                .header("ERIC-Identity-Type", "key")
+                .header("X-Request-Id", "requestId")
+                .header(ERIC_AUTHORISED_KEY_PRIVILEGES_HEADER, "internal-app")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON));
+
+        //then
+        result.andExpect(status().isOk())
+                .andExpect(jsonPath("$.date_of_birth", not(contains("day"))))
+                .andExpect(jsonPath("$.date_of_birth.year", is(1980)))
+                .andExpect(jsonPath("$.date_of_birth.month", is(1)))
+                .andExpect(jsonPath("$.is_corporate_officer", is(false)))
+                .andExpect(jsonPath("$.items_per_page", is(expectedItemsPerPage)))
+                .andExpect(jsonPath("$.kind", is("personal-appointment")))
+                .andExpect(jsonPath("$.links.self", is(String.format("/officers/%s/appointments", officerId))))
+                .andExpect(jsonPath("$.items", hasSize(expectedItemsPerPage)))
+                .andExpect(jsonPath("$.name", is("Noname1 Noname2 NOSURNAME")))
+                .andExpect(jsonPath("$.start_index", is(0)))
+                .andExpect(jsonPath("$.total_results", is(appointmentCount)));
+
+        // clean up
+        Query query = new Query()
+                .addCriteria(Criteria.where("officer_id").is(officerId));
+        mongoTemplate.remove(query, DELTA_APPOINTMENTS_COLLECTION);
 
         assertTrue(mongoTemplate.find(query, CompanyAppointmentDocument.class).isEmpty());
     }

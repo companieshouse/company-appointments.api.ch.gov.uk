@@ -123,4 +123,15 @@ class CompanyAppointmentRepositoryITest {
         // then
         assertFalse(actual);
     }
+
+    @DisplayName("Repository returns document with given company number and appointment ID")
+    @Test
+    void readByCompanyNumberAndAppointmentID() {
+        // given
+        // when
+        Optional<CompanyAppointmentDocument> actual = repository.readByCompanyNumberAndAppointmentID(COMPANY_NUMBER, APPOINTMENT_ID);
+
+        // then
+        assertTrue(actual.isPresent());
+    }
 }
