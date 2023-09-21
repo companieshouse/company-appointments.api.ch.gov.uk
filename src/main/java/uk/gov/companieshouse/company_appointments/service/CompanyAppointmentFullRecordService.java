@@ -36,7 +36,6 @@ public class CompanyAppointmentFullRecordService {
     private final ResourceChangedApiService resourceChangedApiService;
     private final Clock clock;
     
-    @Autowired
     public CompanyAppointmentFullRecordService(
             DeltaAppointmentTransformer deltaAppointmentTransformer,
             CompanyAppointmentRepository companyAppointmentRepository, ResourceChangedApiService resourceChangedApiService, Clock clock) {
@@ -78,8 +77,10 @@ public class CompanyAppointmentFullRecordService {
                     saveAppointment(companyAppointmentDocument, instant);
                 }
             } catch (DataAccessException e) {
+                LOGGER.debug(String.format("%s: %s", e.getClass().getName(), e.getMessage()), DataMapHolder.getLogMap());
                 throw new ServiceUnavailableException("Error connecting to MongoDB");
             } catch (IllegalArgumentException e) {
+                LOGGER.debug(String.format("%s: %s", e.getClass().getName(), e.getMessage()), DataMapHolder.getLogMap());
                 throw new ServiceUnavailableException("Error connecting to chs-kafka-api");
             }
     }
@@ -98,8 +99,10 @@ public class CompanyAppointmentFullRecordService {
                     companyNumber, appointmentId, appointmentData, true));
             LOGGER.debug(String.format("ChsKafka api DELETED invoked updated successfully for company number: %s", companyNumber), DataMapHolder.getLogMap());
         } catch (DataAccessException e) {
+            LOGGER.debug(String.format("%s: %s", e.getClass().getName(), e.getMessage()), DataMapHolder.getLogMap());
             throw new ServiceUnavailableException("Error connecting to MongoDB");
         } catch (IllegalArgumentException e) {
+            LOGGER.debug(String.format("%s: %s", e.getClass().getName(), e.getMessage()), DataMapHolder.getLogMap());
             throw new ServiceUnavailableException("Error connecting to chs-kafka-api");
         }
     }
