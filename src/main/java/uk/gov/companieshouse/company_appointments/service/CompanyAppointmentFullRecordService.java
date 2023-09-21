@@ -8,6 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import uk.gov.companieshouse.api.appointment.FullRecordCompanyOfficerApi;
 import uk.gov.companieshouse.company_appointments.CompanyAppointmentsApplication;
 import uk.gov.companieshouse.company_appointments.api.ResourceChangedApiService;
@@ -35,7 +36,6 @@ public class CompanyAppointmentFullRecordService {
     private final ResourceChangedApiService resourceChangedApiService;
     private final Clock clock;
     
-    @Autowired
     public CompanyAppointmentFullRecordService(
             DeltaAppointmentTransformer deltaAppointmentTransformer,
             CompanyAppointmentRepository companyAppointmentRepository, ResourceChangedApiService resourceChangedApiService, Clock clock) {
@@ -55,6 +55,7 @@ public class CompanyAppointmentFullRecordService {
                         String.format("Appointment [%s] for company [%s] not found", appointmentID, companyNumber)));
     }
 
+    @Transactional
     public void upsertAppointmentDelta(final FullRecordCompanyOfficerApi requestBody) throws ServiceUnavailableException {
             CompanyAppointmentDocument companyAppointmentDocument;
             try {
@@ -76,12 +77,15 @@ public class CompanyAppointmentFullRecordService {
                     saveAppointment(companyAppointmentDocument, instant);
                 }
             } catch (DataAccessException e) {
+                LOGGER.debug(String.format("%s: %s", e.getClass().getName(), e.getMessage()), DataMapHolder.getLogMap());
                 throw new ServiceUnavailableException("Error connecting to MongoDB");
             } catch (IllegalArgumentException e) {
+                LOGGER.debug(String.format("%s: %s", e.getClass().getName(), e.getMessage()), DataMapHolder.getLogMap());
                 throw new ServiceUnavailableException("Error connecting to chs-kafka-api");
             }
     }
 
+    @Transactional
     public void deleteAppointmentDelta(String companyNumber, String appointmentId) throws NotFoundException, ServiceUnavailableException {
         LOGGER.debug(String.format("Deleting appointment [%s] for company [%s]", appointmentId, companyNumber), DataMapHolder.getLogMap());
         try {
@@ -89,26 +93,27 @@ public class CompanyAppointmentFullRecordService {
             if (appointmentData.isEmpty()) {
                 throw new NotFoundException(String.format("Appointment [%s] for company [%s] not found", appointmentId, companyNumber));
             }
+            companyAppointmentRepository.deleteByCompanyNumberAndID(companyNumber, appointmentId);
 
             resourceChangedApiService.invokeChsKafkaApi(new ResourceChangedRequest(DataMapHolder.getRequestId(),
                     companyNumber, appointmentId, appointmentData, true));
             LOGGER.debug(String.format("ChsKafka api DELETED invoked updated successfully for company number: %s", companyNumber), DataMapHolder.getLogMap());
-
-            companyAppointmentRepository.deleteByCompanyNumberAndID(companyNumber, appointmentId);
         } catch (DataAccessException e) {
+            LOGGER.debug(String.format("%s: %s", e.getClass().getName(), e.getMessage()), DataMapHolder.getLogMap());
             throw new ServiceUnavailableException("Error connecting to MongoDB");
         } catch (IllegalArgumentException e) {
+            LOGGER.debug(String.format("%s: %s", e.getClass().getName(), e.getMessage()), DataMapHolder.getLogMap());
             throw new ServiceUnavailableException("Error connecting to chs-kafka-api");
         }
     }
 
     private void saveAppointment(CompanyAppointmentDocument document, DeltaTimestamp instant) throws ServiceUnavailableException {
+        document.created(instant);
+        companyAppointmentRepository.insertOrUpdate(document);
         resourceChangedApiService.invokeChsKafkaApi(
                 new ResourceChangedRequest(DataMapHolder.getRequestId(), document.getCompanyNumber(), document.getAppointmentId(), null, false));
         LOGGER.debug(String.format("ChsKafka api CHANGED invoked updated successfully for company number: %s",
                 document.getCompanyNumber()), DataMapHolder.getLogMap());
-        document.created(instant);
-        companyAppointmentRepository.insertOrUpdate(document);
     }
 
     private void updateAppointment(CompanyAppointmentDocument document, CompanyAppointmentDocument existingAppointment) throws ServiceUnavailableException {
