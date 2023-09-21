@@ -3,6 +3,7 @@ package uk.gov.companieshouse.company_appointments.officerappointments;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.mongodb.repository.Aggregation;
+import org.springframework.data.mongodb.repository.Meta;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentDocument;
@@ -95,6 +96,7 @@ interface OfficerAppointmentsRepository extends MongoRepository<CompanyAppointme
         +       "}"
         +   "}"
     })
+    @Meta(allowDiskUse = true)
     OfficerAppointmentsAggregate findOfficerAppointments(String officerId, boolean filterEnabled,
             List<String> filterStatuses, int startIndex, int pageSize);
 
