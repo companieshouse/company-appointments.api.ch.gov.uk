@@ -1,7 +1,7 @@
 package uk.gov.companieshouse.company_appointments.officerappointments;
 
+import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import uk.gov.companieshouse.api.officer.AppointmentList;
@@ -33,9 +33,9 @@ class OfficerAppointmentsService {
 
                     OfficerAppointmentsAggregate aggregate = repository.findOfficerAppointments(officerId,
                             filter.isFilterEnabled(), filter.getFilterStatuses(), startIndex, itemsPerPage);
-                    Set<String> docIds = aggregate.getOfficerAppointments().stream()
+                    List<String> docIds = aggregate.getOfficerAppointments().stream()
                             .map(CompanyAppointmentDocumentId::getId)
-                            .collect(Collectors.toSet());
+                            .collect(Collectors.toList());
                     return mapper.mapOfficerAppointments(new MapperRequest()
                             .startIndex(startIndex)
                             .itemsPerPage(itemsPerPage)
