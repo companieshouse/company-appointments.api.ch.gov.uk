@@ -97,10 +97,36 @@ interface OfficerAppointmentsRepository extends MongoRepository<CompanyAppointme
         +   "}"
     })
     @Meta(allowDiskUse = true)
-    OfficerAppointmentsAggregate findOfficerAppointments(String officerId, boolean filterEnabled,
+    CompanyAppointmentDocumentIdAggregate findOfficerAppointments(String officerId, boolean filterEnabled,
             List<String> filterStatuses, int startIndex, int pageSize);
 
-    List<CompanyAppointmentDocument> findByIdIn(Iterable<String> ids);
+    @Aggregation(pipeline = {
+            "{ $match: { _id: { $in: ?0 } } }",
+
+            "{ $addFields: {"
+                    +           "'__sort_active__': { $ifNull: ['$data.appointed_on', { $toDate: '$data.appointed_before' } ] }"
+                    +     "}"
+                    +"}",
+
+            "{ $facet: {"
+                    +           "'active': ["
+                    +               "{ $match: {'data.resigned_on': {$exists: false} } },"
+                    +               "{ $sort:  {'__sort_active__': -1 } }"
+                    +               "],"
+                    +           "'resigned': ["
+                    +               "{ $match: {'data.resigned_on': {$exists: true} } },"
+                    +               "{ $sort:  {'data.resigned_on': -1} }"
+                    +               "]"
+                    + "}"
+                    +"}",
+
+            "{ $project: {"
+                    +           "'officer_appointments': { $slice: [{ $concatArrays: ['$active', '$resigned'] },  ?3, ?4] },"
+                    +   "}"
+                    +"}"
+    })
+    OfficerAppointmentsAggregate findOfficerAppointmentsInIdList(Iterable<String> ids,
+            boolean filterEnabled, List<String> filterStatuses, int startIndex, int pageSize);
 
     Optional<CompanyAppointmentDocument> findFirstByOfficerId(String officerId);
 }

@@ -39,7 +39,7 @@ class OfficerAppointmentsMapper {
         return ofNullable(mapperRequest.getFirstAppointment())
                 .flatMap(firstAppointment -> ofNullable(firstAppointment.getData())
                         .map(data -> {
-                            OfficerAppointmentsAggregate aggregate = mapperRequest.getAggregate();
+                            CompanyAppointmentDocumentIdAggregate aggregate = mapperRequest.getAggregate();
                             return new AppointmentList()
                                     .etag(data.getEtag())
                                     .isCorporateOfficer(
@@ -73,7 +73,7 @@ class OfficerAppointmentsMapper {
         private Integer itemsPerPage;
         private CompanyAppointmentDocument firstAppointment;
         private List<CompanyAppointmentDocument> officerAppointments;
-        private OfficerAppointmentsAggregate aggregate;
+        private CompanyAppointmentDocumentIdAggregate aggregate;
 
         Integer getStartIndex() {
             return startIndex;
@@ -102,11 +102,11 @@ class OfficerAppointmentsMapper {
             return this;
         }
 
-        OfficerAppointmentsAggregate getAggregate() {
+        CompanyAppointmentDocumentIdAggregate getAggregate() {
             return aggregate;
         }
 
-        MapperRequest aggregate(OfficerAppointmentsAggregate aggregate) {
+        MapperRequest aggregate(CompanyAppointmentDocumentIdAggregate aggregate) {
             this.aggregate = aggregate;
             return this;
         }

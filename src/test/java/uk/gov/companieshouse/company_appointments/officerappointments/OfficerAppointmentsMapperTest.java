@@ -67,7 +67,7 @@ class OfficerAppointmentsMapperTest {
         when(dobMapper.map(any(), anyString())).thenReturn(dateOfBirth);
         when(roleMapper.mapIsCorporateOfficer(anyString())).thenReturn(false);
 
-        OfficerAppointmentsAggregate officerAppointmentsAggregate = getOfficerAppointmentsAggregateWithMultipleResults();
+        CompanyAppointmentDocumentIdAggregate officerAppointmentsAggregate = getOfficerAppointmentsAggregateWithMultipleResults();
         CompanyAppointmentDocument firstAppointment = getCompanyAppointmentDocument(getOfficerData(DIRECTOR), getSensitiveOfficerData());
         List<CompanyAppointmentDocument> appointmentDocuments = getListOfCompanyAppointmentDocument();
         AppointmentList expected = getExpectedOfficerAppointmentsWithMultipleAppointments();
@@ -98,7 +98,7 @@ class OfficerAppointmentsMapperTest {
         when(nameMapper.map(any())).thenReturn("forename secondForename surname");
         when(dobMapper.map(any(), anyString())).thenReturn(dateOfBirth);
         when(roleMapper.mapIsCorporateOfficer(anyString())).thenReturn(true);
-        OfficerAppointmentsAggregate officerAppointmentsAggregate = getOfficerAppointmentsAggregate();
+        CompanyAppointmentDocumentIdAggregate officerAppointmentsAggregate = getOfficerAppointmentsAggregate();
         CompanyAppointmentDocument companyAppointmentDocument = getCompanyAppointmentDocument(
                 getOfficerData(CORPORATE_MANAGING_OFFICER), getSensitiveOfficerData());
 
@@ -129,11 +129,11 @@ class OfficerAppointmentsMapperTest {
         when(dobMapper.map(any(), anyString())).thenReturn(dateOfBirth);
         when(roleMapper.mapIsCorporateOfficer(anyString())).thenReturn(false);
 
-        OfficerAppointmentsAggregate aggregate = new OfficerAppointmentsAggregate()
+        CompanyAppointmentDocumentIdAggregate aggregate = new CompanyAppointmentDocumentIdAggregate()
                 .totalResults(0)
                 .inactiveCount(0)
                 .resignedCount(0)
-                .officerAppointments(Collections.emptyList());
+                .documentIds(Collections.emptyList());
         CompanyAppointmentDocument companyAppointmentDocument = getCompanyAppointmentDocument(getOfficerData(DIRECTOR), getSensitiveOfficerData());
         AppointmentList expected = getExpectedOfficerAppointments(false);
         expected.setItems(emptyList());
@@ -169,7 +169,7 @@ class OfficerAppointmentsMapperTest {
                 .startIndex(START_INDEX)
                 .itemsPerPage(ITEMS_PER_PAGE)
                 .firstAppointment(getCompanyAppointmentDocument(null, null))
-                .aggregate(new OfficerAppointmentsAggregate()));
+                .aggregate(new CompanyAppointmentDocumentIdAggregate()));
 
         // then
         assertTrue(actual.isEmpty());
@@ -181,11 +181,11 @@ class OfficerAppointmentsMapperTest {
 
     @Test
     void testEqualsAndHashCode() {
-        OfficerAppointmentsAggregate aggregate = new OfficerAppointmentsAggregate()
+        CompanyAppointmentDocumentIdAggregate aggregate = new CompanyAppointmentDocumentIdAggregate()
                 .totalResults(0)
                 .inactiveCount(0)
                 .resignedCount(0)
-                .officerAppointments(Collections.emptyList());
+                .documentIds(Collections.emptyList());
         CompanyAppointmentDocument companyAppointmentDocument = getCompanyAppointmentDocument(getOfficerData(DIRECTOR), getSensitiveOfficerData());
 
         // when
@@ -210,29 +210,30 @@ class OfficerAppointmentsMapperTest {
                 .officerAppointments(Collections.emptyList())
                 .aggregate(aggregate);
 
+        MapperRequest nullArg = null;
         assertEquals(request1, request1);
         assertEquals(request1, request2);
         assertNotEquals(request1, request3);
-        assertNotEquals(request1, null);
+        assertNotEquals(request1, nullArg);
         assertEquals(request1.hashCode(), request2.hashCode());
     }
 
-    private OfficerAppointmentsAggregate getOfficerAppointmentsAggregate() {
+    private CompanyAppointmentDocumentIdAggregate getOfficerAppointmentsAggregate() {
         CompanyAppointmentDocument data = getCompanyAppointmentDocument(getOfficerData(
                 OfficerAppointmentsMapperTest.CORPORATE_MANAGING_OFFICER), getSensitiveOfficerData());
-        return new OfficerAppointmentsAggregate()
+        return new CompanyAppointmentDocumentIdAggregate()
                 .totalResults(1)
-                .officerAppointments(singletonList(new CompanyAppointmentDocumentId().id(data.getId())))
+                .documentIds(singletonList(new CompanyAppointmentDocumentId().id(data.getId())))
                 .inactiveCount(0)
                 .resignedCount(0);
     }
 
-    private OfficerAppointmentsAggregate getOfficerAppointmentsAggregateWithMultipleResults() {
+    private CompanyAppointmentDocumentIdAggregate getOfficerAppointmentsAggregateWithMultipleResults() {
         List<CompanyAppointmentDocument> data = getListOfCompanyAppointmentDocument();
 
-        return new OfficerAppointmentsAggregate()
+        return new CompanyAppointmentDocumentIdAggregate()
                 .totalResults(10)
-                .officerAppointments(data.stream()
+                .documentIds(data.stream()
                         .map(doc -> new CompanyAppointmentDocumentId().id(doc.getId()))
                         .collect(Collectors.toList()))
                 .inactiveCount(1)

@@ -50,7 +50,7 @@ class OfficerAppointmentsServiceTest {
     @Mock
     private AppointmentList officerAppointments;
     @Mock
-    private OfficerAppointmentsAggregate officerAppointmentsAggregate;
+    private CompanyAppointmentDocumentIdAggregate officerAppointmentsAggregate;
     @Mock
     private CompanyAppointmentDocument companyAppointmentDocument;
 
@@ -122,14 +122,16 @@ class OfficerAppointmentsServiceTest {
     void getOfficerAppointments(ServiceTestArgument argument) throws BadRequestException {
         // given
         Filter filter = new Filter(argument.isFilterEnabled(), argument.getFilterStatuses());
-        List<CompanyAppointmentDocument> companyAppointmentDocuments = List.of(companyAppointmentDocument);
+        OfficerAppointmentsAggregate documentAggregate = new OfficerAppointmentsAggregate()
+                .officerAppointments(List.of(companyAppointmentDocument));
 
         when(repository.findFirstByOfficerId(anyString())).thenReturn(Optional.of(
                 companyAppointmentDocument));
         when(filterService.prepareFilter(any(), any())).thenReturn(filter);
-        when(repository.findOfficerAppointments(anyString(), anyBoolean(), any(), anyInt(), anyInt())).thenReturn(
-                officerAppointmentsAggregate);
-        when(repository.findByIdIn(any())).thenReturn(companyAppointmentDocuments);
+        when(repository.findOfficerAppointments(anyString(), anyBoolean(), any(), anyInt(),
+                anyInt())).thenReturn(officerAppointmentsAggregate);
+        when(repository.findOfficerAppointmentsInIdList(any(), anyBoolean(), any(), anyInt(),
+                anyInt())).thenReturn(documentAggregate);
         when(mapper.mapOfficerAppointments(any())).thenReturn(Optional.of(officerAppointments));
         when(officerAppointmentsAggregate.getOfficerAppointments()).thenReturn(List.of(
                 new CompanyAppointmentDocumentId().id(argument.getOfficerId())));
@@ -147,7 +149,7 @@ class OfficerAppointmentsServiceTest {
                 .startIndex(argument.getStartIndex())
                 .itemsPerPage(argument.getItemsPerPage())
                 .firstAppointment(companyAppointmentDocument)
-                .officerAppointments(companyAppointmentDocuments)
+                .officerAppointments(documentAggregate.getOfficerAppointments())
                 .aggregate(officerAppointmentsAggregate));
     }
 

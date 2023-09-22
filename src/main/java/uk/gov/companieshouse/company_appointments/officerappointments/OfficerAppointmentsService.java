@@ -31,17 +31,22 @@ class OfficerAppointmentsService {
                     int itemsPerPage = params.getItemsPerPage();
                     Filter filter = filterService.prepareFilter(params.getFilter(), params.getOfficerId());
 
-                    OfficerAppointmentsAggregate aggregate = repository.findOfficerAppointments(officerId,
+                    CompanyAppointmentDocumentIdAggregate aggregate = repository.findOfficerAppointments(officerId,
                             filter.isFilterEnabled(), filter.getFilterStatuses(), startIndex, itemsPerPage);
+
                     List<String> docIds = aggregate.getOfficerAppointments().stream()
                             .map(CompanyAppointmentDocumentId::getId)
                             .collect(Collectors.toList());
+
+                    OfficerAppointmentsAggregate documentAggregate = repository.findOfficerAppointmentsInIdList(docIds,
+                            filter.isFilterEnabled(), filter.getFilterStatuses(), startIndex, itemsPerPage);
+
                     return mapper.mapOfficerAppointments(new MapperRequest()
                             .startIndex(startIndex)
                             .itemsPerPage(itemsPerPage)
                             .firstAppointment(firstAppointment)
                             .aggregate(aggregate)
-                            .officerAppointments(repository.findByIdIn(docIds))
+                            .officerAppointments(documentAggregate.getOfficerAppointments())
                     );
                 });
     }

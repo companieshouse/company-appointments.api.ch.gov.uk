@@ -76,7 +76,7 @@ class OfficerAppointmentsRepositoryTest {
         // given
 
         // when
-        OfficerAppointmentsAggregate officerAppointmentsAggregate = repository.findOfficerAppointments(OFFICER_ID, false, emptyList(), START_INDEX, DEFAULT_ITEMS_PER_PAGE);
+        CompanyAppointmentDocumentIdAggregate officerAppointmentsAggregate = repository.findOfficerAppointments(OFFICER_ID, false, emptyList(), START_INDEX, DEFAULT_ITEMS_PER_PAGE);
 
         // then
         assertEquals(5, officerAppointmentsAggregate.getTotalResults());
@@ -101,7 +101,7 @@ class OfficerAppointmentsRepositoryTest {
         // given
 
         // when
-        OfficerAppointmentsAggregate officerAppointmentsAggregate = repository.findOfficerAppointments("officerId", false, emptyList(), START_INDEX, DEFAULT_ITEMS_PER_PAGE);
+        CompanyAppointmentDocumentIdAggregate officerAppointmentsAggregate = repository.findOfficerAppointments("officerId", false, emptyList(), START_INDEX, DEFAULT_ITEMS_PER_PAGE);
 
         // then
         assertEquals(0, officerAppointmentsAggregate.getTotalResults());
@@ -117,7 +117,7 @@ class OfficerAppointmentsRepositoryTest {
         // given
 
         // when
-        OfficerAppointmentsAggregate officerAppointmentsAggregate = repository.findOfficerAppointments(
+        CompanyAppointmentDocumentIdAggregate officerAppointmentsAggregate = repository.findOfficerAppointments(
                 OFFICER_ID,
                 true,
                 List.of(DISSOLVED, CONVERTED_CLOSED, REMOVED),
@@ -141,7 +141,7 @@ class OfficerAppointmentsRepositoryTest {
         // given
 
         // when
-        OfficerAppointmentsAggregate officerAppointmentsAggregate = repository.findOfficerAppointments("officerId", true, emptyList(), START_INDEX, DEFAULT_ITEMS_PER_PAGE);
+        CompanyAppointmentDocumentIdAggregate officerAppointmentsAggregate = repository.findOfficerAppointments("officerId", true, emptyList(), START_INDEX, DEFAULT_ITEMS_PER_PAGE);
 
         // then
         assertEquals(0, officerAppointmentsAggregate.getTotalResults());
@@ -157,7 +157,7 @@ class OfficerAppointmentsRepositoryTest {
         // given
 
         // when
-        OfficerAppointmentsAggregate officerAppointmentsAggregate = repository.findOfficerAppointments(OFFICER_ID, false, emptyList(), 1, 3);
+        CompanyAppointmentDocumentIdAggregate officerAppointmentsAggregate = repository.findOfficerAppointments(OFFICER_ID, false, emptyList(), 1, 3);
 
         // then
         assertEquals(5, officerAppointmentsAggregate.getTotalResults());
@@ -178,7 +178,7 @@ class OfficerAppointmentsRepositoryTest {
         // given
 
         // when
-        OfficerAppointmentsAggregate officerAppointmentsAggregate = repository.findOfficerAppointments(
+        CompanyAppointmentDocumentIdAggregate officerAppointmentsAggregate = repository.findOfficerAppointments(
                 OFFICER_ID, true, List.of(DISSOLVED, CONVERTED_CLOSED, REMOVED), 1, 3);
 
         // then
@@ -196,7 +196,7 @@ class OfficerAppointmentsRepositoryTest {
         // given
 
         // when
-        OfficerAppointmentsAggregate officerAppointmentsAggregate = repository.findOfficerAppointments(OFFICER_ID, false, emptyList(), 10, DEFAULT_ITEMS_PER_PAGE);
+        CompanyAppointmentDocumentIdAggregate officerAppointmentsAggregate = repository.findOfficerAppointments(OFFICER_ID, false, emptyList(), 10, DEFAULT_ITEMS_PER_PAGE);
 
         // then
         assertEquals(5, officerAppointmentsAggregate.getTotalResults());
@@ -211,7 +211,7 @@ class OfficerAppointmentsRepositoryTest {
         // given
 
         // when
-        OfficerAppointmentsAggregate officerAppointmentsAggregate = repository.findOfficerAppointments(SECOND_OFFICER_ID, false, emptyList(), START_INDEX, MAX_ITEMS_PER_PAGE);
+        CompanyAppointmentDocumentIdAggregate officerAppointmentsAggregate = repository.findOfficerAppointments(SECOND_OFFICER_ID, false, emptyList(), START_INDEX, MAX_ITEMS_PER_PAGE);
 
         // then
         assertEquals(SECOND_OFFICER_TOTAL_RESULTS, officerAppointmentsAggregate.getTotalResults());
