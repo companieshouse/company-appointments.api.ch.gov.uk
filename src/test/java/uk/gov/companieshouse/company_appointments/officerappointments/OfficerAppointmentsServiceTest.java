@@ -5,7 +5,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -23,6 +25,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.mongodb.UncategorizedMongoDbException;
 import uk.gov.companieshouse.api.officer.AppointmentList;
 import uk.gov.companieshouse.company_appointments.exception.BadRequestException;
 import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentDocument;
@@ -50,7 +53,7 @@ class OfficerAppointmentsServiceTest {
     @Mock
     private AppointmentList officerAppointments;
     @Mock
-    private CompanyAppointmentDocumentIdAggregate officerAppointmentsAggregate;
+    private OfficerAppointmentsAggregate officerAppointmentsAggregate;
     @Mock
     private CompanyAppointmentDocument companyAppointmentDocument;
 
@@ -122,19 +125,13 @@ class OfficerAppointmentsServiceTest {
     void getOfficerAppointments(ServiceTestArgument argument) throws BadRequestException {
         // given
         Filter filter = new Filter(argument.isFilterEnabled(), argument.getFilterStatuses());
-        OfficerAppointmentsAggregate documentAggregate = new OfficerAppointmentsAggregate()
-                .officerAppointments(List.of(companyAppointmentDocument));
 
         when(repository.findFirstByOfficerId(anyString())).thenReturn(Optional.of(
                 companyAppointmentDocument));
         when(filterService.prepareFilter(any(), any())).thenReturn(filter);
-        when(repository.findOfficerAppointments(anyString(), anyBoolean(), any(), anyInt(),
-                anyInt())).thenReturn(officerAppointmentsAggregate);
-        when(repository.findOfficerAppointmentsInIdList(any(), anyBoolean(), any(), anyInt(),
-                anyInt())).thenReturn(documentAggregate);
+        when(repository.findOfficerAppointments(anyString(), anyBoolean(), any(), anyInt(), anyInt())).thenReturn(
+                officerAppointmentsAggregate);
         when(mapper.mapOfficerAppointments(any())).thenReturn(Optional.of(officerAppointments));
-        when(officerAppointmentsAggregate.getOfficerAppointments()).thenReturn(List.of(
-                new CompanyAppointmentDocumentId().id(argument.getOfficerId())));
 
         // when
         Optional<AppointmentList> actual = service.getOfficerAppointments(argument.getRequest());
@@ -149,7 +146,6 @@ class OfficerAppointmentsServiceTest {
                 .startIndex(argument.getStartIndex())
                 .itemsPerPage(argument.getItemsPerPage())
                 .firstAppointment(companyAppointmentDocument)
-                .officerAppointments(documentAggregate.getOfficerAppointments())
                 .aggregate(officerAppointmentsAggregate));
     }
 
@@ -165,6 +161,44 @@ class OfficerAppointmentsServiceTest {
 
         // then
         assertTrue(actual.isEmpty());
+    }
+
+    @DisplayName("Should return appointments even when the count is > 150K")
+    @Test
+    void getOfficerAppointmentsVaryLargeAppointmentCount() throws BadRequestException {
+        OfficerAppointmentsRequest request = new OfficerAppointmentsRequest(OFFICER_ID, null, null, 35);
+        UncategorizedMongoDbException mongoDbException = new UncategorizedMongoDbException("message",
+                new RuntimeException("Cause message"));
+        Filter filter = new Filter(false, new ArrayList<>());
+
+        when(repository.findFirstByOfficerId(anyString())).thenReturn(Optional.of(
+                companyAppointmentDocument));
+        when(repository.findOfficerAppointments(anyString(), anyBoolean(), any(), anyInt(), anyInt()))
+                .thenThrow(mongoDbException);
+        when(repository.findOfficerAppointmentsSparseAggregate(anyString(), anyBoolean(), any(), anyInt(), anyInt()))
+                .thenReturn(officerAppointmentsAggregate);
+        when(repository.findOfficerAppointmentsInIdList(anyList(),anyBoolean(), anyList()))
+                .thenReturn(officerAppointmentsAggregate);
+
+        when(filterService.prepareFilter(any(), any())).thenReturn(filter);
+        when(mapper.mapOfficerAppointments(any())).thenReturn(Optional.of(officerAppointments));
+
+        // when
+        Optional<AppointmentList> actual = service.getOfficerAppointments(request);
+
+        // then
+        assertTrue(actual.isPresent());
+        assertEquals(officerAppointments, actual.get());
+        verify(filterService).prepareFilter(any(), eq(OFFICER_ID));
+        verify(repository).findOfficerAppointments(eq(OFFICER_ID), anyBoolean(), any(),
+                eq(0), eq(35));
+        verify(repository).findOfficerAppointmentsSparseAggregate(anyString(), anyBoolean(), any(), anyInt(), anyInt());
+        verify(repository).findOfficerAppointmentsInIdList(anyList(),anyBoolean(), anyList());
+        verify(mapper).mapOfficerAppointments(new MapperRequest()
+                .startIndex(0)
+                .itemsPerPage(35)
+                .firstAppointment(companyAppointmentDocument)
+                .aggregate(officerAppointmentsAggregate));
     }
 
     private static class ServiceTestArgument {

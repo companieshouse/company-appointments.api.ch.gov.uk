@@ -31,7 +31,7 @@ import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentD
 @SpringBootTest(classes = CompanyAppointmentsApplication.class, webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @TestPropertySource(properties = { "logging.level.org.springframework.data.mongodb.core.MongoTemplate=DEBUG" })
-class OfficerAppointmentsRepositoryTest {
+class OfficerAppointmentsRepositoryITest {
 
     private static final String OFFICER_ID = "5VEOBB4a9dlB_iugw_vieHjWpCk";
     private static final String SECOND_OFFICER_ID = "1234";
@@ -76,12 +76,17 @@ class OfficerAppointmentsRepositoryTest {
         // given
 
         // when
-        CompanyAppointmentDocumentIdAggregate officerAppointmentsAggregate = repository.findOfficerAppointments(OFFICER_ID, false, emptyList(), START_INDEX, DEFAULT_ITEMS_PER_PAGE);
+        OfficerAppointmentsAggregate officerAppointmentsAggregate = repository.findOfficerAppointments(OFFICER_ID, false, emptyList(), START_INDEX, DEFAULT_ITEMS_PER_PAGE);
 
         // then
         assertEquals(5, officerAppointmentsAggregate.getTotalResults());
         assertEquals(1, officerAppointmentsAggregate.getInactiveCount());
         assertEquals(2, officerAppointmentsAggregate.getResignedCount());
+        assertEquals(OFFICER_ID, officerAppointmentsAggregate.getOfficerAppointments().get(0).getOfficerId());
+        assertEquals(OFFICER_ID, officerAppointmentsAggregate.getOfficerAppointments().get(1).getOfficerId());
+        assertEquals(OFFICER_ID, officerAppointmentsAggregate.getOfficerAppointments().get(2).getOfficerId());
+        assertEquals(OFFICER_ID, officerAppointmentsAggregate.getOfficerAppointments().get(3).getOfficerId());
+        assertEquals(OFFICER_ID, officerAppointmentsAggregate.getOfficerAppointments().get(4).getOfficerId());
 
         assertEquals("active_1",
                 officerAppointmentsAggregate.getOfficerAppointments().get(0).getId());
@@ -101,7 +106,7 @@ class OfficerAppointmentsRepositoryTest {
         // given
 
         // when
-        CompanyAppointmentDocumentIdAggregate officerAppointmentsAggregate = repository.findOfficerAppointments("officerId", false, emptyList(), START_INDEX, DEFAULT_ITEMS_PER_PAGE);
+        OfficerAppointmentsAggregate officerAppointmentsAggregate = repository.findOfficerAppointments("officerId", false, emptyList(), START_INDEX, DEFAULT_ITEMS_PER_PAGE);
 
         // then
         assertEquals(0, officerAppointmentsAggregate.getTotalResults());
@@ -117,7 +122,7 @@ class OfficerAppointmentsRepositoryTest {
         // given
 
         // when
-        CompanyAppointmentDocumentIdAggregate officerAppointmentsAggregate = repository.findOfficerAppointments(
+        OfficerAppointmentsAggregate officerAppointmentsAggregate = repository.findOfficerAppointments(
                 OFFICER_ID,
                 true,
                 List.of(DISSOLVED, CONVERTED_CLOSED, REMOVED),
@@ -128,6 +133,9 @@ class OfficerAppointmentsRepositoryTest {
         assertEquals(2, officerAppointmentsAggregate.getTotalResults());
         assertEquals(0, officerAppointmentsAggregate.getInactiveCount());
         assertEquals(0, officerAppointmentsAggregate.getResignedCount());
+
+        assertEquals(OFFICER_ID, officerAppointmentsAggregate.getOfficerAppointments().get(0).getOfficerId());
+        assertEquals(OFFICER_ID, officerAppointmentsAggregate.getOfficerAppointments().get(1).getOfficerId());
 
         assertEquals("active_1",
                 officerAppointmentsAggregate.getOfficerAppointments().get(0).getId());
@@ -141,7 +149,7 @@ class OfficerAppointmentsRepositoryTest {
         // given
 
         // when
-        CompanyAppointmentDocumentIdAggregate officerAppointmentsAggregate = repository.findOfficerAppointments("officerId", true, emptyList(), START_INDEX, DEFAULT_ITEMS_PER_PAGE);
+        OfficerAppointmentsAggregate officerAppointmentsAggregate = repository.findOfficerAppointments("officerId", true, emptyList(), START_INDEX, DEFAULT_ITEMS_PER_PAGE);
 
         // then
         assertEquals(0, officerAppointmentsAggregate.getTotalResults());
@@ -157,12 +165,15 @@ class OfficerAppointmentsRepositoryTest {
         // given
 
         // when
-        CompanyAppointmentDocumentIdAggregate officerAppointmentsAggregate = repository.findOfficerAppointments(OFFICER_ID, false, emptyList(), 1, 3);
+        OfficerAppointmentsAggregate officerAppointmentsAggregate = repository.findOfficerAppointments(OFFICER_ID, false, emptyList(), 1, 3);
 
         // then
         assertEquals(5, officerAppointmentsAggregate.getTotalResults());
         assertEquals(1, officerAppointmentsAggregate.getInactiveCount());
         assertEquals(2, officerAppointmentsAggregate.getResignedCount());
+        assertEquals(OFFICER_ID, officerAppointmentsAggregate.getOfficerAppointments().get(0).getOfficerId());
+        assertEquals(OFFICER_ID, officerAppointmentsAggregate.getOfficerAppointments().get(1).getOfficerId());
+        assertEquals(OFFICER_ID, officerAppointmentsAggregate.getOfficerAppointments().get(2).getOfficerId());
 
         assertEquals("active_2",
                 officerAppointmentsAggregate.getOfficerAppointments().get(0).getId());
@@ -178,13 +189,14 @@ class OfficerAppointmentsRepositoryTest {
         // given
 
         // when
-        CompanyAppointmentDocumentIdAggregate officerAppointmentsAggregate = repository.findOfficerAppointments(
+        OfficerAppointmentsAggregate officerAppointmentsAggregate = repository.findOfficerAppointments(
                 OFFICER_ID, true, List.of(DISSOLVED, CONVERTED_CLOSED, REMOVED), 1, 3);
 
         // then
         assertEquals(2, officerAppointmentsAggregate.getTotalResults());
         assertEquals(0, officerAppointmentsAggregate.getInactiveCount());
         assertEquals(0, officerAppointmentsAggregate.getResignedCount());
+        assertEquals(OFFICER_ID, officerAppointmentsAggregate.getOfficerAppointments().get(0).getOfficerId());
 
         assertEquals("active_2",
                 officerAppointmentsAggregate.getOfficerAppointments().get(0).getId());
@@ -196,7 +208,7 @@ class OfficerAppointmentsRepositoryTest {
         // given
 
         // when
-        CompanyAppointmentDocumentIdAggregate officerAppointmentsAggregate = repository.findOfficerAppointments(OFFICER_ID, false, emptyList(), 10, DEFAULT_ITEMS_PER_PAGE);
+        OfficerAppointmentsAggregate officerAppointmentsAggregate = repository.findOfficerAppointments(OFFICER_ID, false, emptyList(), 10, DEFAULT_ITEMS_PER_PAGE);
 
         // then
         assertEquals(5, officerAppointmentsAggregate.getTotalResults());
@@ -211,7 +223,7 @@ class OfficerAppointmentsRepositoryTest {
         // given
 
         // when
-        CompanyAppointmentDocumentIdAggregate officerAppointmentsAggregate = repository.findOfficerAppointments(SECOND_OFFICER_ID, false, emptyList(), START_INDEX, MAX_ITEMS_PER_PAGE);
+        OfficerAppointmentsAggregate officerAppointmentsAggregate = repository.findOfficerAppointments(SECOND_OFFICER_ID, false, emptyList(), START_INDEX, MAX_ITEMS_PER_PAGE);
 
         // then
         assertEquals(SECOND_OFFICER_TOTAL_RESULTS, officerAppointmentsAggregate.getTotalResults());

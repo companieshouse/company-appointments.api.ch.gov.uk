@@ -236,7 +236,7 @@ class OfficerAppointmentsControllerITest {
         for (int i = 0; i < requestedItemsPerPage; i++) {
             String rawJson = IOUtils.resourceToString("/internal-appointment-data.json", StandardCharsets.UTF_8);
             Document document = Document.parse(rawJson
-                    .replaceAll("<id>", UUID.randomUUID().toString())
+                    .replaceAll("<id>", ("id-" + i))
                     .replaceAll("<officerId>", officerId));
             documentsToInsert.add(document);
         }
