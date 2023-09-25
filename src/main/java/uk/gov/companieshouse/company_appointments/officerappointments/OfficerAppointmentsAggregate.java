@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
+import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentDocument;
 
 @Document
 class OfficerAppointmentsAggregate {
@@ -11,11 +12,12 @@ class OfficerAppointmentsAggregate {
     @Field("total_results")
     private Integer totalResults;
     @Field("officer_appointments")
-    private List<CompanyAppointmentDocumentId> officerAppointments;
+    private List<CompanyAppointmentDocument> officerAppointments;
     @Field("inactive_count")
     private Integer inactiveCount;
     @Field("resigned_count")
     private Integer resignedCount;
+
 
     OfficerAppointmentsAggregate() {
         this.officerAppointments = new ArrayList<>();
@@ -30,12 +32,12 @@ class OfficerAppointmentsAggregate {
         return this;
     }
 
-    public List<CompanyAppointmentDocumentId> getOfficerAppointments() {
+    public List<CompanyAppointmentDocument> getOfficerAppointments() {
         return officerAppointments;
     }
 
     public OfficerAppointmentsAggregate officerAppointments(
-            List<CompanyAppointmentDocumentId> officerAppointments) {
+            List<CompanyAppointmentDocument> officerAppointments) {
         this.officerAppointments = officerAppointments;
         return this;
     }

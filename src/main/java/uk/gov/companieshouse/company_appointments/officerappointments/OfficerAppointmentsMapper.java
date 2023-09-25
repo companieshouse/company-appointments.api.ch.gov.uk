@@ -3,7 +3,6 @@ package uk.gov.companieshouse.company_appointments.officerappointments;
 import static java.util.Optional.ofNullable;
 import static uk.gov.companieshouse.api.officer.AppointmentList.KindEnum;
 
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import org.springframework.stereotype.Component;
@@ -49,7 +48,7 @@ class OfficerAppointmentsMapper {
                                     .links(new OfficerLinkTypes().self(
                                             String.format("/officers/%s/appointments",
                                                     firstAppointment.getOfficerId())))
-                                    .items(itemsMapper.map(mapperRequest.getOfficerAppointments()))
+                                    .items(itemsMapper.map(aggregate.getOfficerAppointments()))
                                     .name(nameMapper.map(data))
                                     .startIndex(mapperRequest.getStartIndex())
                                     .totalResults(aggregate.getTotalResults())
@@ -72,7 +71,6 @@ class OfficerAppointmentsMapper {
         private Integer startIndex;
         private Integer itemsPerPage;
         private CompanyAppointmentDocument firstAppointment;
-        private List<CompanyAppointmentDocument> officerAppointments;
         private OfficerAppointmentsAggregate aggregate;
 
         Integer getStartIndex() {
@@ -111,16 +109,6 @@ class OfficerAppointmentsMapper {
             return this;
         }
 
-        List<CompanyAppointmentDocument> getOfficerAppointments() {
-            return officerAppointments;
-        }
-
-        MapperRequest officerAppointments(
-                List<CompanyAppointmentDocument> officerAppointments) {
-            this.officerAppointments = officerAppointments;
-            return this;
-        }
-
         @Override
         public boolean equals(Object o) {
             if (this == o) {
@@ -130,16 +118,14 @@ class OfficerAppointmentsMapper {
                 return false;
             }
             MapperRequest that = (MapperRequest) o;
-            return Objects.equals(startIndex, that.startIndex) && Objects.equals(
-                    itemsPerPage, that.itemsPerPage) && Objects.equals(firstAppointment,
-                    that.firstAppointment) && Objects.equals(officerAppointments,
-                    that.officerAppointments) && Objects.equals(aggregate, that.aggregate);
+            return Objects.equals(startIndex, that.startIndex) && Objects.equals(itemsPerPage,
+                    that.itemsPerPage) && Objects.equals(firstAppointment, that.firstAppointment)
+                    && Objects.equals(aggregate, that.aggregate);
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(startIndex, itemsPerPage, firstAppointment, officerAppointments,
-                    aggregate);
+            return Objects.hash(startIndex, itemsPerPage, firstAppointment, aggregate);
         }
     }
 }

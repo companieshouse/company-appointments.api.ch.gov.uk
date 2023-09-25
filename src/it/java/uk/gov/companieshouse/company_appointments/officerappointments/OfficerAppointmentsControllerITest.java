@@ -10,7 +10,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static uk.gov.companieshouse.company_appointments.interceptor.AuthenticationHelperImpl.ERIC_AUTHORISED_KEY_PRIVILEGES_HEADER;
 
-import com.mongodb.client.result.DeleteResult;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -237,7 +236,7 @@ class OfficerAppointmentsControllerITest {
         for (int i = 0; i < requestedItemsPerPage; i++) {
             String rawJson = IOUtils.resourceToString("/internal-appointment-data.json", StandardCharsets.UTF_8);
             Document document = Document.parse(rawJson
-                    .replaceAll("<id>", UUID.randomUUID().toString())
+                    .replaceAll("<id>", ("id-" + i))
                     .replaceAll("<officerId>", officerId));
             documentsToInsert.add(document);
         }
