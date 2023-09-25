@@ -12,6 +12,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -178,7 +179,7 @@ class OfficerAppointmentsServiceTest {
         when(repository.findOfficerAppointmentsSparseAggregate(anyString(), anyBoolean(), any(), anyInt(), anyInt()))
                 .thenReturn(officerAppointmentsAggregate);
         when(repository.findOfficerAppointmentsInIdList(anyList(),anyBoolean(), anyList()))
-                .thenReturn(officerAppointmentsAggregate);
+                .thenReturn(Collections.singletonList(companyAppointmentDocument));
 
         when(filterService.prepareFilter(any(), any())).thenReturn(filter);
         when(mapper.mapOfficerAppointments(any())).thenReturn(Optional.of(officerAppointments));

@@ -43,8 +43,7 @@ class OfficerAppointmentsService {
                     OfficerAppointmentsAggregate aggregate;
                     try {
                         aggregate = repository.findOfficerAppointments(officerId,
-                                filter.isFilterEnabled(), filter.getFilterStatuses(), startIndex,
-                                itemsPerPage);
+                                filter.isFilterEnabled(), filter.getFilterStatuses(), startIndex, itemsPerPage);
                     } catch (UncategorizedMongoDbException e) {
                         LOGGER.debug(String.format("Retrying findOfficerAppointments due to "
                                         + "exceeding Mongo query resource limits. Cause: %s",
@@ -71,10 +70,10 @@ class OfficerAppointmentsService {
                 .map(CompanyAppointmentDocument::getId)
                 .collect(Collectors.toList());
 
-        OfficerAppointmentsAggregate documentAggregate = repository.findOfficerAppointmentsInIdList(docIds,
+        List<CompanyAppointmentDocument> documents = repository.findOfficerAppointmentsInIdList(docIds,
                 filter.isFilterEnabled(), filter.getFilterStatuses());
 
-        sparseAggregate.officerAppointments(documentAggregate.getOfficerAppointments());
+        sparseAggregate.officerAppointments(documents);
 
         return sparseAggregate;
     }

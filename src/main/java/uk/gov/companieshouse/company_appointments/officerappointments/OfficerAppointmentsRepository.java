@@ -165,28 +165,14 @@ interface OfficerAppointmentsRepository extends MongoRepository<CompanyAppointme
             "{ $match: { _id: { $in: ?0 } } }",
 
             "{ $addFields: {"
-        +           "'__sort_active__': { $ifNull: ['$data.appointed_on', { $toDate: '$data.appointed_before' } ] }"
-        +     "}"
-        +"}",
+        +           "'__sort_order__': { $indexOfArray: [?0, '$_id'] }"
+        +       "}"
+        +   "}",
 
-            "{ $facet: {"
-        +           "'active': ["
-        +               "{ $match: {'data.resigned_on': {$exists: false} } },"
-        +               "{ $sort:  {'__sort_active__': -1 } }"
-        +               "],"
-        +           "'resigned': ["
-        +               "{ $match: {'data.resigned_on': {$exists: true} } },"
-        +               "{ $sort:  {'data.resigned_on': -1} }"
-        +               "]"
-        + "}"
-        +"}",
-
-            "{ $project: {"
-        +           "'officer_appointments': { $concatArrays: ['$active', '$resigned'] } },"
-        +   "}"
+            "{ $sort: { '__sort_order__': 1 } }"
         +"}"
     })
-    OfficerAppointmentsAggregate findOfficerAppointmentsInIdList(Iterable<String> ids,
+    List<CompanyAppointmentDocument> findOfficerAppointmentsInIdList(Iterable<String> ids,
             boolean filterEnabled, List<String> filterStatuses);
 
     Optional<CompanyAppointmentDocument> findFirstByOfficerId(String officerId);
