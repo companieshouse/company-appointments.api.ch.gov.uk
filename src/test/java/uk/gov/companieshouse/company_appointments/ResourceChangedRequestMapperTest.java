@@ -16,7 +16,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.companieshouse.api.chskafka.ChangedResource;
 import uk.gov.companieshouse.api.chskafka.ChangedResourceEvent;
 import uk.gov.companieshouse.company_appointments.mapper.ResourceChangedRequestMapper;
-import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentDocument;
 import uk.gov.companieshouse.company_appointments.model.data.ResourceChangedRequest;
 
 @ExtendWith(MockitoExtension.class)
@@ -24,6 +23,7 @@ class ResourceChangedRequestMapperTest {
 
     private static final String EXPECTED_CONTEXT_ID = "35234234";
     private static final String DATE = "date";
+    private static final Object deletedData = new Object();
 
     @Mock
     private Supplier<String> timestampGenerator;
@@ -61,12 +61,13 @@ class ResourceChangedRequestMapperTest {
                 Arguments.of(
                     Named.of("Test resource-changed scenario with event type of deleted",
                     ResourceChangedTestArgument.ResourceChangedTestArgumentBuilder()
-                            .withRequest(new ResourceChangedRequest(EXPECTED_CONTEXT_ID, "12345678", "87654321", new CompanyAppointmentDocument(), true))
+                            .withRequest(new ResourceChangedRequest(EXPECTED_CONTEXT_ID, "12345678", "87654321",
+                                    deletedData, true))
                             .withContextId(EXPECTED_CONTEXT_ID)
                             .withResourceUri("/company/12345678/appointments/87654321")
                             .withResourceKind("company-officers")
                             .withEventType("deleted")
-                            .withDeletedData(new CompanyAppointmentDocument())
+                            .withDeletedData(deletedData)
                             .withEventPublishedAt(DATE)
                             .build()
                     )

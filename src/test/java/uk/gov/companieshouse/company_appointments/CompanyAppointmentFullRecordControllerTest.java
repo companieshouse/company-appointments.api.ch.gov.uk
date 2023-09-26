@@ -93,7 +93,7 @@ class CompanyAppointmentFullRecordControllerTest {
     }
 
     @Test
-    void testControllerReturns503StatusWhenPutEndpointIsCalled() throws Exception {
+    void testControllerReturns503StatusWhenPutEndpointIsCalled() {
         // given
         doThrow(ServiceUnavailableException.class)
                 .when(companyAppointmentService).upsertAppointmentDelta(any());
@@ -115,7 +115,7 @@ class CompanyAppointmentFullRecordControllerTest {
     }
 
     @Test
-    void testControllerReturns404WhenOfficerNotDeleted() throws Exception{
+    void testControllerReturns404WhenOfficerNotDeleted() {
         doThrow(NotFoundException.class).when(companyAppointmentService).deleteAppointmentDelta(any(), any());
 
         ResponseEntity<Void> response = companyAppointmentFullRecordController.deleteOfficerData(COMPANY_NUMBER, APPOINTMENT_ID);

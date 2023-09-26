@@ -129,7 +129,7 @@ class CompanyAppointmentServiceTest {
     }
 
     @Test
-    void testFetchAppointmentsForCompanyNumberReturnsMappedAppointmentData() throws Exception {
+    void testFetchAppointmentsForCompanyNumberReturnsMappedAppointmentData() {
         CompanyAppointmentDocument appointmentDocument = buildCompanyAppointmentDocument(buildOfficerData().build(),
                 ACTIVE);
         List<CompanyAppointmentDocument> allAppointmentData = List.of(appointmentDocument);
@@ -164,8 +164,7 @@ class CompanyAppointmentServiceTest {
     }
 
     @Test
-    void testFetchAppointmentsForCompanyWithActiveCompanyStatusHasZeroInactiveAppointments()
-            throws Exception {
+    void testFetchAppointmentsForCompanyWithActiveCompanyStatusHasZeroInactiveAppointments() {
         DeltaOfficerData officer = buildOfficerData()
                 .resignedOn(null)
                 .build();
@@ -196,8 +195,7 @@ class CompanyAppointmentServiceTest {
     }
 
     @Test
-    void testFetchAppointmentsForCompanyWithAnInactiveCompanyStatusHasZeroActiveAppointments()
-            throws Exception {
+    void testFetchAppointmentsForCompanyWithAnInactiveCompanyStatusHasZeroActiveAppointments() {
         DeltaOfficerData officer = buildOfficerData()
                 .resignedOn(null)
                 .build();
@@ -228,8 +226,7 @@ class CompanyAppointmentServiceTest {
     }
 
     @Test
-    void testFetchAppointmentsForCompanyWithAnInactiveCompanyStatusHasZeroActiveAppointmentsWhenFilterIsApplied()
-            throws Exception {
+    void testFetchAppointmentsForCompanyWithAnInactiveCompanyStatusHasZeroActiveAppointmentsWhenFilterIsApplied() {
         FetchAppointmentsRequest request =
                 FetchAppointmentsRequest.Builder.builder()
                         .withCompanyNumber(COMPANY_NUMBER)
@@ -254,8 +251,7 @@ class CompanyAppointmentServiceTest {
     }
 
     @Test
-    void testFetchAppointmentsForCompanyReturnEmptyResponseWhenCompanyIsInactiveAndFilterIsApplied()
-            throws Exception {
+    void testFetchAppointmentsForCompanyReturnEmptyResponseWhenCompanyIsInactiveAndFilterIsApplied() {
         FetchAppointmentsRequest request =
                 FetchAppointmentsRequest.Builder.builder()
                         .withCompanyNumber(COMPANY_NUMBER)
@@ -301,8 +297,7 @@ class CompanyAppointmentServiceTest {
     }
 
     @Test
-    void shouldReturnTotalCountEqualToActiveCountWhenCompanyStatusIsActiveAndActiveFilterIsApplied()
-            throws Exception {
+    void shouldReturnTotalCountEqualToActiveCountWhenCompanyStatusIsActiveAndActiveFilterIsApplied() {
         DeltaOfficerData officer = buildOfficerData()
                 .resignedOn(null)
                 .build();
@@ -335,7 +330,7 @@ class CompanyAppointmentServiceTest {
     }
 
     @Test
-    void testRegisterViewIsFalseShouldNotCheckMetricsForRegisterView() throws Exception {
+    void testRegisterViewIsFalseShouldNotCheckMetricsForRegisterView() {
         CompanyAppointmentDocument appointmentDocument = buildCompanyAppointmentDocument(buildOfficerData().build(),
                 ACTIVE);
 
@@ -362,7 +357,7 @@ class CompanyAppointmentServiceTest {
     }
 
     @Test
-    void testNoRegisterViewIsNullShouldNotCheckMetricsForRegisterView() throws Exception {
+    void testNoRegisterViewIsNullShouldNotCheckMetricsForRegisterView() {
         CompanyAppointmentDocument appointmentDocument = buildCompanyAppointmentDocument(buildOfficerData().build(),
                 ACTIVE);
 
@@ -458,7 +453,7 @@ class CompanyAppointmentServiceTest {
     }
 
     @Test
-    void throwNotFoundExceptionIfCountsAppointmentsIsNull() throws Exception {
+    void throwNotFoundExceptionIfCountsAppointmentsIsNull() {
         FetchAppointmentsRequest request =
                 FetchAppointmentsRequest.Builder.builder()
                         .withCompanyNumber(COMPANY_NUMBER)
@@ -476,8 +471,7 @@ class CompanyAppointmentServiceTest {
     }
 
     @Test
-    void testFetchAppointmentsForCompanyReturnsAppointmentsIfRegisterTypeMatchesDirectorsAndRoleTypeIsDirector()
-            throws Exception {
+    void testFetchAppointmentsForCompanyReturnsAppointmentsIfRegisterTypeMatchesDirectorsAndRoleTypeIsDirector() {
         CompanyAppointmentDocument appointmentDocument = buildCompanyAppointmentDocument(
                 buildOfficerData().officerRole("director").build(), ACTIVE);
 
@@ -509,8 +503,7 @@ class CompanyAppointmentServiceTest {
     }
 
     @Test
-    void testFetchAppointmentsForCompanyReturnsAppointmentsIfRegisterTypeMatchesSecretariesAndRoleTypeIsSecretary()
-            throws Exception {
+    void testFetchAppointmentsForCompanyReturnsAppointmentsIfRegisterTypeMatchesSecretariesAndRoleTypeIsSecretary() {
         CompanyAppointmentDocument appointmentDocument = buildCompanyAppointmentDocument(
                 buildOfficerData().officerRole("secretary").build(), ACTIVE);
 
@@ -542,8 +535,7 @@ class CompanyAppointmentServiceTest {
     }
 
     @Test
-    void testFetchAppointmentsForCompanyReturnsAppointmentsIfRegisterTypeMatchesLLPMembersAndRoleTypeIsLLPMember()
-            throws Exception {
+    void testFetchAppointmentsForCompanyReturnsAppointmentsIfRegisterTypeMatchesLLPMembersAndRoleTypeIsLLPMember() {
         CompanyAppointmentDocument appointmentDocument = buildCompanyAppointmentDocument(
                 buildOfficerData().officerRole("llp-member").build(), ACTIVE);
 
@@ -576,7 +568,7 @@ class CompanyAppointmentServiceTest {
 
     @Test
     @DisplayName("Test update a companies appointments")
-    void shouldUpdateCompanyAppointments() throws Exception {
+    void shouldUpdateCompanyAppointments() {
         // given
         when(companyStatusValidator.isValidCompanyStatus(anyString())).thenReturn(true);
         when(companyAppointmentRepository.patchAppointmentNameStatusInCompany(anyString(),

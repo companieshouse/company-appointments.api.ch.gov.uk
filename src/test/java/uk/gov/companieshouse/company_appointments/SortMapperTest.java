@@ -19,7 +19,7 @@ class SortMapperTest {
     }
 
     @Test
-    void testOfficerRoleSortOrder() throws Exception {
+    void testOfficerRoleSortOrder() {
 
         Sort expected = Sort.by(Sort.Direction.ASC, "officer_role_sort_order")
                 .and(Sort.by(Sort.Direction.ASC, "data.company_name", "data.surname"))
@@ -33,7 +33,7 @@ class SortMapperTest {
     }
 
     @Test
-    void testOfficerRoleSortByAppointedOn() throws Exception {
+    void testOfficerRoleSortByAppointedOn() {
 
         Sort expected = Sort.by(Sort.Direction.DESC, "data.appointed_on", "data.appointed_before");
 
@@ -43,7 +43,7 @@ class SortMapperTest {
     }
 
     @Test
-    void testOfficerRoleSortBySurname() throws Exception {
+    void testOfficerRoleSortBySurname() {
 
         Sort expected = Sort.by(Sort.Direction.ASC, "data.company_name", "data.surname");
 
@@ -53,7 +53,7 @@ class SortMapperTest {
     }
 
     @Test
-    void testOfficerRoleSortByResignedOn() throws Exception {
+    void testOfficerRoleSortByResignedOn() {
 
         Sort expected = Sort.by(Sort.Direction.DESC, "data.resigned_on");
 
@@ -63,7 +63,7 @@ class SortMapperTest {
     }
 
     @Test
-    void testOfficerRoleSortByThrowsBadRequestExceptionWhenInvalidParameter() throws Exception {
+    void testOfficerRoleSortByThrowsBadRequestExceptionWhenInvalidParameter() {
 
         BadRequestException thrown = assertThrows(BadRequestException.class, () -> sortMapper.getSort("invalid"));
 
