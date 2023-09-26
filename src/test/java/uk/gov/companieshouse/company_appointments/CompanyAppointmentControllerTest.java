@@ -77,7 +77,7 @@ public class CompanyAppointmentControllerTest {
     }
 
     @Test
-    void testControllerReturns200StatusAndAppointmentsForCompany() throws Exception {
+    void testControllerReturns200StatusAndAppointmentsForCompany() {
         // given
         FetchAppointmentsRequest request =
                 FetchAppointmentsRequest.Builder.builder()
@@ -98,7 +98,7 @@ public class CompanyAppointmentControllerTest {
     }
 
     @Test
-    void testControllerReturns404StatusIfAppointmentForCompanyNotFound() throws Exception {
+    void testControllerReturns404StatusIfAppointmentForCompanyNotFound() {
         // given
         when(companyAppointmentService.fetchAppointmentsForCompany(any())).thenThrow(NotFoundException.class);
 
@@ -111,7 +111,7 @@ public class CompanyAppointmentControllerTest {
     }
 
     @Test
-    void testControllerReturns400StatusIfOrderByParameterIsIncorrect() throws Exception {
+    void testControllerReturns400StatusIfOrderByParameterIsIncorrect() {
         // given
         FetchAppointmentsRequest request =
                 FetchAppointmentsRequest.Builder.builder()
@@ -131,7 +131,7 @@ public class CompanyAppointmentControllerTest {
     }
 
     @Test
-    void testFetchAppointmentForCompanyWithIndexAndItemsReturns200Status() throws Exception {
+    void testFetchAppointmentForCompanyWithIndexAndItemsReturns200Status() {
         // given
         FetchAppointmentsRequest request =
                 FetchAppointmentsRequest.Builder.builder()
@@ -152,7 +152,7 @@ public class CompanyAppointmentControllerTest {
     }
 
     @Test
-    void testControllerReturns500StatusIfThereIsServiceUnavailable() throws Exception {
+    void testControllerReturns500StatusIfThereIsServiceUnavailable() {
         // given
         FetchAppointmentsRequest request =
                 FetchAppointmentsRequest.Builder.builder()
@@ -174,7 +174,7 @@ public class CompanyAppointmentControllerTest {
     }
 
     @Test
-    void shouldReturnOKForValidRequestWhenPatchingNameAndStatus() throws Exception {
+    void shouldReturnOKForValidRequestWhenPatchingNameAndStatus() {
         // Given
 
         // When
@@ -188,7 +188,7 @@ public class CompanyAppointmentControllerTest {
     }
 
     @Test
-    void shouldThrowNotFoundForMissingCompanyNumberWhenPatchingNameAndStatus() throws Exception {
+    void shouldThrowNotFoundForMissingCompanyNumberWhenPatchingNameAndStatus() {
         // Given
         doThrow(NotFoundException.class)
                 .when(companyAppointmentService).patchCompanyNameStatus(any(), any(), any());
@@ -204,7 +204,7 @@ public class CompanyAppointmentControllerTest {
     }
 
     @Test
-    void shouldThrowBadRequestForMissingCompanyNameWhenPatchingNameAndStatus() throws Exception {
+    void shouldThrowBadRequestForMissingCompanyNameWhenPatchingNameAndStatus() {
         // Given
         doThrow(BadRequestException.class)
                 .when(companyAppointmentService).patchCompanyNameStatus(any(), any(), any());
@@ -220,8 +220,7 @@ public class CompanyAppointmentControllerTest {
     }
 
     @Test
-    void shouldThrowServiceUnavailableForWhenPatchingNameAndStatusAndMongoUnavailable()
-            throws Exception {
+    void shouldThrowServiceUnavailableForWhenPatchingNameAndStatusAndMongoUnavailable() {
         // Given
         doThrow(ServiceUnavailableException.class)
                 .when(companyAppointmentService).patchCompanyNameStatus(any(), any(), any());

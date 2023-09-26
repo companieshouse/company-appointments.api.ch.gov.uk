@@ -12,7 +12,7 @@ class DeltaIdentificationTransformerTest {
     private final DeltaIdentificationTransformer transformer = new DeltaIdentificationTransformer();
 
     @Test
-    void shouldTransformValidIdentification() throws Exception {
+    void shouldTransformValidIdentification() {
         Identification identification = new Identification()
                 .identificationType(IdentificationTypeEnum.UK_LIMITED_COMPANY)
                 .legalAuthority("legalAuthority")
@@ -30,7 +30,7 @@ class DeltaIdentificationTransformerTest {
     }
 
     @Test
-    void shouldTransformWithNullIdentificationType() throws Exception {
+    void shouldTransformWithNullIdentificationType() {
         Identification identification = new Identification()
                 .legalAuthority("legalAuthority")
                 .legalForm("legalForm")

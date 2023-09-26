@@ -12,7 +12,7 @@ class DeltaItemLinkTypesTransformerTest {
     private final DeltaItemLinkTypesTransformer transformer = new DeltaItemLinkTypesTransformer();
 
     @Test
-    void shouldTransformItemLinkTypes() throws Exception {
+    void shouldTransformItemLinkTypes() {
 
         ItemLinkTypes itemLinkTypes = new ItemLinkTypes()
                 .self("self")
@@ -29,7 +29,7 @@ class DeltaItemLinkTypesTransformerTest {
     }
 
     @Test
-    void shouldTransformItemLinkTypesWithNullOfficerLinkTypes() throws Exception {
+    void shouldTransformItemLinkTypesWithNullOfficerLinkTypes() {
         ItemLinkTypes itemLinkTypes = new ItemLinkTypes()
                 .self("self");
 

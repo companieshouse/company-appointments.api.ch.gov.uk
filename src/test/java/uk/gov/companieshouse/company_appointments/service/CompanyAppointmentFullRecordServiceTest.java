@@ -40,6 +40,7 @@ import uk.gov.companieshouse.company_appointments.api.ResourceChangedApiService;
 import uk.gov.companieshouse.company_appointments.exception.FailedToTransformException;
 import uk.gov.companieshouse.company_appointments.exception.NotFoundException;
 import uk.gov.companieshouse.company_appointments.exception.ServiceUnavailableException;
+import uk.gov.companieshouse.company_appointments.mapper.CompanyAppointmentMapper;
 import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentDocument;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaItemLinkTypes;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaOfficerData;
@@ -61,6 +62,8 @@ class CompanyAppointmentFullRecordServiceTest {
     private CompanyAppointmentRepository companyAppointmentRepository;
     @Mock
     private ResourceChangedApiService resourceChangedApiService;
+    @Mock
+    private CompanyAppointmentMapper companyAppointmentMapper;
     @Captor
     private ArgumentCaptor<CompanyAppointmentDocument> captor;
 
@@ -92,7 +95,7 @@ class CompanyAppointmentFullRecordServiceTest {
     void setUp() {
         companyAppointmentService =
                 new CompanyAppointmentFullRecordService(deltaAppointmentTransformer,
-                        companyAppointmentRepository, resourceChangedApiService, CLOCK);
+                        companyAppointmentRepository, resourceChangedApiService, companyAppointmentMapper, CLOCK);
     }
 
     @Test
@@ -135,7 +138,7 @@ class CompanyAppointmentFullRecordServiceTest {
     }
 
     @Test
-    void testPutAppointmentData() throws Exception {
+    void testPutAppointmentData() {
         // given
         DeltaOfficerData data = DeltaOfficerData.Builder.builder()
                 .officerRole("director")
@@ -164,7 +167,7 @@ class CompanyAppointmentFullRecordServiceTest {
     }
 
     @Test
-    void testPutAppointmentDataThrowsServiceUnavailableException() throws Exception {
+    void testPutAppointmentDataThrowsServiceUnavailableException() {
         // given
         when(deltaAppointmentTransformer.transform(any(FullRecordCompanyOfficerApi.class))).thenReturn(
                 new CompanyAppointmentDocument());
@@ -181,7 +184,7 @@ class CompanyAppointmentFullRecordServiceTest {
     }
 
     @Test
-    void testPutAppointmentDataThrowsServiceUnavailableExceptionWhenIllegalArgumentExceptionCaught() throws Exception {
+    void testPutAppointmentDataThrowsServiceUnavailableExceptionWhenIllegalArgumentExceptionCaught() {
         // given
         when(deltaAppointmentTransformer.transform(any(FullRecordCompanyOfficerApi.class))).thenReturn(
                 new CompanyAppointmentDocument());
@@ -201,7 +204,7 @@ class CompanyAppointmentFullRecordServiceTest {
             final Instant existingDeltaAt,
             final OffsetDateTime incomingDeltaAt,
             boolean deltaExists,
-            boolean shouldBeStale) throws Exception {
+            boolean shouldBeStale) {
 
         // given
         fullRecordCompanyOfficerApi.getInternalData().setDeltaAt(incomingDeltaAt);
@@ -233,7 +236,7 @@ class CompanyAppointmentFullRecordServiceTest {
     }
 
     @Test
-    void deleteOfficer() throws Exception {
+    void deleteOfficer() {
         when(companyAppointmentRepository.readByCompanyNumberAndID(COMPANY_NUMBER,
                 APPOINTMENT_ID))
                 .thenReturn(Optional.of(new CompanyAppointmentDocument()));
@@ -245,7 +248,7 @@ class CompanyAppointmentFullRecordServiceTest {
     }
 
     @Test
-    void testServiceThrows500WhenTransformFails() throws Exception {
+    void testServiceThrows500WhenTransformFails() {
         when(deltaAppointmentTransformer.transform(any(FullRecordCompanyOfficerApi.class)))
                 .thenThrow(new FailedToTransformException("message"));
 
