@@ -84,7 +84,7 @@ public class CompanyAppointmentController {
         }
     }
 
-    @PatchMapping(path = "/appointments")
+//    @PatchMapping(path = "/appointments")
     public ResponseEntity<Void> patchCompanyNameStatus(
             @PathVariable("company_number") String companyNumber,
             @RequestBody PatchAppointmentNameStatusApi requestBody) {

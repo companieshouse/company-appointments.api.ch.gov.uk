@@ -261,6 +261,7 @@ class CompanyAppointmentControllerITest {
         result.andExpect(MockMvcResultMatchers.status().isBadRequest());
     }
 
+    @Disabled("Temporary removal of external GET endpoints for purposes of seeding the delta_appointments collection in Live")
     @Test
     @DisplayName("Returns 200 ok when PATCH existing appointments request handled successfully")
     void testPatchExistingAppointmentCompanyNameStatus() throws Exception {
@@ -280,6 +281,7 @@ class CompanyAppointmentControllerITest {
                         String.format("/company/%s/officers", COMPANY_NUMBER)));
     }
 
+    @Disabled("Temporary removal of external GET endpoints for purposes of seeding the delta_appointments collection in Live")
     @Test
     @DisplayName("Patch existing appointments endpoint returns 400 bad request when company name is missing")
     void testPatchExistingAppointmentCompanyNameStatusMissingRequestFields() throws Exception {
@@ -293,6 +295,7 @@ class CompanyAppointmentControllerITest {
                 .andExpect(MockMvcResultMatchers.status().isBadRequest());
     }
 
+    @Disabled("Temporary removal of external GET endpoints for purposes of seeding the delta_appointments collection in Live")
     @Test
     @DisplayName("Patch existing appointments endpoint returns 400 when invalid company status provided")
     void testPatchExistingAppointmentCompanyNameStatusInvalidStatus() throws Exception {
