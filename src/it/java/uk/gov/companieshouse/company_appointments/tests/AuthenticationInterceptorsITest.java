@@ -8,7 +8,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.time.Instant;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -76,7 +75,6 @@ class AuthenticationInterceptorsITest {
                         .build();
     }
 
-    @Disabled("Temporary removal of external GET endpoints for purposes of seeding the delta_appointments collection in Live")
     @Test
     void fetchAppointmentWhenOauth2AuthThenAllowed() throws Exception {
         addOauth2Headers(false);
@@ -87,7 +85,6 @@ class AuthenticationInterceptorsITest {
                 .andExpect(jsonPath("$.name").value(NAME));
     }
 
-    @Disabled("Temporary removal of external GET endpoints for purposes of seeding the delta_appointments collection in Live")
     @Test
     void fetchAppointmentWhenPrivilegedKeyAuthThenAllowed() throws Exception {
         addApiKeyHeaders(true);
@@ -98,7 +95,6 @@ class AuthenticationInterceptorsITest {
                 .andExpect(jsonPath("$.name").value(NAME));
     }
 
-    @Disabled("Temporary removal of external GET endpoints for purposes of seeding the delta_appointments collection in Live")
     @Test
     void fetchAppointmentWhenNonPrivilegedKeyAuthThenAllowed() throws Exception {
         addApiKeyHeaders(false);
@@ -109,7 +105,6 @@ class AuthenticationInterceptorsITest {
                 .andExpect(jsonPath("$.name").value(NAME));
     }
 
-    @Disabled("Temporary removal of external GET endpoints for purposes of seeding the delta_appointments collection in Live")
     @Test
     void fetchAppointmentWhenAuthMissingThenDenied() throws Exception {
         mockMvc.perform(get(URL_TEMPLATE, COMPANY_NUMBER, APP_ID).headers(httpHeaders))
