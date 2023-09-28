@@ -35,7 +35,7 @@ public class CompanyAppointmentController {
         this.companyAppointmentService = companyAppointmentService;
     }
 
-    @GetMapping(path = "/appointments/{appointment_id}")
+//    @GetMapping(path = "/appointments/{appointment_id}")
     public ResponseEntity<OfficerSummary> fetchAppointment(@PathVariable("company_number") String companyNumber, @PathVariable("appointment_id") String appointmentID) {
 
         DataMapHolder.get()
@@ -48,7 +48,7 @@ public class CompanyAppointmentController {
         }
     }
 
-    @GetMapping(path = "/officers")
+//    @GetMapping(path = "/officers")
     public ResponseEntity<OfficerList> fetchAppointmentsForCompany(
             @PathVariable("company_number") String companyNumber,
             @RequestParam(required = false) String filter,
@@ -84,7 +84,7 @@ public class CompanyAppointmentController {
         }
     }
 
-    @PatchMapping(path = "/appointments")
+//    @PatchMapping(path = "/appointments")
     public ResponseEntity<Void> patchCompanyNameStatus(
             @PathVariable("company_number") String companyNumber,
             @RequestBody PatchAppointmentNameStatusApi requestBody) {
