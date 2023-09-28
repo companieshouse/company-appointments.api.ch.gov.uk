@@ -14,7 +14,6 @@ import java.nio.charset.StandardCharsets;
 import org.apache.commons.io.IOUtils;
 import org.bson.Document;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -82,7 +81,6 @@ class CompanyAppointmentControllerITest {
         System.setProperty("company-metrics-api.endpoint", "localhost");
     }
 
-    @Disabled("Temporary removal of external GET endpoints for purposes of seeding the delta_appointments collection in Live")
     @Test
     void testReturn200OKIfOfficerIsFound() throws Exception {
         //when
@@ -102,7 +100,6 @@ class CompanyAppointmentControllerITest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.date_of_birth.month", is(1)));
     }
 
-    @Disabled("Temporary removal of external GET endpoints for purposes of seeding the delta_appointments collection in Live")
     @Test
     void testReturn404IfOfficerIsNotFound() throws Exception {
         // when
@@ -118,7 +115,6 @@ class CompanyAppointmentControllerITest {
         result.andExpect(MockMvcResultMatchers.status().isNotFound());
     }
 
-    @Disabled("Temporary removal of external GET endpoints for purposes of seeding the delta_appointments collection in Live")
     @Test
     void testReturn401IfUserNotAuthenticated() throws Exception {
         // when
@@ -131,7 +127,6 @@ class CompanyAppointmentControllerITest {
         result.andExpect(MockMvcResultMatchers.status().isUnauthorized());
     }
 
-    @Disabled("Temporary removal of external GET endpoints for purposes of seeding the delta_appointments collection in Live")
     @Test
     void testReturn200OKIfAllOfficersAreFound() throws Exception {
         //when
@@ -156,8 +151,6 @@ class CompanyAppointmentControllerITest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.resigned_count", is(1)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.total_results", is(3)));
     }
-
-    @Disabled("Temporary removal of external GET endpoints for purposes of seeding the delta_appointments collection in Live")
     @Test
     void testReturn404IfOfficersForCompanyIsNotFound() throws Exception {
         // when
@@ -174,7 +167,6 @@ class CompanyAppointmentControllerITest {
         result.andExpect(MockMvcResultMatchers.status().isNotFound());
     }
 
-    @Disabled("Temporary removal of external GET endpoints for purposes of seeding the delta_appointments collection in Live")
     @Test
     void testReturn200OKIfAllOfficersAreFoundWithFilter() throws Exception {
         //when
@@ -199,7 +191,6 @@ class CompanyAppointmentControllerITest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.total_results", is(2)));
     }
 
-    @Disabled("Temporary removal of external GET endpoints for purposes of seeding the delta_appointments collection in Live")
     @Test
     void testReturn200OkWithOfficersOrderedByAppointedOn() throws Exception {
         when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(new ApiResponse<>(200, null, metricsApi));
@@ -222,7 +213,6 @@ class CompanyAppointmentControllerITest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.total_results", is(2)));
     }
 
-    @Disabled("Temporary removal of external GET endpoints for purposes of seeding the delta_appointments collection in Live")
     @Test
     void testReturn200OkWithOfficersOrderedBySurname() throws Exception {
         when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(new ApiResponse<>(200, null, metricsApi));
@@ -246,7 +236,6 @@ class CompanyAppointmentControllerITest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.total_results", is(3)));
     }
 
-    @Disabled("Temporary removal of external GET endpoints for purposes of seeding the delta_appointments collection in Live")
     @Test
     void testReturn400BadRequestWithIncorrectOrderBy() throws Exception {
         when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(new ApiResponse<>(200, null, metricsApi));
@@ -261,7 +250,6 @@ class CompanyAppointmentControllerITest {
         result.andExpect(MockMvcResultMatchers.status().isBadRequest());
     }
 
-    @Disabled("Temporary removal of external GET endpoints for purposes of seeding the delta_appointments collection in Live")
     @Test
     @DisplayName("Returns 200 ok when PATCH existing appointments request handled successfully")
     void testPatchExistingAppointmentCompanyNameStatus() throws Exception {
@@ -281,7 +269,6 @@ class CompanyAppointmentControllerITest {
                         String.format("/company/%s/officers", COMPANY_NUMBER)));
     }
 
-    @Disabled("Temporary removal of external GET endpoints for purposes of seeding the delta_appointments collection in Live")
     @Test
     @DisplayName("Patch existing appointments endpoint returns 400 bad request when company name is missing")
     void testPatchExistingAppointmentCompanyNameStatusMissingRequestFields() throws Exception {
@@ -295,7 +282,6 @@ class CompanyAppointmentControllerITest {
                 .andExpect(MockMvcResultMatchers.status().isBadRequest());
     }
 
-    @Disabled("Temporary removal of external GET endpoints for purposes of seeding the delta_appointments collection in Live")
     @Test
     @DisplayName("Patch existing appointments endpoint returns 400 when invalid company status provided")
     void testPatchExistingAppointmentCompanyNameStatusInvalidStatus() throws Exception {

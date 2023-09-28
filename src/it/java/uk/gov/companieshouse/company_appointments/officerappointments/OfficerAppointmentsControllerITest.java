@@ -39,7 +39,6 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import uk.gov.companieshouse.company_appointments.CompanyAppointmentsApplication;
 import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentDocument;
 
-@Disabled("Temporary removal of external GET endpoints for purposes of seeding the delta_appointments collection in Live")
 @Testcontainers
 @AutoConfigureMockMvc
 @SpringBootTest(classes = CompanyAppointmentsApplication.class, webEnvironment = SpringBootTest.WebEnvironment.MOCK)

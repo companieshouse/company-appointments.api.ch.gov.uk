@@ -28,7 +28,7 @@ class OfficerAppointmentsController {
         this.itemsPerPageService = itemsPerPageService;
     }
 
-//    @GetMapping(path = "/officers/{officer_id}/appointments")
+    @GetMapping(path = "/officers/{officer_id}/appointments")
     public ResponseEntity<AppointmentList> getOfficerAppointments(
             @PathVariable("officer_id") String officerId,
             @RequestParam(value = "filter", required = false) String filter,
