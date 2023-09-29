@@ -53,7 +53,7 @@ class DeltaUsualResidentialAddressTransformerTest {
         DeltaUsualResidentialAddress actual = transformer.transform(new UsualResidentialAddress());
 
         // then
-        assertThat(actual).isEqualTo(new DeltaUsualResidentialAddress());
+        assertThat(actual).isNull();
 
     }
 }
