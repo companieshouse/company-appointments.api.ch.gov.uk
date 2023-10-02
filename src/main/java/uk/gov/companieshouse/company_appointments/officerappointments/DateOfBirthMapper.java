@@ -5,7 +5,6 @@ import static java.util.Optional.ofNullable;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.time.temporal.ChronoField;
 import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.api.officer.DateOfBirth;
 import uk.gov.companieshouse.company_appointments.roles.SecretarialRoles;
@@ -27,8 +26,8 @@ class DateOfBirthMapper {
             return ofNullable(dateOfBirth)
                     .map(dob -> ZonedDateTime.ofInstant(dob, ZoneOffset.UTC))
                     .map(zdt -> new DateOfBirth()
-                            .month(zdt.get(ChronoField.MONTH_OF_YEAR))
-                            .year(zdt.get(ChronoField.YEAR)))
+                            .month(zdt.getMonthValue())
+                            .year(zdt.getYear()))
                     .orElse(null);
         }
     }
