@@ -85,8 +85,8 @@ public class CompanyAppointmentMapper {
         return result;
     }
 
-    private static LocalDate extractDate(Instant data) {
-        return Optional.ofNullable(data)
+    private static LocalDate extractDate(Instant instant) {
+        return Optional.ofNullable(instant)
                 .map(date -> LocalDate.from(date.atZone(UTC)))
                 .orElse(null);
     }
@@ -94,9 +94,11 @@ public class CompanyAppointmentMapper {
     private List<FormerNames> mapFormerNames(List<DeltaFormerNames> names) {
         return Optional.ofNullable(names)
                 .map(formerNames -> formerNames.stream().map(
-                                formerName -> new FormerNames().forenames(formerName.getForenames())
+                                formerName -> new FormerNames()
+                                        .forenames(formerName.getForenames())
                                         .surname(formerName.getSurname()))
-                        .collect(Collectors.toList())).orElse(null);
+                        .collect(Collectors.toList()))
+                .orElse(null);
     }
 
     private CorporateIdent mapCorporateInfo(DeltaIdentification deltaIdentification) {
@@ -178,7 +180,7 @@ public class CompanyAppointmentMapper {
     private String individualOfficerName(DeltaOfficerData data) {
         String result = data.getSurname();
         if (data.getForename() != null || data.getOtherForenames() != null) {
-            result = String.join(", ", data.getSurname(),
+            result = String.join(", ", result,
                     Stream.of(data.getForename(), data.getOtherForenames())
                             .filter(Objects::nonNull)
                             .collect(Collectors.joining(" ")));
