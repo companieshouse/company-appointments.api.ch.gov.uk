@@ -231,6 +231,22 @@ class CompanyAppointmentMapperTest {
     }
 
     @Test
+    void testCompanyAppointmentMapperWithoutSensitiveData() {
+        //when
+        OfficerSummary actual = companyAppointmentMapper.map(
+                companyAppointmentData(officerData()
+                        .forename("Forename")
+                        .surname("SURNAME")
+                        .build())
+                        .sensitiveData(null));
+
+        //then
+        assertEquals(expectedCompanyAppointment()
+                .name("SURNAME, Forename")
+                .dateOfBirth(null), actual);
+    }
+
+    @Test
     void testCompanyAppointmentMapperDoesNotMapCountryOfResidenceOrDOBForSecretarialRoles() {
         SecretarialRoles.stream().forEach(secretary -> {
             //when
