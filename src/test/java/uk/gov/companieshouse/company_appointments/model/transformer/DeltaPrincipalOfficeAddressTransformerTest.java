@@ -53,7 +53,7 @@ class DeltaPrincipalOfficeAddressTransformerTest {
         DeltaPrincipalOfficeAddress actual = transformer.transform(new PrincipalOfficeAddress());
 
         // then
-        assertThat(actual).isEqualTo(new DeltaPrincipalOfficeAddress());
+        assertThat(actual).isNull();
 
     }
 }
