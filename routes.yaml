@@ -1,5 +1,5 @@
 app_name: company-appointments.api.ch.gov.uk
 group: api
-weight: 901
+weight: 899
 routes:
   1: ^/company/.*?/appointments/.*?/full_record(/delete$|$)
