@@ -24,7 +24,8 @@ class CustomDeserializerTest {
     @Test
     void successfullyDeserialize() throws Exception {
         // given
-        String json = IOUtils.resourceToString("/PUT_full_record_request_body.json", StandardCharsets.UTF_8);
+        String json = IOUtils.resourceToString("/PUT_full_record_request_body_with_empty_locality_fields.json",
+                                                StandardCharsets.UTF_8);
 
         // when
         final FullRecordCompanyOfficerApi requestModel = objectMapper.readValue(json, FullRecordCompanyOfficerApi.class);

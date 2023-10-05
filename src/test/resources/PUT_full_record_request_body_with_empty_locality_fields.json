@@ -27,7 +27,7 @@
       "is_pre_1992_appointment":false,
       "links":[
         {
-          "self":"/company/01777777/appointments/testemptyfieldid1234",
+          "self":"/company/01777777/appointments/testEmptyFieldExampleId1234",
           "officer":{
             "self":"/officers/r4Aq2-D3appznoESN24MtsLovfo",
             "appointments":"/officers/r4Aq2-D3appznoESN24MtsLovfo/appointments"
@@ -77,7 +77,7 @@
       }
     },
     "internal_id":"0025987375",
-    "appointment_id":"testemptyfieldid1234",
+    "appointment_id":"testEmptyFieldExampleId1234",
     "officer_id":"r4Aq2-D3appznoESN24MtsLovfo",
     "previous_officer_id":"vuIAhYYbRDhqzx9b3e_jd6Uhres",
     "company_number":"01777777"

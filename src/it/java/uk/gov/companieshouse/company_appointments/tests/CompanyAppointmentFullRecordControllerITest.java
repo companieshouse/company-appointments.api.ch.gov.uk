@@ -72,7 +72,9 @@ class CompanyAppointmentFullRecordControllerITest {
         // json request contains an empty field (e.g. "locality": ""). We want this to be converted to null and so
         // not persisted to MongoDB.
 
-        String requestBody = IOUtils.resourceToString("/PUT_full_record_request_body.json", StandardCharsets.UTF_8);
+        String requestBody =
+                IOUtils.resourceToString("/PUT_full_record_request_body_with_empty_locality_fields.json",
+                        StandardCharsets.UTF_8);
 
         ResultActions result = mockMvc
                 .perform(put("/company/{company_number}/appointments/{appointment_id}/full_record", COMPANY_NUMBER,
@@ -86,7 +88,7 @@ class CompanyAppointmentFullRecordControllerITest {
         result.andExpect(status().isOk());
 
         Query query = new Query();
-        query.addCriteria(Criteria.where("_id").is("testemptyfieldid1234"));
+        query.addCriteria(Criteria.where("_id").is("testEmptyFieldExampleId1234"));
 
         List<CompanyAppointmentDocument> appointmentDocuments = mongoTemplate.find(query, CompanyAppointmentDocument.class);
         assertEquals(1, appointmentDocuments.size());
