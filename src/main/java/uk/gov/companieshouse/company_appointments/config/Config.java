@@ -1,8 +1,13 @@
 package uk.gov.companieshouse.company_appointments.config;
 
+import java.text.SimpleDateFormat;
 import java.time.Clock;
 import java.time.OffsetDateTime;
 import java.util.function.Supplier;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -14,6 +19,7 @@ import uk.gov.companieshouse.api.http.ApiKeyHttpClient;
 import uk.gov.companieshouse.company_appointments.interceptor.AuthenticationInterceptor;
 import uk.gov.companieshouse.company_appointments.interceptor.FullRecordAuthenticationInterceptor;
 import uk.gov.companieshouse.company_appointments.interceptor.RequestLoggingInterceptor;
+import uk.gov.companieshouse.company_appointments.util.CustomDeserializer;
 
 @Configuration
 public class Config implements WebMvcConfigurer {
@@ -60,5 +66,13 @@ public class Config implements WebMvcConfigurer {
             internalApiClient.setBasePath(apiUrl);
             return internalApiClient;
         };
+    }
+
+    @Bean
+    public ObjectMapper objectMapper() {
+        return new ObjectMapper()
+                .registerModule(new JavaTimeModule())
+                .setDateFormat(new SimpleDateFormat("yyyy-MM-dd"))
+                .registerModule(new SimpleModule().addDeserializer(String.class, new CustomDeserializer()));
     }
 }
