@@ -31,6 +31,7 @@ import uk.gov.companieshouse.company_appointments.model.data.DeltaItemLinkTypes;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaOfficerData;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaOfficerLinkTypes;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaPrincipalOfficeAddress;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaSensitiveData;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaServiceAddress;
 import uk.gov.companieshouse.company_appointments.roles.RoleHelper;
 import uk.gov.companieshouse.logging.Logger;
@@ -63,8 +64,10 @@ public class CompanyAppointmentMapper {
                 .appointedBefore(appointedBefore)
                 .resignedOn(resignedOn)
                 .countryOfResidence(isSecretary ? null : data.getCountryOfResidence())
-                .dateOfBirth(isSecretary ? null
-                        : mapDateOfBirth(companyAppointment.getSensitiveData().getDateOfBirth(), registerView))
+                .dateOfBirth(isSecretary ? null : Optional.ofNullable(companyAppointment.getSensitiveData())
+                        .map(DeltaSensitiveData::getDateOfBirth)
+                        .map(dob -> mapDateOfBirth(dob, registerView))
+                        .orElse(null))
                 .links(mapLinks(data.getLinks()))
                 .nationality(data.getNationality())
                 .occupation(data.getOccupation())
@@ -82,8 +85,8 @@ public class CompanyAppointmentMapper {
         return result;
     }
 
-    private static LocalDate extractDate(Instant data) {
-        return Optional.ofNullable(data)
+    private static LocalDate extractDate(Instant instant) {
+        return Optional.ofNullable(instant)
                 .map(date -> LocalDate.from(date.atZone(UTC)))
                 .orElse(null);
     }
@@ -91,9 +94,11 @@ public class CompanyAppointmentMapper {
     private List<FormerNames> mapFormerNames(List<DeltaFormerNames> names) {
         return Optional.ofNullable(names)
                 .map(formerNames -> formerNames.stream().map(
-                                formerName -> new FormerNames().forenames(formerName.getForenames())
+                                formerName -> new FormerNames()
+                                        .forenames(formerName.getForenames())
                                         .surname(formerName.getSurname()))
-                        .collect(Collectors.toList())).orElse(null);
+                        .collect(Collectors.toList()))
+                .orElse(null);
     }
 
     private CorporateIdent mapCorporateInfo(DeltaIdentification deltaIdentification) {
@@ -157,19 +162,14 @@ public class CompanyAppointmentMapper {
     }
 
     private DateOfBirth mapDateOfBirth(Instant dob, boolean registerView) {
-        return Optional.ofNullable(dob)
-                .map(dateOfBirth -> registerView ? mapDateOfBirth(dateOfBirth, dateOfBirth.atZone(UTC).getDayOfMonth())
-                        : mapDateOfBirth(dateOfBirth, null))
-                .orElse(null);
+        return registerView ? mapDateOfBirth(dob, dob.atZone(UTC).getDayOfMonth()) : mapDateOfBirth(dob, null);
     }
 
     private DateOfBirth mapDateOfBirth(Instant dob, Integer day) {
-        return Optional.ofNullable(dob)
-                .map(dateOfBirth -> new DateOfBirth()
-                        .day(day)
-                        .month(dateOfBirth.atZone(UTC).getMonthValue())
-                        .year(dateOfBirth.atZone(UTC).getYear()))
-                .orElse(null);
+        return new DateOfBirth()
+                .day(day)
+                .month(dob.atZone(UTC).getMonthValue())
+                .year(dob.atZone(UTC).getYear());
     }
 
     private String mapOfficerName(DeltaOfficerData data) {
@@ -180,7 +180,7 @@ public class CompanyAppointmentMapper {
     private String individualOfficerName(DeltaOfficerData data) {
         String result = data.getSurname();
         if (data.getForename() != null || data.getOtherForenames() != null) {
-            result = String.join(", ", data.getSurname(),
+            result = String.join(", ", result,
                     Stream.of(data.getForename(), data.getOtherForenames())
                             .filter(Objects::nonNull)
                             .collect(Collectors.joining(" ")));

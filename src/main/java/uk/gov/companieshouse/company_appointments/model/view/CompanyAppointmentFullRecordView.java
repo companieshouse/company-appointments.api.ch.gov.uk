@@ -6,7 +6,6 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.LocalDate;
-import java.time.temporal.ChronoField;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -207,7 +206,9 @@ public class CompanyAppointmentFullRecordView {
             Builder builder = new Builder();
 
             return builder.withServiceAddress(api.getData().getServiceAddress())
-                    .withUsualResidentialAddress(api.getSensitiveData().getUsualResidentialAddress())
+                    .withUsualResidentialAddress(Optional.ofNullable(api.getSensitiveData())
+                            .map(DeltaSensitiveData::getUsualResidentialAddress)
+                            .orElse(null))
                     .withAppointedOn(api.getData().getAppointedOn() != null ?
                             LocalDate.from(api.getData().getAppointedOn().atZone(UTC)) : null)
                     .withAppointedBefore(api.getData().getAppointedBefore() != null ?
@@ -438,11 +439,12 @@ public class CompanyAppointmentFullRecordView {
         }
 
         private DateOfBirthView mapDateOfBirth(DeltaSensitiveData sensitiveData) {
-            return Optional.ofNullable(sensitiveData.getDateOfBirth())
+            return Optional.ofNullable(sensitiveData)
+                    .map(DeltaSensitiveData::getDateOfBirth)
                     .map(dob -> new DateOfBirthView(
-                            dob.atZone(UTC).get(ChronoField.DAY_OF_MONTH),
-                            dob.atZone(UTC).get(ChronoField.MONTH_OF_YEAR),
-                            dob.atZone(UTC).get(ChronoField.YEAR)))
+                            dob.atZone(UTC).getDayOfMonth(),
+                            dob.atZone(UTC).getMonthValue(),
+                            dob.atZone(UTC).getYear()))
                     .orElse(null);
         }
     }

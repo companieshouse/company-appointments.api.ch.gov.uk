@@ -58,17 +58,14 @@ class DeltaSensitiveDataTransformerTest {
         // given
         SensitiveData source = buildSource()
                 .usualResidentialAddress(null)
-                .dateOfBirth(null);
-
-        DeltaSensitiveData expected = buildExpected()
-                .setUsualResidentialAddress(null)
-                .setDateOfBirth(null);
+                .dateOfBirth(null)
+                .residentialAddressSameAsServiceAddress(null);
 
         // when
         DeltaSensitiveData actual = transformer.transform(source);
 
         // then
-        assertThat(actual).isEqualTo(expected);
+        assertThat(actual).isNull();
         verifyNoInteractions(deltaUsualResidentialAddressTransformer);
     }
 

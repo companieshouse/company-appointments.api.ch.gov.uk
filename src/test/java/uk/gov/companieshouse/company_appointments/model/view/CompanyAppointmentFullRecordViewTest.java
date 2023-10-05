@@ -3,6 +3,7 @@ package uk.gov.companieshouse.company_appointments.model.view;
 import static java.time.ZoneOffset.UTC;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -34,40 +35,13 @@ class CompanyAppointmentFullRecordViewTest {
     private final DeltaIdentification identification = buildIdentification();
     private final DeltaItemLinkTypes links = buildLinksItem();
     private final DeltaContactDetails contactDetails = buildContactDetails();
-    private final DateOfBirthView dob = new DateOfBirthView(12,1,1989);
+    private final DateOfBirthView dob = new DateOfBirthView(12, 1, 1989);
 
     private CompanyAppointmentFullRecordView testView;
 
     @BeforeEach
     void setUp() {
-
-        CompanyAppointmentDocument companyAppointmentDocument = new CompanyAppointmentDocument();
-        companyAppointmentDocument.data(new DeltaOfficerData());
-        companyAppointmentDocument.sensitiveData(new DeltaSensitiveData());
-
-        companyAppointmentDocument.getData().setServiceAddress(createServiceAddress());
-        companyAppointmentDocument.getSensitiveData().setUsualResidentialAddress(createUsualResidentialAddress());
-        companyAppointmentDocument.getData().setAppointedOn(INSTANT);
-        companyAppointmentDocument.getData().setAppointedBefore(INSTANT);
-        companyAppointmentDocument.getData().setCountryOfResidence("countryOfResidence");
-        companyAppointmentDocument.getSensitiveData().setDateOfBirth(INSTANT);
-        companyAppointmentDocument.getData().setFormerNames(formerNames);
-        companyAppointmentDocument.getData().setIdentification(identification);
-        companyAppointmentDocument.getData().setLinks(buildLinksItem());
-        companyAppointmentDocument.getData().setSurname("Davies");
-        companyAppointmentDocument.getData().setForename("James");
-        companyAppointmentDocument.getData().setTitle("Sir");
-        companyAppointmentDocument.getData().setNationality("Welsh");
-        companyAppointmentDocument.getData().setOccupation("occupation");
-        companyAppointmentDocument.getData().setOfficerRole("director");
-        companyAppointmentDocument.getData().setResignedOn(INSTANT);
-        companyAppointmentDocument.getData().setEtag("etag");
-        companyAppointmentDocument.getData().setPersonNumber("1234");
-        companyAppointmentDocument.getData().setPre1992Appointment(Boolean.TRUE);
-        companyAppointmentDocument.getData().setContactDetails(contactDetails);
-        companyAppointmentDocument.getData().setResponsibilities("responsibilities");
-        companyAppointmentDocument.getData().setPrincipalOfficeAddress(createPrincipalOfficeAddress());
-
+        CompanyAppointmentDocument companyAppointmentDocument = getCompanyAppointmentDocument();
         testView = CompanyAppointmentFullRecordView.Builder.view(companyAppointmentDocument).build();
     }
 
@@ -87,43 +61,6 @@ class CompanyAppointmentFullRecordViewTest {
     void principleOfficeAddress() {
 
         checkPrincipleOfficeAddress(testView.getPrincipalOfficeAddress());
-    }
-
-    private void checkUsualResidentialAddress(DeltaUsualResidentialAddress address) {
-
-        assertThat(address.getAddressLine1(), is(String.join(" ", "usualResidential", "address1")));
-        assertThat(address.getAddressLine2(), is(String.join(" ", "usualResidential", "address2")));
-        assertThat(address.getCareOf(), is(String.join(" ", "usualResidential", "careOf")));
-        assertThat(address.getCountry(), is(String.join(" ", "usualResidential", "country")));
-        assertThat(address.getLocality(), is(String.join(" ", "usualResidential", "locality")));
-        assertThat(address.getPoBox(), is(String.join(" ", "usualResidential", "poBox")));
-        assertThat(address.getPostalCode(), is(String.join(" ", "usualResidential", "postcode")));
-        assertThat(address.getPremises(), is(String.join(" ", "usualResidential", "premises")));
-        assertThat(address.getRegion(), is(String.join(" ", "usualResidential", "region")));
-    }
-
-    private void checkServiceAddress(DeltaServiceAddress address) {
-
-        assertThat(address.getAddressLine1(), is(String.join(" ", "service", "address1")));
-        assertThat(address.getAddressLine2(), is(String.join(" ", "service", "address2")));
-        assertThat(address.getCountry(), is(String.join(" ", "service", "country")));
-        assertThat(address.getLocality(), is(String.join(" ", "service", "locality")));
-        assertThat(address.getPostalCode(), is(String.join(" ", "service", "postcode")));
-        assertThat(address.getPremises(), is(String.join(" ", "service", "premises")));
-        assertThat(address.getRegion(), is(String.join(" ", "service", "region")));
-    }
-
-    private void checkPrincipleOfficeAddress(DeltaPrincipalOfficeAddress address) {
-
-        assertThat(address.getAddressLine1(), is(String.join(" ", "principleOffice", "address1")));
-        assertThat(address.getAddressLine2(), is(String.join(" ", "principleOffice", "address2")));
-        assertThat(address.getCareOf(), is(String.join(" ", "principleOffice", "careOf")));
-        assertThat(address.getCountry(), is(String.join(" ", "principleOffice", "country")));
-        assertThat(address.getLocality(), is(String.join(" ", "principleOffice", "locality")));
-        assertThat(address.getPoBox(), is(String.join(" ", "principleOffice", "poBox")));
-        assertThat(address.getPostalCode(), is(String.join(" ", "principleOffice", "postcode")));
-        assertThat(address.getPremises(), is(String.join(" ", "principleOffice", "premises")));
-        assertThat(address.getRegion(), is(String.join(" ", "principleOffice", "region")));
     }
 
     @Test
@@ -226,6 +163,84 @@ class CompanyAppointmentFullRecordViewTest {
     void responsibilities() {
 
         assertThat(testView.getResponsibilities(), is("responsibilities"));
+    }
+
+    @Test
+    void testShouldHandleNullSensitiveData() {
+        CompanyAppointmentDocument document = getCompanyAppointmentDocument();
+        document.sensitiveData(null);
+
+        CompanyAppointmentFullRecordView view = CompanyAppointmentFullRecordView.Builder.view(document).build();
+
+        assertThat(view.getDateOfBirth(), is(nullValue()));
+        assertThat(view.getUsualResidentialAddress(), is(nullValue()));
+    }
+
+    private void checkUsualResidentialAddress(DeltaUsualResidentialAddress address) {
+
+        assertThat(address.getAddressLine1(), is(String.join(" ", "usualResidential", "address1")));
+        assertThat(address.getAddressLine2(), is(String.join(" ", "usualResidential", "address2")));
+        assertThat(address.getCareOf(), is(String.join(" ", "usualResidential", "careOf")));
+        assertThat(address.getCountry(), is(String.join(" ", "usualResidential", "country")));
+        assertThat(address.getLocality(), is(String.join(" ", "usualResidential", "locality")));
+        assertThat(address.getPoBox(), is(String.join(" ", "usualResidential", "poBox")));
+        assertThat(address.getPostalCode(), is(String.join(" ", "usualResidential", "postcode")));
+        assertThat(address.getPremises(), is(String.join(" ", "usualResidential", "premises")));
+        assertThat(address.getRegion(), is(String.join(" ", "usualResidential", "region")));
+    }
+
+    private void checkServiceAddress(DeltaServiceAddress address) {
+
+        assertThat(address.getAddressLine1(), is(String.join(" ", "service", "address1")));
+        assertThat(address.getAddressLine2(), is(String.join(" ", "service", "address2")));
+        assertThat(address.getCountry(), is(String.join(" ", "service", "country")));
+        assertThat(address.getLocality(), is(String.join(" ", "service", "locality")));
+        assertThat(address.getPostalCode(), is(String.join(" ", "service", "postcode")));
+        assertThat(address.getPremises(), is(String.join(" ", "service", "premises")));
+        assertThat(address.getRegion(), is(String.join(" ", "service", "region")));
+    }
+
+    private void checkPrincipleOfficeAddress(DeltaPrincipalOfficeAddress address) {
+
+        assertThat(address.getAddressLine1(), is(String.join(" ", "principleOffice", "address1")));
+        assertThat(address.getAddressLine2(), is(String.join(" ", "principleOffice", "address2")));
+        assertThat(address.getCareOf(), is(String.join(" ", "principleOffice", "careOf")));
+        assertThat(address.getCountry(), is(String.join(" ", "principleOffice", "country")));
+        assertThat(address.getLocality(), is(String.join(" ", "principleOffice", "locality")));
+        assertThat(address.getPoBox(), is(String.join(" ", "principleOffice", "poBox")));
+        assertThat(address.getPostalCode(), is(String.join(" ", "principleOffice", "postcode")));
+        assertThat(address.getPremises(), is(String.join(" ", "principleOffice", "premises")));
+        assertThat(address.getRegion(), is(String.join(" ", "principleOffice", "region")));
+    }
+
+    private CompanyAppointmentDocument getCompanyAppointmentDocument() {
+        CompanyAppointmentDocument companyAppointmentDocument = new CompanyAppointmentDocument();
+        companyAppointmentDocument.data(new DeltaOfficerData());
+        companyAppointmentDocument.sensitiveData(new DeltaSensitiveData());
+
+        companyAppointmentDocument.getData().setServiceAddress(createServiceAddress());
+        companyAppointmentDocument.getSensitiveData().setUsualResidentialAddress(createUsualResidentialAddress());
+        companyAppointmentDocument.getData().setAppointedOn(INSTANT);
+        companyAppointmentDocument.getData().setAppointedBefore(INSTANT);
+        companyAppointmentDocument.getData().setCountryOfResidence("countryOfResidence");
+        companyAppointmentDocument.getSensitiveData().setDateOfBirth(INSTANT);
+        companyAppointmentDocument.getData().setFormerNames(formerNames);
+        companyAppointmentDocument.getData().setIdentification(identification);
+        companyAppointmentDocument.getData().setLinks(buildLinksItem());
+        companyAppointmentDocument.getData().setSurname("Davies");
+        companyAppointmentDocument.getData().setForename("James");
+        companyAppointmentDocument.getData().setTitle("Sir");
+        companyAppointmentDocument.getData().setNationality("Welsh");
+        companyAppointmentDocument.getData().setOccupation("occupation");
+        companyAppointmentDocument.getData().setOfficerRole("director");
+        companyAppointmentDocument.getData().setResignedOn(INSTANT);
+        companyAppointmentDocument.getData().setEtag("etag");
+        companyAppointmentDocument.getData().setPersonNumber("1234");
+        companyAppointmentDocument.getData().setPre1992Appointment(Boolean.TRUE);
+        companyAppointmentDocument.getData().setContactDetails(contactDetails);
+        companyAppointmentDocument.getData().setResponsibilities("responsibilities");
+        companyAppointmentDocument.getData().setPrincipalOfficeAddress(createPrincipalOfficeAddress());
+        return companyAppointmentDocument;
     }
 
     private DeltaServiceAddress createServiceAddress() {

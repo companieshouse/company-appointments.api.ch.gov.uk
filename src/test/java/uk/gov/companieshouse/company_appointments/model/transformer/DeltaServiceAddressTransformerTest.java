@@ -53,7 +53,7 @@ class DeltaServiceAddressTransformerTest {
         DeltaServiceAddress actual = transformer.transform(new ServiceAddress());
 
         // then
-        assertThat(actual).isEqualTo(new DeltaServiceAddress());
+        assertThat(actual).isNull();
 
     }
 }
