@@ -13,7 +13,6 @@ import java.nio.charset.StandardCharsets;
 
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-@ExtendWith(MockitoExtension.class)
 class CustomDeserializerTest {
 
     private final ObjectMapper objectMapper =
