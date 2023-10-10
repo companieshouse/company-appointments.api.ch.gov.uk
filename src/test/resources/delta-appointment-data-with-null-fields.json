@@ -1,0 +1,85 @@
+{
+  "_id" : "testNullFieldsId123",
+  "data" : {
+    "person_number" : "1234567890",
+    "etag" : "fedb91fa70ce4ef335d6d2e24f2f7242c9360a69",
+    "service_address" : {
+      "address_line_1" : "1 Crown Way",
+      "address_line_2" : "Pavement",
+      "country" : "United Kingdom",
+      "locality" : null,
+      "postal_code" : "CF14 3UZ",
+      "premises" : "1",
+      "region" : "Cardiff"
+    },
+    "service_address_same_as_registered_office_address" : true,
+    "appointed_on" : ISODate("2011-11-03T00:00:00.000Z"),
+    "is_pre_1992_appointment" : false,
+    "links" : {
+      "self" : "/company/CN008888/appointments/testNullFieldsId123",
+      "officer" : {
+        "self" : "/officers/5VEOBB4a9dlB_iugw_vieHjWpCk",
+        "appointments" : "/officers/5VEOBB4a9dlB_iugw_vieHjWpCk/appointments"
+      }
+    },
+    "nationality" : "British",
+    "occupation" : "Lawyer",
+    "officer_role" : "director",
+    "is_secure_officer" : false,
+    "identification" : {
+      "identification_type" : "eea",
+      "legal_authority" : "Chapter 32",
+      "legal_form" : "Hong Kong",
+      "place_registered" : "United Kingdom",
+      "registration_number" : "38298"
+    },
+    "surname" : "GLOVER",
+    "forename" : "PHIL",
+    "other_forenames" : null,
+    "title" : "Mr",
+    "company_number" : "CN008888",
+    "contact_details": {
+      "contact_name": "contact me"
+    },
+    "principal_office_address" : {
+      "address_line_1" : "pca_line1",
+      "address_line_2" : "pca_line2",
+      "care_of" : "pca_care_of",
+      "country" : "United Kingdom",
+      "locality" : null,
+      "po_box" : "pca_po",
+      "postal_code" : "CF2 1B6",
+      "premises" : "PCA",
+      "region" : "pca_region"
+    }
+  },
+  "sensitive_data" : {
+    "usual_residential_address" : {
+      "address_line_1" : "ura_line1",
+      "address_line_2" : "ura_line2",
+      "care_of" : "ura_care_of",
+      "country" : "United Kingdom",
+      "locality" : "Cardiff",
+      "po_box" : "ura_po",
+      "postal_code" : "CF2 1B6",
+      "premises" : "URA",
+      "region" : "ura_region"
+    },
+    "date_of_birth" : ISODate("1985-06-30T00:00:00.000Z"),
+  },
+  "internal_id" : "0025987375",
+  "appointment_id" : "testNullFieldsId123",
+  "officer_id" : "5VEOBB4a9dlB_iugw_vieHjWpCk",
+  "previous_officer_id" : "vuIAhYYbRDhqzx9b3e_jd6Uhres",
+  "company_number" : "CN008888",
+  "updated_at" : {
+    "at" : ISODate("2023-02-02T10:36:28.595Z")
+  },
+  "created" : {
+    "at" : ISODate("2023-02-02T10:36:28.595Z")
+  },
+  "delta_at" : ISODate("2021-04-23T18:25:43.511Z"),
+  "officer_role_sort_order" : 20,
+  "company_name" : "ART SPACE MERSEYSIDE",
+  "company_status" : "active"
+}

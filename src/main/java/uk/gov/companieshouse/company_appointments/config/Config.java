@@ -5,6 +5,7 @@ import java.time.Clock;
 import java.time.OffsetDateTime;
 import java.util.function.Supplier;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -12,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import uk.gov.companieshouse.api.InternalApiClient;
@@ -69,10 +71,12 @@ public class Config implements WebMvcConfigurer {
     }
 
     @Bean
+    @Primary
     public ObjectMapper objectMapper() {
         return new ObjectMapper()
                 .registerModule(new JavaTimeModule())
                 .setDateFormat(new SimpleDateFormat("yyyy-MM-dd"))
-                .registerModule(new SimpleModule().addDeserializer(String.class, new CustomDeserializer()));
+                .registerModule(new SimpleModule().addDeserializer(String.class, new CustomDeserializer()))
+                .setSerializationInclusion(JsonInclude.Include.NON_NULL);
     }
 }

@@ -3,6 +3,7 @@ package uk.gov.companieshouse.company_appointments.tests;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -42,6 +43,8 @@ class CompanyAppointmentFullRecordControllerITest {
 
     private static final String COMPANY_NUMBER = "12345678";
     private static final String APPOINTMENT_ID = "7IjxamNGLlqtIingmTZJJ42Hw9Q";
+    private static final String NULL_FIELD_COMPANY_NUMBER = "CN008888";
+    private static final String NULL_FIELD_APPOINTMENT_ID = "testNullFieldsId123";
 
     @Autowired
     private MockMvc mockMvc;
@@ -61,6 +64,9 @@ class CompanyAppointmentFullRecordControllerITest {
         mongoTemplate.createCollection("delta_appointments");
         mongoTemplate.insert(Document.parse(
                         IOUtils.resourceToString("/delta-appointment-data.json", StandardCharsets.UTF_8)),
+                "delta_appointments");
+        mongoTemplate.insert(Document.parse(
+                        IOUtils.resourceToString("/delta-appointment-data-with-null-fields.json", StandardCharsets.UTF_8)),
                 "delta_appointments");
         System.setProperty("company-metrics-api.endpoint", "localhost");
     }
@@ -96,6 +102,20 @@ class CompanyAppointmentFullRecordControllerITest {
         CompanyAppointmentDocument document = appointmentDocuments.get(0);
         assertNull(document.getSensitiveData().getUsualResidentialAddress().getLocality());
         assertNull(document.getData().getServiceAddress().getLocality());
+    }
+
+    @Test
+    void test200AndOfficerIsReturnedWithNullFieldsRemoved() throws Exception {
+        ResultActions result = mockMvc
+                .perform(get("/company/{company_number}/appointments/{appointment_id}/full_record",
+                        NULL_FIELD_COMPANY_NUMBER, NULL_FIELD_APPOINTMENT_ID)
+                        .header("ERIC-Identity", "123")
+                        .header("ERIC-Identity-Type", "key")
+                        .header("ERIC-authorised-key-privileges", "sensitive-data"));
+
+        result.andExpect(status().isOk());
+        String response = result.andReturn().getResponse().getContentAsString();
+        assertFalse(response.contains("null"));
     }
 
     @Test
