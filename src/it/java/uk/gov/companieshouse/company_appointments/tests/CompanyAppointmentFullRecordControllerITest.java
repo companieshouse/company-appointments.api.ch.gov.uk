@@ -2,8 +2,12 @@ package uk.gov.companieshouse.company_appointments.tests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -22,6 +26,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.SimpleMongoClientDatabaseFactory;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.testcontainers.containers.MongoDBContainer;
@@ -38,6 +43,8 @@ class CompanyAppointmentFullRecordControllerITest {
 
     private static final String COMPANY_NUMBER = "12345678";
     private static final String APPOINTMENT_ID = "7IjxamNGLlqtIingmTZJJ42Hw9Q";
+    private static final String NULL_FIELD_COMPANY_NUMBER = "CN008888";
+    private static final String NULL_FIELD_APPOINTMENT_ID = "testNullFieldsId123";
 
     @Autowired
     private MockMvc mockMvc;
@@ -58,7 +65,57 @@ class CompanyAppointmentFullRecordControllerITest {
         mongoTemplate.insert(Document.parse(
                         IOUtils.resourceToString("/delta-appointment-data.json", StandardCharsets.UTF_8)),
                 "delta_appointments");
+        mongoTemplate.insert(Document.parse(
+                        IOUtils.resourceToString("/delta-appointment-data-with-null-fields.json", StandardCharsets.UTF_8)),
+                "delta_appointments");
         System.setProperty("company-metrics-api.endpoint", "localhost");
+    }
+
+    @Test
+    void test200AndOfficerIsPersistedWithNoEmptyFields() throws Exception {
+        // This test not only tests a 200 OK response when a PUT request is sent, but, more importantly, it tests
+        // the jackson object mapper is working correctly when converting a json request to a java model when the
+        // json request contains an empty field (e.g. "locality": ""). We want this to be converted to null and so
+        // not persisted to MongoDB.
+
+        String requestBody =
+                IOUtils.resourceToString("/PUT_full_record_request_body_with_empty_locality_fields.json",
+                        StandardCharsets.UTF_8);
+
+        ResultActions result = mockMvc
+                .perform(put("/company/{company_number}/appointments/{appointment_id}/full_record", COMPANY_NUMBER,
+                        APPOINTMENT_ID)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("ERIC-Identity", "123").header("ERIC-Identity-Type", "key")
+                        .header("ERIC-authorised-key-privileges", "internal-app")
+                        .header("x-request-id", "contextId")
+                        .content(requestBody));
+
+        result.andExpect(status().isOk());
+
+        Query query = new Query();
+        query.addCriteria(Criteria.where("_id").is("testEmptyFieldExampleId1234"));
+
+        List<CompanyAppointmentDocument> appointmentDocuments = mongoTemplate.find(query, CompanyAppointmentDocument.class);
+        assertEquals(1, appointmentDocuments.size());
+
+        CompanyAppointmentDocument document = appointmentDocuments.get(0);
+        assertNull(document.getSensitiveData().getUsualResidentialAddress().getLocality());
+        assertNull(document.getData().getServiceAddress().getLocality());
+    }
+
+    @Test
+    void test200AndOfficerIsReturnedWithNullFieldsRemoved() throws Exception {
+        ResultActions result = mockMvc
+                .perform(get("/company/{company_number}/appointments/{appointment_id}/full_record",
+                        NULL_FIELD_COMPANY_NUMBER, NULL_FIELD_APPOINTMENT_ID)
+                        .header("ERIC-Identity", "123")
+                        .header("ERIC-Identity-Type", "key")
+                        .header("ERIC-authorised-key-privileges", "sensitive-data"));
+
+        result.andExpect(status().isOk());
+        String response = result.andReturn().getResponse().getContentAsString();
+        assertFalse(response.contains("null"));
     }
 
     @Test
