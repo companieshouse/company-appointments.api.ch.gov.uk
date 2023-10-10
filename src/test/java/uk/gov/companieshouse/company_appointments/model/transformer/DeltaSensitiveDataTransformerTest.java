@@ -94,6 +94,6 @@ class DeltaSensitiveDataTransformerTest {
         return new DeltaSensitiveData()
                 .setUsualResidentialAddress(deltaUsualResidentialAddress)
                 .setDateOfBirth(deltaDateOfBirth)
-                .setResidentialAddressSameAsServiceAddress(true);
+                .setResidentialAddressIsSameAsServiceAddress(true);
     }
 }

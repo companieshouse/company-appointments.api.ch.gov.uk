@@ -38,7 +38,7 @@ public class DeltaSensitiveDataTransformer implements Transformative<SensitiveDa
                                     source.getDateOfBirth().getDay())
                             .atStartOfDay(UTC))
                     : null);
-            entity.setResidentialAddressSameAsServiceAddress(source.getResidentialAddressSameAsServiceAddress());
+            entity.setResidentialAddressIsSameAsServiceAddress(source.getResidentialAddressSameAsServiceAddress());
 
             return entity;
         } catch (Exception e) {

@@ -44,7 +44,7 @@ public class DeltaOfficerDataTransformer implements Transformative<Data, DeltaOf
             entity.setPersonNumber(source.getPersonNumber());
             entity.setServiceAddress(source.getServiceAddress() != null?
                     serviceAddressTransformer.transform(source.getServiceAddress()) : null);
-            entity.setServiceAddressSameAsRegisteredOfficeAddress(
+            entity.setServiceAddressIsSameAsRegisteredOfficeAddress(
                     source.getServiceAddressSameAsRegisteredOfficeAddress());
             entity.setCountryOfResidence(source.getCountryOfResidence());
             entity.setAppointedOn(source.getAppointedOn() != null ?

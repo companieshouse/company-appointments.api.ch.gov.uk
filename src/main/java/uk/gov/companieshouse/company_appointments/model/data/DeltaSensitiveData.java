@@ -7,8 +7,8 @@ import org.springframework.data.mongodb.core.mapping.Field;
 public class DeltaSensitiveData {
   @Field("usual_residential_address")
   private DeltaUsualResidentialAddress usualResidentialAddress;
-  @Field("residential_address_same_as_service_address")
-  private Boolean residentialAddressSameAsServiceAddress;
+  @Field("residential_address_is_same_as_service_address")
+  private Boolean residentialAddressIsSameAsServiceAddress;
   @Field("date_of_birth")
   private Instant dateOfBirth;
 
@@ -21,12 +21,12 @@ public class DeltaSensitiveData {
     return this;
   }
 
-  public Boolean getResidentialAddressSameAsServiceAddress() {
-    return residentialAddressSameAsServiceAddress;
+  public Boolean getResidentialAddressIsSameAsServiceAddress() {
+    return residentialAddressIsSameAsServiceAddress;
   }
 
-  public DeltaSensitiveData setResidentialAddressSameAsServiceAddress(Boolean residentialAddressSameAsServiceAddress) {
-    this.residentialAddressSameAsServiceAddress = residentialAddressSameAsServiceAddress;
+  public DeltaSensitiveData setResidentialAddressIsSameAsServiceAddress(Boolean residentialAddressIsSameAsServiceAddress) {
+    this.residentialAddressIsSameAsServiceAddress = residentialAddressIsSameAsServiceAddress;
     return this;
   }
 
@@ -49,20 +49,21 @@ public class DeltaSensitiveData {
     }
     DeltaSensitiveData sensitiveData = (DeltaSensitiveData) o;
     return Objects.equals(this.usualResidentialAddress, sensitiveData.usualResidentialAddress) &&
-        Objects.equals(this.residentialAddressSameAsServiceAddress, sensitiveData.residentialAddressSameAsServiceAddress) &&
+        Objects.equals(this.residentialAddressIsSameAsServiceAddress, sensitiveData.residentialAddressIsSameAsServiceAddress) &&
         Objects.equals(this.dateOfBirth, sensitiveData.dateOfBirth);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(usualResidentialAddress, residentialAddressSameAsServiceAddress, dateOfBirth);
+    return Objects.hash(usualResidentialAddress, residentialAddressIsSameAsServiceAddress, dateOfBirth);
   }
 
   @Override
   public String toString() {
     return "class SensitiveData {\n"
             + "    usualResidentialAddress: " + toIndentedString(usualResidentialAddress) + "\n"
-            + "    residentialAddressSameAsServiceAddress: " + toIndentedString(residentialAddressSameAsServiceAddress) + "\n"
+            + "    residentialAddressSameAsServiceAddress: " + toIndentedString(
+            residentialAddressIsSameAsServiceAddress) + "\n"
             + "    dateOfBirth: " + toIndentedString(dateOfBirth) + "\n"
             + "}";
   }

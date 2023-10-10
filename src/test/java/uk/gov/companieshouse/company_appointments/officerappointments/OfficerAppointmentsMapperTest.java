@@ -212,7 +212,7 @@ class OfficerAppointmentsMapperTest {
                         .setPostalCode("CF2 1B6")
                         .setPremises("URA")
                         .setRegion("ura-region"))
-                .setResidentialAddressSameAsServiceAddress(false)
+                .setResidentialAddressIsSameAsServiceAddress(false)
                 .setDateOfBirth(LocalDateTime.of(2000, 1, 1, 0, 0).toInstant(ZoneOffset.UTC));
     }
 
