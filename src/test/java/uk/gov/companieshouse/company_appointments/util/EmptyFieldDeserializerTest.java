@@ -11,12 +11,12 @@ import java.nio.charset.StandardCharsets;
 
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-class CustomDeserializerTest {
+class EmptyFieldDeserializerTest {
 
     private final ObjectMapper objectMapper =
             new ObjectMapper()
                     .registerModule(new JavaTimeModule())
-                    .registerModule(new SimpleModule().addDeserializer(String.class, new CustomDeserializer()));
+                    .registerModule(new SimpleModule().addDeserializer(String.class, new EmptyFieldDeserializer()));
 
     @Test
     void successfullyDeserialize() throws Exception {

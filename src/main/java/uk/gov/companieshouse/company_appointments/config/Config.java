@@ -21,7 +21,7 @@ import uk.gov.companieshouse.api.http.ApiKeyHttpClient;
 import uk.gov.companieshouse.company_appointments.interceptor.AuthenticationInterceptor;
 import uk.gov.companieshouse.company_appointments.interceptor.FullRecordAuthenticationInterceptor;
 import uk.gov.companieshouse.company_appointments.interceptor.RequestLoggingInterceptor;
-import uk.gov.companieshouse.company_appointments.util.CustomDeserializer;
+import uk.gov.companieshouse.company_appointments.util.EmptyFieldDeserializer;
 
 @Configuration
 public class Config implements WebMvcConfigurer {
@@ -76,7 +76,7 @@ public class Config implements WebMvcConfigurer {
         return new ObjectMapper()
                 .registerModule(new JavaTimeModule())
                 .setDateFormat(new SimpleDateFormat("yyyy-MM-dd"))
-                .registerModule(new SimpleModule().addDeserializer(String.class, new CustomDeserializer()))
+                .registerModule(new SimpleModule().addDeserializer(String.class, new EmptyFieldDeserializer()))
                 .setSerializationInclusion(JsonInclude.Include.NON_NULL);
     }
 }
