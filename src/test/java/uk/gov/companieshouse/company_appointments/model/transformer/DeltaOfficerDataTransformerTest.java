@@ -203,7 +203,7 @@ class DeltaOfficerDataTransformerTest {
         return new DeltaOfficerData()
                 .setPersonNumber("person number")
                 .setServiceAddress(deltaServiceAddress)
-                .setServiceAddressSameAsRegisteredOfficeAddress(true)
+                .setServiceAddressIsSameAsRegisteredOfficeAddress(true)
                 .setCountryOfResidence("UK")
                 .setAppointedOn(Instant.from(LOCAL_DATE.atStartOfDay(UTC)))
                 .setAppointedBefore(Instant.from(LOCAL_DATE.atStartOfDay(UTC)))

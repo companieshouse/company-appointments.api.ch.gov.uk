@@ -16,8 +16,8 @@ public class DeltaOfficerData {
   @Field("service_address")
   private DeltaServiceAddress serviceAddress;
 
-  @Field("service_address_same_as_registered_office_address")
-  private Boolean serviceAddressSameAsRegisteredOfficeAddress;
+  @Field("service_address_is_same_as_registered_office_address")
+  private Boolean serviceAddressIsSameAsRegisteredOfficeAddress;
 
   @Field("country_of_residence")
   private String countryOfResidence;
@@ -94,7 +94,7 @@ public class DeltaOfficerData {
     personNumber = builder.personNumber;
     etag = builder.etag;
     serviceAddress = builder.serviceAddress;
-    serviceAddressSameAsRegisteredOfficeAddress = builder.serviceAddressSameAsRegisteredOfficeAddress;
+    serviceAddressIsSameAsRegisteredOfficeAddress = builder.serviceAddressSameAsRegisteredOfficeAddress;
     countryOfResidence = builder.countryOfResidence;
     appointedOn = builder.appointedOn;
     appointedBefore = builder.appointedBefore;
@@ -147,13 +147,13 @@ public class DeltaOfficerData {
     return this;
   }
 
-  public Boolean getServiceAddressSameAsRegisteredOfficeAddress() {
-    return serviceAddressSameAsRegisteredOfficeAddress;
+  public Boolean getServiceAddressIsSameAsRegisteredOfficeAddress() {
+    return serviceAddressIsSameAsRegisteredOfficeAddress;
   }
 
-  public DeltaOfficerData setServiceAddressSameAsRegisteredOfficeAddress(
-          Boolean serviceAddressSameAsRegisteredOfficeAddress) {
-    this.serviceAddressSameAsRegisteredOfficeAddress = serviceAddressSameAsRegisteredOfficeAddress;
+  public DeltaOfficerData setServiceAddressIsSameAsRegisteredOfficeAddress(
+          Boolean serviceAddressIsSameAsRegisteredOfficeAddress) {
+    this.serviceAddressIsSameAsRegisteredOfficeAddress = serviceAddressIsSameAsRegisteredOfficeAddress;
     return this;
   }
 
@@ -371,7 +371,7 @@ public class DeltaOfficerData {
     return Objects.equals(this.personNumber, data.personNumber) &&
         Objects.equals(this.etag, data.etag) &&
         Objects.equals(this.serviceAddress, data.serviceAddress) &&
-        Objects.equals(this.serviceAddressSameAsRegisteredOfficeAddress, data.serviceAddressSameAsRegisteredOfficeAddress) &&
+        Objects.equals(this.serviceAddressIsSameAsRegisteredOfficeAddress, data.serviceAddressIsSameAsRegisteredOfficeAddress) &&
         Objects.equals(this.countryOfResidence, data.countryOfResidence) &&
         Objects.equals(this.appointedOn, data.appointedOn) &&
         Objects.equals(this.appointedBefore, data.appointedBefore) &&
@@ -398,7 +398,7 @@ public class DeltaOfficerData {
 
   @Override
   public int hashCode() {
-    return Objects.hash(personNumber, etag, serviceAddress, serviceAddressSameAsRegisteredOfficeAddress, countryOfResidence, appointedOn, appointedBefore, isPre1992Appointment, links, nationality, occupation, officerRole, isSecureOfficer, identification, companyName, surname, forename, honours, otherForenames, title, companyNumber, contactDetails, principalOfficeAddress, resignedOn, responsibilities, formerNames);
+    return Objects.hash(personNumber, etag, serviceAddress, serviceAddressIsSameAsRegisteredOfficeAddress, countryOfResidence, appointedOn, appointedBefore, isPre1992Appointment, links, nationality, occupation, officerRole, isSecureOfficer, identification, companyName, surname, forename, honours, otherForenames, title, companyNumber, contactDetails, principalOfficeAddress, resignedOn, responsibilities, formerNames);
   }
 
   @Override
@@ -407,7 +407,8 @@ public class DeltaOfficerData {
             + "    personNumber: " + toIndentedString(personNumber) + "\n"
             + "    etag: " + toIndentedString(etag) + "\n"
             + "    serviceAddress: " + toIndentedString(serviceAddress) + "\n"
-            + "    serviceAddressSameAsRegisteredOfficeAddress: " + toIndentedString(serviceAddressSameAsRegisteredOfficeAddress) + "\n"
+            + "    serviceAddressSameAsRegisteredOfficeAddress: " + toIndentedString(
+            serviceAddressIsSameAsRegisteredOfficeAddress) + "\n"
             + "    countryOfResidence: " + toIndentedString(countryOfResidence) + "\n"
             + "    appointedOn: " + toIndentedString(appointedOn) + "\n"
             + "    appointedBefore: " + toIndentedString(appointedBefore) + "\n"
