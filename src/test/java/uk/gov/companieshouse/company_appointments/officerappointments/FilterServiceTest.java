@@ -14,7 +14,7 @@ import uk.gov.companieshouse.company_appointments.exception.BadRequestException;
 class FilterServiceTest {
 
     private static final String OFFICER_ID = "officerId";
-    private static final String REMOVED = "removed";
+    private static final String CLOSED = "closed";
     private static final String CONVERTED_CLOSED = "converted-closed";
     private static final String DISSOLVED = "dissolved";
 
@@ -29,7 +29,7 @@ class FilterServiceTest {
     @Test
     void prepareFilter() throws BadRequestException {
         // given
-        Filter expected = new Filter(true, List.of(DISSOLVED, CONVERTED_CLOSED, REMOVED));
+        Filter expected = new Filter(true, List.of(DISSOLVED, CONVERTED_CLOSED, CLOSED));
 
         // when
         Filter actual = filterService.prepareFilter("active", OFFICER_ID);

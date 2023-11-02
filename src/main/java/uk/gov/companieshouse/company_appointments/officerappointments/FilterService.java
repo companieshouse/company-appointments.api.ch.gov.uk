@@ -10,7 +10,7 @@ import uk.gov.companieshouse.company_appointments.exception.BadRequestException;
 @Component
 class FilterService {
 
-    private static final String REMOVED = "removed";
+    private static final String CLOSED = "closed";
     private static final String CONVERTED_CLOSED = "converted-closed";
     private static final String DISSOLVED = "dissolved";
     private static final String ACTIVE = "active";
@@ -18,7 +18,7 @@ class FilterService {
     Filter prepareFilter(String filter, String officerId) {
         if (StringUtils.isNotBlank(filter)) {
             if (ACTIVE.equals(filter)) {
-                return new Filter(true, List.of(DISSOLVED, CONVERTED_CLOSED, REMOVED));
+                return new Filter(true, List.of(DISSOLVED, CONVERTED_CLOSED, CLOSED));
             } else {
                 throw new BadRequestException(
                         String.format("Invalid filter parameter supplied: %s, officer ID: %s",
