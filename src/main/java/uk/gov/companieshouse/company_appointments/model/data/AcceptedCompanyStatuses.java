@@ -14,7 +14,7 @@ public enum AcceptedCompanyStatuses {
     REGISTERED("registered"),
     REMOVED("removed");
 
-    private String validCompanyStatus;
+    private final String validCompanyStatus;
 
     AcceptedCompanyStatuses(String validCompanyStatus) {
         this.validCompanyStatus = validCompanyStatus;
@@ -22,5 +22,14 @@ public enum AcceptedCompanyStatuses {
 
     public String getValidCompanyStatus() {
         return validCompanyStatus;
+    }
+
+    public static AcceptedCompanyStatuses getValueByLabel(String label) {
+        for (AcceptedCompanyStatuses status : values()) {
+            if (status.validCompanyStatus.equals(label)) {
+                return status;
+            }
+        }
+        return null;
     }
 }

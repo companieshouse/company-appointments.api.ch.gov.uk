@@ -6,6 +6,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
@@ -26,6 +27,7 @@ import uk.gov.companieshouse.company_appointments.exception.ServiceUnavailableEx
 import uk.gov.companieshouse.company_appointments.logging.DataMapHolder;
 import uk.gov.companieshouse.company_appointments.mapper.CompanyAppointmentMapper;
 import uk.gov.companieshouse.company_appointments.model.FetchAppointmentsRequest;
+import uk.gov.companieshouse.company_appointments.model.data.AcceptedCompanyStatuses;
 import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentDocument;
 import uk.gov.companieshouse.company_appointments.repository.CompanyAppointmentRepository;
 import uk.gov.companieshouse.company_appointments.util.CompanyStatusValidator;
@@ -120,7 +122,9 @@ public class CompanyAppointmentService {
         }
 
         Counts counts = registerView ? new Counts(appointmentsCounts, registerType) :
-                new Counts(appointmentsCounts, allAppointmentData.get(0).getCompanyStatus(), filterEnabled);
+                new Counts(appointmentsCounts,
+                        getCompanyStatusFromString(allAppointmentData.get(0).getCompanyStatus()),
+                        filterEnabled);
 
         List<OfficerSummary> officerSummaries = allAppointmentData.stream()
                 .map(appointment -> companyAppointmentMapper.map(appointment, registerView))
@@ -174,6 +178,18 @@ public class CompanyAppointmentService {
         }
     }
 
+    private AcceptedCompanyStatuses getCompanyStatusFromString(String statusFromDb) {
+        AcceptedCompanyStatuses statusEnum;
+        try {
+            statusEnum = Objects.requireNonNull(
+                    AcceptedCompanyStatuses.getValueByLabel(statusFromDb));
+        } catch (NullPointerException ex) {
+            throw new IllegalArgumentException(
+                    String.format("The string [%s] did not match any accepted company statuses enums.", statusFromDb));
+        }
+        return statusEnum;
+    }
+
     private boolean checkFilterEnabled(String filter, String companyNumber) {
         if (StringUtils.isNotBlank(filter)) {
             if (ACTIVE.equals(filter)) {
@@ -219,11 +235,11 @@ public class CompanyAppointmentService {
             inactive = null;
         }
 
-        private Counts(final AppointmentsApi appointments, final String status, final boolean isFilterEnabled) {
+        private Counts(final AppointmentsApi appointments, final AcceptedCompanyStatuses status, final boolean isFilterEnabled) {
             switch (status) {
-                case "removed":
-                case "dissolved":
-                case "converted-closed":
+                case CLOSED:
+                case DISSOLVED:
+                case CONVERTED_CLOSED:
                     active = 0;
                     inactive = appointments.getActiveCount();
                     break;
