@@ -51,7 +51,7 @@ db.getCollection("delta_appointments").aggregate([
                                 'company_status': {
                                     $in: [
                                         'dissolved',
-                                        'removed',
+                                        'closed',
                                         'converted-closed'
                                     ]
                                 }
