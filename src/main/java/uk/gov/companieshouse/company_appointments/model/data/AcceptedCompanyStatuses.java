@@ -14,7 +14,7 @@ public enum AcceptedCompanyStatuses {
     REGISTERED("registered"),
     REMOVED("removed");
 
-    private String validCompanyStatus;
+    private final String validCompanyStatus;
 
     AcceptedCompanyStatuses(String validCompanyStatus) {
         this.validCompanyStatus = validCompanyStatus;
