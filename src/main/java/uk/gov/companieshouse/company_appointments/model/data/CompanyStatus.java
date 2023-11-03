@@ -1,6 +1,6 @@
 package uk.gov.companieshouse.company_appointments.model.data;
 
-public enum AcceptedCompanyStatuses {
+public enum CompanyStatus {
     ACTIVE("active"),
     DISSOLVED("dissolved"),
     LIQUIDATION("liquidation"),
@@ -14,22 +14,22 @@ public enum AcceptedCompanyStatuses {
     REGISTERED("registered"),
     REMOVED("removed");
 
-    private final String validCompanyStatus;
+    private final String status;
 
-    AcceptedCompanyStatuses(String validCompanyStatus) {
-        this.validCompanyStatus = validCompanyStatus;
+    CompanyStatus(String status) {
+        this.status = status;
     }
 
-    public String getValidCompanyStatus() {
-        return validCompanyStatus;
+    public String getStatus() {
+        return status;
     }
 
-    public static AcceptedCompanyStatuses getValueByLabel(String label) {
-        for (AcceptedCompanyStatuses status : values()) {
-            if (status.validCompanyStatus.equals(label)) {
+    public static CompanyStatus fromValue(String value) {
+        for (CompanyStatus status : values()) {
+            if (status.getStatus().equals(value)) {
                 return status;
             }
         }
-        return null;
+        throw new IllegalArgumentException("Invalid company status '" + value + "'");
     }
 }
