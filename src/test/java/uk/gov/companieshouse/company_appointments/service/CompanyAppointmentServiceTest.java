@@ -199,7 +199,7 @@ class CompanyAppointmentServiceTest {
         DeltaOfficerData officer = buildOfficerData()
                 .resignedOn(null)
                 .build();
-        CompanyAppointmentDocument appointmentDocument = buildCompanyAppointmentDocument(officer, "removed");
+        CompanyAppointmentDocument appointmentDocument = buildCompanyAppointmentDocument(officer, "closed");
 
         List<CompanyAppointmentDocument> allAppointmentData = List.of(appointmentDocument);
 

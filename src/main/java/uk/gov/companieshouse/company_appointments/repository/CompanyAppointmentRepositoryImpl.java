@@ -28,9 +28,9 @@ import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentD
 public class CompanyAppointmentRepositoryImpl implements CompanyAppointmentRepositoryExtension {
 
     private static final String DATA_OFFICER_ROLE = "data.officer_role";
-    private static final String REMOVED = "removed";
     private static final String DISSOLVED = "dissolved";
     private static final String CONVERTED_CLOSED = "converted-closed";
+    private static final String CLOSED = "closed";
     private static final String COMPANY_NUMBER_FIELD = "company_number";
     private static final String DATA_RESIGNED_ON_FIELD = "data.resigned_on";
     private static final String COMPANY_STATUS_FIELD = "company_status";
@@ -54,7 +54,7 @@ public class CompanyAppointmentRepositoryImpl implements CompanyAppointmentRepos
             filterByRegisterType(criteria, registerType);
         } else if (filterEnabled) {
             criteria.and(DATA_RESIGNED_ON_FIELD).exists(false)
-                    .and(COMPANY_STATUS_FIELD).nin(List.of(DISSOLVED, REMOVED, CONVERTED_CLOSED));
+                    .and(COMPANY_STATUS_FIELD).nin(List.of(DISSOLVED, CONVERTED_CLOSED, CLOSED));
         }
 
         Query query = query(criteria)

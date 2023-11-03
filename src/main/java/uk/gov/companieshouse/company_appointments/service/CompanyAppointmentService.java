@@ -1,6 +1,9 @@
 package uk.gov.companieshouse.company_appointments.service;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
+import static uk.gov.companieshouse.company_appointments.model.data.CompanyStatus.CLOSED;
+import static uk.gov.companieshouse.company_appointments.model.data.CompanyStatus.CONVERTED_CLOSED;
+import static uk.gov.companieshouse.company_appointments.model.data.CompanyStatus.DISSOLVED;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -9,6 +12,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
+import org.checkerframework.checker.units.qual.C;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import uk.gov.companieshouse.GenerateEtagUtil;
@@ -27,6 +31,7 @@ import uk.gov.companieshouse.company_appointments.logging.DataMapHolder;
 import uk.gov.companieshouse.company_appointments.mapper.CompanyAppointmentMapper;
 import uk.gov.companieshouse.company_appointments.model.FetchAppointmentsRequest;
 import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentDocument;
+import uk.gov.companieshouse.company_appointments.model.data.CompanyStatus;
 import uk.gov.companieshouse.company_appointments.repository.CompanyAppointmentRepository;
 import uk.gov.companieshouse.company_appointments.util.CompanyStatusValidator;
 import uk.gov.companieshouse.logging.Logger;
@@ -220,10 +225,11 @@ public class CompanyAppointmentService {
         }
 
         private Counts(final AppointmentsApi appointments, final String status, final boolean isFilterEnabled) {
-            switch (status) {
-                case "removed":
-                case "dissolved":
-                case "converted-closed":
+            CompanyStatus companyStatus = CompanyStatus.fromValue(status);
+            switch (companyStatus) {
+                case CLOSED:
+                case DISSOLVED:
+                case CONVERTED_CLOSED:
                     active = 0;
                     inactive = appointments.getActiveCount();
                     break;
