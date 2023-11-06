@@ -149,7 +149,7 @@ public class CompanyAppointmentFullRecordService {
             } catch (ServiceUnavailableException e) {
                 // Apply compensatory transaction
                 companyAppointmentRepository.insertOrUpdate(existingDocument);
-                LOGGER.debug("Call to Kafka API failed, reverting previously updated document to original state",
+                LOGGER.info("Call to Kafka API failed, reverting previously updated document to original state",
                         DataMapHolder.getLogMap());
                 throw e;
             }
@@ -176,7 +176,7 @@ public class CompanyAppointmentFullRecordService {
         } catch (ServiceUnavailableException e) {
             // Apply compensatory transaction
             companyAppointmentRepository.deleteByCompanyNumberAndID(document.getCompanyNumber(), document.getId());
-            LOGGER.debug("Call to Kafka API failed, deleting previously inserted document",
+            LOGGER.info("Call to Kafka API failed, deleting previously inserted document",
                     DataMapHolder.getLogMap());
             throw e;
         }
