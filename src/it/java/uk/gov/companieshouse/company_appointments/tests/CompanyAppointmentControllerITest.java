@@ -130,12 +130,10 @@ class CompanyAppointmentControllerITest {
     @Mock
     private MetricsApi metricsApi;
 
-    private static MongoTemplate mongoTemplate;
-
     @BeforeAll
     static void start() throws IOException {
         System.setProperty("spring.data.mongodb.uri", mongoDBContainer.getReplicaSetUrl());
-        mongoTemplate = new MongoTemplate(new SimpleMongoClientDatabaseFactory(mongoDBContainer.getReplicaSetUrl()));
+        MongoTemplate mongoTemplate = new MongoTemplate(new SimpleMongoClientDatabaseFactory(mongoDBContainer.getReplicaSetUrl()));
         mongoTemplate.createCollection("delta_appointments");
         mongoTemplate.insert(Document.parse(IOUtils.resourceToString("/appointment-data.json", StandardCharsets.UTF_8)), "delta_appointments");
         mongoTemplate.insert(Document.parse(IOUtils.resourceToString("/appointment-data2.json", StandardCharsets.UTF_8)), "delta_appointments");
@@ -381,7 +379,7 @@ class CompanyAppointmentControllerITest {
     }
 
     @Test
-    void testReturn200OKWithDifferentAppointmentTypesWithActiveFilter() throws Exception {
+    void testReturn200OKWithActiveCompaniesWithActiveFilter() throws Exception {
         // given
         final int totalNumberOfAppointmentsForEachCompany = 189;
         final int numberOfAppointmentsConsideredActiveForEachCompany = 126;
@@ -420,6 +418,48 @@ class CompanyAppointmentControllerITest {
             assertEquals(numberOfAppointmentsConsideredActiveForEachCompany, responseEntity.getActiveCount());
             assertEquals(resignedCount, responseEntity.getResignedCount());
             assertEquals(numberOfAppointmentsConsideredActiveForEachCompany, responseEntity.getItems().size());
+        }
+    }
+
+    @Test
+    void testReturn200OKWithInactiveCompaniesWithActiveFilter() throws Exception {
+        // given
+        final int totalNumberOfAppointmentsForEachCompany = 189;
+        final int numberOfAppointmentsConsideredActiveForEachCompany = 126;
+        final int resignedCount = totalNumberOfAppointmentsForEachCompany - numberOfAppointmentsConsideredActiveForEachCompany;
+
+        when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(new ApiResponse<>(200, null, metricsApi));
+        when(metricsApi.getCounts()).thenReturn(new CountsApi().appointments(new AppointmentsApi()
+                .totalCount(totalNumberOfAppointmentsForEachCompany)
+                .activeCount(numberOfAppointmentsConsideredActiveForEachCompany)
+                .resignedCount(resignedCount)));
+
+        List<String> activeCompanyStatuses = new ArrayList<>();
+        for (Map.Entry<String, String> entry : companyStatusToCompanyNumber.entrySet()) {
+            if (entry.getKey().equals("closed") || entry.getKey().equals("converted-closed") || entry.getKey().equals("dissolved")) {
+                activeCompanyStatuses.add(entry.getKey());
+            }
+        }
+
+        // when
+        for (String companyStatus : activeCompanyStatuses) {
+            final String companyNumber = companyStatusToCompanyNumber.get(companyStatus);
+            ResultActions result = mockMvc.perform(get("/company/{company_number}/officers?filter=active", companyNumber)
+                    .header(X_REQUEST_ID, CONTEXT_ID)
+                    .header(ERIC_IDENTITY, "123")
+                    .header(ERIC_IDENTITY_TYPE, "key")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .accept(MediaType.APPLICATION_JSON));
+
+            // then
+            result.andExpect(MockMvcResultMatchers.status().isOk());
+
+            OfficerList responseEntity = objectMapper.readValue(result.andReturn().getResponse().getContentAsString(), OfficerList.class);
+
+            assertEquals(0, responseEntity.getTotalResults());
+            assertEquals(0, responseEntity.getActiveCount());
+            assertEquals(0, responseEntity.getResignedCount());
+            assertEquals(0, responseEntity.getItems().size());
         }
     }
 
