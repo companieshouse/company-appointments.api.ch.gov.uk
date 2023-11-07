@@ -55,8 +55,8 @@ import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentD
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 class OfficerAppointmentsControllerITest {
 
-    private static String corporateOfficerId;
-    private static String naturalOfficerId;
+    private static final String corporateOfficerId = UUID.randomUUID().toString();
+    private static final String naturalOfficerId = UUID.randomUUID().toString();
 
     @Container
     private static final MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:4.4");
@@ -77,9 +77,6 @@ class OfficerAppointmentsControllerITest {
         mongoTemplate.insert(Document.parse(IOUtils.resourceToString("/appointment-data2.json", StandardCharsets.UTF_8)), DELTA_APPOINTMENTS_COLLECTION);
         mongoTemplate.insert(Document.parse(IOUtils.resourceToString("/appointment-data3.json", StandardCharsets.UTF_8)), DELTA_APPOINTMENTS_COLLECTION);
         System.setProperty("company-metrics-api.endpoint", "localhost");
-
-        corporateOfficerId = UUID.randomUUID().toString();
-        naturalOfficerId = UUID.randomUUID().toString();
     }
 
     @DisplayName("Should return HTTP 200 OK and a list of appointments for a particular officer id")
