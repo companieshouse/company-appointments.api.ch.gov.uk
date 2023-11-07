@@ -490,7 +490,7 @@ class CompanyAppointmentControllerITest {
             for (final String type : IDENTITY_TYPES) { // loops 5 times
 
                 for (final String role : corporateOfficerRoles) { // loops 10 times
-                    Document appointmentDocument = new Document();
+                    Document appointmentDocument;
                     String nextJson = json
                             .replaceAll("<identification_type>", type)
                             .replaceAll("<officer_role>", role);
@@ -524,7 +524,7 @@ class CompanyAppointmentControllerITest {
             final String json = IOUtils.resourceToString(path, StandardCharsets.UTF_8);
 
             for (final String role : corporateOfficerRoles) { // loops 13 times
-                Document appointmentDocument = new Document();
+                Document appointmentDocument;
                 String nextJson = json
                         .replaceAll("<officer_role>", role);
 
