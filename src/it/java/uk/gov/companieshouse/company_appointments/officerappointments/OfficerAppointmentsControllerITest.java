@@ -11,7 +11,12 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static uk.gov.companieshouse.company_appointments.interceptor.AuthenticationHelperImpl.ERIC_AUTHORISED_KEY_PRIVILEGES_HEADER;
-import static uk.gov.companieshouse.company_appointments.util.TestUtils.*;
+import static uk.gov.companieshouse.company_appointments.util.TestUtils.CORPORATE_APPOINTMENT_DOC_PATHS;
+import static uk.gov.companieshouse.company_appointments.util.TestUtils.IDENTITY_TYPES;
+import static uk.gov.companieshouse.company_appointments.util.TestUtils.NATURAL_APPOINTMENT_DOC_PATHS;
+import static uk.gov.companieshouse.company_appointments.util.TestUtils.OFFICER_ROLES;
+import static uk.gov.companieshouse.company_appointments.util.TestUtils.generateRandomEightCharCompanyNumber;
+import static uk.gov.companieshouse.company_appointments.util.TestUtils.generateRandomInternalId;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
