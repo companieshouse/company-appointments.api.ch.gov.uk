@@ -3,6 +3,9 @@ package uk.gov.companieshouse.company_appointments.officerappointments;
 import static java.util.Collections.emptyList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static uk.gov.companieshouse.company_appointments.model.data.CompanyStatus.CLOSED;
+import static uk.gov.companieshouse.company_appointments.model.data.CompanyStatus.CONVERTED_CLOSED;
+import static uk.gov.companieshouse.company_appointments.model.data.CompanyStatus.DISSOLVED;
 
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,9 +17,6 @@ import uk.gov.companieshouse.company_appointments.exception.BadRequestException;
 class FilterServiceTest {
 
     private static final String OFFICER_ID = "officerId";
-    private static final String REMOVED = "removed";
-    private static final String CONVERTED_CLOSED = "converted-closed";
-    private static final String DISSOLVED = "dissolved";
 
     private FilterService filterService;
 
@@ -29,7 +29,7 @@ class FilterServiceTest {
     @Test
     void prepareFilter() throws BadRequestException {
         // given
-        Filter expected = new Filter(true, List.of(DISSOLVED, CONVERTED_CLOSED, REMOVED));
+        Filter expected = new Filter(true, List.of(DISSOLVED.getStatus(), CONVERTED_CLOSED.getStatus(), CLOSED.getStatus()));
 
         // when
         Filter actual = filterService.prepareFilter("active", OFFICER_ID);

@@ -44,7 +44,7 @@ class OfficerAppointmentsRepositoryITest {
     private static final String DISSOLVED = "dissolved";
 
     @Container
-    private static final MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:4.4");
+    private static final MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:5");
     @Autowired
     private OfficerAppointmentsRepository repository;
 

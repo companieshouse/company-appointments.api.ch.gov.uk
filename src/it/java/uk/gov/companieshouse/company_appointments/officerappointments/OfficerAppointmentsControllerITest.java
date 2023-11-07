@@ -4,11 +4,19 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasSize;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static uk.gov.companieshouse.company_appointments.interceptor.AuthenticationHelperImpl.ERIC_AUTHORISED_KEY_PRIVILEGES_HEADER;
+import static uk.gov.companieshouse.company_appointments.util.TestUtils.CORPORATE_APPOINTMENT_DOC_PATHS;
+import static uk.gov.companieshouse.company_appointments.util.TestUtils.IDENTITY_TYPES;
+import static uk.gov.companieshouse.company_appointments.util.TestUtils.NATURAL_APPOINTMENT_DOC_PATHS;
+import static uk.gov.companieshouse.company_appointments.util.TestUtils.OFFICER_ROLES;
+import static uk.gov.companieshouse.company_appointments.util.TestUtils.generateRandomEightCharCompanyNumber;
+import static uk.gov.companieshouse.company_appointments.util.TestUtils.generateRandomInternalId;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -16,12 +24,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.IOUtils;
 import org.bson.Document;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -33,9 +44,11 @@ import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import uk.gov.companieshouse.api.officer.AppointmentList;
 import uk.gov.companieshouse.company_appointments.CompanyAppointmentsApplication;
 import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentDocument;
 
@@ -45,12 +58,18 @@ import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentD
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 class OfficerAppointmentsControllerITest {
 
+    private static final String CORPORATE_OFFICER_ID = UUID.randomUUID().toString();
+    private static final String NATURAL_OFFICER_ID = UUID.randomUUID().toString();
+
     @Container
-    private static final MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:4.4");
+    private static final MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:5");
     private static final String DELTA_APPOINTMENTS_COLLECTION = "delta_appointments";
     private static MongoTemplate mongoTemplate;
+
     @Autowired
     private MockMvc mockMvc;
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @BeforeAll
     static void start() throws IOException {
@@ -368,5 +387,223 @@ class OfficerAppointmentsControllerITest {
         mongoTemplate.findAllAndRemove(query, DELTA_APPOINTMENTS_COLLECTION);
 
         assertTrue(mongoTemplate.find(query, CompanyAppointmentDocument.class).isEmpty());
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+        "active",
+        "liquidation",
+        "receivership",
+        "voluntary-arrangement",
+        "insolvency-proceedings",
+        "administration",
+        "open",
+        "registered",
+        "removed" })
+    void getCorporateOfficerAppointmentsToCompaniesConsideredActiveWithActiveFilterApplied(String companyStatus) throws Exception {
+        // given
+        final int defaultItemsPerPage = 35;
+        final int numberOfCorpAppointmentsConsideredActive = 100;
+        mongoTemplate.insert(buildCorporateAppointments(companyStatus), "delta_appointments");
+
+        // when
+        ResultActions result = mockMvc.perform(get("/officers/{officer_id}/appointments?filter=active", CORPORATE_OFFICER_ID)
+                .header("ERIC-Identity", "123")
+                .header("ERIC-Identity-Type", "key")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON));
+
+        // then
+        result.andExpect(MockMvcResultMatchers.status().isOk());
+
+        final AppointmentList responseEntity = objectMapper.readValue(result.andReturn().getResponse().getContentAsString(), AppointmentList.class);
+
+        assertEquals(defaultItemsPerPage, responseEntity.getItems().size());
+        assertEquals(defaultItemsPerPage, responseEntity.getItemsPerPage());
+        assertEquals(numberOfCorpAppointmentsConsideredActive, responseEntity.getTotalResults());
+        assertEquals(numberOfCorpAppointmentsConsideredActive, responseEntity.getActiveCount());
+        assertEquals(0, responseEntity.getResignedCount());
+        assertEquals(0, responseEntity.getInactiveCount());
+
+        for (int i = 0; i < defaultItemsPerPage; i++) {
+            assertNull(responseEntity.getItems().get(i).getResignedOn());
+        }
+
+        // Clean up
+        Query query = new Query()
+                .addCriteria(Criteria.where("officer_id").is(CORPORATE_OFFICER_ID));
+        mongoTemplate.findAllAndRemove(query, "delta_appointments");
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+        "active",
+        "liquidation",
+        "receivership",
+        "voluntary-arrangement",
+        "insolvency-proceedings",
+        "administration",
+        "open",
+        "registered",
+        "removed" })
+    void getNaturalOfficerAppointmentsToCompaniesConsideredActiveWithActiveFilterApplied(String companyStatus) throws Exception {
+        // given
+        final int defaultItemsPerPage = 35;
+        final int numberOfNaturalAppointmentsConsideredActive = 26;
+        mongoTemplate.insert(buildNaturalAppointments(companyStatus), "delta_appointments");
+
+        // when
+        ResultActions result = mockMvc.perform(get("/officers/{officer_id}/appointments?filter=active", NATURAL_OFFICER_ID)
+                .header("ERIC-Identity", "123")
+                .header("ERIC-Identity-Type", "key")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON));
+
+        // then
+        result.andExpect(MockMvcResultMatchers.status().isOk());
+
+        final AppointmentList responseEntity = objectMapper.readValue(result.andReturn().getResponse().getContentAsString(), AppointmentList.class);
+
+        assertEquals(defaultItemsPerPage, responseEntity.getItemsPerPage());
+        assertEquals(numberOfNaturalAppointmentsConsideredActive, responseEntity.getTotalResults());
+        assertEquals(numberOfNaturalAppointmentsConsideredActive, responseEntity.getActiveCount());
+        assertEquals(0, responseEntity.getResignedCount());
+        assertEquals(0, responseEntity.getInactiveCount());
+
+        for (int i = 0; i < numberOfNaturalAppointmentsConsideredActive; i++) {
+            assertNull(responseEntity.getItems().get(i).getResignedOn());
+        }
+
+        // Clean up
+        Query query = new Query()
+                .addCriteria(Criteria.where("officer_id").is(NATURAL_OFFICER_ID));
+        mongoTemplate.findAllAndRemove(query, "delta_appointments");
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "dissolved",
+            "converted-closed",
+            "closed" })
+    void getCorporateOfficerAppointmentsToCompaniesConsideredInactiveWithActiveFilterApplied(String companyStatus) throws Exception {
+        // given
+        mongoTemplate.insert(buildCorporateAppointments(companyStatus), "delta_appointments");
+
+        // when
+        ResultActions result = mockMvc.perform(get("/officers/{officer_id}/appointments?filter=active", CORPORATE_OFFICER_ID)
+                .header("ERIC-Identity", "123")
+                .header("ERIC-Identity-Type", "key")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON));
+
+        // then
+        result.andExpect(MockMvcResultMatchers.status().isOk());
+
+        final AppointmentList responseEntity = objectMapper.readValue(result.andReturn().getResponse().getContentAsString(), AppointmentList.class);
+
+        assertEquals(0, responseEntity.getItems().size());
+        assertEquals(35, responseEntity.getItemsPerPage());
+        assertEquals(0, responseEntity.getTotalResults());
+        assertEquals(0, responseEntity.getActiveCount());
+        assertEquals(0, responseEntity.getResignedCount());
+        assertEquals(0, responseEntity.getInactiveCount());
+        assertTrue(responseEntity.getItems().isEmpty());
+
+        // Clean up
+        Query query = new Query()
+                .addCriteria(Criteria.where("officer_id").is(CORPORATE_OFFICER_ID));
+        mongoTemplate.findAllAndRemove(query, "delta_appointments");
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "dissolved",
+            "converted-closed",
+            "closed" })
+    void getNaturalOfficerAppointmentsToCompaniesConsideredInactiveWithActiveFilterApplied(String companyStatus) throws Exception {
+        // given
+        mongoTemplate.insert(buildNaturalAppointments(companyStatus), "delta_appointments");
+
+        // when
+        ResultActions result = mockMvc.perform(get("/officers/{officer_id}/appointments?filter=active", NATURAL_OFFICER_ID)
+                .header("ERIC-Identity", "123")
+                .header("ERIC-Identity-Type", "key")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON));
+
+        // then
+        result.andExpect(MockMvcResultMatchers.status().isOk());
+
+        final AppointmentList responseEntity = objectMapper.readValue(result.andReturn().getResponse().getContentAsString(), AppointmentList.class);
+
+        assertEquals(35, responseEntity.getItemsPerPage());
+        assertEquals(0, responseEntity.getTotalResults());
+        assertEquals(0, responseEntity.getActiveCount());
+        assertEquals(0, responseEntity.getResignedCount());
+        assertEquals(0, responseEntity.getInactiveCount());
+        assertTrue(responseEntity.getItems().isEmpty());
+
+        // Clean up
+        Query query = new Query()
+                .addCriteria(Criteria.where("officer_id").is(NATURAL_OFFICER_ID));
+        mongoTemplate.findAllAndRemove(query, "delta_appointments");
+    }
+
+    static private List<Document> buildCorporateAppointments(String companyStatus) throws IOException {
+        List<String> corporateOfficerRoles = new ArrayList<>();
+        for (final String role : OFFICER_ROLES) {
+            if (role.contains("corporate")) { // exclude non-corporate roles
+                corporateOfficerRoles.add(role);
+            }
+        }
+
+        List<Document> documents = new ArrayList<>();
+        for (final String path :CORPORATE_APPOINTMENT_DOC_PATHS) { // loops 3 times
+            final String json = IOUtils.resourceToString(path, StandardCharsets.UTF_8);
+
+            for (final String type : IDENTITY_TYPES) { // loops 5 times
+
+                for (final String role : corporateOfficerRoles) { // loops 10 times
+                    Document appointmentDocument = Document.parse(json
+                            .replaceAll("<identification_type>", type)
+                            .replaceAll("<officer_role>", role)
+                            .replaceAll("<company_status>", companyStatus)
+                            .replaceAll("<internal_id>", generateRandomInternalId())
+                            .replaceAll("<id>", UUID.randomUUID().toString())
+                            .replaceAll("<company_number>", generateRandomEightCharCompanyNumber())
+                            .replaceAll("<officer_id>", CORPORATE_OFFICER_ID));
+
+                    documents.add(appointmentDocument);
+                }
+            }
+        }
+        return documents; // results in 150 documents
+    }
+
+    static private List<Document> buildNaturalAppointments(String companyStatus) throws IOException {
+        List<String> corporateOfficerRoles = new ArrayList<>();
+        for (final String role : OFFICER_ROLES) {
+            if (!role.contains("corporate")) { // exclude corporate roles
+                corporateOfficerRoles.add(role);
+            }
+        }
+
+        List<Document> documents = new ArrayList<>();
+        for (final String path : NATURAL_APPOINTMENT_DOC_PATHS) { // loops 3 times
+            final String json = IOUtils.resourceToString(path, StandardCharsets.UTF_8);
+
+            for (final String role : corporateOfficerRoles) { // loops 13 times
+                Document appointmentDocument = Document.parse(json
+                        .replaceAll("<officer_role>", role)
+                        .replaceAll("<company_status>", companyStatus)
+                        .replaceAll("<internal_id>", generateRandomInternalId())
+                        .replaceAll("<id>", UUID.randomUUID().toString())
+                        .replaceAll("<company_number>", generateRandomEightCharCompanyNumber())
+                        .replaceAll("<officer_id>", NATURAL_OFFICER_ID));
+
+                documents.add(appointmentDocument);
+            }
+        }
+        return documents; // results in 39 documents
     }
 }
