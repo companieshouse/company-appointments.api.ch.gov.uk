@@ -16,9 +16,7 @@ import static uk.gov.companieshouse.company_appointments.util.TestUtils.*;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -55,11 +53,11 @@ import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentD
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 class OfficerAppointmentsControllerITest {
 
-    private static final String corporateOfficerId = UUID.randomUUID().toString();
-    private static final String naturalOfficerId = UUID.randomUUID().toString();
+    private static final String CORPORATE_OFFICER_ID = UUID.randomUUID().toString();
+    private static final String NATURAL_OFFICER_ID = UUID.randomUUID().toString();
 
     @Container
-    private static final MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:4.4");
+    private static final MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:5");
     private static final String DELTA_APPOINTMENTS_COLLECTION = "delta_appointments";
     private static MongoTemplate mongoTemplate;
 
@@ -404,7 +402,7 @@ class OfficerAppointmentsControllerITest {
         mongoTemplate.insert(buildCorporateAppointments(companyStatus), "delta_appointments");
 
         // when
-        ResultActions result = mockMvc.perform(get("/officers/{officer_id}/appointments?filter=active", corporateOfficerId)
+        ResultActions result = mockMvc.perform(get("/officers/{officer_id}/appointments?filter=active", CORPORATE_OFFICER_ID)
                 .header("ERIC-Identity", "123")
                 .header("ERIC-Identity-Type", "key")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -428,7 +426,7 @@ class OfficerAppointmentsControllerITest {
 
         // Clean up
         Query query = new Query()
-                .addCriteria(Criteria.where("officer_id").is(corporateOfficerId));
+                .addCriteria(Criteria.where("officer_id").is(CORPORATE_OFFICER_ID));
         mongoTemplate.findAllAndRemove(query, "delta_appointments");
     }
 
@@ -450,7 +448,7 @@ class OfficerAppointmentsControllerITest {
         mongoTemplate.insert(buildNaturalAppointments(companyStatus), "delta_appointments");
 
         // when
-        ResultActions result = mockMvc.perform(get("/officers/{officer_id}/appointments?filter=active", naturalOfficerId)
+        ResultActions result = mockMvc.perform(get("/officers/{officer_id}/appointments?filter=active", NATURAL_OFFICER_ID)
                 .header("ERIC-Identity", "123")
                 .header("ERIC-Identity-Type", "key")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -473,7 +471,7 @@ class OfficerAppointmentsControllerITest {
 
         // Clean up
         Query query = new Query()
-                .addCriteria(Criteria.where("officer_id").is(naturalOfficerId));
+                .addCriteria(Criteria.where("officer_id").is(NATURAL_OFFICER_ID));
         mongoTemplate.findAllAndRemove(query, "delta_appointments");
     }
 
@@ -487,7 +485,7 @@ class OfficerAppointmentsControllerITest {
         mongoTemplate.insert(buildCorporateAppointments(companyStatus), "delta_appointments");
 
         // when
-        ResultActions result = mockMvc.perform(get("/officers/{officer_id}/appointments?filter=active", corporateOfficerId)
+        ResultActions result = mockMvc.perform(get("/officers/{officer_id}/appointments?filter=active", CORPORATE_OFFICER_ID)
                 .header("ERIC-Identity", "123")
                 .header("ERIC-Identity-Type", "key")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -508,7 +506,7 @@ class OfficerAppointmentsControllerITest {
 
         // Clean up
         Query query = new Query()
-                .addCriteria(Criteria.where("officer_id").is(corporateOfficerId));
+                .addCriteria(Criteria.where("officer_id").is(CORPORATE_OFFICER_ID));
         mongoTemplate.findAllAndRemove(query, "delta_appointments");
     }
 
@@ -522,7 +520,7 @@ class OfficerAppointmentsControllerITest {
         mongoTemplate.insert(buildNaturalAppointments(companyStatus), "delta_appointments");
 
         // when
-        ResultActions result = mockMvc.perform(get("/officers/{officer_id}/appointments?filter=active", naturalOfficerId)
+        ResultActions result = mockMvc.perform(get("/officers/{officer_id}/appointments?filter=active", NATURAL_OFFICER_ID)
                 .header("ERIC-Identity", "123")
                 .header("ERIC-Identity-Type", "key")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -542,7 +540,7 @@ class OfficerAppointmentsControllerITest {
 
         // Clean up
         Query query = new Query()
-                .addCriteria(Criteria.where("officer_id").is(naturalOfficerId));
+                .addCriteria(Criteria.where("officer_id").is(NATURAL_OFFICER_ID));
         mongoTemplate.findAllAndRemove(query, "delta_appointments");
     }
 
@@ -568,7 +566,7 @@ class OfficerAppointmentsControllerITest {
                             .replaceAll("<internal_id>", generateRandomInternalId())
                             .replaceAll("<id>", UUID.randomUUID().toString())
                             .replaceAll("<company_number>", generateRandomEightCharCompanyNumber())
-                            .replaceAll("<officer_id>", corporateOfficerId));
+                            .replaceAll("<officer_id>", CORPORATE_OFFICER_ID));
 
                     documents.add(appointmentDocument);
                 }
@@ -596,7 +594,7 @@ class OfficerAppointmentsControllerITest {
                         .replaceAll("<internal_id>", generateRandomInternalId())
                         .replaceAll("<id>", UUID.randomUUID().toString())
                         .replaceAll("<company_number>", generateRandomEightCharCompanyNumber())
-                        .replaceAll("<officer_id>", naturalOfficerId));
+                        .replaceAll("<officer_id>", NATURAL_OFFICER_ID));
 
                 documents.add(appointmentDocument);
             }
