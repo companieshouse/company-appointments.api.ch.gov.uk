@@ -22,7 +22,6 @@ import uk.gov.companieshouse.company_appointments.exception.ServiceUnavailableEx
 import uk.gov.companieshouse.company_appointments.logging.DataMapHolder;
 import uk.gov.companieshouse.company_appointments.mapper.CompanyAppointmentMapper;
 import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentDocument;
-import uk.gov.companieshouse.company_appointments.model.data.DeltaOfficerData;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaTimestamp;
 import uk.gov.companieshouse.company_appointments.model.data.ResourceChangedRequest;
 import uk.gov.companieshouse.company_appointments.model.transformer.DeltaAppointmentTransformer;
@@ -72,30 +71,23 @@ public class CompanyAppointmentFullRecordService {
                         String.format("Appointment [%s] for company [%s] not found", appointmentID, companyNumber)));
     }
 
-    @Transactional
     public void upsertAppointmentDelta(final FullRecordCompanyOfficerApi requestBody)
             throws ServiceUnavailableException {
-        CompanyAppointmentDocument companyAppointmentDocument;
+        CompanyAppointmentDocument appointmentDocument;
         try {
-            companyAppointmentDocument = deltaAppointmentTransformer.transform(requestBody);
+            appointmentDocument = deltaAppointmentTransformer.transform(requestBody);
         } catch (FailedToTransformException ex) {
             throw new ServiceUnavailableException(String.format("Failed to transform payload: %s", ex.getMessage()));
         }
-        var instant = new DeltaTimestamp(Instant.now(clock));
-        DeltaOfficerData officer = companyAppointmentDocument.getData();
 
-        if (officer != null) {
-            companyAppointmentDocument.updated(instant);
-        }
+        DeltaTimestamp instant = new DeltaTimestamp(Instant.now(clock));
+
         try {
-            Optional<CompanyAppointmentDocument> existingAppointment = getExistingDelta(companyAppointmentDocument);
-            if (existingAppointment.isPresent()) {
-                updateAppointment(companyAppointmentDocument, existingAppointment.get());
-            } else {
-                saveAppointment(companyAppointmentDocument, instant);
-            }
+            getExistingDelta(appointmentDocument).ifPresentOrElse(
+                    existingDocument -> updateDocument(appointmentDocument, existingDocument, instant),
+                    () -> insertDocument(appointmentDocument, instant));
         } catch (DataAccessException e) {
-            LOGGER.debug(String.format("%s: %s", e.getClass().getName(), e.getMessage()), DataMapHolder.getLogMap());
+            LOGGER.error(String.format("%s: %s", e.getClass().getName(), e.getMessage()), DataMapHolder.getLogMap());
             throw new ServiceUnavailableException("Error connecting to MongoDB");
         } catch (IllegalArgumentException e) {
             LOGGER.debug(String.format("%s: %s", e.getClass().getName(), e.getMessage()), DataMapHolder.getLogMap());
@@ -118,7 +110,8 @@ public class CompanyAppointmentFullRecordService {
             companyAppointmentRepository.deleteByCompanyNumberAndID(companyNumber, appointmentId);
 
             // Serialise and deserialise OfficerSummary an extra time to remove null fields
-            String officerJson = NULL_CLEANING_OBJECT_MAPPER.writeValueAsString(companyAppointmentMapper.map(document.get()));
+            String officerJson = NULL_CLEANING_OBJECT_MAPPER.writeValueAsString(
+                    companyAppointmentMapper.map(document.get()));
             Object officerObject = NULL_CLEANING_OBJECT_MAPPER.readValue(officerJson, Object.class);
 
             resourceChangedApiService.invokeChsKafkaApi(new ResourceChangedRequest(DataMapHolder.getRequestId(),
@@ -137,31 +130,6 @@ public class CompanyAppointmentFullRecordService {
         }
     }
 
-    private void saveAppointment(CompanyAppointmentDocument document, DeltaTimestamp instant)
-            throws ServiceUnavailableException {
-        document.created(instant);
-        companyAppointmentRepository.insertOrUpdate(document);
-        resourceChangedApiService.invokeChsKafkaApi(
-                new ResourceChangedRequest(DataMapHolder.getRequestId(), document.getCompanyNumber(),
-                        document.getAppointmentId(), null, false));
-        LOGGER.debug(String.format("ChsKafka api CHANGED invoked updated successfully for company number: %s",
-                document.getCompanyNumber()), DataMapHolder.getLogMap());
-    }
-
-    private void updateAppointment(CompanyAppointmentDocument document, CompanyAppointmentDocument existingAppointment)
-            throws ServiceUnavailableException {
-
-        if (isDeltaStale(document.getDeltaAt(), existingAppointment.getDeltaAt())) {
-            logStaleIncomingDelta(document, existingAppointment.getDeltaAt());
-        } else {
-            saveAppointment(document, existingAppointment.getCreated());
-        }
-    }
-
-    private boolean isDeltaStale(final Instant incomingDelta, final Instant existingDelta) {
-        return !incomingDelta.isAfter(existingDelta);
-    }
-
     private Optional<CompanyAppointmentDocument> getExistingDelta(
             final CompanyAppointmentDocument incomingAppointment) {
 
@@ -171,6 +139,27 @@ public class CompanyAppointmentFullRecordService {
         return companyAppointmentRepository.readByCompanyNumberAndID(companyNumber, id);
     }
 
+    private void updateDocument(CompanyAppointmentDocument document, CompanyAppointmentDocument existingDocument,
+            DeltaTimestamp instant) throws ServiceUnavailableException {
+        if (isDeltaStale(document.getDeltaAt(), existingDocument.getDeltaAt())) {
+            logStaleIncomingDelta(document, existingDocument.getDeltaAt());
+        } else {
+            try {
+                saveDocument(document, instant, existingDocument.getCreated());
+            } catch (ServiceUnavailableException e) {
+                // Apply compensatory transaction
+                companyAppointmentRepository.insertOrUpdate(existingDocument);
+                LOGGER.info("Call to Kafka API failed, reverting previously updated document to original state",
+                        DataMapHolder.getLogMap());
+                throw e;
+            }
+        }
+    }
+
+    private boolean isDeltaStale(final Instant incomingDelta, final Instant existingDelta) {
+        return !incomingDelta.isAfter(existingDelta);
+    }
+
     private void logStaleIncomingDelta(final CompanyAppointmentDocument appointmentAPI, final Instant existingDelta) {
 
         Map<String, Object> logInfo = DataMapHolder.getLogMap();
@@ -178,6 +167,31 @@ public class CompanyAppointmentFullRecordService {
         logInfo.put("existingDeltaAt", StringUtils.defaultString(existingDelta.toString(), "No existing delta"));
         final String context = appointmentAPI.getAppointmentId();
         LOGGER.errorContext(context, "Received stale delta", null, logInfo);
+    }
+
+    private void insertDocument(CompanyAppointmentDocument document, DeltaTimestamp instant)
+            throws ServiceUnavailableException {
+        try {
+            saveDocument(document, instant, instant);
+        } catch (ServiceUnavailableException e) {
+            // Apply compensatory transaction
+            companyAppointmentRepository.deleteByCompanyNumberAndID(document.getCompanyNumber(), document.getId());
+            LOGGER.info("Call to Kafka API failed, deleting previously inserted document",
+                    DataMapHolder.getLogMap());
+            throw e;
+        }
+    }
+
+    private void saveDocument(CompanyAppointmentDocument document, DeltaTimestamp updatedAt, DeltaTimestamp createdAt) {
+        document.updated(updatedAt);
+        document.created(createdAt);
+
+        companyAppointmentRepository.insertOrUpdate(document);
+        resourceChangedApiService.invokeChsKafkaApi(
+                new ResourceChangedRequest(DataMapHolder.getRequestId(), document.getCompanyNumber(),
+                        document.getAppointmentId(), null, false));
+        LOGGER.debug(String.format("ChsKafka api CHANGED invoked updated successfully for company number: %s",
+                document.getCompanyNumber()), DataMapHolder.getLogMap());
     }
 }
 

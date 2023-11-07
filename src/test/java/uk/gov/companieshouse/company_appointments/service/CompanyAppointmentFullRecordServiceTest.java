@@ -198,6 +198,56 @@ class CompanyAppointmentFullRecordServiceTest {
         assertThrows(ServiceUnavailableException.class, executable);
     }
 
+    @Test
+    void testInsertAppointmentHandlesCompensatoryTransactionWhenServiceUnavailableThrown() {
+        // given
+        CompanyAppointmentDocument deltaAppointmentDocument = new CompanyAppointmentDocument()
+                .id("appointmentId")
+                .companyNumber("012345678");
+        when(deltaAppointmentTransformer.transform(any(FullRecordCompanyOfficerApi.class))).thenReturn(
+                deltaAppointmentDocument);
+        when(companyAppointmentRepository.readByCompanyNumberAndID(any(), any())).thenReturn(Optional.empty());
+        when(resourceChangedApiService.invokeChsKafkaApi(any())).thenThrow(ServiceUnavailableException.class);
+
+        // When
+        Executable executable = () -> companyAppointmentService.upsertAppointmentDelta(
+                fullRecordCompanyOfficerApi);
+
+        // then
+        assertThrows(ServiceUnavailableException.class, executable);
+        verify(companyAppointmentRepository).insertOrUpdate(deltaAppointmentDocument);
+        verify(companyAppointmentRepository).deleteByCompanyNumberAndID("012345678", "appointmentId");
+    }
+
+    @Test
+    void testUpdateAppointmentHandlesCompensatoryTransactionWhenServiceUnavailableThrown() {
+        // given
+        CompanyAppointmentDocument deltaAppointmentDocument = new CompanyAppointmentDocument()
+                .id("appointmentId")
+                .companyNumber("012345678")
+                .deltaAt(Instant.parse("2023-11-06T16:30:00.000000Z"));
+
+        CompanyAppointmentDocument existingDocument = new CompanyAppointmentDocument()
+                .id("appointmentId")
+                .companyNumber("012345678")
+                .deltaAt(Instant.parse("2023-11-06T12:00:00.000000Z"));
+
+        when(deltaAppointmentTransformer.transform(any(FullRecordCompanyOfficerApi.class))).thenReturn(
+                deltaAppointmentDocument);
+
+        when(companyAppointmentRepository.readByCompanyNumberAndID(any(), any())).thenReturn(Optional.of(existingDocument));
+        when(resourceChangedApiService.invokeChsKafkaApi(any())).thenThrow(ServiceUnavailableException.class);
+
+        // When
+        Executable executable = () -> companyAppointmentService.upsertAppointmentDelta(
+                fullRecordCompanyOfficerApi);
+
+        // then
+        assertThrows(ServiceUnavailableException.class, executable);
+        verify(companyAppointmentRepository).insertOrUpdate(deltaAppointmentDocument);
+        verify(companyAppointmentRepository).insertOrUpdate(existingDocument);
+    }
+
     @ParameterizedTest
     @MethodSource("deltaAtTestCases")
     void testRejectStaleDelta(
