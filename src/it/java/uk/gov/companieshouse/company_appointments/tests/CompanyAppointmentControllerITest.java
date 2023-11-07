@@ -85,13 +85,13 @@ class CompanyAppointmentControllerITest {
             "converted-closed",
             "closed" };
     private static final String[] CORPORATE_APPOINTMENT_DOC_PATHS = {
-            "/appointment_documents/corp_active_delta_appointment_document_template.json",
-            "/appointment_documents/corp_pre_1992_delta_appointment_document_template.json",
-            "/appointment_documents/corp_resigned_delta_appointment_document_template.json" };
+            "/appointmentdocuments/corp_active_delta_appointment_document_template.json",
+            "/appointmentdocuments/corp_pre_1992_delta_appointment_document_template.json",
+            "/appointmentdocuments/corp_resigned_delta_appointment_document_template.json"};
     private static final String[] NATURAL_APPOINTMENT_DOC_PATHS = {
-            "/appointment_documents/nat_active_delta_appointment_document_template.json",
-            "/appointment_documents/nat_pre_1992_delta_appointment_document_template.json",
-            "/appointment_documents/nat_resigned_delta_appointment_document_template.json" };
+            "/appointmentdocuments/nat_active_delta_appointment_document_template.json",
+            "/appointmentdocuments/nat_pre_1992_delta_appointment_document_template.json",
+            "/appointmentdocuments/nat_resigned_delta_appointment_document_template.json"};
     private static final String[] OFFICER_ROLES = {
             "cic-manager",
             "corporate-director",
