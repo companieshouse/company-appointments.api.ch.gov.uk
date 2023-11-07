@@ -144,7 +144,6 @@ class CompanyAppointmentControllerITest {
                 "delta_appointments");
         System.setProperty("company-metrics-api.endpoint", "localhost");
 
-
         createCompanyNumbers();
         mongoTemplate.insert(buildCorporateAppointments(), "delta_appointments");
         mongoTemplate.insert(buildNaturalAppointments(), "delta_appointments");
