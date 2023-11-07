@@ -1,0 +1,50 @@
+{
+  "_id" : "<id>",
+  "data" : {
+    "etag" : "etag",
+    "service_address" : {
+      "address_line_1" : "1 Crown Way",
+      "address_line_2" : "Pavement",
+      "country" : "United Kingdom",
+      "po_box" : "CF14 3UZ",
+      "postal_code" : "CF14 3UZ",
+      "premises" : "1",
+      "region" : "Cardiff"
+    },
+    "service_address_is_same_as_registered_office_address" : true,
+    "appointed_on" : ISODate("2011-11-03T00:00:00.000Z"),
+    "is_pre_1992_appointment" : false,
+    "links" : {
+      "self" : "/company/<company_number>/appointments/<id>",
+      "officer" : {
+        "self" : "/officers/<officer_id>",
+        "appointments" : "/officers/<officer_id>/appointments"
+      }
+    },
+    "officer_role" : "<officer_role>",
+    "identification" : {
+      "identification_type" : "<identification_type>",
+      "legal_authority" : "Legal Auth",
+      "legal_form" : "Legal Form",
+      "place_registered" : "United Kingdom",
+      "registration_number" : "12345"
+    },
+    "company_name" : "TEST COMPANY LTD",
+    "company_number" : "<company_number>"
+  },
+  "internal_id" : "<internal_id>",
+  "appointment_id" : "<id>",
+  "officer_id" : "<officer_id>",
+  "previous_officer_id" : "previous_officer_id_123456789",
+  "company_number" : "<company_number>",
+  "updated" : {
+    "at" : ISODate("2023-11-03T13:06:28.156Z")
+  },
+  "created" : {
+    "at" : ISODate("2023-11-03T13:06:28.156Z")
+  },
+  "delta_at" : ISODate("2014-09-25T17:10:03.950Z"),
+  "officer_role_sort_order" : NumberInt(20),
+  "company_name" : "TEST_COMPANY",
+  "company_status" : "<company_status>"
+}

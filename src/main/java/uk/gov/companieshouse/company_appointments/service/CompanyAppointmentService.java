@@ -27,6 +27,7 @@ import uk.gov.companieshouse.company_appointments.logging.DataMapHolder;
 import uk.gov.companieshouse.company_appointments.mapper.CompanyAppointmentMapper;
 import uk.gov.companieshouse.company_appointments.model.FetchAppointmentsRequest;
 import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentDocument;
+import uk.gov.companieshouse.company_appointments.model.data.CompanyStatus;
 import uk.gov.companieshouse.company_appointments.repository.CompanyAppointmentRepository;
 import uk.gov.companieshouse.company_appointments.util.CompanyStatusValidator;
 import uk.gov.companieshouse.logging.Logger;
@@ -220,10 +221,11 @@ public class CompanyAppointmentService {
         }
 
         private Counts(final AppointmentsApi appointments, final String status, final boolean isFilterEnabled) {
-            switch (status) {
-                case "removed":
-                case "dissolved":
-                case "converted-closed":
+            CompanyStatus companyStatus = CompanyStatus.fromValue(status);
+            switch (companyStatus) {
+                case CLOSED:
+                case DISSOLVED:
+                case CONVERTED_CLOSED:
                     active = 0;
                     inactive = appointments.getActiveCount();
                     break;

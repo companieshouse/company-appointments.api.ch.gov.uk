@@ -1,0 +1,68 @@
+{
+  "_id" : "<id>",
+  "data" : {
+    "etag" : "etag",
+    "service_address" : {
+      "address_line_1" : "sa_line1",
+      "address_line_2" : "sa_line2",
+      "country" : "United Kingdom",
+      "po_box" : "sa_po",
+      "postal_code" : "CF14 3UZ",
+      "premises" : "SA",
+      "region" : "sa_region"
+    },
+    "service_address_is_same_as_registered_office_address" : true,
+    "country_of_residence" : "United Kingdom",
+    "appointed_on" : ISODate("2011-11-03T00:00:00.000Z"),
+    "is_pre_1992_appointment" : false,
+    "links" : {
+      "self" : "/company/<company_number>/appointments/<id>",
+      "officer" : {
+        "self" : "/officers/<officer_id>",
+        "appointments" : "/officers/<officer_id>/appointments"
+      }
+    },
+    "nationality" : "British",
+    "occupation" : "Lawyer",
+    "officer_role" : "<officer_role>",
+    "is_secure_officer" : false,
+    "surname" : "Baggins",
+    "forename" : "Frodo",
+    "other_forenames" : "Middlename",
+    "title" : "Mr",
+    "company_number" : "<company_number>",
+    "former_names" : [
+      {
+        "forenames" : "Bilbo",
+        "surname" : "Baggins"
+      }
+    ]
+  },
+  "sensitive_data" : {
+    "usual_residential_address" : {
+      "address_line_1" : "ura_line1",
+      "address_line_2" : "ura_line2",
+      "country" : "United Kingdom",
+      "po_box" : "ura_po",
+      "postal_code" : "CF14 3UZ",
+      "premises" : "URA",
+      "region" : "ura_region"
+    },
+    "date_of_birth" : ISODate("1985-06-30T00:00:00.000Z")
+  },
+  "internal_id" : "<internal_id>",
+  "appointment_id" : "<id>",
+  "officer_id" : "<officer_id>",
+  "previous_officer_id" : "previous_officer_id_123456789",
+  "company_number" : "<company_number>",
+  "updated" : {
+    "at" : ISODate("2023-11-03T13:16:04.753Z")
+  },
+  "created" : {
+    "at" : ISODate("2023-11-03T13:16:04.753Z")
+  },
+  "delta_at" : ISODate("2023-10-09T10:10:03.950Z"),
+  "officer_role_sort_order" : NumberInt(20),
+  "company_name" : "TEST COMPANY LTD",
+  "company_status" : "<company_status>"
+}

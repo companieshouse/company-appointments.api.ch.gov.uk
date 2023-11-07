@@ -50,7 +50,7 @@ class CompanyAppointmentRepositoryTest {
     private static final LocalDateTime RESIGNED_ON_BASE = LocalDateTime.of(2022, 1, 1, 10, 0);
 
     @Container
-    private static final MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:4.4");
+    private static final MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:5");
     private static final String SURNAME = "Surname";
 
     @Autowired
