@@ -8,6 +8,13 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static uk.gov.companieshouse.company_appointments.util.TestUtils.COMPANY_STATUSES;
+import static uk.gov.companieshouse.company_appointments.util.TestUtils.CORPORATE_APPOINTMENT_DOC_PATHS;
+import static uk.gov.companieshouse.company_appointments.util.TestUtils.IDENTITY_TYPES;
+import static uk.gov.companieshouse.company_appointments.util.TestUtils.NATURAL_APPOINTMENT_DOC_PATHS;
+import static uk.gov.companieshouse.company_appointments.util.TestUtils.OFFICER_ROLES;
+import static uk.gov.companieshouse.company_appointments.util.TestUtils.generateRandomEightCharCompanyNumber;
+import static uk.gov.companieshouse.company_appointments.util.TestUtils.generateRandomInternalId;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
@@ -16,7 +23,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.UUID;
 
 import org.apache.commons.io.IOUtils;
@@ -65,57 +71,6 @@ class CompanyAppointmentControllerITest {
     private static final String ERIC_AUTHORISED_KEY_PRIVILEGES = "ERIC-Authorised-Key-Privileges";
     private static final String CONTEXT_ID = "context_id";
     private static Map<String, String> companyStatusToCompanyNumber;
-    private static final String[] IDENTITY_TYPES = {
-            "uk-limited-company",
-            "eea",
-            "non-eea",
-            "other-corporate-body-or-firm",
-            "registered-overseas-entity-corporate-managing-officer" };
-    private static final String[] COMPANY_STATUSES = {
-            "active",
-            "liquidation",
-            "receivership",
-            "voluntary-arrangement",
-            "insolvency-proceedings",
-            "administration",
-            "open",
-            "registered",
-            "removed",
-            "dissolved",
-            "converted-closed",
-            "closed" };
-    private static final String[] CORPORATE_APPOINTMENT_DOC_PATHS = {
-            "/appointmentdocuments/corp_active_delta_appointment_document_template.json",
-            "/appointmentdocuments/corp_pre_1992_delta_appointment_document_template.json",
-            "/appointmentdocuments/corp_resigned_delta_appointment_document_template.json"};
-    private static final String[] NATURAL_APPOINTMENT_DOC_PATHS = {
-            "/appointmentdocuments/nat_active_delta_appointment_document_template.json",
-            "/appointmentdocuments/nat_pre_1992_delta_appointment_document_template.json",
-            "/appointmentdocuments/nat_resigned_delta_appointment_document_template.json"};
-    private static final String[] OFFICER_ROLES = {
-            "cic-manager",
-            "corporate-director",
-            "corporate-llp-designated-member",
-            "corporate-llp-member",
-            "corporate-managing-officer",
-            "corporate-member-of-a-management-organ",
-            "corporate-member-of-a-supervisory-organ",
-            "corporate-member-of-an-administrative-organ",
-            "corporate-nominee-director",
-            "corporate-nominee-secretary",
-            "corporate-secretary",
-            "director",
-            "judicial-factor",
-            "llp-designated-member",
-            "llp-member",
-            "managing-officer",
-            "member-of-a-management-organ",
-            "member-of-a-supervisory-organ",
-            "member-of-an-administrative-organ",
-            "nominee-director",
-            "nominee-secretary",
-            "receiver-and-manager",
-            "secretary" };
 
     @Autowired
     private MockMvc mockMvc;
@@ -509,7 +464,7 @@ class CompanyAppointmentControllerITest {
 
     static private List<Document> buildNaturalAppointments() throws IOException {
         List<String> corporateOfficerRoles = new ArrayList<>();
-        for (final String role : CompanyAppointmentControllerITest.OFFICER_ROLES) {
+        for (final String role : OFFICER_ROLES) {
             if (!role.contains("corporate")) { // exclude corporate roles
                 corporateOfficerRoles.add(role);
             }
@@ -537,27 +492,5 @@ class CompanyAppointmentControllerITest {
             }
         }
         return documents; // results in 468 documents
-    }
-
-    static private String generateRandomInternalId() {
-        final int low = 10000;
-        final int high = 99999;
-
-        final int result = generateRandomNumberWithinBounds(high, low);
-
-        return String.format("12345%d", result);
-    }
-
-    static private String generateRandomEightCharCompanyNumber() {
-        final int low = 100000;
-        final int high = 999999;
-
-        final int result = generateRandomNumberWithinBounds(high, low);
-
-        return String.format("CN%d", result);
-    }
-
-    static private int generateRandomNumberWithinBounds(final int upperBound, final int lowerBound) {
-        return new Random().nextInt(upperBound - lowerBound) + lowerBound;
     }
 }
