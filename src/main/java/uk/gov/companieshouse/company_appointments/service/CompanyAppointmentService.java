@@ -1,9 +1,6 @@
 package uk.gov.companieshouse.company_appointments.service;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
-import static uk.gov.companieshouse.company_appointments.model.data.CompanyStatus.CLOSED;
-import static uk.gov.companieshouse.company_appointments.model.data.CompanyStatus.CONVERTED_CLOSED;
-import static uk.gov.companieshouse.company_appointments.model.data.CompanyStatus.DISSOLVED;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -12,7 +9,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
-import org.checkerframework.checker.units.qual.C;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import uk.gov.companieshouse.GenerateEtagUtil;
