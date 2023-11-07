@@ -24,6 +24,8 @@ import org.bson.Document;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -378,8 +380,18 @@ class CompanyAppointmentControllerITest {
                 .andExpect(MockMvcResultMatchers.status().isForbidden());
     }
 
-    @Test
-    void testReturn200OKWithActiveCompaniesWithActiveFilter() throws Exception {
+    @ParameterizedTest
+    @CsvSource({
+        "active",
+        "liquidation",
+        "receivership",
+        "voluntary-arrangement",
+        "insolvency-proceedings",
+        "administration",
+        "open",
+        "registered",
+        "removed" })
+    void testReturn200OKWithActiveCompaniesWithActiveFilter(String companyStatus) throws Exception {
         // given
         final int totalNumberOfAppointmentsForEachCompany = 189;
         final int numberOfAppointmentsConsideredActiveForEachCompany = 126;
@@ -391,38 +403,32 @@ class CompanyAppointmentControllerITest {
                 .activeCount(numberOfAppointmentsConsideredActiveForEachCompany)
                 .resignedCount(resignedCount)));
 
-        List<String> activeCompanyStatuses = new ArrayList<>();
-        for (Map.Entry<String, String> entry : companyStatusToCompanyNumber.entrySet()) {
-            if (entry.getKey().equals("closed") || entry.getKey().equals("converted-closed") || entry.getKey().equals("dissolved")) {
-                continue;
-            }
-            activeCompanyStatuses.add(entry.getKey());
-        }
-
         // when
-        for (String companyStatus : activeCompanyStatuses) {
-            final String companyNumber = companyStatusToCompanyNumber.get(companyStatus);
-            ResultActions result = mockMvc.perform(get("/company/{company_number}/officers?filter=active&items_per_page=500", companyNumber)
-                    .header(X_REQUEST_ID, CONTEXT_ID)
-                    .header(ERIC_IDENTITY, "123")
-                    .header(ERIC_IDENTITY_TYPE, "key")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .accept(MediaType.APPLICATION_JSON));
+        final String companyNumber = companyStatusToCompanyNumber.get(companyStatus);
+        ResultActions result = mockMvc.perform(get("/company/{company_number}/officers?filter=active&items_per_page=500", companyNumber)
+                .header(X_REQUEST_ID, CONTEXT_ID)
+                .header(ERIC_IDENTITY, "123")
+                .header(ERIC_IDENTITY_TYPE, "key")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON));
 
-            // then
-            result.andExpect(MockMvcResultMatchers.status().isOk());
+        // then
+        result.andExpect(MockMvcResultMatchers.status().isOk());
 
-            OfficerList responseEntity = objectMapper.readValue(result.andReturn().getResponse().getContentAsString(), OfficerList.class);
+        final OfficerList responseEntity = objectMapper.readValue(result.andReturn().getResponse().getContentAsString(), OfficerList.class);
 
-            assertEquals(numberOfAppointmentsConsideredActiveForEachCompany, responseEntity.getTotalResults());
-            assertEquals(numberOfAppointmentsConsideredActiveForEachCompany, responseEntity.getActiveCount());
-            assertEquals(resignedCount, responseEntity.getResignedCount());
-            assertEquals(numberOfAppointmentsConsideredActiveForEachCompany, responseEntity.getItems().size());
-        }
+        assertEquals(numberOfAppointmentsConsideredActiveForEachCompany, responseEntity.getTotalResults());
+        assertEquals(numberOfAppointmentsConsideredActiveForEachCompany, responseEntity.getActiveCount());
+        assertEquals(resignedCount, responseEntity.getResignedCount());
+        assertEquals(numberOfAppointmentsConsideredActiveForEachCompany, responseEntity.getItems().size());
     }
 
-    @Test
-    void testReturn200OKWithInactiveCompaniesWithActiveFilter() throws Exception {
+    @ParameterizedTest
+    @CsvSource({
+        "dissolved",
+        "converted-closed",
+        "closed" })
+    void testReturn200OKWithInactiveCompaniesWithActiveFilter(String companyStatus) throws Exception {
         // given
         final int totalNumberOfAppointmentsForEachCompany = 189;
         final int numberOfAppointmentsConsideredActiveForEachCompany = 126;
@@ -434,33 +440,24 @@ class CompanyAppointmentControllerITest {
                 .activeCount(numberOfAppointmentsConsideredActiveForEachCompany)
                 .resignedCount(resignedCount)));
 
-        List<String> activeCompanyStatuses = new ArrayList<>();
-        for (Map.Entry<String, String> entry : companyStatusToCompanyNumber.entrySet()) {
-            if (entry.getKey().equals("closed") || entry.getKey().equals("converted-closed") || entry.getKey().equals("dissolved")) {
-                activeCompanyStatuses.add(entry.getKey());
-            }
-        }
-
         // when
-        for (String companyStatus : activeCompanyStatuses) {
-            final String companyNumber = companyStatusToCompanyNumber.get(companyStatus);
-            ResultActions result = mockMvc.perform(get("/company/{company_number}/officers?filter=active", companyNumber)
-                    .header(X_REQUEST_ID, CONTEXT_ID)
-                    .header(ERIC_IDENTITY, "123")
-                    .header(ERIC_IDENTITY_TYPE, "key")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .accept(MediaType.APPLICATION_JSON));
+        final String companyNumber = companyStatusToCompanyNumber.get(companyStatus);
+        ResultActions result = mockMvc.perform(get("/company/{company_number}/officers?filter=active", companyNumber)
+                .header(X_REQUEST_ID, CONTEXT_ID)
+                .header(ERIC_IDENTITY, "123")
+                .header(ERIC_IDENTITY_TYPE, "key")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON));
 
-            // then
-            result.andExpect(MockMvcResultMatchers.status().isOk());
+        // then
+        result.andExpect(MockMvcResultMatchers.status().isOk());
 
-            OfficerList responseEntity = objectMapper.readValue(result.andReturn().getResponse().getContentAsString(), OfficerList.class);
+        final OfficerList responseEntity = objectMapper.readValue(result.andReturn().getResponse().getContentAsString(), OfficerList.class);
 
-            assertEquals(0, responseEntity.getTotalResults());
-            assertEquals(0, responseEntity.getActiveCount());
-            assertEquals(0, responseEntity.getResignedCount());
-            assertEquals(0, responseEntity.getItems().size());
-        }
+        assertEquals(0, responseEntity.getTotalResults());
+        assertEquals(0, responseEntity.getActiveCount());
+        assertEquals(0, responseEntity.getResignedCount());
+        assertEquals(0, responseEntity.getItems().size());
     }
 
     /**
@@ -547,7 +544,7 @@ class CompanyAppointmentControllerITest {
         final int low = 10000;
         final int high = 99999;
 
-        final int result = new Random().nextInt(high - low) + low;
+        final int result = generateRandomNumberWithinBounds(high, low);
 
         return String.format("12345%d", result);
     }
@@ -556,14 +553,12 @@ class CompanyAppointmentControllerITest {
         final int low = 100000;
         final int high = 999999;
 
-        /*
-         * nextInt() generates a random number between 0 and the number you pass (the bound). In this case, that number
-         * is high - low == 899,999. This means, without any further changes, a random number will be generated between
-         * 0 and 899999. However, we want the lower bound to be 100,000. So all we have to do is add 100,000 to the result
-         * to increase the lower bound to 100,000 and the upper to 999,999.
-         */
-        final int result = new Random().nextInt(high - low) + low;
+        final int result = generateRandomNumberWithinBounds(high, low);
 
         return String.format("CN%d", result);
+    }
+
+    static private int generateRandomNumberWithinBounds(final int upperBound, final int lowerBound) {
+        return new Random().nextInt(upperBound - lowerBound) + lowerBound;
     }
 }
