@@ -85,11 +85,16 @@ public class CompanyAppointmentController {
     }
 
     // TEMP CHANGE --- REMOVE ONCE FINISHED
+    public int testSonarQube() {
+        return 1 + 1;
+    }
 
     @PatchMapping(path = "/appointments")
     public ResponseEntity<Void> patchCompanyNameStatus(
             @PathVariable("company_number") String companyNumber,
             @RequestBody PatchAppointmentNameStatusApi requestBody) {
+
+        int num = testSonarQube();
 
         DataMapHolder.get()
                 .companyNumber(companyNumber);
