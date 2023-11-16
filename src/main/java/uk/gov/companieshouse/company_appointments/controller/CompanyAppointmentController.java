@@ -58,9 +58,11 @@ public class CompanyAppointmentController {
             @RequestParam(required = false, name = "register_view") Boolean registerView,
             @RequestParam(required = false, name = "register_type") String registerType) {
 
+        int num = 0;
         if ("active".equals(filter)) {
-            int num = testSonarQube();
+            num = testSonarQube();
         }
+        System.out.println(num);
 
         DataMapHolder.get()
                 .companyNumber(companyNumber);
