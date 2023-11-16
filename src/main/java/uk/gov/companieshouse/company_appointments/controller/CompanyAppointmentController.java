@@ -58,12 +58,6 @@ public class CompanyAppointmentController {
             @RequestParam(required = false, name = "register_view") Boolean registerView,
             @RequestParam(required = false, name = "register_type") String registerType) {
 
-        int num = 0;
-        if ("active".equals(filter)) {
-            num = testSonarQube();
-        }
-        System.out.println(num);
-
         DataMapHolder.get()
                 .companyNumber(companyNumber);
 
@@ -88,11 +82,6 @@ public class CompanyAppointmentController {
             LOGGER.info(e.getMessage(), DataMapHolder.getLogMap());
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();
         }
-    }
-
-    // TEMP CHANGE --- REMOVE ONCE FINISHED
-    public int testSonarQube() {
-        return 1 + 1;
     }
 
     @PatchMapping(path = "/appointments")
