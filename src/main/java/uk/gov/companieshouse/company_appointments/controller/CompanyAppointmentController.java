@@ -84,6 +84,8 @@ public class CompanyAppointmentController {
         }
     }
 
+    // TEMP CHANGE --- REMOVE ONCE FINISHED
+
     @PatchMapping(path = "/appointments")
     public ResponseEntity<Void> patchCompanyNameStatus(
             @PathVariable("company_number") String companyNumber,
