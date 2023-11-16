@@ -58,6 +58,10 @@ public class CompanyAppointmentController {
             @RequestParam(required = false, name = "register_view") Boolean registerView,
             @RequestParam(required = false, name = "register_type") String registerType) {
 
+        if ("active".equals(filter)) {
+            int num = testSonarQube();
+        }
+
         DataMapHolder.get()
                 .companyNumber(companyNumber);
 
@@ -93,8 +97,6 @@ public class CompanyAppointmentController {
     public ResponseEntity<Void> patchCompanyNameStatus(
             @PathVariable("company_number") String companyNumber,
             @RequestBody PatchAppointmentNameStatusApi requestBody) {
-
-        int num = testSonarQube();
 
         DataMapHolder.get()
                 .companyNumber(companyNumber);
