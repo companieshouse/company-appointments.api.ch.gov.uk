@@ -1,4 +1,4 @@
-package uk.gov.companieshouse.company_appointments.tests;
+package uk.gov.companieshouse.company_appointments;
 
 import org.junit.jupiter.api.Test;
 import uk.gov.companieshouse.company_appointments.controller.SonarQubeSpike;
