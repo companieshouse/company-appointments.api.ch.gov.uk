@@ -40,7 +40,6 @@
         <!--sonar configuration-->
         <sonar-maven-plugin.version>3.7.0.1746</sonar-maven-plugin.version>
         <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
-        <sonar.projectKey>uk.gov.companieshouse:company-metrics-consumer</sonar.projectKey>
         <sonar.sources>src/main</sonar.sources>
         <sonar.tests>src/test,src/it</sonar.tests>
         <sonar.verbose>true</sonar.verbose>
