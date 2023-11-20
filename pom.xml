@@ -42,7 +42,7 @@
         <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
         <sonar.projectKey>uk.gov.companieshouse:company-metrics-consumer</sonar.projectKey>
         <sonar.sources>src/main</sonar.sources>
-        <sonar.tests>src/test,src/itest</sonar.tests>
+        <sonar.tests>src/test,src/it</sonar.tests>
         <sonar.verbose>true</sonar.verbose>
         <sonar.coverage.jacoco.xmlReportPaths>
             ${project.basedir}/target/site/jacoco/jacoco.xml
