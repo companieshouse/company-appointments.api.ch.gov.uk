@@ -49,6 +49,9 @@ public class CompanyAppointmentFullRecordView {
     @JsonProperty("country_of_residence")
     private String countryOfResidence;
 
+    @JsonProperty("secure_officer")
+    private Boolean isSecureOfficer;
+
     @JsonProperty("date_of_birth")
     private DateOfBirthView dateOfBirth;
 
@@ -123,6 +126,8 @@ public class CompanyAppointmentFullRecordView {
     public String getCountryOfResidence() {
         return countryOfResidence;
     }
+
+    public Boolean getIsSecureOfficer() { return isSecureOfficer; }
 
     public DateOfBirthView getDateOfBirth() {
         return dateOfBirth;
@@ -214,6 +219,7 @@ public class CompanyAppointmentFullRecordView {
                     .withAppointedBefore(api.getData().getAppointedBefore() != null ?
                             LocalDate.from(api.getData().getAppointedBefore().atZone(UTC)) : null)
                     .withCountryOfResidence(api.getData().getCountryOfResidence())
+                    .withSecureOfficer(api.getData().getSecureOfficer())
                     .withDateOfBirth(builder.mapDateOfBirth(api.getSensitiveData()))
                     .withFormerNames(api.getData().getFormerNames())
                     .withIdentification(api.getData().getIdentification())
@@ -269,6 +275,13 @@ public class CompanyAppointmentFullRecordView {
         public Builder withAppointedBefore(LocalDate appointedBefore) {
 
             buildSteps.add(view -> view.appointedBefore = appointedBefore);
+
+            return this;
+        }
+
+        public Builder withSecureOfficer(Boolean isSecureOfficer) {
+
+            buildSteps.add(view -> view.isSecureOfficer = isSecureOfficer);
 
             return this;
         }
