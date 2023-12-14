@@ -49,7 +49,7 @@ public class CompanyAppointmentFullRecordView {
     @JsonProperty("country_of_residence")
     private String countryOfResidence;
 
-    @JsonProperty("secure_officer")
+    @JsonProperty("is_secure_officer")
     private Boolean isSecureOfficer;
 
     @JsonProperty("date_of_birth")
