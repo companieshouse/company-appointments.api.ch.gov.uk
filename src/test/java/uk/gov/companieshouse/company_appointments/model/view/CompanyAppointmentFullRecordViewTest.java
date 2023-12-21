@@ -83,7 +83,14 @@ class CompanyAppointmentFullRecordViewTest {
 
     @Test
     void isSecureOfficer() {
+
         assertThat(testView.getIsSecureOfficer(), is(Boolean.TRUE));
+    }
+
+    @Test
+    void Title() {
+
+        assertThat(testView.getTitle(), is("Sir"));
     }
 
     @Test

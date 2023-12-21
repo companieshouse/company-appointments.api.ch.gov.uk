@@ -64,6 +64,9 @@ public class CompanyAppointmentFullRecordView {
     @JsonProperty("links")
     private DeltaItemLinkTypes links;
 
+    @JsonProperty("title")
+    private String title;
+
     @JsonProperty("name")
     private String name;
 
@@ -157,6 +160,10 @@ public class CompanyAppointmentFullRecordView {
         return surname;
     }
 
+    public String getTitle() {
+        return title;
+    }
+
     public String getOtherForenames() {
         return otherForenames;
     }
@@ -219,11 +226,12 @@ public class CompanyAppointmentFullRecordView {
                     .withAppointedBefore(api.getData().getAppointedBefore() != null ?
                             LocalDate.from(api.getData().getAppointedBefore().atZone(UTC)) : null)
                     .withCountryOfResidence(api.getData().getCountryOfResidence())
-                    .withSecureOfficer(api.getData().getSecureOfficer())
+                    .withIsSecureOfficer(api.getData().getSecureOfficer())
                     .withDateOfBirth(builder.mapDateOfBirth(api.getSensitiveData()))
                     .withFormerNames(api.getData().getFormerNames())
                     .withIdentification(api.getData().getIdentification())
                     .withLinks(List.of(api.getData().getLinks()))
+                    .withTitle(api.getData().getTitle())
                     .withName(builder.individualOfficerName(api))
                     .withForename(api.getData().getForename())
                     .withSurname(api.getData().getSurname())
@@ -279,7 +287,7 @@ public class CompanyAppointmentFullRecordView {
             return this;
         }
 
-        public Builder withSecureOfficer(Boolean isSecureOfficer) {
+        public Builder withIsSecureOfficer(Boolean isSecureOfficer) {
 
             buildSteps.add(view -> view.isSecureOfficer = isSecureOfficer);
 
@@ -326,6 +334,12 @@ public class CompanyAppointmentFullRecordView {
             return this;
         }
 
+        public Builder withTitle(String title) {
+
+            buildSteps.add(view -> view.title = title);
+
+            return this;
+        }
         public Builder withName(String name) {
 
             buildSteps.add(view -> view.name = name);
