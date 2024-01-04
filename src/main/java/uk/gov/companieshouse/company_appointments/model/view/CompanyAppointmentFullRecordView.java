@@ -130,7 +130,9 @@ public class CompanyAppointmentFullRecordView {
         return countryOfResidence;
     }
 
-    public Boolean getIsSecureOfficer() { return isSecureOfficer; }
+    public Boolean getIsSecureOfficer() {
+        return isSecureOfficer;
+    }
 
     public DateOfBirthView getDateOfBirth() {
         return dateOfBirth;
