@@ -340,6 +340,7 @@ public class CompanyAppointmentFullRecordView {
 
             return this;
         }
+
         public Builder withName(String name) {
 
             buildSteps.add(view -> view.name = name);
