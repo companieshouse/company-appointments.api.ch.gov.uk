@@ -49,6 +49,9 @@ public class CompanyAppointmentFullRecordView {
     @JsonProperty("country_of_residence")
     private String countryOfResidence;
 
+    @JsonProperty("is_secure_officer")
+    private Boolean isSecureOfficer;
+
     @JsonProperty("date_of_birth")
     private DateOfBirthView dateOfBirth;
 
@@ -60,6 +63,9 @@ public class CompanyAppointmentFullRecordView {
 
     @JsonProperty("links")
     private DeltaItemLinkTypes links;
+
+    @JsonProperty("title")
+    private String title;
 
     @JsonProperty("name")
     private String name;
@@ -124,6 +130,10 @@ public class CompanyAppointmentFullRecordView {
         return countryOfResidence;
     }
 
+    public Boolean getIsSecureOfficer() {
+        return isSecureOfficer;
+    }
+
     public DateOfBirthView getDateOfBirth() {
         return dateOfBirth;
     }
@@ -150,6 +160,10 @@ public class CompanyAppointmentFullRecordView {
 
     public String getSurname() {
         return surname;
+    }
+
+    public String getTitle() {
+        return title;
     }
 
     public String getOtherForenames() {
@@ -214,10 +228,12 @@ public class CompanyAppointmentFullRecordView {
                     .withAppointedBefore(api.getData().getAppointedBefore() != null ?
                             LocalDate.from(api.getData().getAppointedBefore().atZone(UTC)) : null)
                     .withCountryOfResidence(api.getData().getCountryOfResidence())
+                    .withIsSecureOfficer(api.getData().getSecureOfficer())
                     .withDateOfBirth(builder.mapDateOfBirth(api.getSensitiveData()))
                     .withFormerNames(api.getData().getFormerNames())
                     .withIdentification(api.getData().getIdentification())
                     .withLinks(List.of(api.getData().getLinks()))
+                    .withTitle(api.getData().getTitle())
                     .withName(builder.individualOfficerName(api))
                     .withForename(api.getData().getForename())
                     .withSurname(api.getData().getSurname())
@@ -273,6 +289,13 @@ public class CompanyAppointmentFullRecordView {
             return this;
         }
 
+        public Builder withIsSecureOfficer(Boolean isSecureOfficer) {
+
+            buildSteps.add(view -> view.isSecureOfficer = isSecureOfficer);
+
+            return this;
+        }
+
         public Builder withCountryOfResidence(String countryOfResidence) {
 
             buildSteps.add(view -> view.countryOfResidence = countryOfResidence);
@@ -309,6 +332,13 @@ public class CompanyAppointmentFullRecordView {
 
             buildSteps.add(view -> view.links = links.get(0));
             buildSteps.add(Builder::appendSelfLinkFullRecord);
+
+            return this;
+        }
+
+        public Builder withTitle(String title) {
+
+            buildSteps.add(view -> view.title = title);
 
             return this;
         }

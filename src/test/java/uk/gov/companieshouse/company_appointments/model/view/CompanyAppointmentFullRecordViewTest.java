@@ -82,6 +82,18 @@ class CompanyAppointmentFullRecordViewTest {
     }
 
     @Test
+    void isSecureOfficer() {
+
+        assertThat(testView.getIsSecureOfficer(), is(Boolean.TRUE));
+    }
+
+    @Test
+    void Title() {
+
+        assertThat(testView.getTitle(), is("Sir"));
+    }
+
+    @Test
     void DateOfBirth() {
 
         assertThat(testView.getDateOfBirth(), is(dob));
@@ -223,6 +235,7 @@ class CompanyAppointmentFullRecordViewTest {
         companyAppointmentDocument.getData().setAppointedOn(INSTANT);
         companyAppointmentDocument.getData().setAppointedBefore(INSTANT);
         companyAppointmentDocument.getData().setCountryOfResidence("countryOfResidence");
+        companyAppointmentDocument.getData().setSecureOfficer(true);
         companyAppointmentDocument.getSensitiveData().setDateOfBirth(INSTANT);
         companyAppointmentDocument.getData().setFormerNames(formerNames);
         companyAppointmentDocument.getData().setIdentification(identification);
