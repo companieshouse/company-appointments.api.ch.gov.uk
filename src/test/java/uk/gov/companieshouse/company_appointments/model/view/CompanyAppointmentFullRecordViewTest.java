@@ -235,7 +235,7 @@ class CompanyAppointmentFullRecordViewTest {
         companyAppointmentDocument.getData().setAppointedOn(INSTANT);
         companyAppointmentDocument.getData().setAppointedBefore(INSTANT);
         companyAppointmentDocument.getData().setCountryOfResidence("countryOfResidence");
-        companyAppointmentDocument.getData().setIsSecureOfficer(true);
+        companyAppointmentDocument.getData().setSecureOfficer(true);
         companyAppointmentDocument.getSensitiveData().setDateOfBirth(INSTANT);
         companyAppointmentDocument.getData().setFormerNames(formerNames);
         companyAppointmentDocument.getData().setIdentification(identification);

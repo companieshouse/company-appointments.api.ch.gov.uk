@@ -166,11 +166,6 @@ public class DeltaOfficerData {
     return this;
   }
 
-  public DeltaOfficerData setIsSecureOfficer(Boolean isSecureOfficer) {
-    this.isSecureOfficer = isSecureOfficer;
-    return this;
-  }
-
   public Instant getAppointedOn() {
     return appointedOn;
   }
