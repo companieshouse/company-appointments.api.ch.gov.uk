@@ -12,7 +12,7 @@
       "premises" : "1",
       "region" : "Cardiff"
     },
-    "service_address_same_as_registered_office_address" : true,
+    "service_address_is_same_as_registered_office_address" : true,
     "appointed_on" : ISODate("2011-11-03T00:00:00.000Z"),
     "is_pre_1992_appointment" : false,
     "links" : {
