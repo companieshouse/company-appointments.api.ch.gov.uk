@@ -188,6 +188,18 @@ class CompanyAppointmentFullRecordViewTest {
         assertThat(view.getUsualResidentialAddress(), is(nullValue()));
     }
 
+    @Test
+    void serviceAddressIsSameAsRegisteredOfficeAddressTest() {
+
+        assertThat(testView.getServiceAddressIsSameAsRegisteredOfficeAddress(), is(Boolean.TRUE));
+    }
+
+    @Test
+    void residentialAddressIsSameAsServiceAddressTest() {
+
+        assertThat(testView.getResidentialAddressIsSameAsServiceAddress(), is(Boolean.TRUE));
+    }
+
     private void checkUsualResidentialAddress(DeltaUsualResidentialAddress address) {
 
         assertThat(address.getAddressLine1(), is(String.join(" ", "usualResidential", "address1")));
@@ -253,6 +265,8 @@ class CompanyAppointmentFullRecordViewTest {
         companyAppointmentDocument.getData().setContactDetails(contactDetails);
         companyAppointmentDocument.getData().setResponsibilities("responsibilities");
         companyAppointmentDocument.getData().setPrincipalOfficeAddress(createPrincipalOfficeAddress());
+        companyAppointmentDocument.getSensitiveData().setResidentialAddressIsSameAsServiceAddress(Boolean.TRUE);
+        companyAppointmentDocument.getData().setServiceAddressIsSameAsRegisteredOfficeAddress(Boolean.TRUE);
         return companyAppointmentDocument;
     }
 
