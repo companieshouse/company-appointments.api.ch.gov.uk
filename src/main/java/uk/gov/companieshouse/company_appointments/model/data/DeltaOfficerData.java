@@ -94,7 +94,7 @@ public class DeltaOfficerData {
     personNumber = builder.personNumber;
     etag = builder.etag;
     serviceAddress = builder.serviceAddress;
-    serviceAddressIsSameAsRegisteredOfficeAddress = builder.serviceAddressSameAsRegisteredOfficeAddress;
+    serviceAddressIsSameAsRegisteredOfficeAddress = builder.serviceAddressIsSameAsRegisteredOfficeAddress;
     countryOfResidence = builder.countryOfResidence;
     appointedOn = builder.appointedOn;
     appointedBefore = builder.appointedBefore;
@@ -407,7 +407,7 @@ public class DeltaOfficerData {
             + "    personNumber: " + toIndentedString(personNumber) + "\n"
             + "    etag: " + toIndentedString(etag) + "\n"
             + "    serviceAddress: " + toIndentedString(serviceAddress) + "\n"
-            + "    serviceAddressSameAsRegisteredOfficeAddress: " + toIndentedString(
+            + "    serviceAddressIsSameAsRegisteredOfficeAddress: " + toIndentedString(
             serviceAddressIsSameAsRegisteredOfficeAddress) + "\n"
             + "    countryOfResidence: " + toIndentedString(countryOfResidence) + "\n"
             + "    appointedOn: " + toIndentedString(appointedOn) + "\n"
@@ -450,7 +450,7 @@ public class DeltaOfficerData {
     private String personNumber;
     private String etag;
     private DeltaServiceAddress serviceAddress;
-    private Boolean serviceAddressSameAsRegisteredOfficeAddress;
+    private Boolean serviceAddressIsSameAsRegisteredOfficeAddress;
     private String countryOfResidence;
     private Instant appointedOn;
     private Instant appointedBefore;
@@ -496,8 +496,8 @@ public class DeltaOfficerData {
       return this;
     }
 
-    public Builder serviceAddressSameAsRegisteredOfficeAddress(Boolean serviceAddressSameAsRegisteredOfficeAddress) {
-      this.serviceAddressSameAsRegisteredOfficeAddress = serviceAddressSameAsRegisteredOfficeAddress;
+    public Builder serviceAddressIsSameAsRegisteredOfficeAddress(Boolean serviceAddressIsSameAsRegisteredOfficeAddress) {
+      this.serviceAddressIsSameAsRegisteredOfficeAddress = serviceAddressIsSameAsRegisteredOfficeAddress;
       return this;
     }
 

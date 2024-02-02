@@ -62,7 +62,7 @@ public class DeltaSensitiveData {
   public String toString() {
     return "class SensitiveData {\n"
             + "    usualResidentialAddress: " + toIndentedString(usualResidentialAddress) + "\n"
-            + "    residentialAddressSameAsServiceAddress: " + toIndentedString(
+            + "    residentialAddressIsSameAsServiceAddress: " + toIndentedString(
             residentialAddressIsSameAsServiceAddress) + "\n"
             + "    dateOfBirth: " + toIndentedString(dateOfBirth) + "\n"
             + "}";
