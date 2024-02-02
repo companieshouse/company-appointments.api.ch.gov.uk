@@ -106,6 +106,12 @@ public class CompanyAppointmentFullRecordView {
     @JsonProperty("responsibilities")
     private String responsibilities;
 
+    @JsonProperty("service_address_is_same_as_registered_office_address")
+    private Boolean serviceAddressIsSameAsRegisteredOfficeAddress;
+
+    @JsonProperty("residential_address_is_same_as_service_address")
+    private Boolean residentialAddressIsSameAsServiceAddress;
+
     public DeltaServiceAddress getServiceAddress() {
         return serviceAddress;
     }
@@ -206,6 +212,14 @@ public class CompanyAppointmentFullRecordView {
         return principalOfficeAddress;
     }
 
+    public Boolean getServiceAddressIsSameAsRegisteredOfficeAddress() {
+        return serviceAddressIsSameAsRegisteredOfficeAddress;
+    }
+
+    public Boolean getResidentialAddressIsSameAsServiceAddress() {
+        return residentialAddressIsSameAsServiceAddress;
+    }
+
     public static class Builder {
 
         private static final String FULL_RECORD = "/full_record";
@@ -248,8 +262,12 @@ public class CompanyAppointmentFullRecordView {
                     .withIsPre1992Appointment(api.getData().getPre1992Appointment())
                     .withContactDetails(api.getData().getContactDetails())
                     .withResponsibilities(api.getData().getResponsibilities())
-                    .withPrincipleOfficeAddress(api.getData().getPrincipalOfficeAddress());
-        }
+                    .withPrincipleOfficeAddress(api.getData().getPrincipalOfficeAddress())
+                    .withServiceAddressIsSameAsRegisteredOfficeAddress(api.getData().getServiceAddressIsSameAsRegisteredOfficeAddress())
+                    .withResidentialAddressIsSameAsServiceAddress(Optional.ofNullable(api.getSensitiveData())
+                            .map(DeltaSensitiveData::getResidentialAddressIsSameAsServiceAddress)
+                            .orElse(null));
+       }
 
         private static void appendSelfLinkFullRecord(CompanyAppointmentFullRecordView view) {
             if (view != null && view.getLinks() != null) {
@@ -437,6 +455,20 @@ public class CompanyAppointmentFullRecordView {
         public Builder withPrincipleOfficeAddress(DeltaPrincipalOfficeAddress principalOfficeAddress) {
 
             buildSteps.add(view -> view.principalOfficeAddress = principalOfficeAddress);
+
+            return this;
+        }
+
+        public Builder withServiceAddressIsSameAsRegisteredOfficeAddress(Boolean serviceAddressIsSameAsRegisteredOfficeAddress) {
+
+            buildSteps.add(view -> view.serviceAddressIsSameAsRegisteredOfficeAddress = serviceAddressIsSameAsRegisteredOfficeAddress);
+
+            return this;
+        }
+
+        public Builder withResidentialAddressIsSameAsServiceAddress(Boolean residentialAddressIsSameAsServiceAddress) {
+
+            buildSteps.add(view -> view.residentialAddressIsSameAsServiceAddress = residentialAddressIsSameAsServiceAddress);
 
             return this;
         }
