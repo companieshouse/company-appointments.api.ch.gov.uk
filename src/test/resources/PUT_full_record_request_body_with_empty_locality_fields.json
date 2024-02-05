@@ -16,7 +16,7 @@
         "premises":"1",
         "region":"Cardiff"
       },
-      "service_address_is_same_as_registered_office_address":true,
+      "service_address_same_as_registered_office_address":true,
       "country_of_residence":null,
       "appointed_on":[
         2011,
@@ -69,7 +69,7 @@
         "premises":"URA",
         "region":"ura_region"
       },
-      "residential_address_is_same_as_service_address":null,
+      "residential_address_same_as_service_address":null,
       "date_of_birth":{
         "day":30,
         "month":6,
