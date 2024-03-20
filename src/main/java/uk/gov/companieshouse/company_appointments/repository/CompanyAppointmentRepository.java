@@ -16,10 +16,6 @@ public interface CompanyAppointmentRepository extends
     Optional<CompanyAppointmentDocument> readByCompanyNumberAndAppointmentID(String companyNumber,
             String appointmentId);
 
-    default void insertOrUpdate(CompanyAppointmentDocument document) {
-        save(document);
-    }
-
     @Query("{'company_number' : '?0', '_id' : '?1'}")
     Optional<CompanyAppointmentDocument> readByCompanyNumberAndID(String companyNumber,
             String appointmentId);
