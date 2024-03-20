@@ -69,7 +69,7 @@ class CompanyAppointmentFullRecordControllerMongoUnavailableITest {
     @Test
     @DisplayName("Put endpoint returns 503 service unavailable when MongoDB is unavailable")
     void testPutNewAppointmentCompanyNameStatusMongoUnavailable() throws Exception {
-        doThrow(new DataAccessException("..."){ }).when(fullRecordRepository).insertOrUpdate(any());
+        doThrow(new DataAccessException("..."){ }).when(fullRecordRepository).save(any());
 
         FullRecordCompanyOfficerApi requestBody = new FullRecordCompanyOfficerApi()
                 .externalData(new ExternalData().companyNumber(COMPANY_NUMBER));

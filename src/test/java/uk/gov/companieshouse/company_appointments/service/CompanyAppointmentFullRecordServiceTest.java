@@ -162,7 +162,7 @@ class CompanyAppointmentFullRecordServiceTest {
         companyAppointmentService.upsertAppointmentDelta(fullRecordCompanyOfficerApi);
 
         // then
-        verify(companyAppointmentRepository).insertOrUpdate(captor.capture());
+        verify(companyAppointmentRepository).save(captor.capture());
         assertNotNull(captor.getValue().getData().getEtag());
     }
 
@@ -215,7 +215,7 @@ class CompanyAppointmentFullRecordServiceTest {
 
         // then
         assertThrows(ServiceUnavailableException.class, executable);
-        verify(companyAppointmentRepository).insertOrUpdate(deltaAppointmentDocument);
+        verify(companyAppointmentRepository).save(deltaAppointmentDocument);
         verify(companyAppointmentRepository).deleteByCompanyNumberAndID("012345678", "appointmentId");
     }
 
@@ -244,8 +244,8 @@ class CompanyAppointmentFullRecordServiceTest {
 
         // then
         assertThrows(ServiceUnavailableException.class, executable);
-        verify(companyAppointmentRepository).insertOrUpdate(deltaAppointmentDocument);
-        verify(companyAppointmentRepository).insertOrUpdate(existingDocument);
+        verify(companyAppointmentRepository).save(deltaAppointmentDocument);
+        verify(companyAppointmentRepository).save(existingDocument);
     }
 
     @ParameterizedTest
@@ -281,7 +281,7 @@ class CompanyAppointmentFullRecordServiceTest {
 
         // then
         VerificationMode expectedTimes = (deltaExists && shouldBeStale) ? never() : times(1);
-        verify(companyAppointmentRepository, expectedTimes).insertOrUpdate(
+        verify(companyAppointmentRepository, expectedTimes).save(
                 any(CompanyAppointmentDocument.class));
     }
 

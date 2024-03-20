@@ -148,7 +148,7 @@ public class CompanyAppointmentFullRecordService {
                 saveDocument(document, instant, existingDocument.getCreated());
             } catch (ServiceUnavailableException e) {
                 // Apply compensatory transaction
-                companyAppointmentRepository.insertOrUpdate(existingDocument);
+                companyAppointmentRepository.save(existingDocument);
                 LOGGER.info("Call to Kafka API failed, reverting previously updated document to original state",
                         DataMapHolder.getLogMap());
                 throw e;
@@ -186,7 +186,7 @@ public class CompanyAppointmentFullRecordService {
         document.updated(updatedAt);
         document.created(createdAt);
 
-        companyAppointmentRepository.insertOrUpdate(document);
+        companyAppointmentRepository.save(document);
         resourceChangedApiService.invokeChsKafkaApi(
                 new ResourceChangedRequest(DataMapHolder.getRequestId(), document.getCompanyNumber(),
                         document.getAppointmentId(), null, false));
