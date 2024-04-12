@@ -105,6 +105,10 @@ class OfficerAppointmentsService {
                 .inactiveCount(repository.countInactive(officerId));
     }
 
+    /*
+    This method is a specific optimisation after identifying an unacceptable performance degradation when an officer
+    has several thousand appointments. The multiple round trips to the database is by design.
+     */
     public OfficerAppointmentsAggregate findOfficerCorrectSortingSeparateCalls(String officerId,
             Filter filter, int startIndex, int itemsPerPage) {
 
