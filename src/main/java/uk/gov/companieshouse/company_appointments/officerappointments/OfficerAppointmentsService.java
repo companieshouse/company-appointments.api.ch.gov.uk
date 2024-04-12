@@ -105,6 +105,26 @@ class OfficerAppointmentsService {
                 .inactiveCount(repository.countInactive(officerId));
     }
 
+    public OfficerAppointmentsAggregate findOfficerCorrectSortingSeparateCalls(String officerId,
+            Filter filter, int startIndex, int itemsPerPage) {
+
+        OfficerAppointmentsAggregate sparseAggregate = repository.findOfficerAppointmentsNoCounts(
+                officerId, filter.isFilterEnabled(), filter.getFilterStatuses(), startIndex, itemsPerPage);
+
+        List<String> docIds = sparseAggregate.getOfficerAppointments().stream()
+                .map(CompanyAppointmentDocument::getId)
+                .collect(Collectors.toList());
+
+        List<CompanyAppointmentDocument> documents = repository.findOfficerAppointmentsInIdList(docIds,
+                filter.isFilterEnabled(), filter.getFilterStatuses());
+
+        return sparseAggregate
+                .officerAppointments(documents)
+                .totalResults(repository.countTotal(officerId, filter.isFilterEnabled(), filter.getFilterStatuses()))
+                .resignedCount(repository.countResigned(officerId))
+                .inactiveCount(repository.countInactive(officerId));
+    }
+
     private static int getStartIndex(OfficerAppointmentsRequest request) {
         int startIndex;
         if (request.startIndex() == null) {
