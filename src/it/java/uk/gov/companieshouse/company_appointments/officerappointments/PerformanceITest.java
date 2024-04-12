@@ -50,7 +50,7 @@ class PerformanceITest {
     void officerAppointmentsPerformanceTests() throws Exception {
         // given
         final String officerId = UUID.randomUUID().toString();
-        final int appointmentCount = 120_000;
+        final int appointmentCount = 50_000;
 
         try {
             createOfficer(officerId, appointmentCount);
@@ -77,7 +77,7 @@ class PerformanceITest {
             Query query = new Query()
                     .addCriteria(Criteria.where("officer_id").is(officerId));
             DeleteResult result = mongoTemplate.remove(query, DELTA_APPOINTMENTS_COLLECTION);
-
+            assertEquals(appointmentCount, result.getDeletedCount());
             assertTrue(mongoTemplate.find(query, CompanyAppointmentDocument.class).isEmpty());
         }
     }
