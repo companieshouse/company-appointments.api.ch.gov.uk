@@ -47,7 +47,7 @@ class OfficerAppointmentsService {
                     } catch (UncategorizedMongoDbException e) {
                         LOGGER.debug(String.format("Retrying findOfficerAppointments due to "
                                         + "exceeding Mongo query resource limits. Cause: %s",
-                                        e.getCause().getMessage()), DataMapHolder.getLogMap());
+                                e.getCause().getMessage()), DataMapHolder.getLogMap());
 
                         aggregate = findOfficerWithLargeAppointmentsCount(officerId, filter, startIndex,
                                 itemsPerPage);
@@ -61,7 +61,7 @@ class OfficerAppointmentsService {
                 });
     }
 
-    private OfficerAppointmentsAggregate findOfficerWithLargeAppointmentsCount(String officerId,
+    public OfficerAppointmentsAggregate findOfficerWithLargeAppointmentsCount(String officerId,
             Filter filter, int startIndex, int itemsPerPage) {
         OfficerAppointmentsAggregate sparseAggregate = repository.findOfficerAppointmentsSparseAggregate(
                 officerId, filter.isFilterEnabled(), filter.getFilterStatuses(), startIndex, itemsPerPage);
@@ -76,6 +76,33 @@ class OfficerAppointmentsService {
         sparseAggregate.officerAppointments(documents);
 
         return sparseAggregate;
+    }
+
+    public OfficerAppointmentsAggregate findOfficerOfficerRoleSortOrder(String officerId,
+            Filter filter, int startIndex, int itemsPerPage) {
+
+        OfficerAppointmentsAggregate sparseAggregate = repository.findOfficerAppointmentsOfficerRoleSortOrder(
+                officerId, filter.isFilterEnabled(), filter.getFilterStatuses(), startIndex, itemsPerPage);
+
+        List<String> docIds = sparseAggregate.getOfficerAppointments().stream()
+                .map(CompanyAppointmentDocument::getId)
+                .collect(Collectors.toList());
+
+        List<CompanyAppointmentDocument> documents = repository.findOfficerAppointmentsInIdList(docIds,
+                filter.isFilterEnabled(), filter.getFilterStatuses());
+
+        return sparseAggregate.officerAppointments(documents);
+    }
+
+    public OfficerAppointmentsAggregate findOfficerSeparateCalls(String officerId,
+            Filter filter, int startIndex, int itemsPerPage) {
+        return new OfficerAppointmentsAggregate()
+                .officerAppointments(
+                        repository.findOnlyOfficerAppointmentsOfficerRoleSortOrder(officerId, filter.isFilterEnabled(),
+                                filter.getFilterStatuses(), startIndex, itemsPerPage))
+                .totalResults(repository.countTotal(officerId, filter.isFilterEnabled(), filter.getFilterStatuses()))
+                .resignedCount(repository.countResigned(officerId))
+                .inactiveCount(repository.countInactive(officerId));
     }
 
     private static int getStartIndex(OfficerAppointmentsRequest request) {
