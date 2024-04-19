@@ -16,7 +16,7 @@ import uk.gov.companieshouse.logging.LoggerFactory;
 @Service
 class OfficerAppointmentsService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(CompanyAppointmentsApplication.APPLICATION_NAMESPACE);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CompanyAppointmentsApplication.APPLICATION_NAME_SPACE);
 
     private static final int START_INDEX = 0;
 
@@ -32,13 +32,13 @@ class OfficerAppointmentsService {
     }
 
     Optional<AppointmentList> getOfficerAppointments(OfficerAppointmentsRequest params) {
-        String officerId = params.getOfficerId();
+        String officerId = params.officerId();
         return repository.findFirstByOfficerId(officerId)
                 .flatMap(firstAppointment -> {
                     int startIndex = getStartIndex(params);
-                    int itemsPerPage = params.getItemsPerPage();
-                    Filter filter = filterService.prepareFilter(params.getFilter(),
-                            params.getOfficerId());
+                    int itemsPerPage = params.itemsPerPage();
+                    Filter filter = filterService.prepareFilter(params.filter(),
+                            params.officerId());
 
                     OfficerAppointmentsAggregate aggregate;
                     try {
@@ -80,10 +80,10 @@ class OfficerAppointmentsService {
 
     private static int getStartIndex(OfficerAppointmentsRequest request) {
         int startIndex;
-        if (request.getStartIndex() == null) {
+        if (request.startIndex() == null) {
             startIndex = START_INDEX;
         } else {
-            startIndex = Math.abs(request.getStartIndex());
+            startIndex = Math.abs(request.startIndex());
         }
         return startIndex;
     }

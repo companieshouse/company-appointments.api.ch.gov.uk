@@ -344,11 +344,14 @@ public class CompanyAppointmentFullRecordView {
 
         public Builder withLinks(List<DeltaItemLinkTypes> links) {
 
-            if (links != null && links.get(0) != null) {
-                links.get(0).getOfficer().setSelf(null);
+            if (links != null && links.getFirst() != null) {
+                links.getFirst().getOfficer().setSelf(null);
             }
 
-            buildSteps.add(view -> view.links = links.get(0));
+            buildSteps.add(view -> {
+                assert links != null;
+                view.links = links.getFirst();
+            });
             buildSteps.add(Builder::appendSelfLinkFullRecord);
 
             return this;

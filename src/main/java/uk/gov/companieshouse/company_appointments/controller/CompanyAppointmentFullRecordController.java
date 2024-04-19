@@ -1,7 +1,7 @@
 package uk.gov.companieshouse.company_appointments.controller;
 
 import java.util.Optional;
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,7 +28,7 @@ public class CompanyAppointmentFullRecordController {
 
     private final CompanyAppointmentFullRecordService companyAppointmentService;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(CompanyAppointmentsApplication.APPLICATION_NAMESPACE);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CompanyAppointmentsApplication.APPLICATION_NAME_SPACE);
 
     @Autowired
     public CompanyAppointmentFullRecordController(CompanyAppointmentFullRecordService companyAppointmentService) {

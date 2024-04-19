@@ -21,7 +21,7 @@ public class LoggingConfig {
      */
     @Bean
     public Logger logger() {
-        return LoggerFactory.getLogger(CompanyAppointmentsApplication.APPLICATION_NAMESPACE);
+        return LoggerFactory.getLogger(CompanyAppointmentsApplication.APPLICATION_NAME_SPACE);
     }
 
     /**

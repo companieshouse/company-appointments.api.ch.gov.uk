@@ -196,10 +196,10 @@ class OfficerAppointmentsRepositoryITest {
         assertEquals(2, officerAppointmentsAggregate.getTotalResults());
         assertEquals(0, officerAppointmentsAggregate.getInactiveCount());
         assertEquals(0, officerAppointmentsAggregate.getResignedCount());
-        assertEquals(OFFICER_ID, officerAppointmentsAggregate.getOfficerAppointments().get(0).getOfficerId());
+        assertEquals(OFFICER_ID, officerAppointmentsAggregate.getOfficerAppointments().getFirst().getOfficerId());
 
         assertEquals("active_2",
-                officerAppointmentsAggregate.getOfficerAppointments().get(0).getId());
+                officerAppointmentsAggregate.getOfficerAppointments().getFirst().getId());
     }
 
     @DisplayName("Repository returns a no officer appointments when start index is greater than total results")

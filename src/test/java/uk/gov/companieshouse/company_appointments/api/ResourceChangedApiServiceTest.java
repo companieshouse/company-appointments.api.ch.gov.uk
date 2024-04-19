@@ -91,7 +91,7 @@ class ResourceChangedApiServiceTest {
         // then
         verify(apiClientService).getInternalApiClient();
         verify(internalApiClient).privateChangedResourceHandler();
-        verify(privateChangedResourceHandler).postChangedResource("/resource-changed", changedResource);
+        verify(privateChangedResourceHandler).postChangedResource("/private/resource-changed", changedResource);
         verify(changedResourcePost).execute();
     }
 
@@ -99,7 +99,7 @@ class ResourceChangedApiServiceTest {
     @MethodSource("invokeChsKafkaApiExceptionFixtures")
     void invokeChsKafkaApiExceptionTests(ResourceChangedApiServiceTestArgument argument) throws ApiErrorResponseException {
         // given
-        HttpResponseException.Builder builder = new HttpResponseException.Builder(argument.getStatusCode(), argument.getErrorMessage(), new HttpHeaders());
+        HttpResponseException.Builder builder = new HttpResponseException.Builder(argument.statusCode(), argument.errorMessage(), new HttpHeaders());
         ApiErrorResponseException apiErrorResponseException = new ApiErrorResponseException(builder);
 
         when(apiClientService.getInternalApiClient()).thenReturn(internalApiClient);
@@ -115,7 +115,7 @@ class ResourceChangedApiServiceTest {
         assertThrows(ServiceUnavailableException.class, executable);
         verify(apiClientService, times(1)).getInternalApiClient();
         verify(internalApiClient, times(1)).privateChangedResourceHandler();
-        verify(privateChangedResourceHandler, times(1)).postChangedResource("/resource-changed", changedResource);
+        verify(privateChangedResourceHandler, times(1)).postChangedResource("/private/resource-changed", changedResource);
         verify(changedResourcePost, times(1)).execute();
     }
 
@@ -139,22 +139,7 @@ class ResourceChangedApiServiceTest {
         );
     }
 
-    private static class ResourceChangedApiServiceTestArgument {
-        private final int statusCode;
-        private final String errorMessage;
-
-        public ResourceChangedApiServiceTestArgument(int statusCode, String errorMessage) {
-            this.statusCode = statusCode;
-            this.errorMessage = errorMessage;
-        }
-
-        public int getStatusCode() {
-            return statusCode;
-        }
-
-        public String getErrorMessage() {
-            return errorMessage;
-        }
+    private record ResourceChangedApiServiceTestArgument(int statusCode, String errorMessage) {
     }
 
 }

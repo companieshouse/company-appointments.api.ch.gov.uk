@@ -2,7 +2,7 @@ package uk.gov.companieshouse.company_appointments.interceptor;
 
 import java.util.List;
 import java.util.Map;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * Helper class for authenticating users
@@ -10,10 +10,10 @@ import javax.servlet.http.HttpServletRequest;
 public interface AuthenticationHelper {
 
     /**
-     * Returns the authorised identify
+     * Returns the authorised identity
      *
      * @param request the {@link HttpServletRequest}
-     * @return the identify
+     * @return the identity
      */
     String getAuthorisedIdentity(HttpServletRequest request);
 

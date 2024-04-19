@@ -36,8 +36,7 @@ public class DateOfBirthView {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof DateOfBirthView)) return false;
-        DateOfBirthView that = (DateOfBirthView) o;
+        if (!(o instanceof DateOfBirthView that)) return false;
         return Objects.equals(getDay(), that.getDay()) &&
                 Objects.equals(getMonth(), that.getMonth()) &&
                 Objects.equals(getYear(), that.getYear());
