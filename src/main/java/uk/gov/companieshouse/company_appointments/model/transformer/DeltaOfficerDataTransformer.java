@@ -53,7 +53,7 @@ public class DeltaOfficerDataTransformer implements Transformative<Data, DeltaOf
                     Instant.from(source.getAppointedBefore().atStartOfDay(UTC)): null);
             entity.setPre1992Appointment(source.getIsPre1992Appointment());
             entity.setLinks(source.getLinks() != null && !source.getLinks().isEmpty()?
-                            itemLinkTypesTransformer.transform(source.getLinks().get(0)) : null);
+                            itemLinkTypesTransformer.transform(source.getLinks().getFirst()) : null);
             entity.setNationality(source.getNationality());
             entity.setOccupation(source.getOccupation());
             entity.setOfficerRole(source.getOfficerRole() != null?

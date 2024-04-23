@@ -259,7 +259,7 @@ class CompanyAppointmentRepositoryTest {
 
         // then
         assertEquals(1, result.size());
-        assertEquals(APPOINTMENT_ID + 3, result.get(0).getId());
+        assertEquals(APPOINTMENT_ID + 3, result.getFirst().getId());
     }
 
     @ParameterizedTest
@@ -281,7 +281,7 @@ class CompanyAppointmentRepositoryTest {
         // then
         assertEquals(1, result.size());
         // Surname > Appointed On
-        assertEquals(APPOINTMENT_ID + 3, result.get(0).getId());
+        assertEquals(APPOINTMENT_ID + 3, result.getFirst().getId());
     }
 
     @Test

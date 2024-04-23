@@ -14,7 +14,7 @@ import uk.gov.companieshouse.logging.LoggerFactory;
 @ConditionalOnProperty(prefix = "feature", name = "seeding_collection_enabled")
 public class ResourceChangedApiServiceAspect {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(CompanyAppointmentsApplication.APPLICATION_NAMESPACE);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CompanyAppointmentsApplication.APPLICATION_NAME_SPACE);
 
     @Around("@annotation(StreamEvents)")
     public Object checkStreamEventsEnabled() {

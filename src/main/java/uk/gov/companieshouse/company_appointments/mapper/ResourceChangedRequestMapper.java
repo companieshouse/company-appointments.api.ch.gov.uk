@@ -18,15 +18,15 @@ public class ResourceChangedRequestMapper {
     public ChangedResource mapChangedResource(ResourceChangedRequest request) {
         ChangedResourceEvent event = new ChangedResourceEvent().publishedAt(this.timestampGenerator.get());
         ChangedResource changedResource = new ChangedResource() //NOSONAR
-                .resourceUri(String.format("/company/%s/appointments/%s", request.getCompanyNumber(),
-                        request.getAppointmentId()))
+                .resourceUri(String.format("/company/%s/appointments/%s", request.companyNumber(),
+                        request.appointmentId()))
                 .resourceKind("company-officers")
                 .event(event)
-                .contextId(request.getContextId());
+                .contextId(request.contextId());
 
-        if (Boolean.TRUE.equals(request.getIsDelete())) {
+        if (Boolean.TRUE.equals(request.isDelete())) {
             event.setType("deleted");
-            changedResource.setDeletedData(request.getOfficersData());
+            changedResource.setDeletedData(request.officersData());
         } else {
             event.setType("changed");
         }

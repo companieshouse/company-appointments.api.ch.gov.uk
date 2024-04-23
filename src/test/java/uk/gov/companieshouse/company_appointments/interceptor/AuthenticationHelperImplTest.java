@@ -9,7 +9,7 @@ import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -320,8 +320,8 @@ class AuthenticationHelperImplTest {
 
         assertThat(result.containsKey("company_number"), is(true));
         assertThat(result.containsKey("company_officers"), is(true));
-        assertThat(result.get("company_number").get(0), is("00006400"));
-        assertThat(result.get("company_officers").get(0), is("readprotected"));;
+        assertThat(result.get("company_number").getFirst(), is("00006400"));
+        assertThat(result.get("company_officers").getFirst(), is("readprotected"));
         assertThat(result.get("company_officers").get(1), is("write"));
     }
 

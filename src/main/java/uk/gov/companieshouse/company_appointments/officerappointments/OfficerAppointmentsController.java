@@ -18,7 +18,7 @@ import uk.gov.companieshouse.logging.LoggerFactory;
 @Controller
 class OfficerAppointmentsController {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(CompanyAppointmentsApplication.APPLICATION_NAMESPACE);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CompanyAppointmentsApplication.APPLICATION_NAME_SPACE);
 
     private final OfficerAppointmentsService service;
     private final ItemsPerPageService itemsPerPageService;
