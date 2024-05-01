@@ -3,7 +3,6 @@ aws_profile = "staging-eu-west-2"
 
 # service configs
 use_set_environment_files = true
-log_level = "debug"
 
 # Scheduled scaling of tasks
 service_autoscale_enabled  = true
