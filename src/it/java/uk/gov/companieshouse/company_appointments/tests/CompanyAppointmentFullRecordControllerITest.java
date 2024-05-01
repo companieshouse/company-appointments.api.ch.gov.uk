@@ -99,7 +99,7 @@ class CompanyAppointmentFullRecordControllerITest {
         List<CompanyAppointmentDocument> appointmentDocuments = mongoTemplate.find(query, CompanyAppointmentDocument.class);
         assertEquals(1, appointmentDocuments.size());
 
-        CompanyAppointmentDocument document = appointmentDocuments.get(0);
+        CompanyAppointmentDocument document = appointmentDocuments.getFirst();
         assertNull(document.getSensitiveData().getUsualResidentialAddress().getLocality());
         assertNull(document.getData().getServiceAddress().getLocality());
     }

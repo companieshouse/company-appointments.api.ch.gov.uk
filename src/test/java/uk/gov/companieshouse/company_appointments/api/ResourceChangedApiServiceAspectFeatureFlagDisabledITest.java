@@ -68,7 +68,7 @@ class ResourceChangedApiServiceAspectFeatureFlagDisabledITest {
 
         verify(apiClientService).getInternalApiClient();
         verify(internalApiClient).privateChangedResourceHandler();
-        verify(privateChangedResourceHandler).postChangedResource("/resource-changed",
+        verify(privateChangedResourceHandler).postChangedResource("/private/resource-changed",
                 changedResource);
         verify(changedResourcePost).execute();
     }

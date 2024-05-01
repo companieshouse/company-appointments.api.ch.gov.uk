@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang.ArrayUtils;
 import org.springframework.stereotype.Component;
 
@@ -66,7 +66,7 @@ public class AuthenticationHelperImpl implements AuthenticationHelper {
     public String getAuthorisedUserEmail(HttpServletRequest request) {
         final String authorisedUser = getAuthorisedUser(request);
 
-        if (authorisedUser == null || authorisedUser.trim().length() == 0) {
+        if (authorisedUser == null || authorisedUser.trim().isEmpty()) {
             return null;
         } else {
             final String[] details = authorisedUser.split(";");
@@ -98,7 +98,7 @@ public class AuthenticationHelperImpl implements AuthenticationHelper {
     @Override
     public String[] getAuthorisedRolesArray(HttpServletRequest request) {
         String roles = getAuthorisedRoles(request);
-        if (roles == null || roles.length() == 0) {
+        if (roles == null || roles.isEmpty()) {
             return new String[0];
         }
 
@@ -108,7 +108,7 @@ public class AuthenticationHelperImpl implements AuthenticationHelper {
 
     @Override
     public boolean isRoleAuthorised(HttpServletRequest request, String role) {
-        if (role == null || role.length() == 0) {
+        if (role == null || role.isEmpty()) {
             return false;
         }
 
@@ -171,7 +171,7 @@ public class AuthenticationHelperImpl implements AuthenticationHelper {
     private String getUserAttribute(final HttpServletRequest request, final int userAttributeIndex) {
         final String authorisedUser = getAuthorisedUser(request);
 
-        if (authorisedUser == null || authorisedUser.trim().length() == 0) {
+        if (authorisedUser == null || authorisedUser.trim().isEmpty()) {
             return null;
         } else {
             final String[] details = authorisedUser.split(";");

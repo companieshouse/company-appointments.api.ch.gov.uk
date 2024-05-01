@@ -29,7 +29,7 @@ public class CompanyAppointmentController {
 
     private final CompanyAppointmentService companyAppointmentService;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(CompanyAppointmentsApplication.APPLICATION_NAMESPACE);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CompanyAppointmentsApplication.APPLICATION_NAME_SPACE);
 
     public CompanyAppointmentController(CompanyAppointmentService companyAppointmentService) {
         this.companyAppointmentService = companyAppointmentService;
