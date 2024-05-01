@@ -9,7 +9,7 @@ locals {
   docker_repo                 = "company-appointments.api.ch.gov.uk"
   kms_alias                   = "alias/${var.aws_profile}/environment-services-kms"
   lb_listener_rule_priority   = 82
-  lb_listener_paths           = ["/company/*/appointments*", "/company/*/officers", "/officers/*/appointments" ]
+  lb_listener_paths           = ["/company/*/appointments/*", "/company/*/officers", "/officers/*/appointments" ]
   healthcheck_path            = "/company-appointments/healthcheck" #healthcheck path for company-appointments
   healthcheck_matcher         = "200"
   vpc_name                    = local.stack_secrets["vpc_name"]
