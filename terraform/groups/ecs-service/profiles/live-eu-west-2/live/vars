@@ -3,8 +3,10 @@ aws_profile = "live-eu-west-2"
 
 # service configs
 use_set_environment_files = true
-eric_cpus = 512
-required_memory = 1024
-eric_memory = 1024
-required_cpus = 512
+
+# scaling configs
 min_task_count = 2
+required_cpus = 512
+required_memory = 1024
+eric_cpus = 512
+eric_memory = 1024
