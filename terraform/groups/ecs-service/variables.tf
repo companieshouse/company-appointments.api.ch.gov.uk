@@ -32,6 +32,11 @@ variable "desired_task_count" {
   description = "The desired ECS task count for this service"
   default = 1 # defaulted low for dev environments, override for production
 }
+variable "min_task_count" {
+  default     = 1
+  type        = number
+  description = "The minimum number of tasks for this service."
+}
 variable "required_cpus" {
   type = number
   description = "The required cpu resource for this service. 1024 here is 1 vCPU"
