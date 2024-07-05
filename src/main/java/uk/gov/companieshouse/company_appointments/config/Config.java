@@ -3,6 +3,7 @@ package uk.gov.companieshouse.company_appointments.config;
 import java.text.SimpleDateFormat;
 import java.time.Clock;
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.function.Supplier;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -16,6 +17,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import uk.gov.companieshouse.api.InternalApiClient;
@@ -24,18 +28,23 @@ import uk.gov.companieshouse.company_appointments.interceptor.AuthenticationInte
 import uk.gov.companieshouse.company_appointments.interceptor.FullRecordAuthenticationInterceptor;
 import uk.gov.companieshouse.company_appointments.interceptor.RequestLoggingInterceptor;
 import uk.gov.companieshouse.company_appointments.util.EmptyFieldDeserializer;
+import uk.gov.companieshouse.api.filter.CustomCorsFilter;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 
 @Configuration
 public class Config implements WebMvcConfigurer {
     public static final String PATTERN_FULL_RECORD = "/**/full_record/**";
-    @Autowired
-    private RequestLoggingInterceptor loggingInterceptor;
+    private final RequestLoggingInterceptor loggingInterceptor;
+    private final AuthenticationInterceptor authenticationInterceptor;
+    private final FullRecordAuthenticationInterceptor fullRecordAuthenticationInterceptor;
 
     @Autowired
-    private AuthenticationInterceptor authenticationInterceptor;
-
-    @Autowired
-    private FullRecordAuthenticationInterceptor fullRecordAuthenticationInterceptor;
+    public Config (RequestLoggingInterceptor loggingInterceptor, AuthenticationInterceptor authenticationInterceptor, FullRecordAuthenticationInterceptor fullRecordAuthenticationInterceptor,
+    CustomCorsFilter customCorsFilter){
+        this.loggingInterceptor = loggingInterceptor;
+        this.authenticationInterceptor = authenticationInterceptor;
+        this.fullRecordAuthenticationInterceptor = fullRecordAuthenticationInterceptor;
+    }
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
@@ -82,5 +91,13 @@ public class Config implements WebMvcConfigurer {
                 .setSerializationInclusion(JsonInclude.Include.NON_NULL)
                 .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
                 .configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+    }
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http.cors(AbstractHttpConfigurer::disable)
+                .csrf(AbstractHttpConfigurer::disable)
+                .addFilterBefore(new CustomCorsFilter(List.of("GET", "POST")), CsrfFilter.class);
+        return http.build();
     }
 }

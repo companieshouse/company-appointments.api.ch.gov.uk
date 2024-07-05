@@ -27,6 +27,7 @@
         <io-cucumber.version>7.16.1</io-cucumber.version>
         <wiremock.version>3.5.2</wiremock.version>
         <commons.io.version>2.16.1</commons.io.version>
+        <api-security-java.version>2.0.5</api-security-java.version>
 
         <!-- internal dependencies -->
         <structured-logging.version>3.0.4</structured-logging.version>
@@ -102,6 +103,16 @@
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.logging.log4j</groupId>
+                    <artifactId>log4j-to-slf4j</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-tomcat</artifactId>
         </dependency>
         <dependency>
@@ -138,6 +149,11 @@
             <groupId>uk.gov.companieshouse</groupId>
             <artifactId>private-api-sdk-java</artifactId>
             <version>${private-api-sdk-java.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>uk.gov.companieshouse</groupId>
+            <artifactId>api-security-java</artifactId>
+            <version>${api-security-java.version}</version>
         </dependency>
         <dependency>
             <groupId>uk.gov.companieshouse</groupId>
