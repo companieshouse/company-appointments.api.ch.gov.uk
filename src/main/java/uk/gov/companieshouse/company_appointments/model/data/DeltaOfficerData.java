@@ -3,7 +3,7 @@ package uk.gov.companieshouse.company_appointments.model.data;
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 public class DeltaOfficerData {

@@ -2,9 +2,10 @@ package uk.gov.companieshouse.company_appointments.interceptor;
 
 import java.util.Arrays;
 import java.util.Map;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.apache.http.HttpStatus;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import uk.gov.companieshouse.company_appointments.logging.DataMapHolder;
@@ -21,7 +22,7 @@ public class FullRecordAuthenticationInterceptor implements HandlerInterceptor {
     }
 
     @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
+    public boolean preHandle(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull Object handler) {
         final String identityType = authHelper.getAuthorisedIdentityType(request);
         Map<String, Object> logMap = DataMapHolder.getLogMap();
 

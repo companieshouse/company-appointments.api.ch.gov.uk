@@ -36,7 +36,7 @@ import uk.gov.companieshouse.logging.LoggerFactory;
 @Service
 public class CompanyAppointmentService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(CompanyAppointmentsApplication.APPLICATION_NAMESPACE);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CompanyAppointmentsApplication.APPLICATION_NAME_SPACE);
     private static final String PATCH_APPOINTMENTS_ERROR_MESSAGE = "Request failed for company [%s]: ";
     private static final int DEFAULT_ITEMS_PER_PAGE = 35;
     private static final int DEFAULT_START_INDEX = 0;
@@ -121,7 +121,7 @@ public class CompanyAppointmentService {
         }
 
         Counts counts = registerView ? new Counts(appointmentsCounts, registerType) :
-                new Counts(appointmentsCounts, allAppointmentData.get(0).getCompanyStatus(), filterEnabled);
+                new Counts(appointmentsCounts, allAppointmentData.getFirst().getCompanyStatus(), filterEnabled);
 
         List<OfficerSummary> officerSummaries = allAppointmentData.stream()
                 .map(appointment -> companyAppointmentMapper.map(appointment, registerView))
@@ -137,7 +137,7 @@ public class CompanyAppointmentService {
                 .startIndex(startIndex)
                 .itemsPerPage(itemsPerPage)
                 .links(new LinkTypes().self(String.format("/company/%s/officers", companyNumber)))
-                .etag(allAppointmentData.get(0).getData().getEtag());
+                .etag(allAppointmentData.getFirst().getData().getEtag());
     }
 
     public void patchCompanyNameStatus(String companyNumber, String companyName,

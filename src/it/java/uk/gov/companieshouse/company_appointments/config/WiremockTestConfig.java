@@ -8,6 +8,8 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
+import org.springframework.http.HttpHeaders;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,12 +39,14 @@ public class WiremockTestConfig {
         wireMockServer.start();
     }
 
-    public static void stubKafkaApi(Integer responseCode) {
+    public static void stubKafkaApi(Integer responseCode) throws InterruptedException {
+        Thread.sleep(2000);
         stubFor(
-                post(urlPathMatching("/resource-changed"))
+                post(urlPathMatching("/private/resource-changed"))
                         .willReturn(aResponse()
                                 .withStatus(responseCode)
-                                .withHeader("Content-Type", "application/json"))
+                                .withHeader("Content-Type", "application/json")
+                                .withHeader(HttpHeaders.CONNECTION, "close"))
         );
     }
 

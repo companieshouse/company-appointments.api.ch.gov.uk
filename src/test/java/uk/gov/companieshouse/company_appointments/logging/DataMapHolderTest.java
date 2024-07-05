@@ -19,13 +19,11 @@ class DataMapHolderTest {
     void getLogMapWithExplicitRequestId() {
         DataMapHolder.initialise("requestId");
 
-        var logMap = DataMapHolder.getLogMap();
         assertEquals("requestId", DataMapHolder.getRequestId());
     }
 
     @Test
     void getLogMapWithDefaultRequestId() {
-        var logMap = DataMapHolder.getLogMap();
         assertEquals("uninitialised", DataMapHolder.getRequestId());
     }
 

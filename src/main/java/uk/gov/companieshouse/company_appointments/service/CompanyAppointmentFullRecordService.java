@@ -9,7 +9,6 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.Map;
 import java.util.Optional;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,7 +32,7 @@ import uk.gov.companieshouse.logging.LoggerFactory;
 @Service
 public class CompanyAppointmentFullRecordService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(CompanyAppointmentsApplication.APPLICATION_NAMESPACE);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CompanyAppointmentsApplication.APPLICATION_NAME_SPACE);
     private static final ObjectMapper NULL_CLEANING_OBJECT_MAPPER = new ObjectMapper()
             .registerModule(new JavaTimeModule())
             .setSerializationInclusion(Include.NON_NULL);
@@ -164,7 +163,7 @@ public class CompanyAppointmentFullRecordService {
 
         Map<String, Object> logInfo = DataMapHolder.getLogMap();
         logInfo.put("incomingDeltaAt", appointmentAPI.getDeltaAt().toString());
-        logInfo.put("existingDeltaAt", StringUtils.defaultString(existingDelta.toString(), "No existing delta"));
+        logInfo.put("existingDeltaAt", existingDelta.toString().isBlank() ? existingDelta.toString() : "No existing delta");
         final String context = appointmentAPI.getAppointmentId();
         LOGGER.errorContext(context, "Received stale delta", null, logInfo);
     }

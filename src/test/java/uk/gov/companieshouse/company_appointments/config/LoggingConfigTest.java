@@ -36,7 +36,7 @@ class LoggingConfigTest {
         final Logger logger = testConfig.logger();
 
         assertThat(ReflectionTestUtils.getField(logger, "namespace"),
-                is(CompanyAppointmentsApplication.APPLICATION_NAMESPACE));
+                is(CompanyAppointmentsApplication.APPLICATION_NAME_SPACE));
     }
 
     @Test

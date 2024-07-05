@@ -140,7 +140,7 @@ class OfficerAppointmentsServiceTest {
         // then
         assertTrue(actual.isPresent());
         assertEquals(officerAppointments, actual.get());
-        verify(filterService).prepareFilter(argument.getRequest().getFilter(), argument.getOfficerId());
+        verify(filterService).prepareFilter(argument.getRequest().filter(), argument.getOfficerId());
         verify(repository).findOfficerAppointments(argument.getOfficerId(), argument.isFilterEnabled(),
                 argument.getFilterStatuses(), argument.getStartIndex(), argument.getItemsPerPage());
         verify(mapper).mapOfficerAppointments(new MapperRequest()

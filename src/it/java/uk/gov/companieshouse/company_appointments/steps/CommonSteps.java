@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import org.apache.commons.io.IOUtils;
 import org.bson.Document;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -29,7 +30,9 @@ import org.springframework.data.mongodb.core.SimpleMongoClientDatabaseFactory;
 import org.springframework.http.HttpStatus;
 import uk.gov.companieshouse.api.chskafka.ChangedResource;
 import uk.gov.companieshouse.company_appointments.config.WiremockTestConfig;
+import uk.gov.companieshouse.company_appointments.logging.DataMapHolder;
 import uk.gov.companieshouse.company_appointments.repository.CompanyAppointmentRepository;
+import uk.gov.companieshouse.logging.Logger;
 
 public class CommonSteps {
 
@@ -43,6 +46,9 @@ public class CommonSteps {
 
     @Autowired
     private CompanyAppointmentRepository companyAppointmentRepository;
+
+    @Mock
+    private Logger logger;
 
     @BeforeAll
     public static void setup() throws IOException {
@@ -63,12 +69,12 @@ public class CommonSteps {
     }
 
     @Given("CHS kafka is available")
-    public void theChsKafkaApiIsAvailable() {
+    public void theChsKafkaApiIsAvailable() throws InterruptedException {
         WiremockTestConfig.stubKafkaApi(HttpStatus.OK.value());
     }
 
     @Given("CHS kafka is unavailable")
-    public void theChsKafkaApiIsUnavailable() {
+    public void theChsKafkaApiIsUnavailable() throws InterruptedException {
         WiremockTestConfig.stubKafkaApi(HttpStatus.SERVICE_UNAVAILABLE.value());
     }
 
@@ -86,7 +92,7 @@ public class CommonSteps {
 
     @Then("a request is sent to the resource changed endpoint")
     public void CHSKafkaInvokedSuccessFully() {
-        verify(moreThanOrExactly(1), postRequestedFor(urlEqualTo("/resource-changed")));
+        verify(moreThanOrExactly(1), postRequestedFor(urlEqualTo("/private/resource-changed")));
     }
 
     @Then("the event type is {string}")
@@ -111,18 +117,19 @@ public class CommonSteps {
     }
 
     @Then("a request should NOT be sent to the resource changed endpoint")
-    public void noRequestsSentToResourceChangedEndpoint() {
-        verify(lessThanOrExactly(0), postRequestedFor(urlEqualTo("/resource-changed")));
+    public void noRequestsSentToResourceChangedEndpoint() throws InterruptedException {
+        Thread.sleep(2000);
+        verify(lessThanOrExactly(0), postRequestedFor(urlEqualTo("/private/resource-changed")));
     }
 
     private ChangedResource getPayloadFromWiremock() {
-        ServeEvent serverEvent = getServeEvents().get(0);
+        ServeEvent serverEvent = getServeEvents().getFirst();
         String body = new String (serverEvent.getRequest().getBody());
         ChangedResource payload = null;
         try {
             payload = objectMapper.readValue(body, ChangedResource.class);
         } catch (JsonProcessingException e) {
-            e.printStackTrace();
+            logger.error("error getting payload from wiremock in getPayloadFromWiremock()");
         }
         return payload;
     }

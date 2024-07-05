@@ -41,7 +41,7 @@ import uk.gov.companieshouse.logging.LoggerFactory;
 public class CompanyAppointmentMapper {
 
     private static final Pattern REGEX = Pattern.compile("^(?i)(?=m)(?:mrs?|miss|ms|master)$");
-    private static final Logger LOGGER = LoggerFactory.getLogger(CompanyAppointmentsApplication.APPLICATION_NAMESPACE);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CompanyAppointmentsApplication.APPLICATION_NAME_SPACE);
 
     public OfficerSummary map(CompanyAppointmentDocument companyAppointmentData) {
         return map(companyAppointmentData, false);

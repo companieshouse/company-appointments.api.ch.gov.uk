@@ -3,7 +3,6 @@ package uk.gov.companieshouse.company_appointments;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -19,7 +18,7 @@ class RoleHelperTest {
 
     @Test
     void testIsDirectorTrue() {
-        for (String role : DirectorRoles.stream().map(DirectorRoles::getRole).collect(Collectors.toList())) {
+        for (String role : DirectorRoles.stream().map(DirectorRoles::getRole).toList()) {
             DeltaOfficerData officerData = DeltaOfficerData.Builder.builder().officerRole(role).build();
             CompanyAppointmentDocument appointmentDocument = buildCompanyAppointmentDocument(officerData);
             boolean result = RoleHelper.isDirector(appointmentDocument);
@@ -29,7 +28,7 @@ class RoleHelperTest {
 
     @Test
     void testIsSecretariesTrue() {
-        for (String role : SecretarialRoles.stream().map(SecretarialRoles::getRole).collect(Collectors.toList())) {
+        for (String role : SecretarialRoles.stream().map(SecretarialRoles::getRole).toList()) {
             DeltaOfficerData officerData = DeltaOfficerData.Builder.builder().officerRole(role).build();
             CompanyAppointmentDocument appointmentDocument = buildCompanyAppointmentDocument(officerData);
             boolean result = RoleHelper.isSecretary(appointmentDocument);
@@ -39,7 +38,7 @@ class RoleHelperTest {
 
     @Test
     void testIsLlpMemberTrue() {
-        for (String role : LlpRoles.stream().map(LlpRoles::getRole).collect(Collectors.toList())) {
+        for (String role : LlpRoles.stream().map(LlpRoles::getRole).toList()) {
             DeltaOfficerData officerData = DeltaOfficerData.Builder.builder().officerRole(role).build();
             CompanyAppointmentDocument appointmentDocument = buildCompanyAppointmentDocument(officerData);
             boolean result = RoleHelper.isLlpMember(appointmentDocument);
@@ -73,7 +72,7 @@ class RoleHelperTest {
 
     @Test
     void testIsRegisterTypeDirectorTrue() {
-        for (String role : DirectorRoles.stream().map(DirectorRoles::getRole).collect(Collectors.toList())) {
+        for (String role : DirectorRoles.stream().map(DirectorRoles::getRole).toList()) {
             DeltaOfficerData officerData = DeltaOfficerData.Builder.builder().officerRole(role).build();
             CompanyAppointmentDocument appointmentDocument = buildCompanyAppointmentDocument(officerData);
             boolean result = RoleHelper.isRegisterType(appointmentDocument, "directors");
@@ -83,7 +82,7 @@ class RoleHelperTest {
 
     @Test
     void testIsRegisterTypeSecretariesTrue() {
-        for (String role : SecretarialRoles.stream().map(SecretarialRoles::getRole).collect(Collectors.toList())) {
+        for (String role : SecretarialRoles.stream().map(SecretarialRoles::getRole).toList()) {
             DeltaOfficerData officerData = DeltaOfficerData.Builder.builder().officerRole(role).build();
             CompanyAppointmentDocument appointmentDocument = buildCompanyAppointmentDocument(officerData);
             boolean result = RoleHelper.isRegisterType(appointmentDocument, "secretaries");
@@ -93,7 +92,7 @@ class RoleHelperTest {
 
     @Test
     void testIsRegisterTypeLlpMemberTrue() {
-        for (String role : LlpRoles.stream().map(LlpRoles::getRole).collect(Collectors.toList())) {
+        for (String role : LlpRoles.stream().map(LlpRoles::getRole).toList()) {
             DeltaOfficerData officerData = DeltaOfficerData.Builder.builder().officerRole(role).build();
             CompanyAppointmentDocument appointmentDocument = buildCompanyAppointmentDocument(officerData);
             boolean result = RoleHelper.isRegisterType(appointmentDocument, "llp_members");
