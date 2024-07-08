@@ -34,6 +34,7 @@ public class Config implements WebMvcConfigurer {
     @Autowired
     private AuthenticationInterceptor authenticationInterceptor;
 
+
     @Autowired
     private FullRecordAuthenticationInterceptor fullRecordAuthenticationInterceptor;
 
