@@ -9,6 +9,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.SimpleMongoClientDatabaseFactory;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
@@ -30,6 +31,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 class CustomCorsFilterIntegrationTest {
 
+    private static final String ERIC_ALLOWED_ORIGIN="ERIC-Allowed-Origin";
+    private static final String ERIC_IDENTITY="ERIC-Identity";
+    private static final String ERIC_IDENTITY_TYPE="ERIC-Identity-Type";
+    private static final String ORIGIN="Origin";
+    private static final String URL="/officers/{officer_id}/appointments";
+    private static final String OFFICER_ID="5VEOBB4a9dlB_iugw_vieHjWpCk";
+    private static final String ERIC_ALLOWED_ORIGIN_VALUE="some-origin";
+    private static final String ERIC_IDENTITY_VALUE="123";
+    private static final String ERIC_IDENTITY_TYPE_VALUE="key";
+    private static final String ORIGIN_VALUE="http://www.test.com";
+
     @Autowired
     private MockMvc mockMvc;
     @Container
@@ -50,27 +62,27 @@ class CustomCorsFilterIntegrationTest {
 
     @Test
     void whenOptionsRequest_thenCorrectHeadersAndStatus() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.options("/officers/{officer_id}/appointments","5VEOBB4a9dlB_iugw_vieHjWpCk")
-                        .header("ERIC-Allowed-Origin", "some-origin")
-                        .header("ERIC-Identity", "123")
-                        .header("ERIC-Identity-Type", "key")
-                        .header("Origin","http://www.test.com")
+        mockMvc.perform(MockMvcRequestBuilders.options(URL,OFFICER_ID)
+                        .header(ERIC_ALLOWED_ORIGIN, ERIC_ALLOWED_ORIGIN_VALUE)
+                        .header(ERIC_IDENTITY, ERIC_IDENTITY_VALUE)
+                        .header(ERIC_IDENTITY_TYPE, ERIC_IDENTITY_TYPE_VALUE)
+                        .header(ORIGIN,ORIGIN_VALUE)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent())
-                .andExpect(header().exists("Access-Control-Allow-Origin"))
-                .andExpect(header().exists("Access-Control-Allow-Headers"))
-                .andExpect(header().exists("Access-Control-Allow-Methods"))
-                .andExpect(header().exists("Access-Control-Max-Age"));
+                .andExpect(header().exists(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN))
+                .andExpect(header().exists(HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS))
+                .andExpect(header().exists(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS))
+                .andExpect(header().exists(HttpHeaders.ACCESS_CONTROL_MAX_AGE));
     }
 
     @Test
     void whenCorsRequestWithValidMethod_thenProceed() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/officers/{officer_id}/appointments","5VEOBB4a9dlB_iugw_vieHjWpCk")
-                        .header("ERIC-Allowed-Origin", "some-origin")
-                        .header("ERIC-Identity", "123")
-                        .header("ERIC-Identity-Type", "key")
-                        .header("Origin","http://www.test.com")
+        mockMvc.perform(MockMvcRequestBuilders.get(URL,OFFICER_ID)
+                        .header(ERIC_ALLOWED_ORIGIN, ERIC_ALLOWED_ORIGIN_VALUE)
+                        .header(ERIC_IDENTITY, ERIC_IDENTITY_VALUE)
+                        .header(ERIC_IDENTITY_TYPE, ERIC_IDENTITY_TYPE_VALUE)
+                        .header(ORIGIN,ORIGIN_VALUE)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
@@ -78,21 +90,21 @@ class CustomCorsFilterIntegrationTest {
 
     @Test
     void whenCorsRequestWithInvalidMethod_thenForbidden() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.post("/officers/{officer_id}/appointments","5VEOBB4a9dlB_iugw_vieHjWpCk")
-                        .header("ERIC-Allowed-Origin", "some-origin")
-                        .header("ERIC-Identity", "123")
-                        .header("ERIC-Identity-Type", "key")
-                        .header("Origin","http://www.test.com")
+        mockMvc.perform(MockMvcRequestBuilders.post(URL,OFFICER_ID)
+                        .header(ERIC_ALLOWED_ORIGIN, ERIC_ALLOWED_ORIGIN_VALUE)
+                        .header(ERIC_IDENTITY, ERIC_IDENTITY_VALUE)
+                        .header(ERIC_IDENTITY_TYPE, ERIC_IDENTITY_TYPE_VALUE)
+                        .header(ORIGIN,ORIGIN_VALUE)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isForbidden());
     }
 
     @Test
     void whenCorsRequestWithMissingAllowedOrigin_thenForbidden() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/officers/{officer_id}/appointments","5VEOBB4a9dlB_iugw_vieHjWpCk")
-                        .header("ERIC-Identity", "123")
-                        .header("ERIC-Identity-Type", "key")
-                        .header("Origin","http://www.test.com")
+        mockMvc.perform(MockMvcRequestBuilders.get(URL,OFFICER_ID)
+                        .header(ERIC_IDENTITY, ERIC_IDENTITY_VALUE)
+                        .header(ERIC_IDENTITY_TYPE, ERIC_IDENTITY_TYPE_VALUE)
+                        .header(ORIGIN,ORIGIN_VALUE)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isForbidden());
     }
