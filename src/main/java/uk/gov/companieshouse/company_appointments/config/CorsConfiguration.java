@@ -19,7 +19,7 @@ public class CorsConfiguration {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.cors(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)
-                .addFilterBefore(new CustomCorsFilter(List.of(HttpMethod.GET.name(), PathItem.HttpMethod.OPTIONS.name())), CsrfFilter.class);
+                .addFilterBefore(new CustomCorsFilter(List.of(HttpMethod.GET.name())), CsrfFilter.class);
         return http.build();
     }
 
