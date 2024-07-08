@@ -16,6 +16,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.companieshouse.api.appointment.OfficerSummary;
+import uk.gov.companieshouse.company_appointments.config.CorsConfiguration;
 import uk.gov.companieshouse.company_appointments.config.LoggingConfig;
 import uk.gov.companieshouse.company_appointments.controller.CompanyAppointmentController;
 import uk.gov.companieshouse.company_appointments.controller.CompanyAppointmentFullRecordController;
@@ -32,7 +33,7 @@ import uk.gov.companieshouse.company_appointments.service.CompanyAppointmentServ
 import uk.gov.companieshouse.logging.Logger;
 
 @WebMvcTest(controllers = {CompanyAppointmentController.class, CompanyAppointmentFullRecordController.class})
-@Import({LoggingConfig.class, AuthenticationHelperImpl.class})
+@Import({LoggingConfig.class, AuthenticationHelperImpl.class, CorsConfiguration.class})
 class AuthenticationInterceptorsITest {
     private static final String APP_ID = "N-YqKNwdT_HvetusfTJ0H0jAQbA";
     private static final String COMPANY_NUMBER = "09876543";
