@@ -28,14 +28,16 @@ import uk.gov.companieshouse.company_appointments.util.EmptyFieldDeserializer;
 @Configuration
 public class Config implements WebMvcConfigurer {
     public static final String PATTERN_FULL_RECORD = "/**/full_record/**";
-    @Autowired
-    private RequestLoggingInterceptor loggingInterceptor;
+    private final RequestLoggingInterceptor loggingInterceptor;
+    private final AuthenticationInterceptor authenticationInterceptor;
+    private final FullRecordAuthenticationInterceptor fullRecordAuthenticationInterceptor;
 
     @Autowired
-    private AuthenticationInterceptor authenticationInterceptor;
-
-    @Autowired
-    private FullRecordAuthenticationInterceptor fullRecordAuthenticationInterceptor;
+    public Config (RequestLoggingInterceptor loggingInterceptor, AuthenticationInterceptor authenticationInterceptor, FullRecordAuthenticationInterceptor fullRecordAuthenticationInterceptor){
+        this.loggingInterceptor = loggingInterceptor;
+        this.authenticationInterceptor = authenticationInterceptor;
+        this.fullRecordAuthenticationInterceptor = fullRecordAuthenticationInterceptor;
+    }
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
