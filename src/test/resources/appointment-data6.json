@@ -21,9 +21,8 @@
     "nationality" : "British",
     "forename" : "Noname1",
     "surname" : "NOSURNAME",
-    "updated_at" : ISODate("2020-08-26T13:00:00.000Z"),
     "other_forenames" : "Noname2",
-    "appointed_before" : ISODate("2016-08-26T12:00:00.000Z"),
+    "appointed_before" : ISODate("2024-07-26T12:00:00.000Z"),
     "etag" : "8f58a770d34f982a1b2a5a29fcde12528e82f903",
     "occupation" : "Company Director",
     "service_address" : {

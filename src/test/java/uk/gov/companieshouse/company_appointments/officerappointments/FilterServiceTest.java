@@ -36,7 +36,7 @@ class FilterServiceTest {
 
         // then
         assertEquals(expected.isFilterEnabled(), actual.isFilterEnabled());
-        assertEquals(expected.getFilterStatuses(), actual.getFilterStatuses());
+        assertEquals(expected.filterStatuses(), actual.filterStatuses());
     }
 
     @DisplayName("Should prepare the service filter successfully when filter is empty")
@@ -50,7 +50,7 @@ class FilterServiceTest {
 
         // then
         assertEquals(expected.isFilterEnabled(), actual.isFilterEnabled());
-        assertEquals(expected.getFilterStatuses(), actual.getFilterStatuses());
+        assertEquals(expected.filterStatuses(), actual.filterStatuses());
     }
 
     @DisplayName("Should prepare the service filter successfully when filter is null")
@@ -64,7 +64,7 @@ class FilterServiceTest {
 
         // then
         assertEquals(expected.isFilterEnabled(), actual.isFilterEnabled());
-        assertEquals(expected.getFilterStatuses(), actual.getFilterStatuses());
+        assertEquals(expected.filterStatuses(), actual.filterStatuses());
     }
 
     @DisplayName("Should throw bad request exception when invalid filter parameter supplied")

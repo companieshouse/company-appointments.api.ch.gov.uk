@@ -1,6 +1,6 @@
 {
-  "_id" : "active_2",
-  "appointment_id" : "active_2",
+  "_id" : "active_3",
+  "appointment_id" : "active_3",
   "company_name" : "TEST COMPANY LIMITED",
   "company_number" : "12345678",
   "company_status" : "active",
@@ -16,14 +16,13 @@
         "self" : "/officers/5VEOBB4a9dlB_iugw_vieHjWpCk",
         "appointments" : "/officers/5VEOBB4a9dlB_iugw_vieHjWpCk/appointments"
       },
-      "self" : "/company/12345678/appointments/7IjxamNGLlqtIingmTZJJ42Hw9Q"
+      "self" : "/company/12345678/appointments/active_3"
     },
     "nationality" : "British",
     "forename" : "Noname1",
     "surname" : "NOSURNAME",
-    "updated_at" : ISODate("2020-08-26T13:00:00.000Z"),
     "other_forenames" : "Noname2",
-    "appointed_before" : ISODate("2017-08-26T00:00:00.000Z"),
+    "appointed_before" : ISODate("2022-08-26T00:00:00.000Z"),
     "etag" : "8f58a770d34f982a1b2a5a29fcde12528e82f903",
     "occupation" : "Company Director",
     "service_address" : {

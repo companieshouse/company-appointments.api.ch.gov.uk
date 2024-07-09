@@ -1,6 +1,6 @@
 {
-  "_id" : "def456",
-  "appointment_id" : "def456",
+  "_id" : "active_2",
+  "appointment_id" : "active_2",
   "company_name" : "TEST COMPANY LIMITED",
   "company_number" : "12345678",
   "company_status" : "active",
@@ -13,17 +13,16 @@
     "country_of_residence" : "United Kingdom",
     "links" : {
       "officer" : {
-        "self" : "/officers/def456",
-        "appointments" : "/officers/def456/appointments"
+        "self" : "/officers/active_2",
+        "appointments" : "/officers/active_2/appointments"
       },
-      "self" : "/company/12345678/appointments/def456"
+      "self" : "/company/12345678/appointments/active_2"
     },
     "nationality" : "British",
     "forename" : "John",
     "surname" : "Doe",
-    "updated_at" : ISODate("2020-08-26T13:00:00.000Z"),
     "other_forenames" : "Forename",
-    "appointed_on" : ISODate("2019-08-26T12:00:00.000Z"),
+    "appointed_on" : ISODate("2023-08-26T12:00:00.000Z"),
     "etag" : "8f58a770d34f982a1b2a5a29fcde12528e82f903",
     "occupation" : "Company Director",
     "service_address" : {
@@ -50,7 +49,7 @@
   },
   "delta_at" : ISODate("2020-06-23T12:13:03.006Z"),
   "internal_id" : "2500085646",
-  "officer_id" : "differentOfficerId",
+  "officer_id" : "5VEOBB4a9dlB_iugw_vieHjWpCk",
   "officer_role_sort_order" : 10,
   "updated" : {
     "at" : ISODate("2020-08-26T13:00:00.000Z")

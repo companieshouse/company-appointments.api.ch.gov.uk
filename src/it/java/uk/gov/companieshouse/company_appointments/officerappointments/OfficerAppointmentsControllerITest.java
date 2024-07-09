@@ -18,13 +18,12 @@ import static uk.gov.companieshouse.company_appointments.util.TestUtils.OFFICER_
 import static uk.gov.companieshouse.company_appointments.util.TestUtils.generateRandomEightCharCompanyNumber;
 import static uk.gov.companieshouse.company_appointments.util.TestUtils.generateRandomInternalId;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.IOUtils;
 import org.bson.Document;
 import org.junit.jupiter.api.BeforeAll;
@@ -76,9 +75,14 @@ class OfficerAppointmentsControllerITest {
         System.setProperty("spring.data.mongodb.uri", mongoDBContainer.getReplicaSetUrl());
         mongoTemplate = new MongoTemplate(new SimpleMongoClientDatabaseFactory(mongoDBContainer.getReplicaSetUrl()));
         mongoTemplate.createCollection(DELTA_APPOINTMENTS_COLLECTION);
-        mongoTemplate.insert(Document.parse(IOUtils.resourceToString("/appointment-data.json", StandardCharsets.UTF_8)), DELTA_APPOINTMENTS_COLLECTION);
-        mongoTemplate.insert(Document.parse(IOUtils.resourceToString("/appointment-data2.json", StandardCharsets.UTF_8)), DELTA_APPOINTMENTS_COLLECTION);
-        mongoTemplate.insert(Document.parse(IOUtils.resourceToString("/appointment-data3.json", StandardCharsets.UTF_8)), DELTA_APPOINTMENTS_COLLECTION);
+        mongoTemplate.insert(Document.parse(IOUtils.resourceToString("/appointment-data.json", StandardCharsets.UTF_8)),
+                DELTA_APPOINTMENTS_COLLECTION);
+        mongoTemplate.insert(
+                Document.parse(IOUtils.resourceToString("/appointment-data2.json", StandardCharsets.UTF_8)),
+                DELTA_APPOINTMENTS_COLLECTION);
+        mongoTemplate.insert(
+                Document.parse(IOUtils.resourceToString("/appointment-data3.json", StandardCharsets.UTF_8)),
+                DELTA_APPOINTMENTS_COLLECTION);
         System.setProperty("company-metrics-api.endpoint", "localhost");
     }
 
@@ -101,10 +105,13 @@ class OfficerAppointmentsControllerITest {
                 .andExpect(jsonPath("$.items_per_page", is(35)))
                 .andExpect(jsonPath("$.kind", is("personal-appointment")))
                 .andExpect(jsonPath("$.links.self", is("/officers/5VEOBB4a9dlB_iugw_vieHjWpCk/appointments")))
-                .andExpect(jsonPath("$.items", hasSize(2)))
+                .andExpect(jsonPath("$.items", hasSize(3)))
                 .andExpect(jsonPath("$.name", is("Noname1 Noname2 NOSURNAME")))
                 .andExpect(jsonPath("$.start_index", is(0)))
-                .andExpect(jsonPath("$.total_results", is(2)));
+                .andExpect(jsonPath("$.total_results", is(3)))
+                .andExpect(jsonPath("$.active_count", is(2)))
+                .andExpect(jsonPath("$.resigned_count", is(1)))
+                .andExpect(jsonPath("$.inactive_count", is(0)));
     }
 
     @DisplayName("Should return HTTP 404 Not Found when no appointments exist for a particular officer id")
@@ -166,12 +173,13 @@ class OfficerAppointmentsControllerITest {
         mongoTemplate.insert(documentsToInsert, DELTA_APPOINTMENTS_COLLECTION);
 
         //when
-        ResultActions result = mockMvc.perform(get("/officers/{officer_id}/appointments?items_per_page={itemsPerPage}", officerId, itemsPerPage)
-                .header("ERIC-Identity", "123")
-                .header("ERIC-Identity-Type", "key")
-                .header(ERIC_AUTHORISED_KEY_PRIVILEGES_HEADER, "internal-app")
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON));
+        ResultActions result = mockMvc.perform(
+                get("/officers/{officer_id}/appointments?items_per_page={itemsPerPage}", officerId, itemsPerPage)
+                        .header("ERIC-Identity", "123")
+                        .header("ERIC-Identity-Type", "key")
+                        .header(ERIC_AUTHORISED_KEY_PRIVILEGES_HEADER, "internal-app")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON));
 
         //then
         result.andExpect(status().isOk())
@@ -214,12 +222,13 @@ class OfficerAppointmentsControllerITest {
         mongoTemplate.insert(documentsToInsert, DELTA_APPOINTMENTS_COLLECTION);
 
         //when
-        ResultActions result = mockMvc.perform(get("/officers/{officer_id}/appointments?items_per_page={itemsPerPage}", officerId, itemsPerPage)
-                .header("ERIC-Identity", "123")
-                .header("ERIC-Identity-Type", "key")
-                .header(ERIC_AUTHORISED_KEY_PRIVILEGES_HEADER, "internal-app")
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON));
+        ResultActions result = mockMvc.perform(
+                get("/officers/{officer_id}/appointments?items_per_page={itemsPerPage}", officerId, itemsPerPage)
+                        .header("ERIC-Identity", "123")
+                        .header("ERIC-Identity-Type", "key")
+                        .header(ERIC_AUTHORISED_KEY_PRIVILEGES_HEADER, "internal-app")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON));
 
         //then
         result.andExpect(status().isOk())
@@ -262,12 +271,14 @@ class OfficerAppointmentsControllerITest {
         mongoTemplate.insert(documentsToInsert, DELTA_APPOINTMENTS_COLLECTION);
 
         //when
-        ResultActions result = mockMvc.perform(get("/officers/{officer_id}/appointments?items_per_page={itemsPerPage}", officerId, requestedItemsPerPage)
-                .header("ERIC-Identity", "123")
-                .header("ERIC-Identity-Type", "key")
-                .header(ERIC_AUTHORISED_KEY_PRIVILEGES_HEADER, "internal-app")
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON));
+        ResultActions result = mockMvc.perform(
+                get("/officers/{officer_id}/appointments?items_per_page={itemsPerPage}", officerId,
+                        requestedItemsPerPage)
+                        .header("ERIC-Identity", "123")
+                        .header("ERIC-Identity-Type", "key")
+                        .header(ERIC_AUTHORISED_KEY_PRIVILEGES_HEADER, "internal-app")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON));
 
         //then
         result.andExpect(status().isOk())
@@ -312,13 +323,15 @@ class OfficerAppointmentsControllerITest {
         mongoTemplate.insert(documentsToInsert, DELTA_APPOINTMENTS_COLLECTION);
 
         //when
-        ResultActions result = mockMvc.perform(get("/officers/{officer_id}/appointments?items_per_page={itemsPerPage}", officerId, requestedItemsPerPage)
-                .header("ERIC-Identity", "123")
-                .header("ERIC-Identity-Type", "key")
-                .header("X-Request-Id", "requestId")
-                .header(ERIC_AUTHORISED_KEY_PRIVILEGES_HEADER, "internal-app")
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON));
+        ResultActions result = mockMvc.perform(
+                get("/officers/{officer_id}/appointments?items_per_page={itemsPerPage}", officerId,
+                        requestedItemsPerPage)
+                        .header("ERIC-Identity", "123")
+                        .header("ERIC-Identity-Type", "key")
+                        .header("X-Request-Id", "requestId")
+                        .header(ERIC_AUTHORISED_KEY_PRIVILEGES_HEADER, "internal-app")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON));
 
         //then
         result.andExpect(status().isOk())
@@ -361,11 +374,13 @@ class OfficerAppointmentsControllerITest {
         mongoTemplate.insert(documentsToInsert, DELTA_APPOINTMENTS_COLLECTION);
 
         //when
-        ResultActions result = mockMvc.perform(get("/officers/{officer_id}/appointments?items_per_page={itemsPerPage}", officerId, requestedItemsPerPage)
-                .header("ERIC-Identity", "123")
-                .header("ERIC-Identity-Type", "key")
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON));
+        ResultActions result = mockMvc.perform(
+                get("/officers/{officer_id}/appointments?items_per_page={itemsPerPage}", officerId,
+                        requestedItemsPerPage)
+                        .header("ERIC-Identity", "123")
+                        .header("ERIC-Identity-Type", "key")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON));
 
         //then
         result.andExpect(status().isOk())
@@ -391,32 +406,35 @@ class OfficerAppointmentsControllerITest {
 
     @ParameterizedTest
     @CsvSource({
-        "active",
-        "liquidation",
-        "receivership",
-        "voluntary-arrangement",
-        "insolvency-proceedings",
-        "administration",
-        "open",
-        "registered",
-        "removed" })
-    void getCorporateOfficerAppointmentsToCompaniesConsideredActiveWithActiveFilterApplied(String companyStatus) throws Exception {
+            "active",
+            "liquidation",
+            "receivership",
+            "voluntary-arrangement",
+            "insolvency-proceedings",
+            "administration",
+            "open",
+            "registered",
+            "removed"})
+    void getCorporateOfficerAppointmentsToCompaniesConsideredActiveWithActiveFilterApplied(String companyStatus)
+            throws Exception {
         // given
         final int defaultItemsPerPage = 35;
         final int numberOfCorpAppointmentsConsideredActive = 100;
         mongoTemplate.insert(buildCorporateAppointments(companyStatus), "delta_appointments");
 
         // when
-        ResultActions result = mockMvc.perform(get("/officers/{officer_id}/appointments?filter=active", CORPORATE_OFFICER_ID)
-                .header("ERIC-Identity", "123")
-                .header("ERIC-Identity-Type", "key")
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON));
+        ResultActions result = mockMvc.perform(
+                get("/officers/{officer_id}/appointments?filter=active", CORPORATE_OFFICER_ID)
+                        .header("ERIC-Identity", "123")
+                        .header("ERIC-Identity-Type", "key")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON));
 
         // then
         result.andExpect(MockMvcResultMatchers.status().isOk());
 
-        final AppointmentList responseEntity = objectMapper.readValue(result.andReturn().getResponse().getContentAsString(), AppointmentList.class);
+        final AppointmentList responseEntity = objectMapper.readValue(
+                result.andReturn().getResponse().getContentAsString(), AppointmentList.class);
 
         assertEquals(defaultItemsPerPage, responseEntity.getItems().size());
         assertEquals(defaultItemsPerPage, responseEntity.getItemsPerPage());
@@ -437,32 +455,35 @@ class OfficerAppointmentsControllerITest {
 
     @ParameterizedTest
     @CsvSource({
-        "active",
-        "liquidation",
-        "receivership",
-        "voluntary-arrangement",
-        "insolvency-proceedings",
-        "administration",
-        "open",
-        "registered",
-        "removed" })
-    void getNaturalOfficerAppointmentsToCompaniesConsideredActiveWithActiveFilterApplied(String companyStatus) throws Exception {
+            "active",
+            "liquidation",
+            "receivership",
+            "voluntary-arrangement",
+            "insolvency-proceedings",
+            "administration",
+            "open",
+            "registered",
+            "removed"})
+    void getNaturalOfficerAppointmentsToCompaniesConsideredActiveWithActiveFilterApplied(String companyStatus)
+            throws Exception {
         // given
         final int defaultItemsPerPage = 35;
         final int numberOfNaturalAppointmentsConsideredActive = 26;
         mongoTemplate.insert(buildNaturalAppointments(companyStatus), "delta_appointments");
 
         // when
-        ResultActions result = mockMvc.perform(get("/officers/{officer_id}/appointments?filter=active", NATURAL_OFFICER_ID)
-                .header("ERIC-Identity", "123")
-                .header("ERIC-Identity-Type", "key")
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON));
+        ResultActions result = mockMvc.perform(
+                get("/officers/{officer_id}/appointments?filter=active", NATURAL_OFFICER_ID)
+                        .header("ERIC-Identity", "123")
+                        .header("ERIC-Identity-Type", "key")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON));
 
         // then
         result.andExpect(MockMvcResultMatchers.status().isOk());
 
-        final AppointmentList responseEntity = objectMapper.readValue(result.andReturn().getResponse().getContentAsString(), AppointmentList.class);
+        final AppointmentList responseEntity = objectMapper.readValue(
+                result.andReturn().getResponse().getContentAsString(), AppointmentList.class);
 
         assertEquals(defaultItemsPerPage, responseEntity.getItemsPerPage());
         assertEquals(numberOfNaturalAppointmentsConsideredActive, responseEntity.getTotalResults());
@@ -484,22 +505,25 @@ class OfficerAppointmentsControllerITest {
     @CsvSource({
             "dissolved",
             "converted-closed",
-            "closed" })
-    void getCorporateOfficerAppointmentsToCompaniesConsideredInactiveWithActiveFilterApplied(String companyStatus) throws Exception {
+            "closed"})
+    void getCorporateOfficerAppointmentsToCompaniesConsideredInactiveWithActiveFilterApplied(String companyStatus)
+            throws Exception {
         // given
         mongoTemplate.insert(buildCorporateAppointments(companyStatus), "delta_appointments");
 
         // when
-        ResultActions result = mockMvc.perform(get("/officers/{officer_id}/appointments?filter=active", CORPORATE_OFFICER_ID)
-                .header("ERIC-Identity", "123")
-                .header("ERIC-Identity-Type", "key")
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON));
+        ResultActions result = mockMvc.perform(
+                get("/officers/{officer_id}/appointments?filter=active", CORPORATE_OFFICER_ID)
+                        .header("ERIC-Identity", "123")
+                        .header("ERIC-Identity-Type", "key")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON));
 
         // then
         result.andExpect(MockMvcResultMatchers.status().isOk());
 
-        final AppointmentList responseEntity = objectMapper.readValue(result.andReturn().getResponse().getContentAsString(), AppointmentList.class);
+        final AppointmentList responseEntity = objectMapper.readValue(
+                result.andReturn().getResponse().getContentAsString(), AppointmentList.class);
 
         assertEquals(0, responseEntity.getItems().size());
         assertEquals(35, responseEntity.getItemsPerPage());
@@ -519,22 +543,25 @@ class OfficerAppointmentsControllerITest {
     @CsvSource({
             "dissolved",
             "converted-closed",
-            "closed" })
-    void getNaturalOfficerAppointmentsToCompaniesConsideredInactiveWithActiveFilterApplied(String companyStatus) throws Exception {
+            "closed"})
+    void getNaturalOfficerAppointmentsToCompaniesConsideredInactiveWithActiveFilterApplied(String companyStatus)
+            throws Exception {
         // given
         mongoTemplate.insert(buildNaturalAppointments(companyStatus), "delta_appointments");
 
         // when
-        ResultActions result = mockMvc.perform(get("/officers/{officer_id}/appointments?filter=active", NATURAL_OFFICER_ID)
-                .header("ERIC-Identity", "123")
-                .header("ERIC-Identity-Type", "key")
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON));
+        ResultActions result = mockMvc.perform(
+                get("/officers/{officer_id}/appointments?filter=active", NATURAL_OFFICER_ID)
+                        .header("ERIC-Identity", "123")
+                        .header("ERIC-Identity-Type", "key")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON));
 
         // then
         result.andExpect(MockMvcResultMatchers.status().isOk());
 
-        final AppointmentList responseEntity = objectMapper.readValue(result.andReturn().getResponse().getContentAsString(), AppointmentList.class);
+        final AppointmentList responseEntity = objectMapper.readValue(
+                result.andReturn().getResponse().getContentAsString(), AppointmentList.class);
 
         assertEquals(35, responseEntity.getItemsPerPage());
         assertEquals(0, responseEntity.getTotalResults());
@@ -558,7 +585,7 @@ class OfficerAppointmentsControllerITest {
         }
 
         List<Document> documents = new ArrayList<>();
-        for (final String path :CORPORATE_APPOINTMENT_DOC_PATHS) { // loops 3 times
+        for (final String path : CORPORATE_APPOINTMENT_DOC_PATHS) { // loops 3 times
             final String json = IOUtils.resourceToString(path, StandardCharsets.UTF_8);
 
             for (final String type : IDENTITY_TYPES) { // loops 5 times

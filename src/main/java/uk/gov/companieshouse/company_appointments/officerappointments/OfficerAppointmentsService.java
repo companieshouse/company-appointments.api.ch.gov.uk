@@ -2,23 +2,15 @@ package uk.gov.companieshouse.company_appointments.officerappointments;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import org.springframework.data.mongodb.UncategorizedMongoDbException;
 import org.springframework.stereotype.Service;
 import uk.gov.companieshouse.api.officer.AppointmentList;
-import uk.gov.companieshouse.company_appointments.CompanyAppointmentsApplication;
-import uk.gov.companieshouse.company_appointments.logging.DataMapHolder;
 import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentDocument;
 import uk.gov.companieshouse.company_appointments.officerappointments.OfficerAppointmentsMapper.MapperRequest;
-import uk.gov.companieshouse.logging.Logger;
-import uk.gov.companieshouse.logging.LoggerFactory;
 
 @Service
 class OfficerAppointmentsService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(CompanyAppointmentsApplication.APPLICATION_NAME_SPACE);
-
-    private static final int START_INDEX = 0;
+    private static final int DEFAULT_START_INDEX = 0;
 
     private final OfficerAppointmentsRepository repository;
     private final OfficerAppointmentsMapper mapper;
@@ -35,55 +27,40 @@ class OfficerAppointmentsService {
         String officerId = params.officerId();
         return repository.findFirstByOfficerId(officerId)
                 .flatMap(firstAppointment -> {
-                    int startIndex = getStartIndex(params);
+                    int startIndex = getStartIndex(params.startIndex());
                     int itemsPerPage = params.itemsPerPage();
-                    Filter filter = filterService.prepareFilter(params.filter(),
-                            params.officerId());
 
-                    OfficerAppointmentsAggregate aggregate;
-                    try {
-                        aggregate = repository.findOfficerAppointments(officerId,
-                                filter.isFilterEnabled(), filter.getFilterStatuses(), startIndex, itemsPerPage);
-                    } catch (UncategorizedMongoDbException e) {
-                        LOGGER.debug(String.format("Retrying findOfficerAppointments due to "
-                                        + "exceeding Mongo query resource limits. Cause: %s",
-                                        e.getCause().getMessage()), DataMapHolder.getLogMap());
+                    Filter filter = filterService.prepareFilter(params.filter(), params.officerId());
+                    boolean filterEnabled = filter.isFilterEnabled();
+                    List<String> filterStatuses = filter.filterStatuses();
 
-                        aggregate = findOfficerWithLargeAppointmentsCount(officerId, filter, startIndex,
-                                itemsPerPage);
-                    }
+                    OfficerAppointments officerAppointments = repository.findOfficerAppointmentsIds(officerId,
+                            filterEnabled, filterStatuses, startIndex, itemsPerPage);
+                    List<CompanyAppointmentDocument> documents = repository.findFullOfficerAppointments(
+                            officerAppointments.getIds());
 
-                    return mapper.mapOfficerAppointments(new MapperRequest()
+                    final int totalResults = repository.countTotal(officerId, filterEnabled, filterStatuses);
+                    final int resignedCount = filterEnabled ? 0 : repository.countResigned(officerId);
+                    final int inactiveCount = filterEnabled ? 0 : repository.countInactive(officerId);
+
+                    return mapper.mapOfficerAppointments(MapperRequest.builder()
                             .startIndex(startIndex)
                             .itemsPerPage(itemsPerPage)
                             .firstAppointment(firstAppointment)
-                            .aggregate(aggregate));
+                            .officerAppointments(documents)
+                            .totalResults(totalResults)
+                            .resignedCount(resignedCount)
+                            .inactiveCount(inactiveCount)
+                            .build());
                 });
     }
 
-    private OfficerAppointmentsAggregate findOfficerWithLargeAppointmentsCount(String officerId,
-            Filter filter, int startIndex, int itemsPerPage) {
-        OfficerAppointmentsAggregate sparseAggregate = repository.findOfficerAppointmentsSparseAggregate(
-                officerId, filter.isFilterEnabled(), filter.getFilterStatuses(), startIndex, itemsPerPage);
-
-        List<String> docIds = sparseAggregate.getOfficerAppointments().stream()
-                .map(CompanyAppointmentDocument::getId)
-                .collect(Collectors.toList());
-
-        List<CompanyAppointmentDocument> documents = repository.findOfficerAppointmentsInIdList(docIds,
-                filter.isFilterEnabled(), filter.getFilterStatuses());
-
-        sparseAggregate.officerAppointments(documents);
-
-        return sparseAggregate;
-    }
-
-    private static int getStartIndex(OfficerAppointmentsRequest request) {
+    private static int getStartIndex(Integer requestStartIndex) {
         int startIndex;
-        if (request.startIndex() == null) {
-            startIndex = START_INDEX;
+        if (requestStartIndex == null) {
+            startIndex = DEFAULT_START_INDEX;
         } else {
-            startIndex = Math.abs(request.startIndex());
+            startIndex = Math.abs(requestStartIndex);
         }
         return startIndex;
     }
