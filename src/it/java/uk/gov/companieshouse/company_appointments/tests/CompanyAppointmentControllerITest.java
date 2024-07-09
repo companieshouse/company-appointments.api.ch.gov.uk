@@ -117,7 +117,7 @@ class CompanyAppointmentControllerITest {
         //then
         result.andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.name", is("NOSURNAME, Noname1 Noname2")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.appointed_on", is("2020-08-26")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.appointed_on", is("2024-08-26")))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.date_of_birth", not(contains("day"))))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.date_of_birth.year", is(1980)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.date_of_birth.month", is(1)));
