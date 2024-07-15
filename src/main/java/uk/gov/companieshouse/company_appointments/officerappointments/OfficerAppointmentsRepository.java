@@ -1,7 +1,6 @@
 package uk.gov.companieshouse.company_appointments.officerappointments;
 
 import java.util.List;
-import java.util.Optional;
 import org.springframework.data.mongodb.repository.Aggregation;
 import org.springframework.data.mongodb.repository.Meta;
 import org.springframework.data.mongodb.repository.MongoRepository;
@@ -25,45 +24,45 @@ interface OfficerAppointmentsRepository extends MongoRepository<CompanyAppointme
 
     @Aggregation(pipeline = {
             "{ $match: { "
-                    +           "$and: [ "
-                    +               "{'officer_id': ?0 },"
-                    +               "{ $or: [ "
-                    +                   "{ 'data.resigned_on': { $exists: false } },"
-                    +                   "{ 'data.resigned_on': { $not: { $exists: ?1 } } }"
-                    +                   "]"
-                    +               "},"
-                    +               "{ 'company_status': { $nin: ?2 } }"
-                    +           "]"
-                    +       "}"
-                    +   "}",
+                    + "$and: [ "
+                    + "{'officer_id': ?0 },"
+                    + "{ $or: [ "
+                    + "{ 'data.resigned_on': { $exists: false } },"
+                    + "{ 'data.resigned_on': { $not: { $exists: ?1 } } }"
+                    + "]"
+                    + "},"
+                    + "{ 'company_status': { $nin: ?2 } }"
+                    + "]"
+                    + "}"
+                    + "}",
             "{ $project: { "
-                    +   "        'data.resigned_on': 1, "
-                    +   "        'data.appointed_on': 1, "
-                    +   "        'data.appointed_before': 1 "
-                    +   "    }"
-                    +   "}",
+                    + "        'data.resigned_on': 1, "
+                    + "        'data.appointed_on': 1, "
+                    + "        'data.appointed_before': 1 "
+                    + "    }"
+                    + "}",
             "{"
-                    +       "$addFields: {"
-                    +           "'__sort_active__': { $ifNull: ['$data.appointed_on', { $toDate: '$data.appointed_before' } ] }"
-                    +       "}"
-                    +   "}",
+                    + "$addFields: {"
+                    + "'__sort_active__': { $ifNull: ['$data.appointed_on', { $toDate: '$data.appointed_before' } ] }"
+                    + "}"
+                    + "}",
             "{ $facet: {"
-                    +           "'active': ["
-                    +               "{ $match: {'data.resigned_on': {$exists: false} } },"
-                    +               "{ $sort:  {'__sort_active__': -1 } }"
-                    +               "{ $project: { '_id': 1 } }"
-                    +               "],"
-                    +           "'resigned': ["
-                    +               "{ $match: {'data.resigned_on': {$exists: true} } },"
-                    +               "{ $sort:  {'data.resigned_on': -1} }"
-                    +               "{ $project: { '_id': 1 } }"
-                    +               "]"
-                    +       "}"
-                    +   "}",
+                    + "'active': ["
+                    + "{ $match: {'data.resigned_on': {$exists: false} } },"
+                    + "{ $sort:  {'__sort_active__': -1 } }"
+                    + "{ $project: { '_id': 1 } }"
+                    + "],"
+                    + "'resigned': ["
+                    + "{ $match: {'data.resigned_on': {$exists: true} } },"
+                    + "{ $sort:  {'data.resigned_on': -1} }"
+                    + "{ $project: { '_id': 1 } }"
+                    + "]"
+                    + "}"
+                    + "}",
             "{ $project: {"
-                    +           "'ids': { $slice: [{ $concatArrays: ['$active._id', '$resigned._id'] },  ?3, ?4] },"
-                    +       "}"
-                    +   "}"
+                    + "'ids': { $slice: [{ $concatArrays: ['$active._id', '$resigned._id'] },  ?3, ?4] },"
+                    + "}"
+                    + "}"
     })
     @Meta(allowDiskUse = true)
     OfficerAppointments findOfficerAppointmentsIds(String officerId, boolean filterEnabled,
@@ -105,5 +104,10 @@ interface OfficerAppointmentsRepository extends MongoRepository<CompanyAppointme
             + "] }", count = true)
     int countInactive(String officerId);
 
-    Optional<CompanyAppointmentDocument> findFirstByOfficerId(String officerId);
+    @Aggregation(pipeline = {
+            " { $match: { 'officer_id': ?0 } }",
+            "{ $sort: { 'data.appointed_on': -1 } }",
+            "{ $limit: 1 }"
+    })
+    CompanyAppointmentDocument findLatestAppointment(String officerId);
 }

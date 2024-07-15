@@ -1,12 +1,11 @@
 package uk.gov.companieshouse.company_appointments.officerappointments;
 
+import static uk.gov.companieshouse.company_appointments.interceptor.AuthenticationHelperImpl.INTERNAL_APP_PRIVILEGE;
+
+import java.util.Optional;
 import org.apache.commons.lang.ArrayUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
-import java.util.Optional;
-
-import static uk.gov.companieshouse.company_appointments.interceptor.AuthenticationHelperImpl.INTERNAL_APP_PRIVILEGE;
 
 @Component
 public class ItemsPerPageService {
