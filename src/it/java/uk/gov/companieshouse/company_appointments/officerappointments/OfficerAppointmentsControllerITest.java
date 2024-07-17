@@ -579,7 +579,7 @@ class OfficerAppointmentsControllerITest {
 
     @DisplayName("Should use the name of the most recently appointed appointment when there are no active appointments")
     @Test
-    void getNaturalOfficerAppointmentsToInactiveCompany() throws Exception {
+    void getNonActiveOfficerAppointments() throws Exception {
         // given
         mongoTemplate.insert(IOUtils.resourceToString("/appointmentdocuments/resigned_officer_appointment.json",
                 StandardCharsets.UTF_8), "delta_appointments");
@@ -614,7 +614,7 @@ class OfficerAppointmentsControllerITest {
 
         // Clean up
         Query query = new Query()
-                .addCriteria(Criteria.where("officer_id").is(NATURAL_OFFICER_ID));
+                .addCriteria(Criteria.where("officer_id").is(NON_ACTIVE_OFFICER_ID));
         mongoTemplate.findAllAndRemove(query, "delta_appointments");
     }
 
