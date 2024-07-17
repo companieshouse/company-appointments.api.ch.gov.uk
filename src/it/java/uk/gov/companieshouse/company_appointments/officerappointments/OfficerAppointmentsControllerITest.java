@@ -59,6 +59,7 @@ class OfficerAppointmentsControllerITest {
 
     private static final String CORPORATE_OFFICER_ID = UUID.randomUUID().toString();
     private static final String NATURAL_OFFICER_ID = UUID.randomUUID().toString();
+    private static final String NON_ACTIVE_OFFICER_ID = "non_active_officer_ID";
 
     @Container
     private static final MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:5");
@@ -569,6 +570,36 @@ class OfficerAppointmentsControllerITest {
         assertEquals(0, responseEntity.getResignedCount());
         assertEquals(0, responseEntity.getInactiveCount());
         assertTrue(responseEntity.getItems().isEmpty());
+
+        // Clean up
+        Query query = new Query()
+                .addCriteria(Criteria.where("officer_id").is(NATURAL_OFFICER_ID));
+        mongoTemplate.findAllAndRemove(query, "delta_appointments");
+    }
+
+    @DisplayName("Should use the name of the most recently appointed appointment when there are no active appointments")
+    @Test
+    void getNaturalOfficerAppointmentsToInactiveCompany() throws Exception {
+        // given
+        mongoTemplate.insert(IOUtils.resourceToString("/appointmentdocuments/resigned_officer_appointment.json",
+                StandardCharsets.UTF_8), "delta_appointments");
+        mongoTemplate.insert(IOUtils.resourceToString("/appointmentdocuments/inactive_officer_appointment.json",
+                StandardCharsets.UTF_8), "delta_appointments");
+
+        // when
+        ResultActions result = mockMvc.perform(
+                get("/officers/{officer_id}/appointments", NON_ACTIVE_OFFICER_ID)
+                        .header("ERIC-Identity", "123")
+                        .header("ERIC-Identity-Type", "key")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON));
+
+        // then
+        result.andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(jsonPath("$.date_of_birth", not(contains("day"))))
+//                .andExpect(jsonPath("$.date_of_birth.year", is(1970)))
+//                .andExpect(jsonPath("$.date_of_birth.month", is(1)))
+                .andExpect(jsonPath("$.name", is("Noname1 Noname2 NOSURNAME")));
 
         // Clean up
         Query query = new Query()

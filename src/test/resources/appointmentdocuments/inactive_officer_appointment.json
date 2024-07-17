@@ -1,28 +1,28 @@
 {
-  "_id" : "active_2",
-  "appointment_id" : "active_2",
+  "_id" : "non_active_dissolved",
+  "appointment_id" : "non_active_dissolved",
   "company_name" : "TEST COMPANY LIMITED",
   "company_number" : "12345678",
-  "company_status" : "active",
+  "company_status" : "dissolved",
   "created" : {
     "at" : ISODate("2020-08-26T12:00:00.000Z")
   },
   "data" : {
-    "officer_role" : "secretary",
+    "officer_role" : "director",
     "title" : "Mrs",
     "country_of_residence" : "United Kingdom",
     "links" : {
       "officer" : {
-        "self" : "/officers/active_2",
-        "appointments" : "/officers/active_2/appointments"
+        "self" : "/officers/non_active_officer_ID",
+        "appointments" : "/officers/non_active_officer_ID/appointments"
       },
-      "self" : "/company/12345678/appointments/active_2"
+      "self" : "/company/12345678/appointments/non_active_dissolved"
     },
     "nationality" : "British",
-    "forename" : "John",
-    "surname" : "Test",
-    "other_forenames" : "Forename",
-    "appointed_on" : ISODate("2023-08-26T12:00:00.000Z"),
+    "forename" : "Noname1",
+    "surname" : "NOSURNAME",
+    "other_forenames" : "Noname2",
+    "appointed_before" : ISODate("1992-07-26T12:00:00.000Z"),
     "etag" : "8f58a770d34f982a1b2a5a29fcde12528e82f903",
     "occupation" : "Company Director",
     "service_address" : {
@@ -45,12 +45,12 @@
       "premises" : "URA",
       "region" : "ura_region"
     },
-    "date_of_birth" : ISODate("1980-01-01T00:00:00.000Z")
+    "date_of_birth" : ISODate("1970-01-01T00:00:00.000Z")
   },
   "delta_at" : ISODate("2020-06-23T12:13:03.006Z"),
   "internal_id" : "2500085646",
-  "officer_id" : "5VEOBB4a9dlB_iugw_vieHjWpCk",
-  "officer_role_sort_order" : 10,
+  "officer_id" : "non_active_officer_ID",
+  "officer_role_sort_order" : 200,
   "updated" : {
     "at" : ISODate("2020-08-26T13:00:00.000Z")
   },

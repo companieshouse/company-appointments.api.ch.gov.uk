@@ -105,8 +105,11 @@ interface OfficerAppointmentsRepository extends MongoRepository<CompanyAppointme
     int countInactive(String officerId);
 
     @Aggregation(pipeline = {
-            " { $match: { 'officer_id': ?0 } }",
-            "{ $sort: { 'data.appointed_on': -1 } }",
+            "{ $match: { 'officer_id': ?0 } }",
+            "{ $addFields: {"
+                    + "'__sort_appointed__': { $ifNull: ['$data.appointed_on', { $toDate: '$data.appointed_before' } ] }"
+                    + "} }",
+            "{ $sort: { '__sort_appointed__': -1 } }",
             "{ $limit: 1 }"
     })
     CompanyAppointmentDocument findLatestAppointment(String officerId);
