@@ -2,12 +2,12 @@ package uk.gov.companieshouse.company_appointments.officerappointments;
 
 import static java.util.Collections.emptyList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.Optional;
 import org.apache.commons.io.IOUtils;
 import org.bson.Document;
 import org.junit.jupiter.api.BeforeAll;
@@ -287,17 +287,16 @@ class OfficerAppointmentsRepositoryITest {
         assertEquals(0, resigned);
     }
 
-    @DisplayName("Repository should return the first appointment for the given officer ID")
+    @DisplayName("Repository should return the first appointment for the given officer ID sorted by appointed on")
     @Test
     void findFirstByOfficerId() {
         // given
 
         // when
-        Optional<CompanyAppointmentDocument> actual = repository.findFirstByOfficerId(OFFICER_ID);
+        CompanyAppointmentDocument actual = repository.findLatestAppointment(OFFICER_ID);
 
         // then
-        assertTrue(actual.isPresent());
-        assertEquals(OFFICER_ID, actual.get().getOfficerId());
+        assertEquals("active_1", actual.getId());
     }
 
     @DisplayName("Repository should return no appointment for the given officer ID")
@@ -306,9 +305,9 @@ class OfficerAppointmentsRepositoryITest {
         // given
 
         // when
-        Optional<CompanyAppointmentDocument> actual = repository.findFirstByOfficerId("not an officer id");
+        CompanyAppointmentDocument actual = repository.findLatestAppointment("not an officer id");
 
         // then
-        assertTrue(actual.isEmpty());
+        assertNull(actual);
     }
 }

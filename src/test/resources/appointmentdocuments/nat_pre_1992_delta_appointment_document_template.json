@@ -27,16 +27,10 @@
     "officer_role" : "<officer_role>",
     "is_secure_officer" : false,
     "surname" : "Baggins",
-    "forename" : "Frodo",
+    "forename" : "Bilbo",
     "other_forenames" : "Middlename",
     "title" : "Mr",
-    "company_number" : "<company_number>",
-    "former_names" : [
-      {
-        "forenames" : "Bilbo",
-        "surname" : "Baggins"
-      }
-    ]
+    "company_number" : "<company_number>"
   },
   "sensitive_data" : {
     "usual_residential_address" : {

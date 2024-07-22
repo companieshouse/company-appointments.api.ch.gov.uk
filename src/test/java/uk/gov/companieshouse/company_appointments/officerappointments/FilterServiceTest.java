@@ -3,16 +3,21 @@ package uk.gov.companieshouse.company_appointments.officerappointments;
 import static java.util.Collections.emptyList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static uk.gov.companieshouse.company_appointments.model.data.CompanyStatus.CLOSED;
 import static uk.gov.companieshouse.company_appointments.model.data.CompanyStatus.CONVERTED_CLOSED;
 import static uk.gov.companieshouse.company_appointments.model.data.CompanyStatus.DISSOLVED;
 
+import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import uk.gov.companieshouse.company_appointments.exception.BadRequestException;
+import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentDocument;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaOfficerData;
 
 class FilterServiceTest {
 
@@ -29,7 +34,8 @@ class FilterServiceTest {
     @Test
     void prepareFilter() throws BadRequestException {
         // given
-        Filter expected = new Filter(true, List.of(DISSOLVED.getStatus(), CONVERTED_CLOSED.getStatus(), CLOSED.getStatus()));
+        Filter expected = new Filter(true,
+                List.of(DISSOLVED.getStatus(), CONVERTED_CLOSED.getStatus(), CLOSED.getStatus()));
 
         // when
         Filter actual = filterService.prepareFilter("active", OFFICER_ID);
@@ -91,5 +97,48 @@ class FilterServiceTest {
         Exception exception = assertThrows(BadRequestException.class, executable);
         assertEquals(String.format("Invalid filter parameter supplied: %s, officer ID: %s", "Active", OFFICER_ID),
                 exception.getMessage());
+    }
+
+    @DisplayName("Should return first active appointment in list")
+    @Test
+    void findFirstActiveAppointment() throws BadRequestException {
+        // given
+        CompanyAppointmentDocument expected = new CompanyAppointmentDocument()
+                .companyStatus("active")
+                .data(new DeltaOfficerData());
+        List<CompanyAppointmentDocument> documents = List.of(
+                expected,
+                new CompanyAppointmentDocument()
+                        .companyStatus("dissolved")
+                        .data(new DeltaOfficerData()),
+                new CompanyAppointmentDocument()
+                        .companyStatus("active")
+                        .data(new DeltaOfficerData()
+                                .setResignedOn(Instant.parse("2024-07-15T00:00:00Z"))));
+        // when
+        Optional<CompanyAppointmentDocument> actual = filterService.findFirstActiveAppointment(documents);
+
+        // then
+        assertTrue(actual.isPresent());
+        assertEquals(expected, actual.get());
+    }
+
+    @DisplayName("Should return empty when no active appointment in list")
+    @Test
+    void findFirstActiveAppointmentEmpty() throws BadRequestException {
+        // given
+        List<CompanyAppointmentDocument> documents = List.of(
+                new CompanyAppointmentDocument()
+                        .companyStatus("dissolved")
+                        .data(new DeltaOfficerData()),
+                new CompanyAppointmentDocument()
+                        .companyStatus("active")
+                        .data(new DeltaOfficerData()
+                                .setResignedOn(Instant.parse("2024-07-15T00:00:00Z"))));
+        // when
+        Optional<CompanyAppointmentDocument> actual = filterService.findFirstActiveAppointment(documents);
+
+        // then
+        assertTrue(actual.isEmpty());
     }
 }
