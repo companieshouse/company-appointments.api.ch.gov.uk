@@ -236,10 +236,10 @@ class CompanyAppointmentServiceTest {
 
         when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(
                 new ApiResponse<>(200, null, metricsApi));
-        when(metricsApi.getCounts()).thenReturn(new CountsApi().appointments(new AppointmentsApi()
-                .totalCount(2)
-                .activeCount(2) // metrics returns active even when considered inactive
-                .resignedCount(0)));
+//        when(metricsApi.getCounts()).thenReturn(new CountsApi().appointments(new AppointmentsApi()
+//                .totalCount(2)
+//                .activeCount(2) // metrics returns active even when considered inactive
+//                .resignedCount(0)));
         when(companyAppointmentRepository.getCompanyAppointments(any(), any(), any(), anyInt(),
                 anyInt(), anyBoolean(), anyBoolean())).thenReturn(Collections.emptyList());
 
@@ -248,6 +248,7 @@ class CompanyAppointmentServiceTest {
         assertEquals(0, result.getTotalResults());
         assertEquals(0, result.getInactiveCount());
         assertEquals(0, result.getActiveCount());
+        //need base response to be equal to the result here.
     }
 
     @Test
@@ -259,8 +260,6 @@ class CompanyAppointmentServiceTest {
                         .withOrderBy(ORDER_BY)
                         .build();
 
-        when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(
-                new ApiResponse<>(200, null, metricsApi));
         when(metricsApi.getCounts()).thenReturn(new CountsApi().appointments(new AppointmentsApi()
                 .totalCount(1)
                 .activeCount(1)
@@ -385,6 +384,11 @@ class CompanyAppointmentServiceTest {
     @Test
     void testFetchAppointmentsForCompanyThrowsNotFoundExceptionIfRegisterViewAndNotHeldInCompaniesHouse()
             throws ServiceUnavailableException, NotFoundException {
+        CompanyAppointmentDocument appointmentDocument = buildCompanyAppointmentDocument(buildOfficerData().build(),
+                ACTIVE);
+
+        List<CompanyAppointmentDocument> allAppointmentData = List.of(appointmentDocument);
+
         FetchAppointmentsRequest request =
                 FetchAppointmentsRequest.Builder.builder()
                         .withCompanyNumber(COMPANY_NUMBER)
@@ -392,6 +396,8 @@ class CompanyAppointmentServiceTest {
                         .withRegisterType(REGISTER_TYPE_DIRECTORS)
                         .build();
 
+        when(companyAppointmentRepository.getCompanyAppointments(any(), any(), any(), anyInt(),
+                anyInt(), anyBoolean(), anyBoolean())).thenReturn(allAppointmentData);
         when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(
                 new ApiResponse<>(200, null, metricsApi));
         when(companyRegisterService.isRegisterHeldInCompaniesHouse(eq(REGISTER_TYPE_DIRECTORS), any())).thenReturn(
@@ -435,7 +441,7 @@ class CompanyAppointmentServiceTest {
     }
 
     @Test
-    void testFetchAppointmentsForCompanyThrowsNotFoundExceptionIfNoCountsInMetrics()
+    void testFetchAppointmentsForCompanyReturnsBaseResponseIfNoCountsInMetrics()
             throws ServiceUnavailableException, NotFoundException {
         FetchAppointmentsRequest request =
                 FetchAppointmentsRequest.Builder.builder()
@@ -445,11 +451,20 @@ class CompanyAppointmentServiceTest {
         when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(
                 new ApiResponse<>(200, null, metricsApi));
 
-        Executable result = () -> companyAppointmentService.fetchAppointmentsForCompany(request);
+        OfficerList result = companyAppointmentService.fetchAppointmentsForCompany(request);
 
-        NotFoundException exception = assertThrows(NotFoundException.class, result);
-        assertEquals("Appointments metrics for company number [" + COMPANY_NUMBER + "] not found",
-                exception.getMessage());
+        assertEquals(result, new OfficerList()
+                .totalResults(0)
+                .items(Collections.emptyList())
+                .activeCount(0)
+                .inactiveCount(0)
+                .resignedCount(0)
+                .kind(OfficerList.KindEnum.OFFICER_LIST)
+                .startIndex(0)
+                .itemsPerPage(35)
+                .links(new LinkTypes())
+                .etag(""));
+
     }
 
     @Test

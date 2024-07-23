@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,6 +49,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import uk.gov.companieshouse.api.appointment.LinkTypes;
 import uk.gov.companieshouse.api.appointment.OfficerList;
 import uk.gov.companieshouse.api.appointment.PatchAppointmentNameStatusApi;
 import uk.gov.companieshouse.api.metrics.AppointmentsApi;
@@ -175,7 +177,7 @@ class CompanyAppointmentControllerITest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.total_results", is(3)));
     }
     @Test
-    void testReturn404IfOfficersForCompanyIsNotFound() throws Exception {
+    void testReturnBaseResponseIfOfficersForCompanyIsNotFound() throws Exception {
         // when
         when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(new ApiResponse<>(200, null, metricsApi));
         ResultActions result = mockMvc
@@ -187,7 +189,17 @@ class CompanyAppointmentControllerITest {
                         .accept(MediaType.APPLICATION_JSON));
 
         // then
-        result.andExpect(MockMvcResultMatchers.status().isNotFound());
+        result.andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.total_results", is(0)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.items", is(new ArrayList<>())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.active_count", is(0)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.inactive_count", is(0)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.resigned_count", is(0)))
+                .andExpect((MockMvcResultMatchers.jsonPath("$.kind", is("officer-list"))))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.start_index", is(0)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.items_per_page", is(35)))
+//                .andExpect(MockMvcResultMatchers.jsonPath("links", is)
+                .andExpect(MockMvcResultMatchers.jsonPath("etag", is("")));
     }
 
     @Test
