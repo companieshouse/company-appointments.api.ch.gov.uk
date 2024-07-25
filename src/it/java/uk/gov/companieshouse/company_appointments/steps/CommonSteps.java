@@ -30,7 +30,6 @@ import org.springframework.data.mongodb.core.SimpleMongoClientDatabaseFactory;
 import org.springframework.http.HttpStatus;
 import uk.gov.companieshouse.api.chskafka.ChangedResource;
 import uk.gov.companieshouse.company_appointments.config.WiremockTestConfig;
-import uk.gov.companieshouse.company_appointments.logging.DataMapHolder;
 import uk.gov.companieshouse.company_appointments.repository.CompanyAppointmentRepository;
 import uk.gov.companieshouse.logging.Logger;
 
@@ -51,7 +50,7 @@ public class CommonSteps {
     private Logger logger;
 
     @BeforeAll
-    public static void setup() throws IOException {
+    public static void setup() {
         mongoDBContainer.start();
         mongoTemplate = new MongoTemplate(new SimpleMongoClientDatabaseFactory(mongoDBContainer.getReplicaSetUrl()));
         mongoTemplate.dropCollection("delta_appointments");
