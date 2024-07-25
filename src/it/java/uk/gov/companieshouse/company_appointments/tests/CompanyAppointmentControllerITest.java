@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -177,7 +178,7 @@ class CompanyAppointmentControllerITest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.total_results", is(3)));
     }
     @Test
-    void testReturnBaseResponseIfOfficersForCompanyIsNotFound() throws Exception {
+    void shouldReturnZeroCountsWhenOfficerForCompanyIsNotFound() throws Exception {
         // when
         when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(new ApiResponse<>(200, null, metricsApi));
         ResultActions result = mockMvc
@@ -198,8 +199,8 @@ class CompanyAppointmentControllerITest {
                 .andExpect((MockMvcResultMatchers.jsonPath("$.kind", is("officer-list"))))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.start_index", is(0)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.items_per_page", is(35)))
-//                .andExpect(MockMvcResultMatchers.jsonPath("links", is)
-                .andExpect(MockMvcResultMatchers.jsonPath("etag", is("")));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.links").isEmpty())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.etag", is("")));
     }
 
     @Test

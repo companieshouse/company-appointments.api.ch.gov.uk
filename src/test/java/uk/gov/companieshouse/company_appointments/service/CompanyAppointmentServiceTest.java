@@ -437,7 +437,7 @@ class CompanyAppointmentServiceTest {
     }
 
     @Test
-    void testFetchAppointmentsForCompanyReturnsBaseResponseIfNoCountsOrNullCountsInMetrics()
+    void fetchAppointmentsForCompanyShouldReturnZeroCountsIfNoCountsOrNullCountsInMetrics()
             throws ServiceUnavailableException, NotFoundException {
         FetchAppointmentsRequest request =
                 FetchAppointmentsRequest.Builder.builder()
