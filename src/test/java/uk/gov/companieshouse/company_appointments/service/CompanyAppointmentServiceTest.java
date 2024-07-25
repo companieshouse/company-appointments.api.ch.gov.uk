@@ -236,10 +236,7 @@ class CompanyAppointmentServiceTest {
 
         when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(
                 new ApiResponse<>(200, null, metricsApi));
-//        when(metricsApi.getCounts()).thenReturn(new CountsApi().appointments(new AppointmentsApi()
-//                .totalCount(2)
-//                .activeCount(2) // metrics returns active even when considered inactive
-//                .resignedCount(0)));
+
         when(companyAppointmentRepository.getCompanyAppointments(any(), any(), any(), anyInt(),
                 anyInt(), anyBoolean(), anyBoolean())).thenReturn(Collections.emptyList());
 
@@ -260,10 +257,9 @@ class CompanyAppointmentServiceTest {
                         .withOrderBy(ORDER_BY)
                         .build();
 
-        when(metricsApi.getCounts()).thenReturn(new CountsApi().appointments(new AppointmentsApi()
-                .totalCount(1)
-                .activeCount(1)
-                .resignedCount(0)));
+        when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(
+                new ApiResponse<>(200, null, metricsApi));
+
         when(companyAppointmentRepository.getCompanyAppointments(any(), any(), any(), anyInt(),
                 anyInt(), anyBoolean(), anyBoolean())).thenReturn(Collections.emptyList());
 
@@ -441,7 +437,7 @@ class CompanyAppointmentServiceTest {
     }
 
     @Test
-    void testFetchAppointmentsForCompanyReturnsBaseResponseIfNoCountsInMetrics()
+    void testFetchAppointmentsForCompanyReturnsBaseResponseIfNoCountsOrNullCountsInMetrics()
             throws ServiceUnavailableException, NotFoundException {
         FetchAppointmentsRequest request =
                 FetchAppointmentsRequest.Builder.builder()
@@ -467,23 +463,6 @@ class CompanyAppointmentServiceTest {
 
     }
 
-    @Test
-    void throwNotFoundExceptionIfCountsAppointmentsIsNull() {
-        FetchAppointmentsRequest request =
-                FetchAppointmentsRequest.Builder.builder()
-                        .withCompanyNumber(COMPANY_NUMBER)
-                        .build();
-
-        when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(
-                new ApiResponse<>(200, null, metricsApi));
-        when(metricsApi.getCounts()).thenReturn(new CountsApi());
-
-        NotFoundException exception = assertThrows(NotFoundException.class,
-                () -> companyAppointmentService.fetchAppointmentsForCompany(request));
-        assertEquals("Appointments metrics for company number [" + COMPANY_NUMBER + "] not found",
-                exception.getMessage());
-        verifyNoInteractions(companyAppointmentRepository);
-    }
 
     @Test
     void testFetchAppointmentsForCompanyReturnsAppointmentsIfRegisterTypeMatchesDirectorsAndRoleTypeIsDirector() {

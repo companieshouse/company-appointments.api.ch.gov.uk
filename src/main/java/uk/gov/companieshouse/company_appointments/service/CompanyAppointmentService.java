@@ -7,7 +7,6 @@ import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
@@ -116,9 +115,13 @@ public class CompanyAppointmentService {
         }
 
         AppointmentsApi appointmentsCounts = Optional.ofNullable(metricsApi.getCounts())
-                .map(CountsApi::getAppointments)
-                .orElseThrow(() -> new NotFoundException(
-                        String.format("Appointments metrics for company number [%s] not found", companyNumber)));
+                .map(CountsApi::getAppointments).orElse(new AppointmentsApi()
+                        .activeCount(0)
+                        .totalCount(0)
+                        .resignedCount(0)
+                        .activeDirectorsCount(0)
+                        .activeSecretariesCount(0)
+                        .activeLlpMembersCount(0));
 
         Counts counts = registerView ? new Counts(appointmentsCounts, registerType) :
                 new Counts(appointmentsCounts, allAppointmentData.getFirst().getCompanyStatus(), filterEnabled);
