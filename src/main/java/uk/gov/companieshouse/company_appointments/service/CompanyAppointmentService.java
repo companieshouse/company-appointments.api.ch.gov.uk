@@ -87,13 +87,24 @@ public class CompanyAppointmentService {
         boolean filterEnabled = checkFilterEnabled(filter, companyNumber);
 
         LOGGER.debug(
-                String.format("Fetching appointments for company [%s] with order by [%s]", companyNumber, orderBy), DataMapHolder.getLogMap());
+                String.format("Fetching appointments for company [%s] with order by [%s]", companyNumber, orderBy),
+                DataMapHolder.getLogMap());
 
         List<CompanyAppointmentDocument> allAppointmentData = companyAppointmentRepository.getCompanyAppointments(
                 companyNumber, orderBy, registerType, startIndex, itemsPerPage, registerView,
                 filterEnabled);
 
-        MetricsApi metricsApi = companyMetricsApiService.invokeGetMetricsApi(companyNumber).getData();
+        MetricsApi metricsApi = Optional.ofNullable(
+                        companyMetricsApiService.invokeGetMetricsApi(companyNumber).getData())
+                .orElse(new MetricsApi()
+                        .counts(new CountsApi()
+                                .appointments(new AppointmentsApi()
+                                        .activeCount(0)
+                                        .resignedCount(0)
+                                        .totalCount(0)
+                                        .activeDirectorsCount(0)
+                                        .activeSecretariesCount(0)
+                                        .activeLlpMembersCount(0))));
 
         if (registerView && !companyRegisterService.isRegisterHeldInCompaniesHouse(registerType,
                 metricsApi.getRegisters())) {
@@ -114,14 +125,7 @@ public class CompanyAppointmentService {
                     .etag("");
         }
 
-        AppointmentsApi appointmentsCounts = Optional.ofNullable(metricsApi.getCounts())
-                .map(CountsApi::getAppointments).orElse(new AppointmentsApi()
-                        .activeCount(0)
-                        .totalCount(0)
-                        .resignedCount(0)
-                        .activeDirectorsCount(0)
-                        .activeSecretariesCount(0)
-                        .activeLlpMembersCount(0));
+        AppointmentsApi appointmentsCounts = metricsApi.getCounts().getAppointments();
 
         Counts counts = registerView ? new Counts(appointmentsCounts, registerType) :
                 new Counts(appointmentsCounts, allAppointmentData.getFirst().getCompanyStatus(), filterEnabled);

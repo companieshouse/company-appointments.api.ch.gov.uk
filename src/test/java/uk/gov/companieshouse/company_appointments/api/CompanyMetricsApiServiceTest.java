@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 
 import com.google.api.client.http.HttpHeaders;
 import com.google.api.client.http.HttpResponseException;
+import org.apache.http.HttpStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -96,5 +97,18 @@ class CompanyMetricsApiServiceTest {
 
         assertThrows(ServiceUnavailableException.class,
                 () -> service.invokeGetMetricsApi(COMPANY_NUMBER));
+    }
+
+    @Test
+    void whenApiReturns404StatusThenReturn200OK() throws ApiErrorResponseException, URIValidationException {
+        HttpResponseException.Builder builder = new HttpResponseException.Builder(404,
+                "statusMessage", new HttpHeaders());
+        ApiErrorResponseException apiErrorResponseException =
+                new ApiErrorResponseException(builder);
+        when(get.execute()).thenThrow(apiErrorResponseException);
+
+        ApiResponse<MetricsApi> response = service.invokeGetMetricsApi(COMPANY_NUMBER);
+
+        assertEquals(HttpStatus.SC_OK, response.getStatusCode());
     }
 }
