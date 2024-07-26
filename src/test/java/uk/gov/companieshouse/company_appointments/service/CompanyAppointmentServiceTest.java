@@ -1,9 +1,7 @@
 package uk.gov.companieshouse.company_appointments.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -13,6 +11,7 @@ import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.time.Clock;
@@ -226,7 +225,7 @@ class CompanyAppointmentServiceTest {
     }
 
     @Test
-    void testFetchAppointmentsForCompanyWithAnInactiveCompanyStatusHasZeroActiveAppointmentsWhenFilterIsApplied() {
+    void shouldReturnZeroCountsForCompanyWithAnInactiveCompanyStatusAsHasZeroActiveAppointmentsWhenFilterIsApplied() {
         FetchAppointmentsRequest request =
                 FetchAppointmentsRequest.Builder.builder()
                         .withCompanyNumber(COMPANY_NUMBER)
@@ -234,18 +233,12 @@ class CompanyAppointmentServiceTest {
                         .withFilter(ACTIVE)
                         .build();
 
-        when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(
-                new ApiResponse<>(200, null, metricsApi));
-
         when(companyAppointmentRepository.getCompanyAppointments(any(), any(), any(), anyInt(),
                 anyInt(), anyBoolean(), anyBoolean())).thenReturn(Collections.emptyList());
 
         OfficerList result = companyAppointmentService.fetchAppointmentsForCompany(request);
 
-        assertEquals(0, result.getTotalResults());
-        assertEquals(0, result.getInactiveCount());
-        assertEquals(0, result.getActiveCount());
-        //need base response to be equal to the result here.
+        assertEquals(buildBaseResponse(), result);
     }
 
     @Test
@@ -256,25 +249,13 @@ class CompanyAppointmentServiceTest {
                         .withFilter(ACTIVE)
                         .withOrderBy(ORDER_BY)
                         .build();
-
-        when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(
-                new ApiResponse<>(200, null, metricsApi));
-
+        
         when(companyAppointmentRepository.getCompanyAppointments(any(), any(), any(), anyInt(),
                 anyInt(), anyBoolean(), anyBoolean())).thenReturn(Collections.emptyList());
 
         OfficerList result = companyAppointmentService.fetchAppointmentsForCompany(request);
 
-        assertEquals(0, result.getTotalResults());
-        assertEquals(0, result.getInactiveCount());
-        assertEquals(0, result.getActiveCount());
-        assertTrue(result.getItems().isEmpty());
-        assertEquals(KindEnum.OFFICER_LIST, result.getKind());
-        assertEquals(0, result.getStartIndex());
-        assertEquals(35, result.getItemsPerPage());
-        assertEquals(new LinkTypes(), result.getLinks());
-        assertNull(result.getLinks().getSelf());
-        assertEquals("", result.getEtag());
+        assertEquals(buildBaseResponse(), result);
     }
 
     @Test
@@ -437,32 +418,54 @@ class CompanyAppointmentServiceTest {
     }
 
     @Test
-    void fetchAppointmentsForCompanyShouldReturnZeroCountsIfNoCountsOrNullCountsInMetrics()
+    void testFetchAppointmentsForCompanyThrowsNotFoundExceptionIfNoCountsInMetrics()
             throws ServiceUnavailableException, NotFoundException {
+        CompanyAppointmentDocument appointmentDocument = buildCompanyAppointmentDocument(buildOfficerData().build(),
+                ACTIVE);
+
+        List<CompanyAppointmentDocument> allAppointmentData = List.of(appointmentDocument);
+
         FetchAppointmentsRequest request =
                 FetchAppointmentsRequest.Builder.builder()
                         .withCompanyNumber(COMPANY_NUMBER)
                         .build();
 
+        when(companyAppointmentRepository.getCompanyAppointments(any(), any(), any(), anyInt(),
+                anyInt(), anyBoolean(), anyBoolean())).thenReturn(allAppointmentData);
         when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(
                 new ApiResponse<>(200, null, metricsApi));
 
-        OfficerList result = companyAppointmentService.fetchAppointmentsForCompany(request);
+        Executable result = () -> companyAppointmentService.fetchAppointmentsForCompany(request);
 
-        assertEquals(result, new OfficerList()
-                .totalResults(0)
-                .items(Collections.emptyList())
-                .activeCount(0)
-                .inactiveCount(0)
-                .resignedCount(0)
-                .kind(OfficerList.KindEnum.OFFICER_LIST)
-                .startIndex(0)
-                .itemsPerPage(35)
-                .links(new LinkTypes())
-                .etag(""));
-
+        NotFoundException exception = assertThrows(NotFoundException.class, result);
+        assertEquals("Appointments metrics for company number [" + COMPANY_NUMBER + "] not found",
+                exception.getMessage());
     }
 
+    @Test
+    void throwNotFoundExceptionIfCountsAppointmentsIsNull() {
+        CompanyAppointmentDocument appointmentDocument = buildCompanyAppointmentDocument(buildOfficerData().build(),
+                ACTIVE);
+
+        List<CompanyAppointmentDocument> allAppointmentData = List.of(appointmentDocument);
+
+        FetchAppointmentsRequest request =
+                FetchAppointmentsRequest.Builder.builder()
+                        .withCompanyNumber(COMPANY_NUMBER)
+                        .build();
+
+        when(companyAppointmentRepository.getCompanyAppointments(any(), any(), any(), anyInt(),
+                anyInt(), anyBoolean(), anyBoolean())).thenReturn(allAppointmentData);
+        when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(
+                new ApiResponse<>(200, null, metricsApi));
+        when(metricsApi.getCounts()).thenReturn(new CountsApi());
+
+        NotFoundException exception = assertThrows(NotFoundException.class,
+                () -> companyAppointmentService.fetchAppointmentsForCompany(request));
+        assertEquals("Appointments metrics for company number [" + COMPANY_NUMBER + "] not found",
+                exception.getMessage());
+        verifyNoMoreInteractions(companyAppointmentRepository);
+    }
 
     @Test
     void testFetchAppointmentsForCompanyReturnsAppointmentsIfRegisterTypeMatchesDirectorsAndRoleTypeIsDirector() {
@@ -727,5 +730,19 @@ class CompanyAppointmentServiceTest {
     private DeltaSensitiveData buildSensitiveData() {
         return new DeltaSensitiveData()
                 .setDateOfBirth(LocalDateTime.of(1980, 1, 1, 12, 0).toInstant(ZoneOffset.UTC));
+    }
+
+    private static OfficerList buildBaseResponse() {
+        return new OfficerList()
+                .totalResults(0)
+                .items(Collections.emptyList())
+                .activeCount(0)
+                .inactiveCount(0)
+                .resignedCount(0)
+                .kind(KindEnum.OFFICER_LIST)
+                .startIndex(0)
+                .itemsPerPage(35)
+                .links(new LinkTypes())
+                .etag("");
     }
 }

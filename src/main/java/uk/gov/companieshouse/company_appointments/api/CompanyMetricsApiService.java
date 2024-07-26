@@ -22,7 +22,7 @@ public class CompanyMetricsApiService {
     private final Logger logger;
 
     public CompanyMetricsApiService(@Value("${company-metrics-api.endpoint}") String metricsUrl,
-            Logger logger, ApiClientService apiClientService) {
+                                  Logger logger, ApiClientService apiClientService) {
         this.metricsUrl = metricsUrl;
         this.logger = logger;
         this.apiClientService = apiClientService;
@@ -37,16 +37,17 @@ public class CompanyMetricsApiService {
         PrivateCompanyMetricsGet companyMetricsGet =
                 internalApiClient.privateCompanyMetricsResourceHandler().getCompanyMetrics(String.format("/company/%s/metrics", companyNumber));
 
-        return handleApiCall(companyMetricsGet);
+        return handleApiCall(companyMetricsGet, companyNumber);
     }
 
-    private ApiResponse<MetricsApi> handleApiCall(PrivateCompanyMetricsGet companyMetricsGet)
+    private ApiResponse<MetricsApi> handleApiCall(PrivateCompanyMetricsGet companyMetricsGet, String companyNumber)
             throws ServiceUnavailableException, NotFoundException {
         try {
             return companyMetricsGet.execute();
         } catch (ApiErrorResponseException exception) {
             if (exception.getStatusCode() == 404) {
-                return new ApiResponse<>(200, null);
+                logger.error(String.format("Metrics not found for company number %s", companyNumber), exception, DataMapHolder.getLogMap());
+                throw new NotFoundException(exception.getMessage());
             } else {
                 logger.error("Error occurred while calling /company-metrics endpoint", exception, DataMapHolder.getLogMap());
                 throw new ServiceUnavailableException(exception.getMessage());

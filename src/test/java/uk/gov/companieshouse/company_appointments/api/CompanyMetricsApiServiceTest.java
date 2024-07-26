@@ -7,7 +7,6 @@ import static org.mockito.Mockito.when;
 
 import com.google.api.client.http.HttpHeaders;
 import com.google.api.client.http.HttpResponseException;
-import org.apache.http.HttpStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,6 +20,7 @@ import uk.gov.companieshouse.api.handler.metrics.request.PrivateCompanyMetricsGe
 import uk.gov.companieshouse.api.http.HttpClient;
 import uk.gov.companieshouse.api.metrics.MetricsApi;
 import uk.gov.companieshouse.api.model.ApiResponse;
+import uk.gov.companieshouse.company_appointments.exception.NotFoundException;
 import uk.gov.companieshouse.company_appointments.exception.ServiceUnavailableException;
 import uk.gov.companieshouse.logging.Logger;
 
@@ -107,8 +107,8 @@ class CompanyMetricsApiServiceTest {
                 new ApiErrorResponseException(builder);
         when(get.execute()).thenThrow(apiErrorResponseException);
 
-        ApiResponse<MetricsApi> response = service.invokeGetMetricsApi(COMPANY_NUMBER);
+        assertThrows(NotFoundException.class,
+                () -> service.invokeGetMetricsApi(COMPANY_NUMBER));
 
-        assertEquals(HttpStatus.SC_OK, response.getStatusCode());
     }
 }

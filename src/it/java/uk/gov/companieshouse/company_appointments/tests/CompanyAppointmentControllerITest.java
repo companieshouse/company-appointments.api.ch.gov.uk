@@ -173,8 +173,9 @@ class CompanyAppointmentControllerITest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.resigned_count", is(1)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.total_results", is(3)));
     }
+
     @Test
-    void shouldReturnZeroCountsWhenOfficerForCompanyIsNotFound() throws Exception {
+    void shouldReturnZeroCountsWhenOfficerForCompanyIsNotFoundAndMetricsPresent() throws Exception {
         // when
         when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(new ApiResponse<>(200, null, metricsApi));
         ResultActions result = mockMvc
@@ -197,6 +198,47 @@ class CompanyAppointmentControllerITest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.items_per_page", is(35)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.links").isEmpty())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.etag", is("")));
+    }
+
+    @Test
+    void shouldReturnZeroCountsWhenOfficerForCompanyIsNotFoundAndNoMetricsAreFound() throws Exception {
+        // when
+        when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(new ApiResponse<>(404, null, metricsApi));
+        ResultActions result = mockMvc
+                .perform(get("/company/{company_number}/officers", "87654321")
+                        .header(X_REQUEST_ID, CONTEXT_ID)
+                        .header(ERIC_IDENTITY, "123")
+                        .header(ERIC_IDENTITY_TYPE, "oauth2")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON));
+
+        // then
+        result.andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.total_results", is(0)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.items", is(new ArrayList<>())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.active_count", is(0)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.inactive_count", is(0)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.resigned_count", is(0)))
+                .andExpect((MockMvcResultMatchers.jsonPath("$.kind", is("officer-list"))))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.start_index", is(0)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.items_per_page", is(35)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.links").isEmpty())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.etag", is("")));
+    }
+
+    @Test
+    void shouldReturnNotFoundWhenOfficerForCompanyIsFoundButNoMetricsAreFound() throws Exception {
+        // when
+        when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(new ApiResponse<>(404, null, metricsApi));
+
+        // then
+        mockMvc.perform(get("/company/{company_number}/officers", COMPANY_NUMBER)
+                        .header(X_REQUEST_ID, CONTEXT_ID)
+                        .header(ERIC_IDENTITY, "123")
+                        .header(ERIC_IDENTITY_TYPE, "oauth2")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isNotFound());
     }
 
     @Test
