@@ -100,7 +100,7 @@ class CompanyMetricsApiServiceTest {
     }
 
     @Test
-    void whenApiReturns404StatusThenReturn200OK() throws ApiErrorResponseException, URIValidationException {
+    void whenApiReturns404StatusThenThrowNotFoundException() throws ApiErrorResponseException, URIValidationException {
         HttpResponseException.Builder builder = new HttpResponseException.Builder(404,
                 "statusMessage", new HttpHeaders());
         ApiErrorResponseException apiErrorResponseException =
