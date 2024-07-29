@@ -7,7 +7,6 @@ import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
@@ -90,18 +89,6 @@ public class CompanyAppointmentService {
         LOGGER.debug(
                 String.format("Fetching appointments for company [%s] with order by [%s]", companyNumber, orderBy), DataMapHolder.getLogMap());
 
-        MetricsApi metricsApi = companyMetricsApiService.invokeGetMetricsApi(companyNumber).getData();
-
-        if (registerView && !companyRegisterService.isRegisterHeldInCompaniesHouse(registerType,
-                metricsApi.getRegisters())) {
-            throw new NotFoundException("Register not held at Companies House");
-        }
-
-        AppointmentsApi appointmentsCounts = Optional.ofNullable(metricsApi.getCounts())
-                .map(CountsApi::getAppointments)
-                .orElseThrow(() -> new NotFoundException(
-                        String.format("Appointments metrics for company number [%s] not found", companyNumber)));
-
         List<CompanyAppointmentDocument> allAppointmentData = companyAppointmentRepository.getCompanyAppointments(
                 companyNumber, orderBy, registerType, startIndex, itemsPerPage, registerView,
                 filterEnabled);
@@ -120,12 +107,25 @@ public class CompanyAppointmentService {
                     .etag("");
         }
 
+        MetricsApi metricsApi = companyMetricsApiService.invokeGetMetricsApi(companyNumber).getData();
+
+        if (registerView && !companyRegisterService.isRegisterHeldInCompaniesHouse(registerType,
+                metricsApi.getRegisters())) {
+            throw new NotFoundException("Register not held at Companies House");
+        }
+
+        AppointmentsApi appointmentsCounts = Optional.ofNullable(metricsApi.getCounts())
+                .map(CountsApi::getAppointments)
+                .orElseThrow(() -> new NotFoundException(
+                        String.format("Appointments metrics for company number [%s] not found", companyNumber)));
+
+
         Counts counts = registerView ? new Counts(appointmentsCounts, registerType) :
                 new Counts(appointmentsCounts, allAppointmentData.getFirst().getCompanyStatus(), filterEnabled);
 
         List<OfficerSummary> officerSummaries = allAppointmentData.stream()
                 .map(appointment -> companyAppointmentMapper.map(appointment, registerView))
-                .collect(Collectors.toList());
+                .toList();
 
         return new OfficerList()
                 .totalResults(counts.getTotalResults())

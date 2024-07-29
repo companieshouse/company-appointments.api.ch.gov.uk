@@ -20,6 +20,7 @@ import uk.gov.companieshouse.api.handler.metrics.request.PrivateCompanyMetricsGe
 import uk.gov.companieshouse.api.http.HttpClient;
 import uk.gov.companieshouse.api.metrics.MetricsApi;
 import uk.gov.companieshouse.api.model.ApiResponse;
+import uk.gov.companieshouse.company_appointments.exception.NotFoundException;
 import uk.gov.companieshouse.company_appointments.exception.ServiceUnavailableException;
 import uk.gov.companieshouse.logging.Logger;
 
@@ -96,5 +97,18 @@ class CompanyMetricsApiServiceTest {
 
         assertThrows(ServiceUnavailableException.class,
                 () -> service.invokeGetMetricsApi(COMPANY_NUMBER));
+    }
+
+    @Test
+    void whenApiReturns404StatusThenThrowNotFoundException() throws ApiErrorResponseException, URIValidationException {
+        HttpResponseException.Builder builder = new HttpResponseException.Builder(404,
+                "statusMessage", new HttpHeaders());
+        ApiErrorResponseException apiErrorResponseException =
+                new ApiErrorResponseException(builder);
+        when(get.execute()).thenThrow(apiErrorResponseException);
+
+        assertThrows(NotFoundException.class,
+                () -> service.invokeGetMetricsApi(COMPANY_NUMBER));
+
     }
 }
