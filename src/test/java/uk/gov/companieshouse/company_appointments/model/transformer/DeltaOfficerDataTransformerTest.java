@@ -171,7 +171,7 @@ class DeltaOfficerDataTransformerTest {
         return new Data()
                 .personNumber("person number")
                 .serviceAddress(serviceAddress)
-                .serviceAddressSameAsRegisteredOfficeAddress(true)
+                .serviceAddressIsSameAsRegisteredOfficeAddress(true)
                 .countryOfResidence("UK")
                 .appointedOn(LOCAL_DATE)
                 .appointedBefore(LOCAL_DATE)

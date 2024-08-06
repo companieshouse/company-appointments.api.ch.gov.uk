@@ -59,7 +59,7 @@ class DeltaSensitiveDataTransformerTest {
         SensitiveData source = buildSource()
                 .usualResidentialAddress(null)
                 .dateOfBirth(null)
-                .residentialAddressSameAsServiceAddress(null);
+                .residentialAddressIsSameAsServiceAddress(null);
 
         // when
         DeltaSensitiveData actual = transformer.transform(source);
@@ -87,7 +87,7 @@ class DeltaSensitiveDataTransformerTest {
         return new SensitiveData()
                 .usualResidentialAddress(usualResidentialAddress)
                 .dateOfBirth(dateOfBirth)
-                .residentialAddressSameAsServiceAddress(true);
+                .residentialAddressIsSameAsServiceAddress(true);
     }
 
     private DeltaSensitiveData buildExpected() {
