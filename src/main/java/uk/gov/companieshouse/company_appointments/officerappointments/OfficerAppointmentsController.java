@@ -42,11 +42,11 @@ class OfficerAppointmentsController {
             return service.getOfficerAppointments(new OfficerAppointmentsRequest(officerId, filter, startIndex, adjustedItemsPerPage))
                     .map(ResponseEntity::ok)
                     .orElseGet(() -> {
-                        LOGGER.error(String.format("No appointments found for officer ID %s", officerId), DataMapHolder.getLogMap());
+                        LOGGER.info(String.format("No appointments found for officer ID %s", officerId), DataMapHolder.getLogMap());
                         return ResponseEntity.notFound().build();
                     });
         } catch (BadRequestException ex) {
-            LOGGER.error(String.format("Invalid filter parameter supplied: %s, officer ID %s", filter, officerId), DataMapHolder.getLogMap());
+            LOGGER.info(String.format("Invalid filter parameter supplied: %s, officer ID %s", filter, officerId), DataMapHolder.getLogMap());
             return ResponseEntity.badRequest().build();
         }
     }

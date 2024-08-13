@@ -46,8 +46,8 @@ public class CompanyMetricsApiService {
             return companyMetricsGet.execute();
         } catch (ApiErrorResponseException exception) {
             if (exception.getStatusCode() == 404) {
-                logger.error(String.format("Metrics not found for company number %s", companyNumber), exception, DataMapHolder.getLogMap());
-                throw new NotFoundException(exception.getMessage());
+                logger.info(String.format("Metrics not found for company number %s", companyNumber), DataMapHolder.getLogMap());
+                throw new NotFoundException(exception.getMessage(), exception);
             } else {
                 logger.error("Error occurred while calling /company-metrics endpoint", exception, DataMapHolder.getLogMap());
                 throw new ServiceUnavailableException(exception.getMessage());

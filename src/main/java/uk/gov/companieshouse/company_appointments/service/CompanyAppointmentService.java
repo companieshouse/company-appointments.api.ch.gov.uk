@@ -163,8 +163,7 @@ public class CompanyAppointmentService {
                     GenerateEtagUtil.generateEtag());
             if (updatedCount == 0) {
                 throw new NotFoundException(
-                        String.format("No appointments found for company [%s] during PATCH request",
-                                companyNumber));
+                        String.format("No appointments found for company [%s] during PATCH request", companyNumber));
             }
             LOGGER.debug(String.format("Appointments for company [%s] updated successfully",
                     companyNumber), DataMapHolder.getLogMap());

@@ -55,7 +55,8 @@ public class CompanyAppointmentFullRecordController {
             @Valid @RequestBody final FullRecordCompanyOfficerApi companyAppointmentData) {
         try {
             DataMapHolder.get()
-                    .companyNumber(extractCompanyNumber(companyAppointmentData));
+                    .companyNumber(extractCompanyNumber(companyAppointmentData))
+                    .internalId(companyAppointmentData.getExternalData().getInternalId());
 
             companyAppointmentService.upsertAppointmentDelta(companyAppointmentData);
             return ResponseEntity.ok().build();
