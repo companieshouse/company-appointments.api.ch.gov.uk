@@ -38,6 +38,8 @@ class OfficerAppointmentsController {
         try {
             DataMapHolder.get()
                     .officerId(officerId);
+            LOGGER.info("Fetching officer appointments", DataMapHolder.getLogMap());
+
             int adjustedItemsPerPage = itemsPerPageService.getItemsPerPage(itemsPerPage, authPrivileges);
             return service.getOfficerAppointments(new OfficerAppointmentsRequest(officerId, filter, startIndex, adjustedItemsPerPage))
                     .map(ResponseEntity::ok)

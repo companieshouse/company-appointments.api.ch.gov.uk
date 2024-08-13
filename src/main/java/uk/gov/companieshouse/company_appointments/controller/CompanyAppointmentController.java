@@ -1,5 +1,8 @@
 package uk.gov.companieshouse.company_appointments.controller;
 
+import static org.apache.commons.lang3.StringUtils.isBlank;
+
+import java.util.List;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -40,6 +43,8 @@ public class CompanyAppointmentController {
 
         DataMapHolder.get()
                 .companyNumber(companyNumber);
+        LOGGER.info("Fetching appointment %s".formatted(appointmentID), DataMapHolder.getLogMap());
+
         try {
             return ResponseEntity.ok(companyAppointmentService.fetchAppointment(companyNumber, appointmentID));
         } catch (NotFoundException e) {
@@ -60,6 +65,7 @@ public class CompanyAppointmentController {
 
         DataMapHolder.get()
                 .companyNumber(companyNumber);
+        LOGGER.info("Fetching company appointments", DataMapHolder.getLogMap());
 
         FetchAppointmentsRequest request = FetchAppointmentsRequest.Builder.builder()
                         .withCompanyNumber(companyNumber)
@@ -90,7 +96,11 @@ public class CompanyAppointmentController {
             @RequestBody PatchAppointmentNameStatusApi requestBody) {
 
         DataMapHolder.get()
-                .companyNumber(companyNumber);
+                .companyNumber(companyNumber)
+                .companyName(isBlank(requestBody.getCompanyName())? null: requestBody.getCompanyName())
+                .companyStatus(isBlank(requestBody.getCompanyStatus())? null: List.of(requestBody.getCompanyStatus()));
+        LOGGER.info("Patching company name and status", DataMapHolder.getLogMap());
+
         try {
             companyAppointmentService.patchCompanyNameStatus(companyNumber,
                     requestBody.getCompanyName(), requestBody.getCompanyStatus());
