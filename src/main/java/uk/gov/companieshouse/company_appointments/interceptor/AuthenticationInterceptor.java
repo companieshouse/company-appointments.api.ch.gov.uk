@@ -31,13 +31,14 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
 
         if (StringUtils.isEmpty(request.getHeader(ERIC_IDENTITY)) ||
                 (StringUtils.isEmpty(identityType) || isInvalidIdentityType(identityType))) {
-            logger.infoRequest(request, "User not authenticated", DataMapHolder.getLogMap());
+            logger.errorRequest(request, "User not authenticated", DataMapHolder.getLogMap());
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return false;
         }
 
         if (!isKeyAuthorised(request, identityType)) {
-            logger.info("Supplied key does not have sufficient privilege for the action", DataMapHolder.getLogMap());
+            logger.errorRequest(request, "Supplied key does not have sufficient privilege for the action",
+                    DataMapHolder.getLogMap());
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
             return false;
         }

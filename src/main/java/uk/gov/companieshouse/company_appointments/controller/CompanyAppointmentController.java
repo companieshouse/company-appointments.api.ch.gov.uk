@@ -82,10 +82,10 @@ public class CompanyAppointmentController {
             LOGGER.info(e.getMessage(), DataMapHolder.getLogMap());
             return ResponseEntity.notFound().build();
         } catch (BadRequestException e) {
-            LOGGER.info(e.getMessage(), DataMapHolder.getLogMap());
+            LOGGER.error(e.getMessage(), DataMapHolder.getLogMap());
             return ResponseEntity.badRequest().build();
         } catch (ServiceUnavailableException e) {
-            LOGGER.info(e.getMessage(), DataMapHolder.getLogMap());
+            LOGGER.error(e.getMessage(), DataMapHolder.getLogMap());
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();
         }
     }

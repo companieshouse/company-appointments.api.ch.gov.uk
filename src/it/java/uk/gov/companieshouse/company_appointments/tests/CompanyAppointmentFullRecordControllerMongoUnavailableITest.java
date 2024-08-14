@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.company_appointments.tests;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
@@ -11,10 +12,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.system.CapturedOutput;
+import org.springframework.boot.test.system.OutputCaptureExtension;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.SimpleMongoClientDatabaseFactory;
@@ -68,7 +72,8 @@ class CompanyAppointmentFullRecordControllerMongoUnavailableITest {
 
     @Test
     @DisplayName("Put endpoint returns 503 service unavailable when MongoDB is unavailable")
-    void testPutNewAppointmentCompanyNameStatusMongoUnavailable() throws Exception {
+    @ExtendWith(OutputCaptureExtension.class)
+    void testPutNewAppointmentCompanyNameStatusMongoUnavailable(CapturedOutput capture) throws Exception {
         doThrow(new DataAccessException("..."){ }).when(fullRecordRepository).save(any());
 
         FullRecordCompanyOfficerApi requestBody = new FullRecordCompanyOfficerApi()
@@ -82,11 +87,13 @@ class CompanyAppointmentFullRecordControllerMongoUnavailableITest {
                         .header(ERIC_AUTHORISED_KEY_PRIVILEGES, "internal-app")
                         .content(objectMapper.writeValueAsString(requestBody)))
                 .andExpect(status().isServiceUnavailable());
+        assertThat(capture.getOut()).contains("event: error");
     }
 
     @Test
     @DisplayName("Delete endpoint returns 503 service unavailable when MongoDB is unavailable")
-    void testDeleteNewAppointmentCompanyNameStatusMongoUnavailable() throws Exception {
+    @ExtendWith(OutputCaptureExtension.class)
+    void testDeleteNewAppointmentCompanyNameStatusMongoUnavailable(CapturedOutput capture) throws Exception {
         when(fullRecordRepository.readByCompanyNumberAndID(any(), any())).thenThrow(new DataAccessException("..."){ });
         
         mockMvc.perform(delete(FULL_RECORD_DELETE_ENDPOINT, COMPANY_NUMBER, APPOINTMENT_ID)
@@ -96,5 +103,6 @@ class CompanyAppointmentFullRecordControllerMongoUnavailableITest {
                         .header(ERIC_IDENTITY_TYPE, "key")
                         .header(ERIC_AUTHORISED_KEY_PRIVILEGES, "internal-app"))
                 .andExpect(status().isServiceUnavailable());
+        assertThat(capture.getOut()).contains("event: error");
     }
 }

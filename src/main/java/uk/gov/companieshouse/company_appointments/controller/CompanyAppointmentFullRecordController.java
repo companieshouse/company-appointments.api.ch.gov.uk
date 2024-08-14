@@ -66,7 +66,7 @@ public class CompanyAppointmentFullRecordController {
             companyAppointmentService.upsertAppointmentDelta(companyAppointmentData);
             return ResponseEntity.ok().build();
         } catch (ServiceUnavailableException e) {
-            LOGGER.info(e.getMessage(), DataMapHolder.getLogMap());
+            LOGGER.error(e.getMessage(), DataMapHolder.getLogMap());
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();
         } catch (IllegalArgumentException ex) {
             LOGGER.info(ex.getMessage(), DataMapHolder.getLogMap());
@@ -89,7 +89,7 @@ public class CompanyAppointmentFullRecordController {
             LOGGER.info(e.getMessage(), DataMapHolder.getLogMap());
             return ResponseEntity.notFound().build();
         } catch (ServiceUnavailableException e) {
-            LOGGER.info(e.getMessage(), DataMapHolder.getLogMap());
+            LOGGER.error(e.getMessage(), DataMapHolder.getLogMap());
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();
         }
     }
