@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.company_appointments.tests;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.Matchers.contains;
@@ -29,6 +30,7 @@ import org.bson.Document;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.Mock;
@@ -36,6 +38,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.system.CapturedOutput;
+import org.springframework.boot.test.system.OutputCaptureExtension;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.SimpleMongoClientDatabaseFactory;
 import org.springframework.http.HttpHeaders;
@@ -123,7 +127,8 @@ class CompanyAppointmentControllerITest {
     }
 
     @Test
-    void testReturn404IfOfficerIsNotFound() throws Exception {
+    @ExtendWith(OutputCaptureExtension.class)
+    void testReturn404IfOfficerIsNotFound(CapturedOutput capture) throws Exception {
         // when
         ResultActions result = mockMvc
                 .perform(get("/company/{company_number}/appointments/{appointment_id}", COMPANY_NUMBER, "missing")
@@ -135,6 +140,7 @@ class CompanyAppointmentControllerITest {
 
         // then
         result.andExpect(MockMvcResultMatchers.status().isNotFound());
+        assertThat(capture.getOut()).doesNotContain("event: error");
     }
 
     @Test
@@ -201,7 +207,8 @@ class CompanyAppointmentControllerITest {
     }
 
     @Test
-    void shouldReturnZeroCountsWhenOfficerForCompanyIsNotFoundAndNoMetricsAreFound() throws Exception {
+    @ExtendWith(OutputCaptureExtension.class)
+    void shouldReturnZeroCountsWhenOfficerForCompanyIsNotFoundAndNoMetricsAreFound(CapturedOutput capture) throws Exception {
         // when
         when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(new ApiResponse<>(404, null, metricsApi));
         ResultActions result = mockMvc
@@ -224,10 +231,12 @@ class CompanyAppointmentControllerITest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.items_per_page", is(35)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.links").isEmpty())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.etag", is("")));
+        assertThat(capture.getOut()).doesNotContain("event: error");
     }
 
     @Test
-    void shouldReturnNotFoundWhenOfficerForCompanyIsFoundButNoMetricsAreFound() throws Exception {
+    @ExtendWith(OutputCaptureExtension.class)
+    void shouldReturnNotFoundWhenOfficerForCompanyIsFoundButNoMetricsAreFound(CapturedOutput capture) throws Exception {
         // when
         when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(new ApiResponse<>(404, null, metricsApi));
 
@@ -239,6 +248,7 @@ class CompanyAppointmentControllerITest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound());
+        assertThat(capture.getOut()).doesNotContain("event: error");
     }
 
     @Test
@@ -345,7 +355,8 @@ class CompanyAppointmentControllerITest {
 
     @Test
     @DisplayName("Patch existing appointments endpoint returns 400 bad request when company name is missing")
-    void testPatchExistingAppointmentCompanyNameStatusMissingRequestFields() throws Exception {
+    @ExtendWith(OutputCaptureExtension.class)
+    void testPatchExistingAppointmentCompanyNameStatusMissingRequestFields(CapturedOutput capture) throws Exception {
         mockMvc.perform(patch("/company/{company_number}/appointments", COMPANY_NUMBER)
                         .contentType(MediaType.APPLICATION_JSON)
                         .header(X_REQUEST_ID, "5342342")
@@ -354,11 +365,13 @@ class CompanyAppointmentControllerITest {
                         .header(ERIC_AUTHORISED_KEY_PRIVILEGES, "internal-app")
                         .content(objectMapper.writeValueAsString(new PatchAppointmentNameStatusApi())))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest());
+        assertThat(capture.getOut()).doesNotContain("event: error");
     }
 
     @Test
     @DisplayName("Patch existing appointments endpoint returns 400 when invalid company status provided")
-    void testPatchExistingAppointmentCompanyNameStatusInvalidStatus() throws Exception {
+    @ExtendWith(OutputCaptureExtension.class)
+    void testPatchExistingAppointmentCompanyNameStatusInvalidStatus(CapturedOutput capture) throws Exception {
         PatchAppointmentNameStatusApi requestBody = new PatchAppointmentNameStatusApi()
                 .companyName("company name")
                 .companyStatus("fake");
@@ -371,6 +384,7 @@ class CompanyAppointmentControllerITest {
                         .header(ERIC_AUTHORISED_KEY_PRIVILEGES, "internal-app")
                         .content(objectMapper.writeValueAsString(requestBody)))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest());
+        assertThat(capture.getOut()).doesNotContain("event: error");
     }
 
     @Test
@@ -469,7 +483,7 @@ class CompanyAppointmentControllerITest {
      * Generates 12 company numbers, one for each type of company status, and creates a Map of
      * status (key) : company number (value).
      */
-    static private void createCompanyNumbers() {
+    private static void createCompanyNumbers() {
         companyStatusToCompanyNumber = new HashMap<>();
         for (final String status : COMPANY_STATUSES) {
             final String companyNumber = generateRandomEightCharCompanyNumber();
@@ -477,7 +491,7 @@ class CompanyAppointmentControllerITest {
         }
     }
 
-    static private List<Document> buildCorporateAppointments() throws IOException {
+    private static List<Document> buildCorporateAppointments() throws IOException {
         List<String> corporateOfficerRoles = new ArrayList<>();
         for (final String role : OFFICER_ROLES) {
             if (role.contains("corporate")) { // exclude non-corporate roles
@@ -513,7 +527,7 @@ class CompanyAppointmentControllerITest {
         return documents; // results in 1800 documents
     }
 
-    static private List<Document> buildNaturalAppointments() throws IOException {
+    private static List<Document> buildNaturalAppointments() throws IOException {
         List<String> corporateOfficerRoles = new ArrayList<>();
         for (final String role : OFFICER_ROLES) {
             if (!role.contains("corporate")) { // exclude corporate roles

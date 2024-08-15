@@ -29,7 +29,7 @@
         <commons.io.version>2.16.1</commons.io.version>
 
         <!-- internal dependencies -->
-        <structured-logging.version>3.0.4</structured-logging.version>
+        <structured-logging.version>3.0.12</structured-logging.version>
         <sdk-manager-java.version>3.0.9</sdk-manager-java.version>
         <api-sdk-manager-java-library.version>3.0.5</api-sdk-manager-java-library.version>
         <private-api-sdk-java.version>4.0.181</private-api-sdk-java.version>

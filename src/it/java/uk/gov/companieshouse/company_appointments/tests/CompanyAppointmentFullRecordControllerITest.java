@@ -18,10 +18,13 @@ import org.apache.commons.io.IOUtils;
 import org.bson.Document;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.system.CapturedOutput;
+import org.springframework.boot.test.system.OutputCaptureExtension;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.SimpleMongoClientDatabaseFactory;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -164,7 +167,8 @@ class CompanyAppointmentFullRecordControllerITest {
     }
 
     @Test
-    void testReturn404IfOfficerIsNotDeleted() throws Exception{
+    @ExtendWith(OutputCaptureExtension.class)
+    void testReturn404IfOfficerIsNotDeleted(CapturedOutput capture) throws Exception{
         ResultActions result = mockMvc
                 .perform(delete("/company/{company_number}/appointments/{appointment_id}/full_record/delete", COMPANY_NUMBER,
                         "Incorrect")
@@ -178,5 +182,6 @@ class CompanyAppointmentFullRecordControllerITest {
         query.addCriteria(Criteria.where("_id").is("7IjxamNGLlqtIingmTZJJ42Hw9Q"));
         List<CompanyAppointmentDocument> appointments = mongoTemplate.find(query, CompanyAppointmentDocument.class);
         assertThat(appointments).hasSize(1);
+        assertThat(capture.getOut()).doesNotContain("event: error");
     }
 }

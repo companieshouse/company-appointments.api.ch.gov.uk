@@ -2,7 +2,6 @@ package uk.gov.companieshouse.company_appointments.controller;
 
 import java.util.Optional;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -30,7 +29,6 @@ public class CompanyAppointmentFullRecordController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CompanyAppointmentsApplication.APPLICATION_NAME_SPACE);
 
-    @Autowired
     public CompanyAppointmentFullRecordController(CompanyAppointmentFullRecordService companyAppointmentService) {
         this.companyAppointmentService = companyAppointmentService;
     }
@@ -42,6 +40,9 @@ public class CompanyAppointmentFullRecordController {
 
         DataMapHolder.get()
                 .companyNumber(companyNumber);
+        LOGGER.info("Fetching full records of company appointment %s".formatted(appointmentID),
+                DataMapHolder.getLogMap());
+
         try {
             return ResponseEntity.ok(companyAppointmentService.getAppointment(companyNumber, appointmentID));
         } catch (NotFoundException e) {
@@ -55,12 +56,17 @@ public class CompanyAppointmentFullRecordController {
             @Valid @RequestBody final FullRecordCompanyOfficerApi companyAppointmentData) {
         try {
             DataMapHolder.get()
-                    .companyNumber(extractCompanyNumber(companyAppointmentData));
+                    .companyNumber(extractCompanyNumber(companyAppointmentData))
+                    .officerId(companyAppointmentData.getExternalData().getOfficerId())
+                    .internalId(companyAppointmentData.getExternalData().getInternalId());
+            LOGGER.info("Updating full records of company appointment %s"
+                            .formatted(companyAppointmentData.getExternalData().getAppointmentId()),
+                    DataMapHolder.getLogMap());
 
             companyAppointmentService.upsertAppointmentDelta(companyAppointmentData);
             return ResponseEntity.ok().build();
         } catch (ServiceUnavailableException e) {
-            LOGGER.info(e.getMessage(), DataMapHolder.getLogMap());
+            LOGGER.error(e.getMessage(), DataMapHolder.getLogMap());
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();
         } catch (IllegalArgumentException ex) {
             LOGGER.info(ex.getMessage(), DataMapHolder.getLogMap());
@@ -74,6 +80,8 @@ public class CompanyAppointmentFullRecordController {
             @PathVariable("appointment_id") String appointmentId) {
         DataMapHolder.get()
                 .companyNumber(companyNumber);
+        LOGGER.info("Deleting company appointment %s".formatted(appointmentId), DataMapHolder.getLogMap());
+
         try {
             companyAppointmentService.deleteAppointmentDelta(companyNumber, appointmentId);
             return ResponseEntity.ok().build();
@@ -81,7 +89,7 @@ public class CompanyAppointmentFullRecordController {
             LOGGER.info(e.getMessage(), DataMapHolder.getLogMap());
             return ResponseEntity.notFound().build();
         } catch (ServiceUnavailableException e) {
-            LOGGER.info(e.getMessage(), DataMapHolder.getLogMap());
+            LOGGER.error(e.getMessage(), DataMapHolder.getLogMap());
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();
         }
     }

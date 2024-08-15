@@ -32,7 +32,7 @@ public class FullRecordAuthenticationInterceptor implements HandlerInterceptor {
             if (authHelper.isTokenProtectedAndCompanyAuthorised(request, companyNumber)) {
                 return true;
             } else {
-                logger.infoRequest(request, "User not authorised. Token has insufficient permissions.", logMap);
+                logger.errorRequest(request, "User not authorised. Token has insufficient permissions.", logMap);
                 response.setStatus(HttpStatus.SC_UNAUTHORIZED);
                 return false;
             }
@@ -40,7 +40,7 @@ public class FullRecordAuthenticationInterceptor implements HandlerInterceptor {
 
         if (!authHelper.isApiKeyIdentityType(identityType)) {
             logMap.put("identityType", identityType);
-            logger.infoRequest(request, "User not authorised. Identity type not correct", logMap);
+            logger.errorRequest(request, "User not authorised. Identity type not correct", logMap);
 
             response.setStatus(HttpStatus.SC_UNAUTHORIZED);
             return false;
@@ -48,7 +48,7 @@ public class FullRecordAuthenticationInterceptor implements HandlerInterceptor {
 
         if (!authHelper.isKeyElevatedPrivilegesAuthorised(request)) {
             logMap.put("privileges", Arrays.asList(authHelper.getApiKeyPrivileges(request)));
-            logger.infoRequest(request,
+            logger.errorRequest(request,
                     "User not authorised. API key does not have sufficient privileges.",
                     logMap);
 
