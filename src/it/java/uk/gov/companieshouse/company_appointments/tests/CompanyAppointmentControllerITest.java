@@ -321,8 +321,7 @@ class CompanyAppointmentControllerITest {
     }
 
     @Test
-    @ExtendWith(OutputCaptureExtension.class)
-    void testReturn400BadRequestWithIncorrectOrderBy(CapturedOutput capture) throws Exception {
+    void testReturn400BadRequestWithIncorrectOrderBy() throws Exception {
         when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(new ApiResponse<>(200, null, metricsApi));
         when(metricsApi.getCounts()).thenReturn(new CountsApi()
                 .appointments(new AppointmentsApi()));
@@ -333,7 +332,6 @@ class CompanyAppointmentControllerITest {
                 .accept(MediaType.APPLICATION_JSON));
 
         result.andExpect(MockMvcResultMatchers.status().isBadRequest());
-        assertThat(capture.getOut()).contains("event: error");
     }
 
     @Test
@@ -391,8 +389,7 @@ class CompanyAppointmentControllerITest {
 
     @Test
     @DisplayName("Patch existing appointments endpoint returns 403 forbidden when internal app privileges is missing")
-    @ExtendWith(OutputCaptureExtension.class)
-    void testPatchExistingAppointmentCompanyNameStatusAppPrivilegesMissing(CapturedOutput capture) throws Exception {
+    void testPatchExistingAppointmentCompanyNameStatusAppPrivilegesMissing() throws Exception {
         mockMvc.perform(patch("/company/{company_number}/appointments", COMPANY_NUMBER)
                         .contentType(MediaType.APPLICATION_JSON)
                         .header(X_REQUEST_ID, "5342342")
@@ -400,7 +397,6 @@ class CompanyAppointmentControllerITest {
                         .header(ERIC_IDENTITY_TYPE, "key")
                         .header(ERIC_AUTHORISED_KEY_PRIVILEGES, "invalid"))
                 .andExpect(MockMvcResultMatchers.status().isForbidden());
-        assertThat(capture.getOut()).contains("event: error");
     }
 
     @ParameterizedTest

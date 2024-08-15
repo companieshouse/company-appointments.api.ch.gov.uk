@@ -76,6 +76,7 @@ public class CompanyAppointmentFullRecordService {
         try {
             appointmentDocument = deltaAppointmentTransformer.transform(requestBody);
         } catch (FailedToTransformException ex) {
+            LOGGER.error("Failed to transform payload");
             throw new ServiceUnavailableException(String.format("Failed to transform payload: %s", ex.getMessage()));
         }
 
@@ -97,7 +98,7 @@ public class CompanyAppointmentFullRecordService {
     @Transactional
     public void deleteAppointmentDelta(String companyNumber, String appointmentId)
             throws NotFoundException, ServiceUnavailableException {
-        LOGGER.debug(String.format("Deleting appointment [%s] for company [%s]", appointmentId, companyNumber),
+        LOGGER.info(String.format("Deleting appointment [%s] for company [%s]", appointmentId, companyNumber),
                 DataMapHolder.getLogMap());
         try {
             Optional<CompanyAppointmentDocument> document = companyAppointmentRepository.readByCompanyNumberAndID(
@@ -118,13 +119,13 @@ public class CompanyAppointmentFullRecordService {
             LOGGER.debug(String.format("ChsKafka api DELETED invoked updated successfully for company number: %s",
                     companyNumber), DataMapHolder.getLogMap());
         } catch (DataAccessException e) {
-            LOGGER.debug(String.format("%s: %s", e.getClass().getName(), e.getMessage()), DataMapHolder.getLogMap());
+            LOGGER.error(String.format("%s: %s", e.getClass().getName(), e.getMessage()), DataMapHolder.getLogMap());
             throw new ServiceUnavailableException("Error connecting to MongoDB");
         } catch (IllegalArgumentException e) {
-            LOGGER.debug(String.format("%s: %s", e.getClass().getName(), e.getMessage()), DataMapHolder.getLogMap());
+            LOGGER.error(String.format("%s: %s", e.getClass().getName(), e.getMessage()), DataMapHolder.getLogMap());
             throw new ServiceUnavailableException("Error connecting to chs-kafka-api");
         } catch (JsonProcessingException e) {
-            LOGGER.debug("Failed to serialise/deserialise officer summary", DataMapHolder.getLogMap());
+            LOGGER.error("Failed to serialise/deserialise officer summary", DataMapHolder.getLogMap());
             throw new UncheckedIOException(e);
         }
     }
