@@ -61,7 +61,7 @@ variable "eric_memory" {
 variable "max_task_count" {
   type        = number
   description = "The maximum number of tasks for this service."
-  default     = 3
+  default     = 10
 }
 
 variable "use_fargate" {
