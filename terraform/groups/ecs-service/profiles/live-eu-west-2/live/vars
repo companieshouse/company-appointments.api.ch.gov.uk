@@ -5,7 +5,7 @@ aws_profile = "live-eu-west-2"
 use_set_environment_files = true
 
 # scaling configs
-min_task_count = 5
-desired_task_count = 5
+min_task_count = 6
+desired_task_count = 6
 required_cpus = 768
 required_memory = 1536
