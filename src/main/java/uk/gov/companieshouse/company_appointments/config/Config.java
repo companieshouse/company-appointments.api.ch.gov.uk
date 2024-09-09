@@ -1,16 +1,14 @@
 package uk.gov.companieshouse.company_appointments.config;
 
-import java.text.SimpleDateFormat;
-import java.time.Clock;
-import java.time.OffsetDateTime;
-import java.util.function.Supplier;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import java.text.SimpleDateFormat;
+import java.time.Clock;
+import java.util.function.Supplier;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -27,13 +25,15 @@ import uk.gov.companieshouse.company_appointments.util.EmptyFieldDeserializer;
 
 @Configuration
 public class Config implements WebMvcConfigurer {
+
     public static final String PATTERN_FULL_RECORD = "/**/full_record/**";
     private final RequestLoggingInterceptor loggingInterceptor;
     private final AuthenticationInterceptor authenticationInterceptor;
     private final FullRecordAuthenticationInterceptor fullRecordAuthenticationInterceptor;
 
     @Autowired
-    public Config (RequestLoggingInterceptor loggingInterceptor, AuthenticationInterceptor authenticationInterceptor, FullRecordAuthenticationInterceptor fullRecordAuthenticationInterceptor){
+    public Config(RequestLoggingInterceptor loggingInterceptor, AuthenticationInterceptor authenticationInterceptor,
+            FullRecordAuthenticationInterceptor fullRecordAuthenticationInterceptor) {
         this.loggingInterceptor = loggingInterceptor;
         this.authenticationInterceptor = authenticationInterceptor;
         this.fullRecordAuthenticationInterceptor = fullRecordAuthenticationInterceptor;
@@ -47,19 +47,14 @@ public class Config implements WebMvcConfigurer {
     }
 
     /**
-     * Obtains a clock that returns the current instant using the best available
-     * system clock, converting to date and time using the UTC time-zone.
+     * Obtains a clock that returns the current instant using the best available system clock, converting to date and
+     * time using the UTC time-zone.
      *
      * @return a clock that uses the best available system clock in the UTC zone, not null
      */
     @Bean
     public Clock clock() {
         return Clock.systemUTC();
-    }
-
-    @Bean
-    public Supplier<String> offsetDateTimeGenerator() {
-        return () -> String.valueOf(OffsetDateTime.now());
     }
 
     @Bean

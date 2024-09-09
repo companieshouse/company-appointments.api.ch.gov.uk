@@ -1,9 +1,9 @@
 package uk.gov.companieshouse.company_appointments;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-import java.util.function.Supplier;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Named;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,6 +17,7 @@ import uk.gov.companieshouse.api.chskafka.ChangedResource;
 import uk.gov.companieshouse.api.chskafka.ChangedResourceEvent;
 import uk.gov.companieshouse.company_appointments.mapper.ResourceChangedRequestMapper;
 import uk.gov.companieshouse.company_appointments.model.data.ResourceChangedRequest;
+import uk.gov.companieshouse.company_appointments.util.DateTimeProcessor;
 
 @ExtendWith(MockitoExtension.class)
 class ResourceChangedRequestMapperTest {
@@ -26,7 +27,7 @@ class ResourceChangedRequestMapperTest {
     private static final Object deletedData = new Object();
 
     @Mock
-    private Supplier<String> timestampGenerator;
+    private DateTimeProcessor dateTimeProcessor;
 
     @InjectMocks
     private ResourceChangedRequestMapper mapper;
@@ -35,7 +36,7 @@ class ResourceChangedRequestMapperTest {
     @MethodSource("resourceChangedScenarios")
     void testMapper(ResourceChangedTestArgument argument) {
         // given
-        when(timestampGenerator.get()).thenReturn(DATE);
+        when(dateTimeProcessor.formatPublishedAt(any())).thenReturn(DATE);
 
         // when
         ChangedResource actual = mapper.mapChangedResource(argument.request());

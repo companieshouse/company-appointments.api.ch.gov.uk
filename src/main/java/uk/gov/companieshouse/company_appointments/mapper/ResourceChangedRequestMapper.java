@@ -1,22 +1,24 @@
 package uk.gov.companieshouse.company_appointments.mapper;
 
-import java.util.function.Supplier;
+import java.time.Instant;
 import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.api.chskafka.ChangedResource;
 import uk.gov.companieshouse.api.chskafka.ChangedResourceEvent;
 import uk.gov.companieshouse.company_appointments.model.data.ResourceChangedRequest;
+import uk.gov.companieshouse.company_appointments.util.DateTimeProcessor;
 
 @Component
 public class ResourceChangedRequestMapper {
 
-    private final Supplier<String> timestampGenerator;
+    private final DateTimeProcessor dateTimeProcessor;
 
-    public ResourceChangedRequestMapper(Supplier<String> timestampGenerator) {
-        this.timestampGenerator = timestampGenerator;
+    public ResourceChangedRequestMapper(DateTimeProcessor dateTimeProcessor) {
+        this.dateTimeProcessor = dateTimeProcessor;
     }
 
     public ChangedResource mapChangedResource(ResourceChangedRequest request) {
-        ChangedResourceEvent event = new ChangedResourceEvent().publishedAt(this.timestampGenerator.get());
+        ChangedResourceEvent event = new ChangedResourceEvent().publishedAt(dateTimeProcessor.formatPublishedAt(
+                Instant.now()));
         ChangedResource changedResource = new ChangedResource() //NOSONAR
                 .resourceUri(String.format("/company/%s/appointments/%s", request.companyNumber(),
                         request.appointmentId()))
