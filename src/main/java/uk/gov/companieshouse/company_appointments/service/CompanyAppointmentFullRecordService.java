@@ -147,17 +147,14 @@ public class CompanyAppointmentFullRecordService {
             try {
                 saveDocument(document, instant, existingDocument.getCreated());
             } catch (ServiceUnavailableException e) {
-                // Apply compensatory transaction
-                companyAppointmentRepository.save(existingDocument);
-                LOGGER.info("Call to Kafka API failed, reverting previously updated document to original state",
-                        DataMapHolder.getLogMap());
+                LOGGER.info("Call to Kafka API failed", DataMapHolder.getLogMap());
                 throw e;
             }
         }
     }
 
     private boolean isDeltaStale(final Instant incomingDelta, final Instant existingDelta) {
-        return !incomingDelta.isAfter(existingDelta);
+        return incomingDelta.isBefore(existingDelta);
     }
 
     private void logStaleIncomingDelta(final CompanyAppointmentDocument appointmentAPI, final Instant existingDelta) {
@@ -174,10 +171,7 @@ public class CompanyAppointmentFullRecordService {
         try {
             saveDocument(document, instant, instant);
         } catch (ServiceUnavailableException e) {
-            // Apply compensatory transaction
-            companyAppointmentRepository.deleteByCompanyNumberAndID(document.getCompanyNumber(), document.getId());
-            LOGGER.info("Call to Kafka API failed, deleting previously inserted document",
-                    DataMapHolder.getLogMap());
+            LOGGER.info("Call to Kafka API failed", DataMapHolder.getLogMap());
             throw e;
         }
     }
