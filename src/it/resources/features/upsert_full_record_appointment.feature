@@ -58,7 +58,7 @@ Feature: Upsert full record officer information
     And the delta for payload "<payloadFile>" is the most recent delta for "<appointmentId>"
     When a request is sent to the PUT endpoint to upsert an officers delta
     Then I should receive a 503 status code
-    And the changes within the delta for "<appointmentId>" should NOT be persisted in the database
+    And the record should be saved
 
     Examples:
       | payloadFile                        | appointmentId               |

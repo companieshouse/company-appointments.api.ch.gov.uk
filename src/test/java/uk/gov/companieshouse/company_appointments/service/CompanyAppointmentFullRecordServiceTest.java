@@ -70,11 +70,11 @@ class CompanyAppointmentFullRecordServiceTest {
     private final FullRecordCompanyOfficerApi fullRecordCompanyOfficerApi = buildFullRecordOfficer();
 
 
-    private final static String COMPANY_NUMBER = "123456";
-    private final static String APPOINTMENT_ID = "345678";
-    private final static OffsetDateTime DELTA_AT_LATER = OffsetDateTime.parse("2022-01-14T00:00:00.000000Z");
-    private final static OffsetDateTime DELTA_AT_STALE = OffsetDateTime.parse("2022-01-12T00:00:00.000000Z");
-    private final static Clock CLOCK = Clock.fixed(Instant.parse("2021-08-01T00:00:00.000000Z"),
+    private static final String COMPANY_NUMBER = "123456";
+    private static final String APPOINTMENT_ID = "345678";
+    private static final OffsetDateTime DELTA_AT_LATER = OffsetDateTime.parse("2022-01-14T00:00:00.000000Z");
+    private static final OffsetDateTime DELTA_AT_STALE = OffsetDateTime.parse("2022-01-12T00:00:00.000000Z");
+    private static final Clock CLOCK = Clock.fixed(Instant.parse("2021-08-01T00:00:00.000000Z"),
             ZoneId.of("UTC"));
 
     private static Stream<Arguments> deltaAtTestCases() {
@@ -86,7 +86,7 @@ class CompanyAppointmentFullRecordServiceTest {
                 // Newer timestamp not stale
                 Arguments.of("2022-01-13T00:00:00.000000Z", DELTA_AT_STALE, true, true),
                 // Older timestamp stale
-                Arguments.of("2022-01-12T00:00:00.000000Z", DELTA_AT_STALE, true, true)
+                Arguments.of("2022-01-12T00:00:00.000000Z", DELTA_AT_STALE, true, false)
                 // 1 == 1 so delta should be stale
         );
     }
@@ -199,7 +199,7 @@ class CompanyAppointmentFullRecordServiceTest {
     }
 
     @Test
-    void testInsertAppointmentHandlesCompensatoryTransactionWhenServiceUnavailableThrown() {
+    void testInsertAppointmentEvenWhenServiceUnavailableThrown() {
         // given
         CompanyAppointmentDocument deltaAppointmentDocument = new CompanyAppointmentDocument()
                 .id("appointmentId")
@@ -216,11 +216,10 @@ class CompanyAppointmentFullRecordServiceTest {
         // then
         assertThrows(ServiceUnavailableException.class, executable);
         verify(companyAppointmentRepository).save(deltaAppointmentDocument);
-        verify(companyAppointmentRepository).deleteByCompanyNumberAndID("012345678", "appointmentId");
     }
 
     @Test
-    void testUpdateAppointmentHandlesCompensatoryTransactionWhenServiceUnavailableThrown() {
+    void testUpdateAppointmentEvenWhenServiceUnavailableThrown() {
         // given
         CompanyAppointmentDocument deltaAppointmentDocument = new CompanyAppointmentDocument()
                 .id("appointmentId")
@@ -245,7 +244,6 @@ class CompanyAppointmentFullRecordServiceTest {
         // then
         assertThrows(ServiceUnavailableException.class, executable);
         verify(companyAppointmentRepository).save(deltaAppointmentDocument);
-        verify(companyAppointmentRepository).save(existingDocument);
     }
 
     @ParameterizedTest
