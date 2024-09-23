@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.TransientDataAccessException;
 import org.springframework.stereotype.Service;
 import uk.gov.companieshouse.GenerateEtagUtil;
 import uk.gov.companieshouse.api.appointment.LinkTypes;
@@ -36,7 +37,6 @@ import uk.gov.companieshouse.logging.LoggerFactory;
 public class CompanyAppointmentService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CompanyAppointmentsApplication.APPLICATION_NAME_SPACE);
-    private static final String PATCH_APPOINTMENTS_ERROR_MESSAGE = "Request failed for company [%s]: ";
     private static final int DEFAULT_ITEMS_PER_PAGE = 35;
     private static final int DEFAULT_START_INDEX = 0;
     private static final String ACTIVE = "active";
@@ -84,10 +84,11 @@ public class CompanyAppointmentService {
         int itemsPerPage = Optional.ofNullable(request.getItemsPerPage())
                 .orElse(DEFAULT_ITEMS_PER_PAGE);
         final boolean registerView = request.getRegisterView() != null && request.getRegisterView();
-        boolean filterEnabled = checkFilterEnabled(filter, companyNumber);
+        boolean filterEnabled = checkFilterEnabled(filter);
 
         LOGGER.debug(
-                String.format("Fetching appointments for company [%s] with order by [%s]", companyNumber, orderBy), DataMapHolder.getLogMap());
+                String.format("Fetching appointments for company [%s] with order by [%s]", companyNumber, orderBy),
+                DataMapHolder.getLogMap());
 
         List<CompanyAppointmentDocument> allAppointmentData = companyAppointmentRepository.getCompanyAppointments(
                 companyNumber, orderBy, registerType, startIndex, itemsPerPage, registerView,
@@ -119,7 +120,6 @@ public class CompanyAppointmentService {
                 .orElseThrow(() -> new NotFoundException(
                         String.format("Appointments metrics for company number [%s] not found", companyNumber)));
 
-
         Counts counts = registerView ? new Counts(appointmentsCounts, registerType) :
                 new Counts(appointmentsCounts, allAppointmentData.getFirst().getCompanyStatus(), filterEnabled);
 
@@ -144,17 +144,15 @@ public class CompanyAppointmentService {
             String companyStatus)
             throws BadRequestException, NotFoundException, ServiceUnavailableException {
         if (isBlank(companyName) || isBlank(companyStatus)) {
-            throw new BadRequestException(String.format(PATCH_APPOINTMENTS_ERROR_MESSAGE +
-                    "company name and/or company status missing.", companyNumber));
+            LOGGER.error("Company name and/or company status missing", DataMapHolder.getLogMap());
+            throw new BadRequestException("Company name and/or company status missing");
         }
         if (!companyStatusValidator.isValidCompanyStatus(companyStatus)) {
-            throw new BadRequestException(String.format(PATCH_APPOINTMENTS_ERROR_MESSAGE +
-                    "invalid company status provided.", companyNumber));
+            LOGGER.error("Invalid company status provided", DataMapHolder.getLogMap());
+            throw new BadRequestException("Invalid company status provided");
         }
 
-        LOGGER.debug(String.format(
-                "Patching company name: [%s] and company status [%s] for appointments in company [%s]",
-                companyName, companyStatus, companyNumber), DataMapHolder.getLogMap());
+        LOGGER.info("Patching company name and company status for appointment", DataMapHolder.getLogMap());
 
         try {
             long updatedCount = companyAppointmentRepository.patchAppointmentNameStatusInCompany(
@@ -162,26 +160,27 @@ public class CompanyAppointmentService {
                     companyName, companyStatus, Instant.now(clock),
                     GenerateEtagUtil.generateEtag());
             if (updatedCount == 0) {
-                throw new NotFoundException(
-                        String.format("No appointments found for company [%s] during PATCH request", companyNumber));
+                LOGGER.info("No appointments found for company during PATCH request", DataMapHolder.getLogMap());
+                throw new NotFoundException("No appointments found for company during PATCH request");
             }
-            LOGGER.debug(String.format("Appointments for company [%s] updated successfully",
-                    companyNumber), DataMapHolder.getLogMap());
+            LOGGER.info("Appointments for company updated successfully", DataMapHolder.getLogMap());
+        } catch (TransientDataAccessException ex) {
+            LOGGER.info("Recoverable MongoDB error when patching company name/status", DataMapHolder.getLogMap());
+            throw new ServiceUnavailableException("Recoverable MongoDB error when patching company name/status", ex);
         } catch (DataAccessException ex) {
-            throw new ServiceUnavailableException(
-                    String.format(PATCH_APPOINTMENTS_ERROR_MESSAGE + "error connecting to MongoDB.",
-                            companyNumber));
+            LOGGER.error("MongoDB error when patching company name/status", DataMapHolder.getLogMap());
+            throw new ServiceUnavailableException("MongoDB error when patching company name/status", ex);
         }
     }
 
-    private boolean checkFilterEnabled(String filter, String companyNumber) {
+    private boolean checkFilterEnabled(String filter) {
         if (StringUtils.isNotBlank(filter)) {
             if (ACTIVE.equals(filter)) {
                 return true;
             } else {
-                throw new BadRequestException(
-                        String.format("Invalid filter parameter supplied: %s, company number: %s",
-                                filter, companyNumber));
+                final String msg = String.format("Invalid filter parameter supplied: %s", filter);
+                LOGGER.error(msg, DataMapHolder.getLogMap());
+                throw new BadRequestException(msg);
             }
         } else {
             return false;
