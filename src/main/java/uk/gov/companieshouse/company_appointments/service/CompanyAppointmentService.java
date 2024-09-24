@@ -152,8 +152,6 @@ public class CompanyAppointmentService {
             throw new BadRequestException("Invalid company status provided");
         }
 
-        LOGGER.info("Patching company name and company status for appointment", DataMapHolder.getLogMap());
-
         try {
             long updatedCount = companyAppointmentRepository.patchAppointmentNameStatusInCompany(
                     companyNumber,
