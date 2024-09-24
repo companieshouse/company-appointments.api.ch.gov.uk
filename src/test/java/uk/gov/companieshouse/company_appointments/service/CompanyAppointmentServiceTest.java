@@ -268,7 +268,7 @@ class CompanyAppointmentServiceTest {
 
         BadRequestException exception = assertThrows(BadRequestException.class,
                 () -> companyAppointmentService.fetchAppointmentsForCompany(request));
-        assertEquals("Invalid filter parameter supplied: incorrect filter, company number: 123456",
+        assertEquals("Invalid filter parameter supplied: incorrect filter",
                 exception.getMessage());
     }
 
@@ -592,7 +592,7 @@ class CompanyAppointmentServiceTest {
         // then
         BadRequestException exception = assertThrows(BadRequestException.class, executable);
         assertEquals(
-                "Request failed for company [123456]: company name and/or company status missing.",
+                "Company name and/or company status missing",
                 exception.getMessage());
         verifyNoInteractions(companyStatusValidator);
         verifyNoInteractions(companyAppointmentRepository);
@@ -609,7 +609,7 @@ class CompanyAppointmentServiceTest {
         // then
         BadRequestException exception = assertThrows(BadRequestException.class, executable);
         assertEquals(
-                "Request failed for company [123456]: company name and/or company status missing.",
+                "Company name and/or company status missing",
                 exception.getMessage());
         verifyNoInteractions(companyStatusValidator);
         verifyNoInteractions(companyAppointmentRepository);
@@ -627,7 +627,7 @@ class CompanyAppointmentServiceTest {
         // then
         BadRequestException exception = assertThrows(BadRequestException.class, executable);
         assertEquals(
-                "Request failed for company [123456]: invalid company status provided.",
+                "Invalid company status provided",
                 exception.getMessage());
         verify(companyStatusValidator).isValidCompanyStatus(FAKE_STATUS);
         verifyNoInteractions(companyAppointmentRepository);
@@ -649,7 +649,7 @@ class CompanyAppointmentServiceTest {
         ServiceUnavailableException exception = assertThrows(ServiceUnavailableException.class,
                 executable);
         assertEquals(
-                "Request failed for company [123456]: error connecting to MongoDB.",
+                "MongoDB error when patching company name/status",
                 exception.getMessage());
         verify(companyStatusValidator).isValidCompanyStatus(OPEN_STATUS);
         verify(companyAppointmentRepository).patchAppointmentNameStatusInCompany(
@@ -670,7 +670,7 @@ class CompanyAppointmentServiceTest {
 
         // then
         NotFoundException exception = assertThrows(NotFoundException.class, executable);
-        assertEquals("No appointments found for company [123456] during PATCH request",
+        assertEquals("No appointments found for company during PATCH request",
                 exception.getMessage());
         verify(companyStatusValidator).isValidCompanyStatus(OPEN_STATUS);
         verify(companyAppointmentRepository).patchAppointmentNameStatusInCompany(
