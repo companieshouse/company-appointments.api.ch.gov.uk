@@ -39,11 +39,13 @@ class CompanyAppointmentFullRecordControllerMongoUnavailableITest {
     private static final String COMPANY_NUMBER = "12345678";
     private static final String APPOINTMENT_ID = "7IjxamNGLlqtIingmTZJJ42Hw9Q";
     private static final String X_REQUEST_ID = "x-request-id";
+    private static final String X_DELTA_AT = "x-delta-at";
     private static final String ERIC_IDENTITY = "ERIC-Identity";
     private static final String ERIC_IDENTITY_TYPE = "ERIC-Identity-Type";
     private static final String ERIC_AUTHORISED_KEY_PRIVILEGES = "ERIC-Authorised-Key-Privileges";
     private static final String FULL_RECORD_DELETE_ENDPOINT = "/company/{company_number}/appointments/{appointment_id}/full_record/delete";
     private static final String FULL_RECORD_PUT_ENDPOINT = "/company/{company_number}/appointments/{appointment_id}/full_record";
+    private static final String DELTA_AT = "20140925171003950844";
 
     @Autowired
     private MockMvc mockMvc;
@@ -96,7 +98,8 @@ class CompanyAppointmentFullRecordControllerMongoUnavailableITest {
                         .header(X_REQUEST_ID, "5342342")
                         .header(ERIC_IDENTITY, "SOME_IDENTITY")
                         .header(ERIC_IDENTITY_TYPE, "key")
-                        .header(ERIC_AUTHORISED_KEY_PRIVILEGES, "internal-app"))
+                        .header(ERIC_AUTHORISED_KEY_PRIVILEGES, "internal-app")
+                        .header(X_DELTA_AT, DELTA_AT))
                 .andExpect(status().isServiceUnavailable());
     }
 }

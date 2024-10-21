@@ -1,17 +1,11 @@
 package uk.gov.companieshouse.company_appointments.service;
 
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import java.io.UncheckedIOException;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Map;
 import java.util.Optional;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import uk.gov.companieshouse.api.appointment.FullRecordCompanyOfficerApi;
 import uk.gov.companieshouse.company_appointments.CompanyAppointmentsApplication;
 import uk.gov.companieshouse.company_appointments.api.ResourceChangedApiService;
@@ -19,7 +13,6 @@ import uk.gov.companieshouse.company_appointments.exception.FailedToTransformExc
 import uk.gov.companieshouse.company_appointments.exception.NotFoundException;
 import uk.gov.companieshouse.company_appointments.exception.ServiceUnavailableException;
 import uk.gov.companieshouse.company_appointments.logging.DataMapHolder;
-import uk.gov.companieshouse.company_appointments.mapper.CompanyAppointmentMapper;
 import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentDocument;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaTimestamp;
 import uk.gov.companieshouse.company_appointments.model.data.ResourceChangedRequest;
@@ -33,25 +26,20 @@ import uk.gov.companieshouse.logging.LoggerFactory;
 public class CompanyAppointmentFullRecordService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CompanyAppointmentsApplication.APPLICATION_NAME_SPACE);
-    private static final ObjectMapper NULL_CLEANING_OBJECT_MAPPER = new ObjectMapper()
-            .registerModule(new JavaTimeModule())
-            .setSerializationInclusion(Include.NON_NULL);
 
     private final DeltaAppointmentTransformer deltaAppointmentTransformer;
     private final CompanyAppointmentRepository companyAppointmentRepository;
     private final ResourceChangedApiService resourceChangedApiService;
-    private final CompanyAppointmentMapper companyAppointmentMapper;
     private final Clock clock;
 
     public CompanyAppointmentFullRecordService(
             DeltaAppointmentTransformer deltaAppointmentTransformer,
             CompanyAppointmentRepository companyAppointmentRepository,
             ResourceChangedApiService resourceChangedApiService,
-            CompanyAppointmentMapper companyAppointmentMapper, Clock clock) {
+            Clock clock) {
         this.deltaAppointmentTransformer = deltaAppointmentTransformer;
         this.companyAppointmentRepository = companyAppointmentRepository;
         this.resourceChangedApiService = resourceChangedApiService;
-        this.companyAppointmentMapper = companyAppointmentMapper;
         this.clock = clock;
     }
 
@@ -92,41 +80,6 @@ public class CompanyAppointmentFullRecordService {
         } catch (IllegalArgumentException e) {
             LOGGER.debug(String.format("%s: %s", e.getClass().getName(), e.getMessage()), DataMapHolder.getLogMap());
             throw new ServiceUnavailableException("Error connecting to chs-kafka-api");
-        }
-    }
-
-    @Transactional
-    public void deleteAppointmentDelta(String companyNumber, String appointmentId)
-            throws NotFoundException, ServiceUnavailableException {
-        LOGGER.info(String.format("Deleting appointment [%s] for company [%s]", appointmentId, companyNumber),
-                DataMapHolder.getLogMap());
-        try {
-            Optional<CompanyAppointmentDocument> document = companyAppointmentRepository.readByCompanyNumberAndID(
-                    companyNumber, appointmentId);
-            if (document.isEmpty()) {
-                throw new NotFoundException(
-                        String.format("Appointment [%s] for company [%s] not found", appointmentId, companyNumber));
-            }
-            companyAppointmentRepository.deleteByCompanyNumberAndID(companyNumber, appointmentId);
-
-            // Serialise and deserialise OfficerSummary an extra time to remove null fields
-            String officerJson = NULL_CLEANING_OBJECT_MAPPER.writeValueAsString(
-                    companyAppointmentMapper.map(document.get()));
-            Object officerObject = NULL_CLEANING_OBJECT_MAPPER.readValue(officerJson, Object.class);
-
-            resourceChangedApiService.invokeChsKafkaApi(new ResourceChangedRequest(DataMapHolder.getRequestId(),
-                    companyNumber, appointmentId, officerObject, true));
-            LOGGER.debug(String.format("ChsKafka api DELETED invoked updated successfully for company number: %s",
-                    companyNumber), DataMapHolder.getLogMap());
-        } catch (DataAccessException e) {
-            LOGGER.error(String.format("%s: %s", e.getClass().getName(), e.getMessage()), DataMapHolder.getLogMap());
-            throw new ServiceUnavailableException("Error connecting to MongoDB");
-        } catch (IllegalArgumentException e) {
-            LOGGER.error(String.format("%s: %s", e.getClass().getName(), e.getMessage()), DataMapHolder.getLogMap());
-            throw new ServiceUnavailableException("Error connecting to chs-kafka-api");
-        } catch (JsonProcessingException e) {
-            LOGGER.error("Failed to serialise/deserialise officer summary", DataMapHolder.getLogMap());
-            throw new UncheckedIOException(e);
         }
     }
 

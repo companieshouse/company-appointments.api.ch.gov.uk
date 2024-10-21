@@ -30,6 +30,7 @@ import uk.gov.companieshouse.company_appointments.model.data.DeltaSensitiveData;
 import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentFullRecordView;
 import uk.gov.companieshouse.company_appointments.service.CompanyAppointmentFullRecordService;
 import uk.gov.companieshouse.company_appointments.service.CompanyAppointmentService;
+import uk.gov.companieshouse.company_appointments.service.DeleteAppointmentService;
 import uk.gov.companieshouse.logging.Logger;
 
 @WebMvcTest(controllers = {CompanyAppointmentController.class, CompanyAppointmentFullRecordController.class})
@@ -52,6 +53,9 @@ class AuthenticationInterceptorsITest {
     private CompanyAppointmentService companyAppointmentService;
     @MockBean
     private CompanyAppointmentFullRecordService companyAppointmentFullRecordService;
+    @MockBean
+    private DeleteAppointmentService deleteAppointmentService;
+
     private HttpHeaders httpHeaders;
     private OfficerSummary officerSummary;
     private CompanyAppointmentFullRecordView companyAppointmentFullRecordView;
