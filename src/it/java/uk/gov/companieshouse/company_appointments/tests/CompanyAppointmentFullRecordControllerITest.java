@@ -133,8 +133,7 @@ class CompanyAppointmentFullRecordControllerITest {
                         .header("ERIC-Identity", "123").header("ERIC-Identity-Type", "key")
                         .header("ERIC-authorised-key-privileges", "internal-app")
                         .header("x-request-id", "contextId")
-                        .header(X_DELTA_AT, DELTA_AT)
-                        .queryParam("delta_at", DELTA_AT));
+                        .header(X_DELTA_AT, DELTA_AT));
 
         result.andExpect(status().isOk());
 
@@ -181,8 +180,7 @@ class CompanyAppointmentFullRecordControllerITest {
                         .header("ERIC-Identity", "123").header("ERIC-Identity-Type", "key")
                         .header("ERIC-authorised-key-privileges", "internal-app")
                         .header("x-request-id", "contextId")
-                        .header(X_DELTA_AT, DELTA_AT)
-                        .queryParam("delta_at", DELTA_AT));
+                        .header(X_DELTA_AT, DELTA_AT));
 
         result.andExpect(status().isOk());
 
