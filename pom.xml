@@ -32,7 +32,7 @@
         <structured-logging.version>3.0.16</structured-logging.version>
         <sdk-manager-java.version>3.0.9</sdk-manager-java.version>
         <api-sdk-manager-java-library.version>3.0.5</api-sdk-manager-java-library.version>
-        <private-api-sdk-java.version>unversioned-main</private-api-sdk-java.version>
+        <private-api-sdk-java.version>4.0.221</private-api-sdk-java.version>
         <api-helper-java-library.version>3.0.1</api-helper-java-library.version>
         <api-security-java.version>2.0.5</api-security-java.version>
 
