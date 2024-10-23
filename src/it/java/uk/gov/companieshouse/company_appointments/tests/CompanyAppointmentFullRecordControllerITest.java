@@ -5,6 +5,8 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -48,6 +50,8 @@ class CompanyAppointmentFullRecordControllerITest {
     private static final String APPOINTMENT_ID = "7IjxamNGLlqtIingmTZJJ42Hw9Q";
     private static final String NULL_FIELD_COMPANY_NUMBER = "CN008888";
     private static final String NULL_FIELD_APPOINTMENT_ID = "testNullFieldsId123";
+    private static final String DELTA_AT = "20220925171003950844";
+    private static final String X_DELTA_AT = "x-delta-at";
 
     @Autowired
     private MockMvc mockMvc;
@@ -128,7 +132,8 @@ class CompanyAppointmentFullRecordControllerITest {
                         APPOINTMENT_ID)
                         .header("ERIC-Identity", "123").header("ERIC-Identity-Type", "key")
                         .header("ERIC-authorised-key-privileges", "internal-app")
-                        .header("x-request-id", "contextId"));
+                        .header("x-request-id", "contextId")
+                        .header(X_DELTA_AT, DELTA_AT));
 
         result.andExpect(status().isOk());
 
@@ -168,20 +173,18 @@ class CompanyAppointmentFullRecordControllerITest {
 
     @Test
     @ExtendWith(OutputCaptureExtension.class)
-    void testReturn404IfOfficerIsNotDeleted(CapturedOutput capture) throws Exception{
+    void shouldPublishResourceChangedWhenAppointmentHasAlreadyBeenDeleted(CapturedOutput capture) throws Exception{
         ResultActions result = mockMvc
-                .perform(delete("/company/{company_number}/appointments/{appointment_id}/full_record/delete", COMPANY_NUMBER,
-                        "Incorrect")
+                .perform(delete("/company/{company_number}/appointments/{appointment_id}/full_record/delete",
+                        COMPANY_NUMBER, "Incorrect")
                         .header("ERIC-Identity", "123").header("ERIC-Identity-Type", "key")
                         .header("ERIC-authorised-key-privileges", "internal-app")
-                        .header("x-request-id", "contextId"));
+                        .header("x-request-id", "contextId")
+                        .header(X_DELTA_AT, DELTA_AT));
 
-        result.andExpect(status().isNotFound());
+        result.andExpect(status().isOk());
 
-        Query query = new Query();
-        query.addCriteria(Criteria.where("_id").is("7IjxamNGLlqtIingmTZJJ42Hw9Q"));
-        List<CompanyAppointmentDocument> appointments = mongoTemplate.find(query, CompanyAppointmentDocument.class);
-        assertThat(appointments).hasSize(1);
+        verify(resourceChangedApiService).invokeChsKafkaApi(any());
         assertThat(capture.getOut()).doesNotContain("event: error");
     }
 }

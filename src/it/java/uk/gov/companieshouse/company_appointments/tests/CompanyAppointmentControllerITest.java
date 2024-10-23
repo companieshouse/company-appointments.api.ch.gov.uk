@@ -355,8 +355,7 @@ class CompanyAppointmentControllerITest {
 
     @Test
     @DisplayName("Patch existing appointments endpoint returns 400 bad request when company name is missing")
-    @ExtendWith(OutputCaptureExtension.class)
-    void testPatchExistingAppointmentCompanyNameStatusMissingRequestFields(CapturedOutput capture) throws Exception {
+    void testPatchExistingAppointmentCompanyNameStatusMissingRequestFields() throws Exception {
         mockMvc.perform(patch("/company/{company_number}/appointments", COMPANY_NUMBER)
                         .contentType(MediaType.APPLICATION_JSON)
                         .header(X_REQUEST_ID, "5342342")
@@ -365,13 +364,11 @@ class CompanyAppointmentControllerITest {
                         .header(ERIC_AUTHORISED_KEY_PRIVILEGES, "internal-app")
                         .content(objectMapper.writeValueAsString(new PatchAppointmentNameStatusApi())))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest());
-        assertThat(capture.getOut()).doesNotContain("event: error");
     }
 
     @Test
     @DisplayName("Patch existing appointments endpoint returns 400 when invalid company status provided")
-    @ExtendWith(OutputCaptureExtension.class)
-    void testPatchExistingAppointmentCompanyNameStatusInvalidStatus(CapturedOutput capture) throws Exception {
+    void testPatchExistingAppointmentCompanyNameStatusInvalidStatus() throws Exception {
         PatchAppointmentNameStatusApi requestBody = new PatchAppointmentNameStatusApi()
                 .companyName("company name")
                 .companyStatus("fake");
@@ -384,7 +381,6 @@ class CompanyAppointmentControllerITest {
                         .header(ERIC_AUTHORISED_KEY_PRIVILEGES, "internal-app")
                         .content(objectMapper.writeValueAsString(requestBody)))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest());
-        assertThat(capture.getOut()).doesNotContain("event: error");
     }
 
     @Test

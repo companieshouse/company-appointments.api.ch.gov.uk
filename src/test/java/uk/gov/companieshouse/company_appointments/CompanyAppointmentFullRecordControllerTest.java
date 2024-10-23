@@ -20,9 +20,15 @@ import uk.gov.companieshouse.company_appointments.exception.NotFoundException;
 import uk.gov.companieshouse.company_appointments.exception.ServiceUnavailableException;
 import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentFullRecordView;
 import uk.gov.companieshouse.company_appointments.service.CompanyAppointmentFullRecordService;
+import uk.gov.companieshouse.company_appointments.service.DeleteAppointmentService;
 
 @ExtendWith(MockitoExtension.class)
 class CompanyAppointmentFullRecordControllerTest {
+
+    private static final String COMPANY_NUMBER = "123456";
+    private static final String APPOINTMENT_ID = "345678";
+    private static final String DELTA_AT = "20140925171003950844";
+
     private CompanyAppointmentFullRecordController companyAppointmentFullRecordController;
 
     @Mock
@@ -34,12 +40,14 @@ class CompanyAppointmentFullRecordControllerTest {
     @Mock
     private CompanyAppointmentFullRecordView appointmentView;
 
-    private final static String COMPANY_NUMBER = "123456";
-    private final static String APPOINTMENT_ID = "345678";
+    @Mock
+    private DeleteAppointmentService deleteAppointmentService;
 
     @BeforeEach
     void setUp() {
-        companyAppointmentFullRecordController = new CompanyAppointmentFullRecordController(companyAppointmentService);
+        companyAppointmentFullRecordController = new CompanyAppointmentFullRecordController(
+                companyAppointmentService,
+                deleteAppointmentService);
     }
 
     @Test
@@ -108,29 +116,31 @@ class CompanyAppointmentFullRecordControllerTest {
 
     @Test
     void testControllerReturns200WhenOfficerDeleted() {
-
-        ResponseEntity<Void> response = companyAppointmentFullRecordController.deleteOfficerData(COMPANY_NUMBER, APPOINTMENT_ID);
+        ResponseEntity<Void> response = companyAppointmentFullRecordController.deleteOfficerData(COMPANY_NUMBER,
+                APPOINTMENT_ID, DELTA_AT);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 
     @Test
     void testControllerReturns404WhenOfficerNotDeleted() {
-        doThrow(NotFoundException.class).when(companyAppointmentService).deleteAppointmentDelta(any(), any());
+        doThrow(NotFoundException.class).when(deleteAppointmentService).deleteAppointment(any(), any(), any());
 
-        ResponseEntity<Void> response = companyAppointmentFullRecordController.deleteOfficerData(COMPANY_NUMBER, APPOINTMENT_ID);
+        ResponseEntity<Void> response = companyAppointmentFullRecordController.deleteOfficerData(COMPANY_NUMBER,
+                APPOINTMENT_ID, DELTA_AT);
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
 
     @Test
-    void testControllerReturns503StatusWhenDeleteEndpointIsCalled() throws ServiceUnavailableException, NotFoundException {
+    void testControllerReturns503StatusWhenDeleteEndpointIsCalled() {
         // given
         doThrow(ServiceUnavailableException.class)
-                .when(companyAppointmentService).deleteAppointmentDelta(any(), any());
+                .when(deleteAppointmentService).deleteAppointment(any(), any(), any());
 
         // when
-        ResponseEntity<Void> response = companyAppointmentFullRecordController.deleteOfficerData(COMPANY_NUMBER, APPOINTMENT_ID);
+        ResponseEntity<Void> response = companyAppointmentFullRecordController.deleteOfficerData(COMPANY_NUMBER,
+                APPOINTMENT_ID, DELTA_AT);
 
         // then
         assertEquals(HttpStatus.SERVICE_UNAVAILABLE, response.getStatusCode());

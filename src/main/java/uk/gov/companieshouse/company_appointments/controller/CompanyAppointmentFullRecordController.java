@@ -1,6 +1,7 @@
 package uk.gov.companieshouse.company_appointments.controller;
 
 import java.util.Optional;
+
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import uk.gov.companieshouse.api.appointment.FullRecordCompanyOfficerApi;
 import uk.gov.companieshouse.company_appointments.CompanyAppointmentsApplication;
@@ -18,6 +20,7 @@ import uk.gov.companieshouse.company_appointments.exception.ServiceUnavailableEx
 import uk.gov.companieshouse.company_appointments.logging.DataMapHolder;
 import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentFullRecordView;
 import uk.gov.companieshouse.company_appointments.service.CompanyAppointmentFullRecordService;
+import uk.gov.companieshouse.company_appointments.service.DeleteAppointmentService;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.logging.LoggerFactory;
 
@@ -26,11 +29,14 @@ import uk.gov.companieshouse.logging.LoggerFactory;
 public class CompanyAppointmentFullRecordController {
 
     private final CompanyAppointmentFullRecordService companyAppointmentService;
+    private final DeleteAppointmentService deleteAppointmentService;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CompanyAppointmentsApplication.APPLICATION_NAME_SPACE);
 
-    public CompanyAppointmentFullRecordController(CompanyAppointmentFullRecordService companyAppointmentService) {
+    public CompanyAppointmentFullRecordController(CompanyAppointmentFullRecordService companyAppointmentService,
+            DeleteAppointmentService deleteAppointmentService) {
         this.companyAppointmentService = companyAppointmentService;
+        this.deleteAppointmentService = deleteAppointmentService;
     }
 
     @GetMapping
@@ -53,7 +59,7 @@ public class CompanyAppointmentFullRecordController {
 
     @PutMapping(consumes = "application/json")
     public ResponseEntity<Void> submitOfficerData(
-            @Valid @RequestBody final FullRecordCompanyOfficerApi companyAppointmentData) {
+           @Valid @RequestBody final FullRecordCompanyOfficerApi companyAppointmentData) {
         try {
             DataMapHolder.get()
                     .companyNumber(extractCompanyNumber(companyAppointmentData))
@@ -77,13 +83,15 @@ public class CompanyAppointmentFullRecordController {
     @DeleteMapping(path = "/delete")
     public ResponseEntity<Void> deleteOfficerData(
             @PathVariable("company_number") String companyNumber,
-            @PathVariable("appointment_id") String appointmentId) {
+            @PathVariable("appointment_id") String appointmentId,
+            @RequestHeader("X-DELTA-AT") String deltaAt) {
         DataMapHolder.get()
-                .companyNumber(companyNumber);
+                .companyNumber(companyNumber)
+                .appointmentId(appointmentId);
         LOGGER.info("Deleting company appointment %s".formatted(appointmentId), DataMapHolder.getLogMap());
 
         try {
-            companyAppointmentService.deleteAppointmentDelta(companyNumber, appointmentId);
+            deleteAppointmentService.deleteAppointment(companyNumber, appointmentId, deltaAt);
             return ResponseEntity.ok().build();
         } catch (NotFoundException e) {
             LOGGER.info(e.getMessage(), DataMapHolder.getLogMap());

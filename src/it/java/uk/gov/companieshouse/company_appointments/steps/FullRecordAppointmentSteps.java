@@ -37,8 +37,9 @@ public class FullRecordAppointmentSteps {
     private static final String ERIC_AUTHORISED_KEY_PRIVILEGES = "ERIC-Authorised-Key-Privileges";
     private static final String IDENTITY_TYPE_KEY = "key";
     private static final String INTERNAL_APP_PRIVILEGES = "internal-app";
-
+    private static final String DELTA_AT = "20220925171003950844";
     private static final String X_REQUEST_ID = "x-request-id";
+    private static final String X_DELTA_AT = "x-delta-at";
 
     private final HttpHeaders headers = new HttpHeaders();
 
@@ -157,6 +158,7 @@ public class FullRecordAppointmentSteps {
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
 
         headers.set(X_REQUEST_ID, "5234234234");
+        headers.set(X_DELTA_AT, DELTA_AT);
 
         HttpEntity<String> request = new HttpEntity<>(null, headers);
         String uri = String.format("/company/%s/appointments/%s/full_record/delete", COMPANY_NUMBER,

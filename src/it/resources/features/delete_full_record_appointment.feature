@@ -11,9 +11,10 @@ Feature: Delete full record officer information
 
     Scenario: Record not found in database
       Given the user is authenticated and authorised with internal app privileges
+      And CHS kafka is available
       And the record is not present in the delta_appointment database
       When a request is sent to the DELETE endpoint to delete an officer
-      Then I should receive a 404 status code
+      Then I should receive a 200 status code
 
     Scenario: User not authorised with internal app privileges
       Given the user is not authenticated or authorised
@@ -35,4 +36,4 @@ Feature: Delete full record officer information
       And the user is authenticated and authorised with internal app privileges
       When a request is sent to the DELETE endpoint to delete an officer
       And I should receive a 503 status code
-      And the record should NOT be deleted
+      And the record should be deleted successfully
