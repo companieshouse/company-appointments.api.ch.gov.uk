@@ -18,6 +18,7 @@ import uk.gov.companieshouse.company_appointments.CompanyAppointmentsApplication
 import uk.gov.companieshouse.company_appointments.exception.NotFoundException;
 import uk.gov.companieshouse.company_appointments.exception.ServiceUnavailableException;
 import uk.gov.companieshouse.company_appointments.logging.DataMapHolder;
+import uk.gov.companieshouse.company_appointments.model.DeleteAppointmentParameters;
 import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentFullRecordView;
 import uk.gov.companieshouse.company_appointments.service.CompanyAppointmentFullRecordService;
 import uk.gov.companieshouse.company_appointments.service.DeleteAppointmentService;
@@ -80,18 +81,26 @@ public class CompanyAppointmentFullRecordController {
         }
     }
 
-    @DeleteMapping(path = "/delete")
+    @DeleteMapping(path = "/{officer_id}")
     public ResponseEntity<Void> deleteOfficerData(
             @PathVariable("company_number") String companyNumber,
             @PathVariable("appointment_id") String appointmentId,
+            @PathVariable("officer_id") String officerId,
             @RequestHeader("X-DELTA-AT") String deltaAt) {
         DataMapHolder.get()
                 .companyNumber(companyNumber)
-                .appointmentId(appointmentId);
+                .appointmentId(appointmentId)
+                .officerId(officerId);
         LOGGER.info("Deleting company appointment %s".formatted(appointmentId), DataMapHolder.getLogMap());
 
+        DeleteAppointmentParameters deleteAppointmentParameters = DeleteAppointmentParameters.builder()
+                .companyNumber(companyNumber)
+                .appointmentId(appointmentId)
+                .deltaAt(deltaAt)
+                .officerId(officerId)
+                .build();
         try {
-            deleteAppointmentService.deleteAppointment(companyNumber, appointmentId, deltaAt);
+            deleteAppointmentService.deleteAppointment(deleteAppointmentParameters);
             return ResponseEntity.ok().build();
         } catch (NotFoundException e) {
             LOGGER.info(e.getMessage(), DataMapHolder.getLogMap());

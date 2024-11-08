@@ -25,6 +25,7 @@ import uk.gov.companieshouse.company_appointments.api.ResourceChangedApiService;
 import uk.gov.companieshouse.company_appointments.exception.BadRequestException;
 import uk.gov.companieshouse.company_appointments.exception.ServiceUnavailableException;
 import uk.gov.companieshouse.company_appointments.mapper.CompanyAppointmentMapper;
+import uk.gov.companieshouse.company_appointments.model.DeleteAppointmentParameters;
 import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentDocument;
 import uk.gov.companieshouse.company_appointments.model.data.ResourceChangedRequest;
 import uk.gov.companieshouse.company_appointments.repository.CompanyAppointmentRepository;
@@ -34,6 +35,7 @@ class DeleteAppointmentWithRetryServiceTest {
 
     private static final DateTimeFormatter DELTA_AT_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSSSSS")
             .withZone(UTC);
+    private static final String OFFICER_ID = "officer_id";
     private static final String COMPANY_NUMBER = "123456";
     private static final String APPOINTMENT_ID = "345678";
     private static final String DELTA_AT = "20140925171003950844";
@@ -66,7 +68,14 @@ class DeleteAppointmentWithRetryServiceTest {
                 .thenReturn(Optional.of(new CompanyAppointmentDocument()
                         .deltaAt(OLDER_DELTA_AT)));
 
-        deleteAppointmentService.deleteAppointment(COMPANY_NUMBER, APPOINTMENT_ID, DELTA_AT);
+        DeleteAppointmentParameters deleteAppointmentParameters = DeleteAppointmentParameters.builder()
+                .companyNumber(COMPANY_NUMBER)
+                .appointmentId(APPOINTMENT_ID)
+                .deltaAt(DELTA_AT)
+                .officerId(OFFICER_ID)
+                .build();
+
+        deleteAppointmentService.deleteAppointment(deleteAppointmentParameters);
 
         verify(companyAppointmentRepository).deleteByCompanyNumberAndID(COMPANY_NUMBER,
                 APPOINTMENT_ID);
@@ -80,7 +89,14 @@ class DeleteAppointmentWithRetryServiceTest {
                 .thenReturn(Optional.of(new CompanyAppointmentDocument()
                         .deltaAt(NEWER_DELTA_AT)));
 
-        deleteAppointmentService.deleteAppointment(COMPANY_NUMBER, APPOINTMENT_ID, DELTA_AT);
+        DeleteAppointmentParameters deleteAppointmentParameters = DeleteAppointmentParameters.builder()
+                .companyNumber(COMPANY_NUMBER)
+                .appointmentId(APPOINTMENT_ID)
+                .deltaAt(DELTA_AT)
+                .officerId(OFFICER_ID)
+                .build();
+
+        deleteAppointmentService.deleteAppointment(deleteAppointmentParameters);
 
         verify(companyAppointmentRepository, never()).deleteByCompanyNumberAndID(any(), any());
         verify(resourceChangedApiService, never()).invokeChsKafkaApi(any());
@@ -91,7 +107,14 @@ class DeleteAppointmentWithRetryServiceTest {
         when(companyAppointmentRepository.readByCompanyNumberAndID(COMPANY_NUMBER, APPOINTMENT_ID))
                 .thenReturn(Optional.empty());
 
-        deleteAppointmentService.deleteAppointment(COMPANY_NUMBER, APPOINTMENT_ID, DELTA_AT);
+        DeleteAppointmentParameters deleteAppointmentParameters = DeleteAppointmentParameters.builder()
+                .companyNumber(COMPANY_NUMBER)
+                .appointmentId(APPOINTMENT_ID)
+                .deltaAt(DELTA_AT)
+                .officerId(OFFICER_ID)
+                .build();
+
+        deleteAppointmentService.deleteAppointment(deleteAppointmentParameters);
 
         verify(companyAppointmentRepository, never()).deleteByCompanyNumberAndID(COMPANY_NUMBER, APPOINTMENT_ID);
         verify(resourceChangedApiService).invokeChsKafkaApi(resourceChangedRequestArgumentCaptor.capture());
@@ -101,10 +124,15 @@ class DeleteAppointmentWithRetryServiceTest {
     @Test
     void shouldThrowBadRequestExceptionOnMissingDeltaAt() {
         // given
+        DeleteAppointmentParameters deleteAppointmentParameters = DeleteAppointmentParameters.builder()
+                .companyNumber(COMPANY_NUMBER)
+                .appointmentId(APPOINTMENT_ID)
+                .deltaAt(null)
+                .officerId(OFFICER_ID)
+                .build();
 
         // When
-        Executable executable = () -> deleteAppointmentService.deleteAppointment(COMPANY_NUMBER,
-                APPOINTMENT_ID, null);
+        Executable executable = () -> deleteAppointmentService.deleteAppointment(deleteAppointmentParameters);
 
         // then
         assertThrows(BadRequestException.class, executable);
@@ -119,9 +147,15 @@ class DeleteAppointmentWithRetryServiceTest {
                 .thenThrow(new DataAccessException("...") {
                 });
 
+        DeleteAppointmentParameters deleteAppointmentParameters = DeleteAppointmentParameters.builder()
+                .companyNumber(COMPANY_NUMBER)
+                .appointmentId(APPOINTMENT_ID)
+                .deltaAt(DELTA_AT)
+                .officerId(OFFICER_ID)
+                .build();
+
         // When
-        Executable executable = () -> deleteAppointmentService.deleteAppointment(COMPANY_NUMBER,
-                APPOINTMENT_ID, DELTA_AT);
+        Executable executable = () -> deleteAppointmentService.deleteAppointment(deleteAppointmentParameters);
 
         // then
         assertThrows(ServiceUnavailableException.class, executable);
@@ -137,9 +171,15 @@ class DeleteAppointmentWithRetryServiceTest {
                         .deltaAt(OLDER_DELTA_AT)));
         when(resourceChangedApiService.invokeChsKafkaApi(any())).thenThrow(IllegalArgumentException.class);
 
+        DeleteAppointmentParameters deleteAppointmentParameters = DeleteAppointmentParameters.builder()
+                .companyNumber(COMPANY_NUMBER)
+                .appointmentId(APPOINTMENT_ID)
+                .deltaAt(DELTA_AT)
+                .officerId(OFFICER_ID)
+                .build();
+
         // When
-        Executable executable = () -> deleteAppointmentService.deleteAppointment(COMPANY_NUMBER,
-                APPOINTMENT_ID, DELTA_AT);
+        Executable executable = () -> deleteAppointmentService.deleteAppointment(deleteAppointmentParameters);
 
         // then
         assertThrows(ServiceUnavailableException.class, executable);

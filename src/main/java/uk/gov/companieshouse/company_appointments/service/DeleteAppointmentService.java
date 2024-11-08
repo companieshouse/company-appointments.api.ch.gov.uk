@@ -11,16 +11,20 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
-import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.TransientDataAccessException;
 import org.springframework.stereotype.Service;
+import uk.gov.companieshouse.api.appointment.ItemLinkTypes;
+import uk.gov.companieshouse.api.appointment.OfficerLinkTypes;
+import uk.gov.companieshouse.api.appointment.OfficerSummary;
 import uk.gov.companieshouse.company_appointments.CompanyAppointmentsApplication;
 import uk.gov.companieshouse.company_appointments.api.ResourceChangedApiService;
 import uk.gov.companieshouse.company_appointments.exception.BadRequestException;
 import uk.gov.companieshouse.company_appointments.exception.ServiceUnavailableException;
 import uk.gov.companieshouse.company_appointments.logging.DataMapHolder;
 import uk.gov.companieshouse.company_appointments.mapper.CompanyAppointmentMapper;
+import uk.gov.companieshouse.company_appointments.model.DeleteAppointmentParameters;
 import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentDocument;
 import uk.gov.companieshouse.company_appointments.model.data.ResourceChangedRequest;
 import uk.gov.companieshouse.company_appointments.repository.CompanyAppointmentRepository;
@@ -50,9 +54,14 @@ public class DeleteAppointmentService {
         this.companyAppointmentMapper = companyAppointmentMapper;
     }
 
-    public void deleteAppointment(String companyNumber, String appointmentId, String deltaAt) {
+    public void deleteAppointment(DeleteAppointmentParameters deleteAppointmentParameters) {
+        final String deltaAt = deleteAppointmentParameters.deltaAt();
+        final String appointmentId = deleteAppointmentParameters.appointmentId();
+        final String companyNumber = deleteAppointmentParameters.companyNumber();
+        final String officerId = deleteAppointmentParameters.officerId();
 
         if (StringUtils.isBlank(deltaAt)) {
+            LOGGER.error("deltaAt is null or empty", DataMapHolder.getLogMap());
             throw new BadRequestException("deltaAt is null or empty");
         }
 
@@ -60,27 +69,31 @@ public class DeleteAppointmentService {
             LOGGER.info("Deleting appointment [%s] for company [%s]".formatted(appointmentId, companyNumber),
                     DataMapHolder.getLogMap());
 
-            Optional<CompanyAppointmentDocument> document = companyAppointmentRepository.readByCompanyNumberAndID(
-                    companyNumber, appointmentId);
+            companyAppointmentRepository.readByCompanyNumberAndID(companyNumber, appointmentId)
+                    .ifPresentOrElse(document -> {
+                        Instant deltaAtInstant = LocalDateTime.parse(deltaAt, DELTA_AT_FORMATTER).toInstant(UTC);
 
-            if (document.isEmpty()) {
+                        if (deltaAtInstant.isBefore(document.getDeltaAt())) {
+                            logStaleIncomingDelta(document, deltaAtInstant);
+                        } else {
+                            companyAppointmentRepository.deleteByCompanyNumberAndID(companyNumber, appointmentId);
+                            publishResourceChanged(companyNumber, appointmentId, cleanDocument(document));
+                        }
+                    }, () -> {
+                        LOGGER.info(
+                                "Appointment [%s] for company [%s] not found".formatted(appointmentId, companyNumber),
+                                DataMapHolder.getLogMap());
 
-                LOGGER.info("Appointment [%s] for company [%s] not found".formatted(appointmentId, companyNumber),
-                        DataMapHolder.getLogMap());
-                publishResourceChanged(companyNumber, appointmentId, null);
+                        final String appointmentsUri = "/officers/%s/appointments".formatted(officerId);
+                        OfficerSummary officerSummary = new OfficerSummary()
+                                .links(new ItemLinkTypes()
+                                        .officer(new OfficerLinkTypes()
+                                                .appointments(appointmentsUri)));
 
-            } else {
-
-                CompanyAppointmentDocument companyAppointmentDocument = document.get();
-                Instant deltaAtInstant = LocalDateTime.parse(deltaAt, DELTA_AT_FORMATTER).toInstant(UTC);
-
-                if (deltaAtInstant.isBefore(companyAppointmentDocument.getDeltaAt())) {
-                    logStaleIncomingDelta(companyAppointmentDocument, deltaAtInstant);
-                } else {
-                    companyAppointmentRepository.deleteByCompanyNumberAndID(companyNumber, appointmentId);
-                    publishResourceChanged(companyNumber, appointmentId, cleanDocument(document.get()));
-                }
-            }
+                        publishResourceChanged(companyNumber, appointmentId, officerSummary);
+                    });
+        } catch (TransientDataAccessException ex) {
+            LOGGER.info("");
         } catch (DataAccessException e) {
             LOGGER.error(String.format("%s: %s", e.getClass().getName(), e.getMessage()), DataMapHolder.getLogMap());
             throw new ServiceUnavailableException("Error connecting to MongoDB");
