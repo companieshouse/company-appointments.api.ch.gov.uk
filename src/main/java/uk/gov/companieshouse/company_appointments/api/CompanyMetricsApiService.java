@@ -17,20 +17,20 @@ public class CompanyMetricsApiService {
 
     private final String metricsUrl;
 
-    private final ApiClientService apiClientService;
+    private final ApiClientFactory apiClientFactory;
 
     private final Logger logger;
 
     public CompanyMetricsApiService(@Value("${company-metrics-api.endpoint}") String metricsUrl,
-                                  Logger logger, ApiClientService apiClientService) {
+                                  Logger logger, ApiClientFactory apiClientFactory) {
         this.metricsUrl = metricsUrl;
         this.logger = logger;
-        this.apiClientService = apiClientService;
+        this.apiClientFactory = apiClientFactory;
     }
 
     public ApiResponse<MetricsApi> invokeGetMetricsApi(String companyNumber)
             throws ServiceUnavailableException, NotFoundException {
-        InternalApiClient internalApiClient = apiClientService.getInternalApiClient();
+        InternalApiClient internalApiClient = apiClientFactory.get();
         internalApiClient.getHttpClient().setRequestId(DataMapHolder.getRequestId());
         internalApiClient.setBasePath(metricsUrl);
 

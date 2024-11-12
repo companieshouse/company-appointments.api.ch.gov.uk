@@ -28,7 +28,7 @@ class ResourceChangedApiServiceAspectFeatureFlagDisabledITest {
     private ResourceChangedApiService resourceChangedApiService;
 
     @MockBean
-    private ApiClientService apiClientService;
+    private ApiClientFactory apiClientFactory;
     @MockBean
     private ResourceChangedRequestMapper mapper;
 
@@ -56,7 +56,7 @@ class ResourceChangedApiServiceAspectFeatureFlagDisabledITest {
     void testThatKafkaApiShouldBeCalledWhenFeatureFlagDisabled()
             throws ApiErrorResponseException, ServiceUnavailableException {
 
-        when(apiClientService.getInternalApiClient()).thenReturn(internalApiClient);
+        when(apiClientFactory.get()).thenReturn(internalApiClient);
         when(internalApiClient.privateChangedResourceHandler()).thenReturn(
                 privateChangedResourceHandler);
         when(privateChangedResourceHandler.postChangedResource(any(), any())).thenReturn(
@@ -66,7 +66,7 @@ class ResourceChangedApiServiceAspectFeatureFlagDisabledITest {
 
         resourceChangedApiService.invokeChsKafkaApi(resourceChangedRequest);
 
-        verify(apiClientService).getInternalApiClient();
+        verify(apiClientFactory).get();
         verify(internalApiClient).privateChangedResourceHandler();
         verify(privateChangedResourceHandler).postChangedResource("/private/resource-changed",
                 changedResource);

@@ -32,7 +32,7 @@ class CompanyMetricsApiServiceTest {
     private CompanyMetricsApiService service;
 
     @Mock
-    ApiClientService apiClientService;
+    ApiClientFactory apiClientFactory;
     @Mock
     InternalApiClient internalApiClient;
     @Mock
@@ -47,12 +47,12 @@ class CompanyMetricsApiServiceTest {
 
     @BeforeEach
     void setup() {
-        when(apiClientService.getInternalApiClient()).thenReturn(internalApiClient);
+        when(apiClientFactory.get()).thenReturn(internalApiClient);
         when(internalApiClient.privateCompanyMetricsResourceHandler()).thenReturn(handler);
         when(internalApiClient.getHttpClient()).thenReturn(httpClient);
         when(handler.getCompanyMetrics(anyString())).thenReturn(get);
 
-        service = new CompanyMetricsApiService("url", logger, apiClientService);
+        service = new CompanyMetricsApiService("url", logger, apiClientFactory);
     }
 
     @Test

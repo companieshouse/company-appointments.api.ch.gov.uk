@@ -91,7 +91,7 @@ public class CompanyAppointmentFullRecordController {
                 .companyNumber(companyNumber)
                 .appointmentId(appointmentId)
                 .officerId(officerId);
-        LOGGER.info("Deleting company appointment %s".formatted(appointmentId), DataMapHolder.getLogMap());
+        LOGGER.info("Processing Company Appointment DELETE", DataMapHolder.getLogMap());
 
         DeleteAppointmentParameters deleteAppointmentParameters = DeleteAppointmentParameters.builder()
                 .companyNumber(companyNumber)

@@ -1,30 +1,40 @@
 package uk.gov.companieshouse.company_appointments.service;
 
 import static java.time.ZoneOffset.UTC;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
-import org.junit.jupiter.api.BeforeEach;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.function.Executable;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.core.NestedRuntimeException;
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.TransientDataAccessException;
+import uk.gov.companieshouse.api.appointment.ItemLinkTypes;
+import uk.gov.companieshouse.api.appointment.OfficerLinkTypes;
+import uk.gov.companieshouse.api.appointment.OfficerSummary;
 import uk.gov.companieshouse.company_appointments.api.ResourceChangedApiService;
+import uk.gov.companieshouse.company_appointments.exception.BadGatewayException;
 import uk.gov.companieshouse.company_appointments.exception.BadRequestException;
-import uk.gov.companieshouse.company_appointments.exception.ServiceUnavailableException;
-import uk.gov.companieshouse.company_appointments.mapper.CompanyAppointmentMapper;
+import uk.gov.companieshouse.company_appointments.exception.ConflictException;
 import uk.gov.companieshouse.company_appointments.model.DeleteAppointmentParameters;
 import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentDocument;
 import uk.gov.companieshouse.company_appointments.model.data.ResourceChangedRequest;
@@ -38,10 +48,13 @@ class DeleteAppointmentWithRetryServiceTest {
     private static final String OFFICER_ID = "officer_id";
     private static final String COMPANY_NUMBER = "123456";
     private static final String APPOINTMENT_ID = "345678";
-    private static final String DELTA_AT = "20140925171003950844";
-    private static final Instant OLDER_DELTA_AT = LocalDateTime.parse("20140924171003950844", DELTA_AT_FORMATTER).toInstant(UTC);
-    private static final Instant NEWER_DELTA_AT = LocalDateTime.parse("20140926171003950844", DELTA_AT_FORMATTER).toInstant(UTC);
+    private static final String REQUEST_DELTA_AT = "20230925171003950844";
+    private static final Instant OLDER_DELTA_AT = LocalDateTime.parse("20220924171003950844", DELTA_AT_FORMATTER)
+            .toInstant(UTC);
+    private static final Instant NEWER_DELTA_AT = LocalDateTime.parse("20240926171003950844", DELTA_AT_FORMATTER)
+            .toInstant(UTC);
 
+    @InjectMocks
     private DeleteAppointmentService deleteAppointmentService;
 
     @Mock
@@ -49,76 +62,108 @@ class DeleteAppointmentWithRetryServiceTest {
     @Mock
     private ResourceChangedApiService resourceChangedApiService;
     @Mock
-    private CompanyAppointmentMapper companyAppointmentMapper;
-    @Captor
-    private ArgumentCaptor<ResourceChangedRequest> resourceChangedRequestArgumentCaptor;
+    private ResourceChangedDataCleaner resourceChangedDataCleaner;
 
-    @BeforeEach
-    void setUp() {
-        deleteAppointmentService =
-                new DeleteAppointmentService(
-                        companyAppointmentRepository,
-                        resourceChangedApiService,
-                        companyAppointmentMapper);
-    }
+    @Mock
+    private CompanyAppointmentDocument companyAppointmentDocument;
+    @Mock
+    private Object cleanOfficerSummary;
 
     @Test
-    void deleteOfficer() {
-        when(companyAppointmentRepository.readByCompanyNumberAndID(COMPANY_NUMBER, APPOINTMENT_ID))
-                .thenReturn(Optional.of(new CompanyAppointmentDocument()
-                        .deltaAt(OLDER_DELTA_AT)));
+    void shouldDeleteAppointment() {
+        // given
+        when(companyAppointmentRepository.readByCompanyNumberAndID(anyString(), anyString()))
+                .thenReturn(Optional.of(companyAppointmentDocument));
+        when(companyAppointmentDocument.getDeltaAt()).thenReturn(OLDER_DELTA_AT);
+        when(resourceChangedDataCleaner.cleanOutNullValues(any(CompanyAppointmentDocument.class))).thenReturn(
+                cleanOfficerSummary);
+
+        ResourceChangedRequest expectedResourceChangeRequest = ResourceChangedRequest.builder()
+                .contextId("uninitialised")
+                .companyNumber(COMPANY_NUMBER)
+                .appointmentId(APPOINTMENT_ID)
+                .officerData(cleanOfficerSummary)
+                .delete(true)
+                .build();
 
         DeleteAppointmentParameters deleteAppointmentParameters = DeleteAppointmentParameters.builder()
                 .companyNumber(COMPANY_NUMBER)
                 .appointmentId(APPOINTMENT_ID)
-                .deltaAt(DELTA_AT)
+                .deltaAt(REQUEST_DELTA_AT)
                 .officerId(OFFICER_ID)
                 .build();
 
+        // when
         deleteAppointmentService.deleteAppointment(deleteAppointmentParameters);
 
-        verify(companyAppointmentRepository).deleteByCompanyNumberAndID(COMPANY_NUMBER,
-                APPOINTMENT_ID);
-        verify(resourceChangedApiService).invokeChsKafkaApi(resourceChangedRequestArgumentCaptor.capture());
-        assertNotNull(resourceChangedRequestArgumentCaptor.getValue());
+        // then
+        verify(companyAppointmentRepository).readByCompanyNumberAndID(COMPANY_NUMBER, APPOINTMENT_ID);
+        verify(companyAppointmentRepository).deleteByCompanyNumberAndID(COMPANY_NUMBER, APPOINTMENT_ID);
+        verify(resourceChangedDataCleaner).cleanOutNullValues(companyAppointmentDocument);
+        verify(resourceChangedApiService).invokeChsKafkaApi(expectedResourceChangeRequest);
     }
 
     @Test
-    void shouldIgnoreStaleDeleteDelta() {
-        when(companyAppointmentRepository.readByCompanyNumberAndID(COMPANY_NUMBER, APPOINTMENT_ID))
-                .thenReturn(Optional.of(new CompanyAppointmentDocument()
-                        .deltaAt(NEWER_DELTA_AT)));
+    void shouldCallChsKafkaApiWhenNoDocumentInMongoDB() {
+        // given
+        when(companyAppointmentRepository.readByCompanyNumberAndID(anyString(), anyString())).thenReturn(
+                Optional.empty());
+        when(resourceChangedDataCleaner.cleanOutNullValues(any(OfficerSummary.class))).thenReturn(cleanOfficerSummary);
+
+        final String appointmentsLink = "/officers/%s/appointments".formatted(OFFICER_ID);
+        OfficerSummary expectedOfficerSummary = new OfficerSummary()
+                .links(new ItemLinkTypes()
+                        .officer(new OfficerLinkTypes()
+                                .appointments(appointmentsLink)));
+
+        ResourceChangedRequest expectedResourceChangeRequest = ResourceChangedRequest.builder()
+                .contextId("uninitialised")
+                .companyNumber(COMPANY_NUMBER)
+                .appointmentId(APPOINTMENT_ID)
+                .officerData(cleanOfficerSummary)
+                .delete(true)
+                .build();
 
         DeleteAppointmentParameters deleteAppointmentParameters = DeleteAppointmentParameters.builder()
                 .companyNumber(COMPANY_NUMBER)
                 .appointmentId(APPOINTMENT_ID)
-                .deltaAt(DELTA_AT)
+                .deltaAt(REQUEST_DELTA_AT)
                 .officerId(OFFICER_ID)
                 .build();
 
+        // when
         deleteAppointmentService.deleteAppointment(deleteAppointmentParameters);
 
-        verify(companyAppointmentRepository, never()).deleteByCompanyNumberAndID(any(), any());
-        verify(resourceChangedApiService, never()).invokeChsKafkaApi(any());
+        // then
+        verify(companyAppointmentRepository).readByCompanyNumberAndID(COMPANY_NUMBER, APPOINTMENT_ID);
+        verifyNoMoreInteractions(companyAppointmentRepository);
+        verify(resourceChangedDataCleaner).cleanOutNullValues(expectedOfficerSummary);
+        verify(resourceChangedApiService).invokeChsKafkaApi(expectedResourceChangeRequest);
     }
 
     @Test
-    void shouldNotifyRetriedDelta() {
-        when(companyAppointmentRepository.readByCompanyNumberAndID(COMPANY_NUMBER, APPOINTMENT_ID))
-                .thenReturn(Optional.empty());
+    void shouldThrowConflictExceptionWhenRequestIsStale() {
+        // given
+        when(companyAppointmentRepository.readByCompanyNumberAndID(anyString(), anyString()))
+                .thenReturn(Optional.of(companyAppointmentDocument));
+        when(companyAppointmentDocument.getDeltaAt()).thenReturn(NEWER_DELTA_AT);
 
         DeleteAppointmentParameters deleteAppointmentParameters = DeleteAppointmentParameters.builder()
                 .companyNumber(COMPANY_NUMBER)
                 .appointmentId(APPOINTMENT_ID)
-                .deltaAt(DELTA_AT)
+                .deltaAt(REQUEST_DELTA_AT)
                 .officerId(OFFICER_ID)
                 .build();
 
-        deleteAppointmentService.deleteAppointment(deleteAppointmentParameters);
+        // when
+        Executable executable = () -> deleteAppointmentService.deleteAppointment(deleteAppointmentParameters);
 
-        verify(companyAppointmentRepository, never()).deleteByCompanyNumberAndID(COMPANY_NUMBER, APPOINTMENT_ID);
-        verify(resourceChangedApiService).invokeChsKafkaApi(resourceChangedRequestArgumentCaptor.capture());
-        assertNotNull(resourceChangedRequestArgumentCaptor.getValue());
+        // then
+        assertThrows(ConflictException.class, executable);
+        verify(companyAppointmentRepository).readByCompanyNumberAndID(COMPANY_NUMBER, APPOINTMENT_ID);
+        verifyNoMoreInteractions(companyAppointmentRepository);
+        verifyNoInteractions(resourceChangedDataCleaner);
+        verifyNoInteractions(resourceChangedApiService);
     }
 
     @Test
@@ -140,17 +185,16 @@ class DeleteAppointmentWithRetryServiceTest {
         verify(resourceChangedApiService, never()).invokeChsKafkaApi(any());
     }
 
-    @Test
-    void shouldThrowServiceUnavailableExceptionOnMongoReadFailure() {
+    @ParameterizedTest
+    @MethodSource("badGatewayScenarios")
+    void shouldThrowBadGatewayExceptionOnMongoReadFailure(NestedRuntimeException exception) {
         // given
-        when(companyAppointmentRepository.readByCompanyNumberAndID(any(), any()))
-                .thenThrow(new DataAccessException("...") {
-                });
+        when(companyAppointmentRepository.readByCompanyNumberAndID(any(), any())).thenThrow(exception);
 
         DeleteAppointmentParameters deleteAppointmentParameters = DeleteAppointmentParameters.builder()
                 .companyNumber(COMPANY_NUMBER)
                 .appointmentId(APPOINTMENT_ID)
-                .deltaAt(DELTA_AT)
+                .deltaAt(REQUEST_DELTA_AT)
                 .officerId(OFFICER_ID)
                 .build();
 
@@ -158,23 +202,27 @@ class DeleteAppointmentWithRetryServiceTest {
         Executable executable = () -> deleteAppointmentService.deleteAppointment(deleteAppointmentParameters);
 
         // then
-        assertThrows(ServiceUnavailableException.class, executable);
-        verify(resourceChangedApiService, never()).invokeChsKafkaApi(any());
+        assertThrows(BadGatewayException.class, executable);
+        verify(companyAppointmentRepository).readByCompanyNumberAndID(COMPANY_NUMBER, APPOINTMENT_ID);
+        verifyNoMoreInteractions(companyAppointmentRepository);
+        verifyNoInteractions(resourceChangedDataCleaner);
+        verifyNoInteractions(resourceChangedApiService);
     }
 
-    @Test
-    void shouldThrowServiceUnavailableExceptionOnKafkaNotificationFailure()
-            throws ServiceUnavailableException {
+    @ParameterizedTest
+    @MethodSource("badGatewayScenarios")
+    void shouldThrowBadGatewayExceptionOnMongoWriteFailure(NestedRuntimeException exception) {
         // given
-        when(companyAppointmentRepository.readByCompanyNumberAndID(COMPANY_NUMBER, APPOINTMENT_ID))
-                .thenReturn(Optional.of(new CompanyAppointmentDocument()
-                        .deltaAt(OLDER_DELTA_AT)));
-        when(resourceChangedApiService.invokeChsKafkaApi(any())).thenThrow(IllegalArgumentException.class);
+        when(companyAppointmentRepository.readByCompanyNumberAndID(anyString(), anyString()))
+                .thenReturn(Optional.of(companyAppointmentDocument));
+        when(companyAppointmentDocument.getDeltaAt()).thenReturn(OLDER_DELTA_AT);
+        doThrow(exception)
+                .when(companyAppointmentRepository).deleteByCompanyNumberAndID(anyString(), anyString());
 
         DeleteAppointmentParameters deleteAppointmentParameters = DeleteAppointmentParameters.builder()
                 .companyNumber(COMPANY_NUMBER)
                 .appointmentId(APPOINTMENT_ID)
-                .deltaAt(DELTA_AT)
+                .deltaAt(REQUEST_DELTA_AT)
                 .officerId(OFFICER_ID)
                 .build();
 
@@ -182,6 +230,18 @@ class DeleteAppointmentWithRetryServiceTest {
         Executable executable = () -> deleteAppointmentService.deleteAppointment(deleteAppointmentParameters);
 
         // then
-        assertThrows(ServiceUnavailableException.class, executable);
+        assertThrows(BadGatewayException.class, executable);
+        verify(companyAppointmentRepository).readByCompanyNumberAndID(COMPANY_NUMBER, APPOINTMENT_ID);
+        verify(companyAppointmentRepository).deleteByCompanyNumberAndID(COMPANY_NUMBER, APPOINTMENT_ID);
+        verifyNoInteractions(resourceChangedDataCleaner);
+        verifyNoInteractions(resourceChangedApiService);
+    }
+
+    private static Stream<Arguments> badGatewayScenarios() {
+        return Stream.of(
+                Arguments.of(new TransientDataAccessException("...") {
+                }),
+                Arguments.of(new DataAccessException("...") {
+                }));
     }
 }

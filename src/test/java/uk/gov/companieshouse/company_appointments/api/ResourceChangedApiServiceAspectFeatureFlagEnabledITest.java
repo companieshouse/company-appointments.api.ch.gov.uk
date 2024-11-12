@@ -21,7 +21,7 @@ class ResourceChangedApiServiceAspectFeatureFlagEnabledITest {
     private ResourceChangedApiService resourceChangedApiService;
 
     @MockBean
-    private ApiClientService apiClientService;
+    private ApiClientFactory apiClientFactory;
 
     @Mock
     private InternalApiClient internalApiClient;
@@ -37,7 +37,7 @@ class ResourceChangedApiServiceAspectFeatureFlagEnabledITest {
 
         resourceChangedApiService.invokeChsKafkaApi(resourceChangedRequest);
 
-        verifyNoInteractions(apiClientService);
+        verifyNoInteractions(apiClientFactory);
         verifyNoInteractions(internalApiClient);
         verifyNoInteractions(privateChangedResourceHandler);
         verifyNoInteractions(changedResourcePost);

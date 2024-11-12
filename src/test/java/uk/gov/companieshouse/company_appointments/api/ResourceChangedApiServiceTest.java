@@ -37,7 +37,7 @@ import uk.gov.companieshouse.logging.Logger;
 class ResourceChangedApiServiceTest {
 
     @Mock
-    private ApiClientService apiClientService;
+    private ApiClientFactory apiClientFactory;
 
     @Mock
     private InternalApiClient internalApiClient;
@@ -79,7 +79,7 @@ class ResourceChangedApiServiceTest {
     @DisplayName("Test should successfully invoke chs-kafka-api")
     void invokeChsKafkaApi() throws ApiErrorResponseException, ServiceUnavailableException {
         // given
-        when(apiClientService.getInternalApiClient()).thenReturn(internalApiClient);
+        when(apiClientFactory.get()).thenReturn(internalApiClient);
         when(internalApiClient.privateChangedResourceHandler()).thenReturn(privateChangedResourceHandler);
         when(privateChangedResourceHandler.postChangedResource(any(), any())).thenReturn(changedResourcePost);
         when(changedResourcePost.execute()).thenReturn(response);
@@ -89,7 +89,7 @@ class ResourceChangedApiServiceTest {
         resourceChangedApiService.invokeChsKafkaApi(resourceChangedRequest);
 
         // then
-        verify(apiClientService).getInternalApiClient();
+        verify(apiClientFactory).get();
         verify(internalApiClient).privateChangedResourceHandler();
         verify(privateChangedResourceHandler).postChangedResource("/private/resource-changed", changedResource);
         verify(changedResourcePost).execute();
@@ -102,7 +102,7 @@ class ResourceChangedApiServiceTest {
         HttpResponseException.Builder builder = new HttpResponseException.Builder(argument.statusCode(), argument.errorMessage(), new HttpHeaders());
         ApiErrorResponseException apiErrorResponseException = new ApiErrorResponseException(builder);
 
-        when(apiClientService.getInternalApiClient()).thenReturn(internalApiClient);
+        when(apiClientFactory.get()).thenReturn(internalApiClient);
         when(internalApiClient.privateChangedResourceHandler()).thenReturn(privateChangedResourceHandler);
         when(privateChangedResourceHandler.postChangedResource(any(), any())).thenReturn(changedResourcePost);
         when(mapper.mapChangedResource(resourceChangedRequest)).thenReturn(changedResource);
@@ -113,7 +113,7 @@ class ResourceChangedApiServiceTest {
 
         // then
         assertThrows(ServiceUnavailableException.class, executable);
-        verify(apiClientService, times(1)).getInternalApiClient();
+        verify(apiClientFactory, times(1)).get();
         verify(internalApiClient, times(1)).privateChangedResourceHandler();
         verify(privateChangedResourceHandler, times(1)).postChangedResource("/private/resource-changed", changedResource);
         verify(changedResourcePost, times(1)).execute();
