@@ -57,7 +57,7 @@ Feature: Upsert full record officer information
     And the user is authenticated and authorised with internal app privileges
     And the delta for payload "<payloadFile>" is the most recent delta for "<appointmentId>"
     When a request is sent to the PUT endpoint to upsert an officers delta
-    Then I should receive a 503 status code
+    Then I should receive a 502 status code
     And the record should be saved
 
     Examples:
