@@ -99,16 +99,9 @@ public class CompanyAppointmentFullRecordController {
                 .deltaAt(deltaAt)
                 .officerId(officerId)
                 .build();
-        try {
-            deleteAppointmentService.deleteAppointment(deleteAppointmentParameters);
-            return ResponseEntity.ok().build();
-        } catch (NotFoundException e) {
-            LOGGER.info(e.getMessage(), DataMapHolder.getLogMap());
-            return ResponseEntity.notFound().build();
-        } catch (ServiceUnavailableException e) {
-            LOGGER.error(e.getMessage(), DataMapHolder.getLogMap());
-            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();
-        }
+
+        deleteAppointmentService.deleteAppointment(deleteAppointmentParameters);
+        return ResponseEntity.ok().build();
     }
 
     private static String extractCompanyNumber(FullRecordCompanyOfficerApi companyAppointmentData) {

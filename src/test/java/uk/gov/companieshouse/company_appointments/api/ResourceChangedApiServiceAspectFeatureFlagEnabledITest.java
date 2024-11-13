@@ -17,11 +17,12 @@ import uk.gov.companieshouse.company_appointments.model.data.ResourceChangedRequ
 @SpringBootTest
 @ActiveProfiles("feature_flag_enabled")
 class ResourceChangedApiServiceAspectFeatureFlagEnabledITest {
+
     @Autowired
     private ResourceChangedApiService resourceChangedApiService;
 
     @MockBean
-    private ApiClientFactory apiClientFactory;
+    private ChsKafkaApiClientFactory chsKafkaApiClientFactory;
 
     @Mock
     private InternalApiClient internalApiClient;
@@ -34,10 +35,9 @@ class ResourceChangedApiServiceAspectFeatureFlagEnabledITest {
 
     @Test
     void testThatAspectShouldNotProceedWhenFeatureFlagEnabled() throws ServiceUnavailableException {
-
         resourceChangedApiService.invokeChsKafkaApi(resourceChangedRequest);
 
-        verifyNoInteractions(apiClientFactory);
+        verifyNoInteractions(chsKafkaApiClientFactory);
         verifyNoInteractions(internalApiClient);
         verifyNoInteractions(privateChangedResourceHandler);
         verifyNoInteractions(changedResourcePost);
