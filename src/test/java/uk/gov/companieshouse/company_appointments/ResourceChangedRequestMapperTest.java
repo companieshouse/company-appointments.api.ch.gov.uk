@@ -53,7 +53,7 @@ class ResourceChangedRequestMapperTest {
                         Named.of("Test resource-changed scenario with event type of changed",
                                 ResourceChangedTestArgument.ResourceChangedTestArgumentBuilder()
                                         .withRequest(
-                                                new ResourceChangedRequest(EXPECTED_CONTEXT_ID, "12345678", "87654321",
+                                                new ResourceChangedRequest("12345678", "87654321",
                                                         null, false))
                                         .withContextId(EXPECTED_CONTEXT_ID)
                                         .withResourceUri("/company/12345678/appointments/87654321")
@@ -67,7 +67,7 @@ class ResourceChangedRequestMapperTest {
                         Named.of("Test resource-changed scenario with event type of deleted",
                                 ResourceChangedTestArgument.ResourceChangedTestArgumentBuilder()
                                         .withRequest(
-                                                new ResourceChangedRequest(EXPECTED_CONTEXT_ID, "12345678", "87654321",
+                                                new ResourceChangedRequest("12345678", "87654321",
                                                         deletedData, true))
                                         .withContextId(EXPECTED_CONTEXT_ID)
                                         .withResourceUri("/company/12345678/appointments/87654321")

@@ -114,7 +114,8 @@ public class CompanyAppointmentFullRecordService {
 
         Map<String, Object> logInfo = DataMapHolder.getLogMap();
         logInfo.put("incomingDeltaAt", appointmentAPI.getDeltaAt().toString());
-        logInfo.put("existingDeltaAt", existingDelta.toString().isBlank() ? existingDelta.toString() : "No existing delta");
+        logInfo.put("existingDeltaAt",
+                existingDelta.toString().isBlank() ? existingDelta.toString() : "No existing delta");
         final String context = appointmentAPI.getAppointmentId();
         LOGGER.errorContext(context, "Received stale delta", null, logInfo);
     }
@@ -135,7 +136,7 @@ public class CompanyAppointmentFullRecordService {
 
         companyAppointmentRepository.save(document);
         resourceChangedApiService.invokeChsKafkaApi(
-                new ResourceChangedRequest(DataMapHolder.getRequestId(), document.getCompanyNumber(),
+                new ResourceChangedRequest(document.getCompanyNumber(),
                         document.getAppointmentId(), null, false));
         LOGGER.debug(String.format("ChsKafka api CHANGED invoked updated successfully for company number: %s",
                 document.getCompanyNumber()), DataMapHolder.getLogMap());

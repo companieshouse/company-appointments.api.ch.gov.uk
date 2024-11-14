@@ -87,7 +87,6 @@ class DeleteAppointmentServiceTest {
                 cleanOfficerSummary);
 
         ResourceChangedRequest expectedResourceChangeRequest = ResourceChangedRequest.builder()
-                .contextId("uninitialised")
                 .companyNumber(COMPANY_NUMBER)
                 .appointmentId(APPOINTMENT_ID)
                 .officerData(cleanOfficerSummary)
@@ -125,7 +124,6 @@ class DeleteAppointmentServiceTest {
                                 .appointments(appointmentsLink)));
 
         ResourceChangedRequest expectedResourceChangeRequest = ResourceChangedRequest.builder()
-                .contextId("uninitialised")
                 .companyNumber(COMPANY_NUMBER)
                 .appointmentId(APPOINTMENT_ID)
                 .officerData(cleanOfficerSummary)

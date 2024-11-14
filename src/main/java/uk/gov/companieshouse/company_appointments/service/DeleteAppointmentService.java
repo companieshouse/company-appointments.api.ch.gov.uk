@@ -96,7 +96,6 @@ public class DeleteAppointmentService {
 
     private void publishResourceChanged(String companyNumber, String appointmentId, Object officersData) {
         ResourceChangedRequest resourceChangedRequest = ResourceChangedRequest.builder()
-                .contextId(DataMapHolder.getRequestId())
                 .companyNumber(companyNumber)
                 .appointmentId(appointmentId)
                 .officerData(officersData)
