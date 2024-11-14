@@ -33,10 +33,7 @@ public class WiremockTestConfig {
         if (wireMockServer == null) {
             throw new RuntimeException("Wiremock not initialised");
         }
-        wireMockServer.resetRequests();
         wireMockServer.resetAll();
-        wireMockServer.stop();
-        wireMockServer.start();
     }
 
     public static void stubKafkaApi(Integer responseCode) throws InterruptedException {
