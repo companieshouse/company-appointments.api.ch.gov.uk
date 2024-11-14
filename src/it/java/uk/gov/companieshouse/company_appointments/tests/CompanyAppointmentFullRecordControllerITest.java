@@ -57,7 +57,7 @@ class CompanyAppointmentFullRecordControllerITest {
     private MockMvc mockMvc;
 
     @Container
-    private static final MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:5");
+    private static final MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:6");
 
     @MockBean
     private ResourceChangedApiService resourceChangedApiService;

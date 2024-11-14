@@ -42,7 +42,7 @@ class OfficerAppointmentsRepositoryITest {
     private static final List<String> FILTER_STATUSES = List.of(DISSOLVED, CONVERTED_CLOSED, REMOVED);
 
     @Container
-    private static final MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:5");
+    private static final MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:6");
     private static final String MISSING_OFFICER_ID = "missing";
     @Autowired
     private OfficerAppointmentsRepository repository;
