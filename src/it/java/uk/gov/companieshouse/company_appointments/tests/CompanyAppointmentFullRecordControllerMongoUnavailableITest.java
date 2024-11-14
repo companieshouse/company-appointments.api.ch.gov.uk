@@ -89,7 +89,7 @@ class CompanyAppointmentFullRecordControllerMongoUnavailableITest {
     }
 
     @Test
-    @DisplayName("Delete endpoint returns 503 service unavailable when MongoDB is unavailable")
+    @DisplayName("Delete endpoint returns 502 BadGateway when MongoDB is unavailable")
     void testDeleteNewAppointmentCompanyNameStatusMongoUnavailable() throws Exception {
         when(fullRecordRepository.readByCompanyNumberAndID(any(), any())).thenThrow(new DataAccessException("..."){ });
         
@@ -100,6 +100,6 @@ class CompanyAppointmentFullRecordControllerMongoUnavailableITest {
                         .header(ERIC_IDENTITY_TYPE, "key")
                         .header(ERIC_AUTHORISED_KEY_PRIVILEGES, "internal-app")
                         .header(X_DELTA_AT, DELTA_AT))
-                .andExpect(status().isServiceUnavailable());
+                .andExpect(status().isBadGateway());
     }
 }
