@@ -29,6 +29,9 @@ public class CompanyAppointmentControllerTest {
 
     public static final String COMPANY_NAME = "NewCo";
     public static final String COMPANY_STATUS_ACTIVE = "active";
+    private final static String COMPANY_NUMBER = "123456";
+    private final static String APPOINTMENT_ID = "345678";
+
     private CompanyAppointmentController companyAppointmentController;
 
     @Mock
@@ -39,9 +42,6 @@ public class CompanyAppointmentControllerTest {
 
     @Mock
     private OfficerList officerList;
-
-    private final static String COMPANY_NUMBER = "123456";
-    private final static String APPOINTMENT_ID = "345678";
 
     @BeforeEach
     void setUp() {

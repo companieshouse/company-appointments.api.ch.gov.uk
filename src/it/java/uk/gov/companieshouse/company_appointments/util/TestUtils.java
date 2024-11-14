@@ -60,7 +60,7 @@ public class TestUtils {
             "receiver-and-manager",
             "secretary" };
 
-    static public String generateRandomInternalId() {
+    public static String generateRandomInternalId() {
         final int low = 10000;
         final int high = 99999;
 
@@ -69,7 +69,7 @@ public class TestUtils {
         return String.format("12345%d", result);
     }
 
-    static public String generateRandomEightCharCompanyNumber() {
+    public static String generateRandomEightCharCompanyNumber() {
         final int low = 100000;
         final int high = 999999;
 
@@ -78,7 +78,7 @@ public class TestUtils {
         return String.format("CN%d", result);
     }
 
-    static public int generateRandomNumberWithinBounds(final int upperBound, final int lowerBound) {
+    public static int generateRandomNumberWithinBounds(final int upperBound, final int lowerBound) {
         return new Random().nextInt(upperBound - lowerBound) + lowerBound;
     }
 }

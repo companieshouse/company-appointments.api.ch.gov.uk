@@ -1,7 +1,6 @@
 package uk.gov.companieshouse.company_appointments.config;
 
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
@@ -15,14 +14,16 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableTransactionManagement
 public class MongoDbConfig implements InitializingBean {
 
+    private final MappingMongoConverter mappingMongoConverter;
+
+    public MongoDbConfig(@Lazy MappingMongoConverter mappingMongoConverter) {
+        this.mappingMongoConverter = mappingMongoConverter;
+    }
+
     @Bean
     MongoTransactionManager transactionManager(MongoDatabaseFactory dbFactory) {
         return new MongoTransactionManager(dbFactory);
     }
-
-    @Autowired
-    @Lazy
-    private MappingMongoConverter mappingMongoConverter;
 
     // Remove _class field from data
     @Override
