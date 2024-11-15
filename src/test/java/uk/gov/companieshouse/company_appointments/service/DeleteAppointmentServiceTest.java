@@ -16,7 +16,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import java.util.stream.Stream;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.function.Executable;
@@ -36,7 +35,6 @@ import uk.gov.companieshouse.company_appointments.api.ResourceChangedApiService;
 import uk.gov.companieshouse.company_appointments.exception.BadGatewayException;
 import uk.gov.companieshouse.company_appointments.exception.BadRequestException;
 import uk.gov.companieshouse.company_appointments.exception.ConflictException;
-import uk.gov.companieshouse.company_appointments.logging.DataMapHolder;
 import uk.gov.companieshouse.company_appointments.model.DeleteAppointmentParameters;
 import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentDocument;
 import uk.gov.companieshouse.company_appointments.model.data.ResourceChangedRequest;
@@ -70,12 +68,6 @@ class DeleteAppointmentServiceTest {
     private CompanyAppointmentDocument companyAppointmentDocument;
     @Mock
     private Object cleanOfficerSummary;
-
-    @BeforeAll
-    static void setUp() {
-        // TODO: Is there a better fix for this?
-        DataMapHolder.clear();
-    }
 
     @Test
     void shouldDeleteAppointment() {
