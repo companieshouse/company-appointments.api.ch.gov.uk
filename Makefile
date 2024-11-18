@@ -46,7 +46,7 @@ package:
 ifndef version
 	$(error No version given. Aborting)
 endif
-	mvn versions:set -DnewVersion=$(version) -DgenerateBackupPoms=false
+	mvn org.codehaus.mojo:versions-maven-plugin:2.17.1:set -DnewVersion=$(version) -DgenerateBackupPoms=false
 	$(info Packaging version: $(version))
 	@test -s ./$(artifact_name).jar || { echo "ERROR: Service JAR not found"; exit 1; }
 	$(eval tmpdir:=$(shell mktemp -d build-XXXXXXXXXX))
@@ -58,7 +58,7 @@ endif
 
 .PHONY: build
 build:
-	mvn versions:set -DnewVersion=$(version) -DgenerateBackupPoms=false
+	mvn org.codehaus.mojo:versions-maven-plugin:2.17.1:set -DnewVersion=$(version) -DgenerateBackupPoms=false
 	mvn package -Dmaven.test.skip=true
 	cp ./target/$(artifact_name)-$(version).jar ./$(artifact_name).jar
 
