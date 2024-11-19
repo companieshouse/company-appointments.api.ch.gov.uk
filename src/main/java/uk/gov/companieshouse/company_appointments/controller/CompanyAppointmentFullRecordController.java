@@ -1,8 +1,7 @@
 package uk.gov.companieshouse.company_appointments.controller;
 
-import java.util.Optional;
-
 import jakarta.validation.Valid;
+import java.util.Optional;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -60,7 +59,7 @@ public class CompanyAppointmentFullRecordController {
 
     @PutMapping(consumes = "application/json")
     public ResponseEntity<Void> submitOfficerData(
-           @Valid @RequestBody final FullRecordCompanyOfficerApi companyAppointmentData) {
+            @Valid @RequestBody final FullRecordCompanyOfficerApi companyAppointmentData) {
         try {
             DataMapHolder.get()
                     .companyNumber(extractCompanyNumber(companyAppointmentData))
@@ -81,11 +80,11 @@ public class CompanyAppointmentFullRecordController {
         }
     }
 
-    @DeleteMapping(path = "/{officer_id}")
+    @DeleteMapping
     public ResponseEntity<Void> deleteOfficerData(
             @PathVariable("company_number") String companyNumber,
             @PathVariable("appointment_id") String appointmentId,
-            @PathVariable("officer_id") String officerId,
+            @RequestHeader("X-OFFICER-ID") String officerId,
             @RequestHeader("X-DELTA-AT") String deltaAt) {
         DataMapHolder.get()
                 .companyNumber(companyNumber)
