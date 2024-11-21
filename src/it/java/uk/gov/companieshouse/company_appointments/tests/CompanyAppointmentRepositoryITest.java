@@ -49,7 +49,7 @@ class CompanyAppointmentRepositoryITest {
     private MongoTemplate mongoTemplate;
 
     @Container
-    private static final MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:6");
+    private static final MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:7");
 
     @BeforeAll
     static void start() {

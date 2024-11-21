@@ -52,7 +52,7 @@ class CompanyAppointmentRepositoryTest {
     private static final String COLLECTION = "delta_appointments";
 
     @Container
-    private static final MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:6");
+    private static final MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:7");
 
     @Autowired
     private CompanyAppointmentRepository repository;

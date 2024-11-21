@@ -62,7 +62,7 @@ class OfficerAppointmentsControllerITest {
     private static final String NON_ACTIVE_OFFICER_ID = "non_active_officer_ID";
 
     @Container
-    private static final MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:6");
+    private static final MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:7");
     private static final String DELTA_APPOINTMENTS_COLLECTION = "delta_appointments";
     private static MongoTemplate mongoTemplate;
 
