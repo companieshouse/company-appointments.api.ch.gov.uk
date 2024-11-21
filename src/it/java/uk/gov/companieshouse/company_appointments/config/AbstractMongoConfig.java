@@ -15,7 +15,7 @@ import org.testcontainers.utility.DockerImageName;
 public class AbstractMongoConfig {
 
     public static final MongoDBContainer mongoDBContainer = new MongoDBContainer(
-            DockerImageName.parse("mongo:7"));
+            DockerImageName.parse("mongo:5"));
 
     @DynamicPropertySource
     public static void setProperties(DynamicPropertyRegistry registry) {

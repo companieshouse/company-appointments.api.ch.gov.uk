@@ -6,6 +6,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.verify;
 import static org.assertj.core.api.Assertions.assertThat;
+import static uk.gov.companieshouse.company_appointments.CompanyAppointmentsApplication.APPLICATION_NAME_SPACE;
 import static uk.gov.companieshouse.company_appointments.config.AbstractMongoConfig.mongoDBContainer;
 import static uk.gov.companieshouse.company_appointments.config.CucumberContext.CONTEXT;
 import static uk.gov.companieshouse.company_appointments.config.WiremockTestConfig.getServeEvents;
@@ -22,7 +23,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import org.apache.commons.io.IOUtils;
 import org.bson.Document;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -32,8 +32,11 @@ import uk.gov.companieshouse.api.chskafka.ChangedResource;
 import uk.gov.companieshouse.company_appointments.config.WiremockTestConfig;
 import uk.gov.companieshouse.company_appointments.repository.CompanyAppointmentRepository;
 import uk.gov.companieshouse.logging.Logger;
+import uk.gov.companieshouse.logging.LoggerFactory;
 
 public class CommonSteps {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(APPLICATION_NAME_SPACE);
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -45,9 +48,6 @@ public class CommonSteps {
 
     @Autowired
     private CompanyAppointmentRepository companyAppointmentRepository;
-
-    @Mock
-    private Logger logger;
 
     @BeforeAll
     public static void setup() {
@@ -108,6 +108,7 @@ public class CommonSteps {
         assertThat(payload).isInstanceOf(ChangedResource.class);
         assertThat(payload.getEvent().getType()).isEqualTo("changed");
     }
+
     @Then("the request body is a valid resource deleted request")
     public void requestBodySentToResourceChangedISValidDelete() {
         ChangedResource payload = getPayloadFromWiremock();
@@ -123,12 +124,12 @@ public class CommonSteps {
 
     private ChangedResource getPayloadFromWiremock() {
         ServeEvent serverEvent = getServeEvents().getFirst();
-        String body = new String (serverEvent.getRequest().getBody());
+        String body = new String(serverEvent.getRequest().getBody());
         ChangedResource payload = null;
         try {
             payload = objectMapper.readValue(body, ChangedResource.class);
         } catch (JsonProcessingException e) {
-            logger.error("error getting payload from wiremock in getPayloadFromWiremock()");
+            LOGGER.error("error getting payload from wiremock in getPayloadFromWiremock()");
         }
         return payload;
     }

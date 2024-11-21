@@ -45,7 +45,7 @@ class CustomCorsFilterIntegrationTest {
     @Autowired
     private MockMvc mockMvc;
     @Container
-    private static final MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:7");
+    private static final MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:5");
     private static final String DELTA_APPOINTMENTS_COLLECTION = "delta_appointments";
     private static MongoTemplate mongoTemplate;
 

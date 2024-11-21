@@ -9,7 +9,6 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.text.SimpleDateFormat;
 import java.time.Clock;
 import java.util.function.Supplier;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,30 +19,30 @@ import uk.gov.companieshouse.api.InternalApiClient;
 import uk.gov.companieshouse.api.http.ApiKeyHttpClient;
 import uk.gov.companieshouse.company_appointments.interceptor.AuthenticationInterceptor;
 import uk.gov.companieshouse.company_appointments.interceptor.FullRecordAuthenticationInterceptor;
-import uk.gov.companieshouse.company_appointments.interceptor.RequestLoggingInterceptor;
 import uk.gov.companieshouse.company_appointments.util.EmptyFieldDeserializer;
 
 @Configuration
 public class Config implements WebMvcConfigurer {
 
     public static final String PATTERN_FULL_RECORD = "/**/full_record/**";
-    private final RequestLoggingInterceptor loggingInterceptor;
+    public static final String HEALTHCHECK_PATH = "/healthcheck";
+
     private final AuthenticationInterceptor authenticationInterceptor;
     private final FullRecordAuthenticationInterceptor fullRecordAuthenticationInterceptor;
 
-    @Autowired
-    public Config(RequestLoggingInterceptor loggingInterceptor, AuthenticationInterceptor authenticationInterceptor,
+    public Config(AuthenticationInterceptor authenticationInterceptor,
             FullRecordAuthenticationInterceptor fullRecordAuthenticationInterceptor) {
-        this.loggingInterceptor = loggingInterceptor;
         this.authenticationInterceptor = authenticationInterceptor;
         this.fullRecordAuthenticationInterceptor = fullRecordAuthenticationInterceptor;
     }
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(loggingInterceptor);
-        registry.addInterceptor(authenticationInterceptor).excludePathPatterns(PATTERN_FULL_RECORD);
-        registry.addInterceptor(fullRecordAuthenticationInterceptor).addPathPatterns(PATTERN_FULL_RECORD);
+        registry.addInterceptor(authenticationInterceptor)
+                .excludePathPatterns(PATTERN_FULL_RECORD)
+                .excludePathPatterns(HEALTHCHECK_PATH);
+        registry.addInterceptor(fullRecordAuthenticationInterceptor)
+                .addPathPatterns(PATTERN_FULL_RECORD);
     }
 
     /**

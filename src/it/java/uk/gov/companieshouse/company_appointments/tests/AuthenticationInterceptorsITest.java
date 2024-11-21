@@ -17,7 +17,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.companieshouse.api.appointment.OfficerSummary;
 import uk.gov.companieshouse.company_appointments.config.CorsConfiguration;
-import uk.gov.companieshouse.company_appointments.config.LoggingConfig;
 import uk.gov.companieshouse.company_appointments.controller.CompanyAppointmentController;
 import uk.gov.companieshouse.company_appointments.controller.CompanyAppointmentFullRecordController;
 import uk.gov.companieshouse.company_appointments.interceptor.AuthenticationHelperImpl;
@@ -31,11 +30,11 @@ import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentF
 import uk.gov.companieshouse.company_appointments.service.CompanyAppointmentFullRecordService;
 import uk.gov.companieshouse.company_appointments.service.CompanyAppointmentService;
 import uk.gov.companieshouse.company_appointments.service.DeleteAppointmentService;
-import uk.gov.companieshouse.logging.Logger;
 
 @WebMvcTest(controllers = {CompanyAppointmentController.class, CompanyAppointmentFullRecordController.class})
-@Import({LoggingConfig.class, AuthenticationHelperImpl.class, CorsConfiguration.class})
+@Import({AuthenticationHelperImpl.class, CorsConfiguration.class})
 class AuthenticationInterceptorsITest {
+
     private static final String APP_ID = "N-YqKNwdT_HvetusfTJ0H0jAQbA";
     private static final String COMPANY_NUMBER = "09876543";
     private static final String AUTH_EMAIL = "user@somewhere.com";
@@ -47,8 +46,6 @@ class AuthenticationInterceptorsITest {
     private MockMvc mockMvc;
     @Autowired
     private AuthenticationInterceptor authenticationInterceptor;
-    @MockBean
-    private Logger logger;
     @MockBean
     private CompanyAppointmentService companyAppointmentService;
     @MockBean
