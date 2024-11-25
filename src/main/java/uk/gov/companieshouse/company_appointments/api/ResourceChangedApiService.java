@@ -19,21 +19,18 @@ public class ResourceChangedApiService {
     private static final Logger LOGGER = LoggerFactory.getLogger(APPLICATION_NAME_SPACE);
     private static final String CHANGED_RESOURCE_URI = "/private/resource-changed";
 
-    private final ApiClientFactory chsKafkaApiClientFactory;
+    private final InternalApiClient chsKafkaApiClient;
     private final ResourceChangedRequestMapper mapper;
 
-    public ResourceChangedApiService(ApiClientFactory chsKafkaApiClientFactory,
-            ResourceChangedRequestMapper mapper) {
-        this.chsKafkaApiClientFactory = chsKafkaApiClientFactory;
+    public ResourceChangedApiService(InternalApiClient chsKafkaApiClient, ResourceChangedRequestMapper mapper) {
+        this.chsKafkaApiClient = chsKafkaApiClient;
         this.mapper = mapper;
     }
 
     @StreamEvents
     public ApiResponse<Void> invokeChsKafkaApi(ResourceChangedRequest resourceChangedRequest) {
-        InternalApiClient internalApiClient = chsKafkaApiClientFactory.get();
-
         try {
-            return internalApiClient.privateChangedResourceHandler()
+            return chsKafkaApiClient.privateChangedResourceHandler()
                     .postChangedResource(CHANGED_RESOURCE_URI, mapper.mapChangedResource(resourceChangedRequest))
                     .execute();
         } catch (ApiErrorResponseException ex) {

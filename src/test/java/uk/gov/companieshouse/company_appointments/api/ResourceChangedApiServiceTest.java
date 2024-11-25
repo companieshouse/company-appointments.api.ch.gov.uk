@@ -30,12 +30,10 @@ class ResourceChangedApiServiceTest {
     private ResourceChangedApiService resourceChangedApiService;
 
     @Mock
-    private ChsKafkaApiClientFactory chsKafkaApiClientFactory;
+    private InternalApiClient chsKafkaApiClient;
     @Mock
     private ResourceChangedRequestMapper mapper;
 
-    @Mock
-    private InternalApiClient internalApiClient;
     @Mock
     private PrivateChangedResourceHandler privateChangedResourceHandler;
     @Mock
@@ -48,8 +46,7 @@ class ResourceChangedApiServiceTest {
     @Test
     void shouldSuccessfullyInvokeChsKafkaApi() throws Exception {
         // given
-        when(chsKafkaApiClientFactory.get()).thenReturn(internalApiClient);
-        when(internalApiClient.privateChangedResourceHandler()).thenReturn(privateChangedResourceHandler);
+        when(chsKafkaApiClient.privateChangedResourceHandler()).thenReturn(privateChangedResourceHandler);
         when(privateChangedResourceHandler.postChangedResource(anyString(), any())).thenReturn(
                 privateChangedResourcePost);
         when(mapper.mapChangedResource(any())).thenReturn(changedResource);
@@ -66,8 +63,7 @@ class ResourceChangedApiServiceTest {
     @Test
     void shouldThrowBadGatewayOnApiErrorResponseException() throws Exception {
         // given
-        when(chsKafkaApiClientFactory.get()).thenReturn(internalApiClient);
-        when(internalApiClient.privateChangedResourceHandler()).thenReturn(privateChangedResourceHandler);
+        when(chsKafkaApiClient.privateChangedResourceHandler()).thenReturn(privateChangedResourceHandler);
         when(privateChangedResourceHandler.postChangedResource(anyString(), any())).thenReturn(
                 privateChangedResourcePost);
         when(mapper.mapChangedResource(any())).thenReturn(changedResource);

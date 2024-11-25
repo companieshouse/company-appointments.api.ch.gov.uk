@@ -6,9 +6,13 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.function.Executable;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -20,6 +24,7 @@ import uk.gov.companieshouse.api.handler.metrics.request.PrivateCompanyMetricsGe
 import uk.gov.companieshouse.api.metrics.MetricsApi;
 import uk.gov.companieshouse.api.model.ApiResponse;
 import uk.gov.companieshouse.company_appointments.exception.BadGatewayException;
+import uk.gov.companieshouse.company_appointments.exception.NotFoundException;
 
 @ExtendWith(MockitoExtension.class)
 class CompanyMetricsApiServiceTest {
@@ -33,20 +38,19 @@ class CompanyMetricsApiServiceTest {
     private CompanyMetricsApiService service;
 
     @Mock
-    private CompanyMetricsApiClientFactory companyMetricsApiClientFactory;
+    private InternalApiClient metricsApiClient;
 
-    @Mock
-    private InternalApiClient internalApiClient;
     @Mock
     private PrivateCompanyMetricsResourceHandler companyMetricsResourceHandler;
     @Mock
     private PrivateCompanyMetricsGet privateCompanyMetricsGet;
+    @Mock
+    private ApiErrorResponseException apiErrorResponseException;
 
     @Test
     void shouldReturnSuccessResponseFromMetricsApi() throws Exception {
         // given
-        when(companyMetricsApiClientFactory.get()).thenReturn(internalApiClient);
-        when(internalApiClient.privateCompanyMetricsResourceHandler()).thenReturn(companyMetricsResourceHandler);
+        when(metricsApiClient.privateCompanyMetricsResourceHandler()).thenReturn(companyMetricsResourceHandler);
         when(companyMetricsResourceHandler.getCompanyMetrics(anyString())).thenReturn(privateCompanyMetricsGet);
         when(privateCompanyMetricsGet.execute()).thenReturn(SUCCESS_RESPONSE);
 
@@ -58,27 +62,28 @@ class CompanyMetricsApiServiceTest {
         verify(companyMetricsResourceHandler).getCompanyMetrics(METRICS_URI);
     }
 
-    @Test
-    void shouldCatchApiErrorResponseExceptionAndThrowBadGatewayException() throws Exception {
+    @ParameterizedTest
+    @MethodSource("apiErrorResponseScenarios")
+    void shouldCatchApiErrorResponseExceptionAndThrowBadGatewayException(final int statusCode,
+            Class<RuntimeException> expectedThrownException) throws Exception {
         // given
-        when(companyMetricsApiClientFactory.get()).thenReturn(internalApiClient);
-        when(internalApiClient.privateCompanyMetricsResourceHandler()).thenReturn(companyMetricsResourceHandler);
+        when(metricsApiClient.privateCompanyMetricsResourceHandler()).thenReturn(companyMetricsResourceHandler);
         when(companyMetricsResourceHandler.getCompanyMetrics(anyString())).thenReturn(privateCompanyMetricsGet);
-        when(privateCompanyMetricsGet.execute()).thenThrow(ApiErrorResponseException.class);
+        when(privateCompanyMetricsGet.execute()).thenThrow(apiErrorResponseException);
+        when(apiErrorResponseException.getStatusCode()).thenReturn(statusCode);
 
         // when
         Executable executable = () -> service.invokeGetMetricsApi(COMPANY_NUMBER);
 
         // then
-        assertThrows(BadGatewayException.class, executable);
+        assertThrows(expectedThrownException, executable);
         verify(companyMetricsResourceHandler).getCompanyMetrics(METRICS_URI);
     }
 
     @Test
     void shouldCatchURIValidationExceptionAndThrowBadGatewayException() throws Exception {
         // given
-        when(companyMetricsApiClientFactory.get()).thenReturn(internalApiClient);
-        when(internalApiClient.privateCompanyMetricsResourceHandler()).thenReturn(companyMetricsResourceHandler);
+        when(metricsApiClient.privateCompanyMetricsResourceHandler()).thenReturn(companyMetricsResourceHandler);
         when(companyMetricsResourceHandler.getCompanyMetrics(anyString())).thenReturn(privateCompanyMetricsGet);
         when(privateCompanyMetricsGet.execute()).thenThrow(URIValidationException.class);
 
@@ -88,5 +93,11 @@ class CompanyMetricsApiServiceTest {
         // then
         assertThrows(BadGatewayException.class, executable);
         verify(companyMetricsResourceHandler).getCompanyMetrics(METRICS_URI);
+    }
+
+    private static Stream<Arguments> apiErrorResponseScenarios() {
+        return Stream.of(
+                Arguments.of(404, NotFoundException.class),
+                Arguments.of(503, BadGatewayException.class));
     }
 }

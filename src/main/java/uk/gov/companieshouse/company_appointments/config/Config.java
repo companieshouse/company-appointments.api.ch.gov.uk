@@ -8,7 +8,6 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.text.SimpleDateFormat;
 import java.time.Clock;
-import java.util.function.Supplier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,21 +18,30 @@ import uk.gov.companieshouse.api.InternalApiClient;
 import uk.gov.companieshouse.api.http.ApiKeyHttpClient;
 import uk.gov.companieshouse.company_appointments.interceptor.AuthenticationInterceptor;
 import uk.gov.companieshouse.company_appointments.interceptor.FullRecordAuthenticationInterceptor;
+import uk.gov.companieshouse.company_appointments.logging.DataMapHolder;
 import uk.gov.companieshouse.company_appointments.util.EmptyFieldDeserializer;
 
 @Configuration
 public class Config implements WebMvcConfigurer {
 
     public static final String PATTERN_FULL_RECORD = "/**/full_record/**";
-    public static final String HEALTHCHECK_PATH = "/healthcheck";
+    public static final String HEALTHCHECK_PATH = "/healthcheck"; // NOSONAR
 
     private final AuthenticationInterceptor authenticationInterceptor;
     private final FullRecordAuthenticationInterceptor fullRecordAuthenticationInterceptor;
+    private final String apiKey;
+    private final String metricsUrl;
+    private final String internalApiUrl;
 
     public Config(AuthenticationInterceptor authenticationInterceptor,
-            FullRecordAuthenticationInterceptor fullRecordAuthenticationInterceptor) {
+            FullRecordAuthenticationInterceptor fullRecordAuthenticationInterceptor,
+            @Value("${chs.kafka.api.key}") String apiKey, @Value("${company-metrics-api.endpoint}") String metricsUrl,
+            @Value("${chs.kafka.api.endpoint}") String internalApiUrl) {
         this.authenticationInterceptor = authenticationInterceptor;
         this.fullRecordAuthenticationInterceptor = fullRecordAuthenticationInterceptor;
+        this.apiKey = apiKey;
+        this.metricsUrl = metricsUrl;
+        this.internalApiUrl = internalApiUrl;
     }
 
     @Override
@@ -57,18 +65,6 @@ public class Config implements WebMvcConfigurer {
     }
 
     @Bean
-    public Supplier<InternalApiClient> internalApiClientSupplier(
-            @Value("${api.api-key}") String apiKey,
-            @Value("${api.api-url}") String apiUrl) {
-        return () -> {
-            InternalApiClient internalApiClient = new InternalApiClient(new ApiKeyHttpClient(
-                    apiKey));
-            internalApiClient.setBasePath(apiUrl);
-            return internalApiClient;
-        };
-    }
-
-    @Bean
     @Primary
     public ObjectMapper objectMapper() {
         return new ObjectMapper()
@@ -78,5 +74,25 @@ public class Config implements WebMvcConfigurer {
                 .setSerializationInclusion(JsonInclude.Include.NON_NULL)
                 .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
                 .configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+    }
+
+    @Bean
+    public InternalApiClient metricsApiClient() {
+        return buildInternalApiClient(metricsUrl);
+    }
+
+    @Bean
+    public InternalApiClient chsKafkaApiClient() {
+        return buildInternalApiClient(internalApiUrl);
+    }
+
+    private InternalApiClient buildInternalApiClient(final String url) {
+        ApiKeyHttpClient apiKeyHttpClient = new ApiKeyHttpClient(apiKey);
+        apiKeyHttpClient.setRequestId(DataMapHolder.getRequestId());
+
+        InternalApiClient internalApiClient = new InternalApiClient(apiKeyHttpClient);
+        internalApiClient.setBasePath(url);
+
+        return internalApiClient;
     }
 }

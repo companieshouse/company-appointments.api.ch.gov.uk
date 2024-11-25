@@ -23,7 +23,7 @@ import uk.gov.companieshouse.logging.util.RequestLogger;
 @Order(value = HIGHEST_PRECEDENCE)
 public class RequestLoggingFilter extends OncePerRequestFilter implements RequestLogger {
 
-    private static final String HEALTHCHECK_PATH = "/healthcheck";
+    private static final String HEALTHCHECK_PATH = "/healthcheck"; // NOSONAR
     private static final Logger LOGGER = LoggerFactory.getLogger(APPLICATION_NAME_SPACE);
 
     @Override

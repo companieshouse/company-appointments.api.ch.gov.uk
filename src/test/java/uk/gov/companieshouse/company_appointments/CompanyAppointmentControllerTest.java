@@ -29,8 +29,8 @@ public class CompanyAppointmentControllerTest {
 
     public static final String COMPANY_NAME = "NewCo";
     public static final String COMPANY_STATUS_ACTIVE = "active";
-    private final static String COMPANY_NUMBER = "123456";
-    private final static String APPOINTMENT_ID = "345678";
+    private static final String COMPANY_NUMBER = "123456";
+    private static final String APPOINTMENT_ID = "345678";
 
     private CompanyAppointmentController companyAppointmentController;
 
