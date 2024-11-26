@@ -16,7 +16,7 @@
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
-        <spring-boot-dependencies.version>3.3.5</spring-boot-dependencies.version>
+        <spring-boot-dependencies.version>3.4.0</spring-boot-dependencies.version>
         <testcontainers.version>1.20.3</testcontainers.version>
         <maven-surefire-plugin.version>3.5.2</maven-surefire-plugin.version>
         <maven-failsafe-plugin.version>3.5.2</maven-failsafe-plugin.version>

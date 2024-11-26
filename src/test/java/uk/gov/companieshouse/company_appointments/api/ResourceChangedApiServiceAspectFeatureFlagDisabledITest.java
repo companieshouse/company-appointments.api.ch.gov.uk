@@ -4,6 +4,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.function.Supplier;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -29,7 +30,9 @@ class ResourceChangedApiServiceAspectFeatureFlagDisabledITest {
     @Mock
     private ResourceChangedRequestMapper mapper;
     @Mock
-    private InternalApiClient chsKafkaApiClient;
+    private Supplier<InternalApiClient> chsKafkaApiClient;
+    @Mock
+    private InternalApiClient client;
     @Mock
     private ResourceChangedRequest resourceChangedRequest;
     @Mock
@@ -43,15 +46,15 @@ class ResourceChangedApiServiceAspectFeatureFlagDisabledITest {
     @Test
     void testThatKafkaApiShouldBeCalledWhenFeatureFlagDisabled()
             throws ApiErrorResponseException, ServiceUnavailableException {
-        when(chsKafkaApiClient.privateChangedResourceHandler()).thenReturn(privateChangedResourceHandler);
+        when(chsKafkaApiClient.get()).thenReturn(client);
+        when(client.privateChangedResourceHandler()).thenReturn(privateChangedResourceHandler);
         when(privateChangedResourceHandler.postChangedResource(any(), any())).thenReturn(changedResourcePost);
+        when(mapper.mapChangedResource(any())).thenReturn(changedResource);
         when(changedResourcePost.execute()).thenReturn(response);
-        when(mapper.mapChangedResource(resourceChangedRequest)).thenReturn(changedResource);
 
         resourceChangedApiService.invokeChsKafkaApi(resourceChangedRequest);
 
-        verify(chsKafkaApiClient).privateChangedResourceHandler();
         verify(privateChangedResourceHandler).postChangedResource("/private/resource-changed", changedResource);
-        verify(changedResourcePost).execute();
+        verify(mapper).mapChangedResource(resourceChangedRequest);
     }
 }

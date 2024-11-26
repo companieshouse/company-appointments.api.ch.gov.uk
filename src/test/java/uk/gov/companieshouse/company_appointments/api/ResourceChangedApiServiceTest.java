@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.function.Supplier;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.function.Executable;
@@ -30,10 +31,12 @@ class ResourceChangedApiServiceTest {
     private ResourceChangedApiService resourceChangedApiService;
 
     @Mock
-    private InternalApiClient chsKafkaApiClient;
+    private Supplier<InternalApiClient> chsKafkaApiClient;
     @Mock
     private ResourceChangedRequestMapper mapper;
 
+    @Mock
+    private InternalApiClient client;
     @Mock
     private PrivateChangedResourceHandler privateChangedResourceHandler;
     @Mock
@@ -46,7 +49,8 @@ class ResourceChangedApiServiceTest {
     @Test
     void shouldSuccessfullyInvokeChsKafkaApi() throws Exception {
         // given
-        when(chsKafkaApiClient.privateChangedResourceHandler()).thenReturn(privateChangedResourceHandler);
+        when(chsKafkaApiClient.get()).thenReturn(client);
+        when(client.privateChangedResourceHandler()).thenReturn(privateChangedResourceHandler);
         when(privateChangedResourceHandler.postChangedResource(anyString(), any())).thenReturn(
                 privateChangedResourcePost);
         when(mapper.mapChangedResource(any())).thenReturn(changedResource);
@@ -63,7 +67,8 @@ class ResourceChangedApiServiceTest {
     @Test
     void shouldThrowBadGatewayOnApiErrorResponseException() throws Exception {
         // given
-        when(chsKafkaApiClient.privateChangedResourceHandler()).thenReturn(privateChangedResourceHandler);
+        when(chsKafkaApiClient.get()).thenReturn(client);
+        when(client.privateChangedResourceHandler()).thenReturn(privateChangedResourceHandler);
         when(privateChangedResourceHandler.postChangedResource(anyString(), any())).thenReturn(
                 privateChangedResourcePost);
         when(mapper.mapChangedResource(any())).thenReturn(changedResource);

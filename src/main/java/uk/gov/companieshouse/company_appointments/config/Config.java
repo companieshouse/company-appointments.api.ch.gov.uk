@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.text.SimpleDateFormat;
 import java.time.Clock;
+import java.util.function.Supplier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -77,13 +78,13 @@ public class Config implements WebMvcConfigurer {
     }
 
     @Bean
-    public InternalApiClient metricsApiClient() {
-        return buildInternalApiClient(metricsUrl);
+    public Supplier<InternalApiClient> metricsApiClient() {
+        return () -> buildInternalApiClient(metricsUrl);
     }
 
     @Bean
-    public InternalApiClient chsKafkaApiClient() {
-        return buildInternalApiClient(internalApiUrl);
+    public Supplier<InternalApiClient> chsKafkaApiClient() {
+        return () -> buildInternalApiClient(internalApiUrl);
     }
 
     private InternalApiClient buildInternalApiClient(final String url) {

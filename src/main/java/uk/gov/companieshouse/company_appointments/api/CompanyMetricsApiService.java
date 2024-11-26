@@ -2,6 +2,7 @@ package uk.gov.companieshouse.company_appointments.api;
 
 import static uk.gov.companieshouse.company_appointments.CompanyAppointmentsApplication.APPLICATION_NAME_SPACE;
 
+import java.util.function.Supplier;
 import org.springframework.stereotype.Service;
 import uk.gov.companieshouse.api.InternalApiClient;
 import uk.gov.companieshouse.api.error.ApiErrorResponseException;
@@ -19,15 +20,16 @@ public class CompanyMetricsApiService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(APPLICATION_NAME_SPACE);
 
-    private final InternalApiClient metricsApiClient;
+    private final Supplier<InternalApiClient> metricsApiClient;
 
-    public CompanyMetricsApiService(InternalApiClient metricsApiClient) {
+    public CompanyMetricsApiService(Supplier<InternalApiClient> metricsApiClient) {
         this.metricsApiClient = metricsApiClient;
     }
 
     public ApiResponse<MetricsApi> invokeGetMetricsApi(String companyNumber) {
         try {
-            return metricsApiClient.privateCompanyMetricsResourceHandler()
+            return metricsApiClient.get()
+                    .privateCompanyMetricsResourceHandler()
                     .getCompanyMetrics(String.format("/company/%s/metrics", companyNumber))
                     .execute();
         } catch (ApiErrorResponseException ex) {

@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -38,8 +39,10 @@ class CompanyMetricsApiServiceTest {
     private CompanyMetricsApiService service;
 
     @Mock
-    private InternalApiClient metricsApiClient;
+    private Supplier<InternalApiClient> metricsApiClient;
 
+    @Mock
+    private InternalApiClient client;
     @Mock
     private PrivateCompanyMetricsResourceHandler companyMetricsResourceHandler;
     @Mock
@@ -50,7 +53,8 @@ class CompanyMetricsApiServiceTest {
     @Test
     void shouldReturnSuccessResponseFromMetricsApi() throws Exception {
         // given
-        when(metricsApiClient.privateCompanyMetricsResourceHandler()).thenReturn(companyMetricsResourceHandler);
+        when(metricsApiClient.get()).thenReturn(client);
+        when(client.privateCompanyMetricsResourceHandler()).thenReturn(companyMetricsResourceHandler);
         when(companyMetricsResourceHandler.getCompanyMetrics(anyString())).thenReturn(privateCompanyMetricsGet);
         when(privateCompanyMetricsGet.execute()).thenReturn(SUCCESS_RESPONSE);
 
@@ -67,7 +71,8 @@ class CompanyMetricsApiServiceTest {
     void shouldCatchApiErrorResponseExceptionAndThrowBadGatewayException(final int statusCode,
             Class<RuntimeException> expectedThrownException) throws Exception {
         // given
-        when(metricsApiClient.privateCompanyMetricsResourceHandler()).thenReturn(companyMetricsResourceHandler);
+        when(metricsApiClient.get()).thenReturn(client);
+        when(client.privateCompanyMetricsResourceHandler()).thenReturn(companyMetricsResourceHandler);
         when(companyMetricsResourceHandler.getCompanyMetrics(anyString())).thenReturn(privateCompanyMetricsGet);
         when(privateCompanyMetricsGet.execute()).thenThrow(apiErrorResponseException);
         when(apiErrorResponseException.getStatusCode()).thenReturn(statusCode);
@@ -83,7 +88,8 @@ class CompanyMetricsApiServiceTest {
     @Test
     void shouldCatchURIValidationExceptionAndThrowBadGatewayException() throws Exception {
         // given
-        when(metricsApiClient.privateCompanyMetricsResourceHandler()).thenReturn(companyMetricsResourceHandler);
+        when(metricsApiClient.get()).thenReturn(client);
+        when(client.privateCompanyMetricsResourceHandler()).thenReturn(companyMetricsResourceHandler);
         when(companyMetricsResourceHandler.getCompanyMetrics(anyString())).thenReturn(privateCompanyMetricsGet);
         when(privateCompanyMetricsGet.execute()).thenThrow(URIValidationException.class);
 
