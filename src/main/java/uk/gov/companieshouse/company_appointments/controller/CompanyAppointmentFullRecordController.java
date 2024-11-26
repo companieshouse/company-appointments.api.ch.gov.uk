@@ -1,8 +1,7 @@
 package uk.gov.companieshouse.company_appointments.controller;
 
-import java.util.Optional;
-
 import jakarta.validation.Valid;
+import java.util.Optional;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -18,6 +17,7 @@ import uk.gov.companieshouse.company_appointments.CompanyAppointmentsApplication
 import uk.gov.companieshouse.company_appointments.exception.NotFoundException;
 import uk.gov.companieshouse.company_appointments.exception.ServiceUnavailableException;
 import uk.gov.companieshouse.company_appointments.logging.DataMapHolder;
+import uk.gov.companieshouse.company_appointments.model.DeleteAppointmentParameters;
 import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentFullRecordView;
 import uk.gov.companieshouse.company_appointments.service.CompanyAppointmentFullRecordService;
 import uk.gov.companieshouse.company_appointments.service.DeleteAppointmentService;
@@ -59,7 +59,7 @@ public class CompanyAppointmentFullRecordController {
 
     @PutMapping(consumes = "application/json")
     public ResponseEntity<Void> submitOfficerData(
-           @Valid @RequestBody final FullRecordCompanyOfficerApi companyAppointmentData) {
+            @Valid @RequestBody final FullRecordCompanyOfficerApi companyAppointmentData) {
         try {
             DataMapHolder.get()
                     .companyNumber(extractCompanyNumber(companyAppointmentData))
@@ -80,26 +80,27 @@ public class CompanyAppointmentFullRecordController {
         }
     }
 
-    @DeleteMapping(path = "/delete")
+    @DeleteMapping
     public ResponseEntity<Void> deleteOfficerData(
             @PathVariable("company_number") String companyNumber,
             @PathVariable("appointment_id") String appointmentId,
+            @RequestHeader("X-OFFICER-ID") String officerId,
             @RequestHeader("X-DELTA-AT") String deltaAt) {
         DataMapHolder.get()
                 .companyNumber(companyNumber)
-                .appointmentId(appointmentId);
-        LOGGER.info("Deleting company appointment %s".formatted(appointmentId), DataMapHolder.getLogMap());
+                .appointmentId(appointmentId)
+                .officerId(officerId);
+        LOGGER.info("Processing Company Appointment DELETE", DataMapHolder.getLogMap());
 
-        try {
-            deleteAppointmentService.deleteAppointment(companyNumber, appointmentId, deltaAt);
-            return ResponseEntity.ok().build();
-        } catch (NotFoundException e) {
-            LOGGER.info(e.getMessage(), DataMapHolder.getLogMap());
-            return ResponseEntity.notFound().build();
-        } catch (ServiceUnavailableException e) {
-            LOGGER.error(e.getMessage(), DataMapHolder.getLogMap());
-            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();
-        }
+        DeleteAppointmentParameters deleteAppointmentParameters = DeleteAppointmentParameters.builder()
+                .companyNumber(companyNumber)
+                .appointmentId(appointmentId)
+                .deltaAt(deltaAt)
+                .officerId(officerId)
+                .build();
+
+        deleteAppointmentService.deleteAppointment(deleteAppointmentParameters);
+        return ResponseEntity.ok().build();
     }
 
     private static String extractCompanyNumber(FullRecordCompanyOfficerApi companyAppointmentData) {

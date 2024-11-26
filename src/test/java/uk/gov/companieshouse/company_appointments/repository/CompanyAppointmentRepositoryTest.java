@@ -48,14 +48,14 @@ class CompanyAppointmentRepositoryTest {
     private static final String REGISTER_TYPE_LLP_MEMBERS = "llp_members";
     private static final LocalDateTime APPOINTED_ON_BASE = LocalDateTime.of(2020, 1, 1, 10, 0);
     private static final LocalDateTime RESIGNED_ON_BASE = LocalDateTime.of(2022, 1, 1, 10, 0);
+    private static final String SURNAME = "Surname";
+    private static final String COLLECTION = "delta_appointments";
 
     @Container
     private static final MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:5");
-    private static final String SURNAME = "Surname";
 
     @Autowired
     private CompanyAppointmentRepository repository;
-
     @Autowired
     private MongoTemplate mongoTemplate;
 
@@ -68,8 +68,8 @@ class CompanyAppointmentRepositoryTest {
 
     @BeforeEach
     void setup() throws IOException {
-        mongoTemplate.dropCollection("delta_appointments");
-        mongoTemplate.createCollection("delta_appointments");
+        mongoTemplate.dropCollection(COLLECTION);
+        mongoTemplate.createCollection(COLLECTION);
 
         templateDocument = Document.parse(
                 IOUtils.resourceToString("/appointment-data.json", StandardCharsets.UTF_8));

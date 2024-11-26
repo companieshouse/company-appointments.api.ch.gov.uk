@@ -1,60 +1,48 @@
 package uk.gov.companieshouse.company_appointments.api;
 
-import org.springframework.beans.factory.annotation.Value;
+import static uk.gov.companieshouse.company_appointments.CompanyAppointmentsApplication.APPLICATION_NAME_SPACE;
+
+import java.util.function.Supplier;
 import org.springframework.stereotype.Service;
 import uk.gov.companieshouse.api.InternalApiClient;
 import uk.gov.companieshouse.api.error.ApiErrorResponseException;
-import uk.gov.companieshouse.api.handler.metrics.request.PrivateCompanyMetricsGet;
+import uk.gov.companieshouse.api.handler.exception.URIValidationException;
 import uk.gov.companieshouse.api.metrics.MetricsApi;
 import uk.gov.companieshouse.api.model.ApiResponse;
+import uk.gov.companieshouse.company_appointments.exception.BadGatewayException;
 import uk.gov.companieshouse.company_appointments.exception.NotFoundException;
-import uk.gov.companieshouse.company_appointments.exception.ServiceUnavailableException;
 import uk.gov.companieshouse.company_appointments.logging.DataMapHolder;
 import uk.gov.companieshouse.logging.Logger;
+import uk.gov.companieshouse.logging.LoggerFactory;
 
 @Service
 public class CompanyMetricsApiService {
 
-    private final String metricsUrl;
+    private static final Logger LOGGER = LoggerFactory.getLogger(APPLICATION_NAME_SPACE);
 
-    private final ApiClientService apiClientService;
+    private final Supplier<InternalApiClient> metricsApiClient;
 
-    private final Logger logger;
-
-    public CompanyMetricsApiService(@Value("${company-metrics-api.endpoint}") String metricsUrl,
-                                  Logger logger, ApiClientService apiClientService) {
-        this.metricsUrl = metricsUrl;
-        this.logger = logger;
-        this.apiClientService = apiClientService;
+    public CompanyMetricsApiService(Supplier<InternalApiClient> metricsApiClient) {
+        this.metricsApiClient = metricsApiClient;
     }
 
-    public ApiResponse<MetricsApi> invokeGetMetricsApi(String companyNumber)
-            throws ServiceUnavailableException, NotFoundException {
-        InternalApiClient internalApiClient = apiClientService.getInternalApiClient();
-        internalApiClient.getHttpClient().setRequestId(DataMapHolder.getRequestId());
-        internalApiClient.setBasePath(metricsUrl);
-
-        PrivateCompanyMetricsGet companyMetricsGet =
-                internalApiClient.privateCompanyMetricsResourceHandler().getCompanyMetrics(String.format("/company/%s/metrics", companyNumber));
-
-        return handleApiCall(companyMetricsGet, companyNumber);
-    }
-
-    private ApiResponse<MetricsApi> handleApiCall(PrivateCompanyMetricsGet companyMetricsGet, String companyNumber)
-            throws ServiceUnavailableException, NotFoundException {
+    public ApiResponse<MetricsApi> invokeGetMetricsApi(String companyNumber) {
         try {
-            return companyMetricsGet.execute();
-        } catch (ApiErrorResponseException exception) {
-            if (exception.getStatusCode() == 404) {
-                logger.info(String.format("Metrics not found for company number %s", companyNumber), DataMapHolder.getLogMap());
-                throw new NotFoundException(exception.getMessage(), exception);
+            return metricsApiClient.get()
+                    .privateCompanyMetricsResourceHandler()
+                    .getCompanyMetrics(String.format("/company/%s/metrics", companyNumber))
+                    .execute();
+        } catch (ApiErrorResponseException ex) {
+            LOGGER.info("Company Metrics API call failed with status code [%s]".formatted(ex.getStatusCode()),
+                    DataMapHolder.getLogMap());
+            if (ex.getStatusCode() == 404) {
+                throw new NotFoundException("Company Metrics API responded with 404 Not Found", ex);
             } else {
-                logger.error("Error occurred while calling /company-metrics endpoint", exception, DataMapHolder.getLogMap());
-                throw new ServiceUnavailableException(exception.getMessage());
+                throw new BadGatewayException("Error calling Company Metrics API endpoint", ex);
             }
-        } catch (Exception exception) {
-            logger.error("Error occurred while calling /company-metrics endpoint", exception, DataMapHolder.getLogMap());
-            throw new ServiceUnavailableException(exception.getMessage());
+        } catch (URIValidationException ex) {
+            LOGGER.info("URI validation error when calling Company Metrics API", DataMapHolder.getLogMap());
+            throw new BadGatewayException("URI validation error when calling Company Metrics API", ex);
         }
     }
 }

@@ -38,8 +38,10 @@ public class FullRecordAppointmentSteps {
     private static final String IDENTITY_TYPE_KEY = "key";
     private static final String INTERNAL_APP_PRIVILEGES = "internal-app";
     private static final String DELTA_AT = "20220925171003950844";
+    private static final String OFFICER_ID = "officer_id";
     private static final String X_REQUEST_ID = "x-request-id";
     private static final String X_DELTA_AT = "x-delta-at";
+    private static final String X_OFFICER_ID = "x-officer-id";
 
     private final HttpHeaders headers = new HttpHeaders();
 
@@ -159,10 +161,10 @@ public class FullRecordAppointmentSteps {
 
         headers.set(X_REQUEST_ID, "5234234234");
         headers.set(X_DELTA_AT, DELTA_AT);
+        headers.set(X_OFFICER_ID, OFFICER_ID);
 
         HttpEntity<String> request = new HttpEntity<>(null, headers);
-        String uri = String.format("/company/%s/appointments/%s/full_record/delete", COMPANY_NUMBER,
-                APPOINTMENT_ID);
+        String uri = String.format("/company/%s/appointments/%s/full_record", COMPANY_NUMBER, APPOINTMENT_ID);
 
         ResponseEntity<Void> response = restTemplate.exchange(uri, HttpMethod.DELETE, request, Void.class);
 

@@ -43,9 +43,11 @@ class CompanyAppointmentFullRecordControllerMongoUnavailableITest {
     private static final String ERIC_IDENTITY = "ERIC-Identity";
     private static final String ERIC_IDENTITY_TYPE = "ERIC-Identity-Type";
     private static final String ERIC_AUTHORISED_KEY_PRIVILEGES = "ERIC-Authorised-Key-Privileges";
-    private static final String FULL_RECORD_DELETE_ENDPOINT = "/company/{company_number}/appointments/{appointment_id}/full_record/delete";
+    private static final String FULL_RECORD_DELETE_ENDPOINT = "/company/{company_number}/appointments/{appointment_id}/full_record";
     private static final String FULL_RECORD_PUT_ENDPOINT = "/company/{company_number}/appointments/{appointment_id}/full_record";
     private static final String DELTA_AT = "20140925171003950844";
+    private static final String OFFICER_ID = "officer_id";
+    private static final String X_OFFICER_ID = "x-officer-id";
 
     @Autowired
     private MockMvc mockMvc;
@@ -89,7 +91,7 @@ class CompanyAppointmentFullRecordControllerMongoUnavailableITest {
     }
 
     @Test
-    @DisplayName("Delete endpoint returns 503 service unavailable when MongoDB is unavailable")
+    @DisplayName("Delete endpoint returns 502 BadGateway when MongoDB is unavailable")
     void testDeleteNewAppointmentCompanyNameStatusMongoUnavailable() throws Exception {
         when(fullRecordRepository.readByCompanyNumberAndID(any(), any())).thenThrow(new DataAccessException("..."){ });
         
@@ -99,7 +101,8 @@ class CompanyAppointmentFullRecordControllerMongoUnavailableITest {
                         .header(ERIC_IDENTITY, "SOME_IDENTITY")
                         .header(ERIC_IDENTITY_TYPE, "key")
                         .header(ERIC_AUTHORISED_KEY_PRIVILEGES, "internal-app")
-                        .header(X_DELTA_AT, DELTA_AT))
-                .andExpect(status().isServiceUnavailable());
+                        .header(X_DELTA_AT, DELTA_AT)
+                        .header(X_OFFICER_ID, OFFICER_ID))
+                .andExpect(status().isBadGateway());
     }
 }

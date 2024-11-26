@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.company_appointments.config;
 
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.verify;
@@ -18,11 +19,11 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistration
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import uk.gov.companieshouse.company_appointments.interceptor.AuthenticationInterceptor;
 import uk.gov.companieshouse.company_appointments.interceptor.FullRecordAuthenticationInterceptor;
-import uk.gov.companieshouse.company_appointments.interceptor.RequestLoggingInterceptor;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = Config.class)
 class ConfigTest {
+
     @Autowired
     private Config testConfig;
 
@@ -31,26 +32,24 @@ class ConfigTest {
     @Mock
     private InterceptorRegistration registration;
     @MockBean
-    private RequestLoggingInterceptor requestLoggingInterceptor;
-    @MockBean
     private AuthenticationInterceptor authenticationInterceptor;
     @MockBean
     private FullRecordAuthenticationInterceptor fullRecordAuthenticationInterceptor;
 
     @Test
     void addInterceptors() {
-        when(registry.addInterceptor(requestLoggingInterceptor)).thenReturn(registration);
         when(registry.addInterceptor(authenticationInterceptor)).thenReturn(registration);
+        when(registration.excludePathPatterns(anyString())).thenReturn(registration);
         when(registry.addInterceptor(fullRecordAuthenticationInterceptor)).thenReturn(registration);
 
         testConfig.addInterceptors(registry);
 
         InOrder inOrder = inOrder(registry);
 
-        inOrder.verify(registry).addInterceptor(requestLoggingInterceptor);
         inOrder.verify(registry).addInterceptor(authenticationInterceptor);
         inOrder.verify(registry).addInterceptor(fullRecordAuthenticationInterceptor);
         verify(registration).excludePathPatterns(contains("/full_record"));
+        verify(registration).excludePathPatterns(contains("/healthcheck"));
         verify(registration).addPathPatterns(contains("/full_record"));
         verifyNoMoreInteractions(registry, registration);
     }

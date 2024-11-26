@@ -1,70 +1,44 @@
 package uk.gov.companieshouse.company_appointments.api;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
+import static uk.gov.companieshouse.company_appointments.CompanyAppointmentsApplication.APPLICATION_NAME_SPACE;
+
+import java.util.function.Supplier;
+import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.api.InternalApiClient;
 import uk.gov.companieshouse.api.error.ApiErrorResponseException;
-import uk.gov.companieshouse.api.handler.chskafka.request.PrivateChangedResourcePost;
 import uk.gov.companieshouse.api.model.ApiResponse;
-import uk.gov.companieshouse.company_appointments.exception.ServiceUnavailableException;
+import uk.gov.companieshouse.company_appointments.exception.BadGatewayException;
 import uk.gov.companieshouse.company_appointments.logging.DataMapHolder;
 import uk.gov.companieshouse.company_appointments.mapper.ResourceChangedRequestMapper;
 import uk.gov.companieshouse.company_appointments.model.data.ResourceChangedRequest;
 import uk.gov.companieshouse.logging.Logger;
+import uk.gov.companieshouse.logging.LoggerFactory;
 
-@Service
+@Component
 public class ResourceChangedApiService {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(APPLICATION_NAME_SPACE);
     private static final String CHANGED_RESOURCE_URI = "/private/resource-changed";
-    private final Logger logger;
-    private final String chsKafkaUrl;
-    private final ApiClientService apiClientService;
+
+    private final Supplier<InternalApiClient> chsKafkaApiClient;
     private final ResourceChangedRequestMapper mapper;
 
-    /**
-     * Invoke API.
-     */
-    public ResourceChangedApiService(@Value("${chs.kafka.api.endpoint}") String chsKafkaUrl,
-                                ApiClientService apiClientService,
-                                Logger logger,
-                                ResourceChangedRequestMapper mapper) {
-        this.chsKafkaUrl = chsKafkaUrl;
-        this.apiClientService = apiClientService;
-        this.logger = logger;
+    public ResourceChangedApiService(Supplier<InternalApiClient> chsKafkaApiClient, ResourceChangedRequestMapper mapper) {
+        this.chsKafkaApiClient = chsKafkaApiClient;
         this.mapper = mapper;
     }
 
-
-    /**
-     * Calls the CHS Kafka api.
-     * @param resourceChangedRequest encapsulates details relating to the updated or deleted company exemption
-     * @return The service status of the response from chs kafka api
-     */
     @StreamEvents
-    public ApiResponse<Void> invokeChsKafkaApi(ResourceChangedRequest resourceChangedRequest) throws ServiceUnavailableException {
-        InternalApiClient internalApiClient = apiClientService.getInternalApiClient(); //NOSONAR
-        internalApiClient.getHttpClient().setRequestId(DataMapHolder.getRequestId());
-
-        internalApiClient.setBasePath(chsKafkaUrl);
-
-        PrivateChangedResourcePost changedResourcePost =
-                internalApiClient.privateChangedResourceHandler().postChangedResource(
-                        CHANGED_RESOURCE_URI, mapper.mapChangedResource(resourceChangedRequest));
-
-        return handleApiCall(changedResourcePost);
-    }
-
-    private ApiResponse<Void> handleApiCall(PrivateChangedResourcePost changedResourcePost) throws ServiceUnavailableException {
+    public ApiResponse<Void> invokeChsKafkaApi(ResourceChangedRequest resourceChangedRequest) {
         try {
-            return changedResourcePost.execute();
+            return chsKafkaApiClient.get()
+                    .privateChangedResourceHandler()
+                    .postChangedResource(CHANGED_RESOURCE_URI, mapper.mapChangedResource(resourceChangedRequest))
+                    .execute();
         } catch (ApiErrorResponseException ex) {
-            if (!HttpStatus.valueOf(ex.getStatusCode()).is2xxSuccessful()) {
-                logger.error("Unsuccessful call to /private/resource-changed endpoint", ex, DataMapHolder.getLogMap());
-            } else {
-                logger.error("Error occurred while calling /private/resource-changed endpoint", ex, DataMapHolder.getLogMap());
-            }
-            throw new ServiceUnavailableException(ex.getMessage());
+            LOGGER.info("Resource changed call failed with status code [%s]".formatted(ex.getStatusCode()),
+                    DataMapHolder.getLogMap());
+            throw new BadGatewayException("Error calling resource changed endpoint", ex);
         }
     }
 }

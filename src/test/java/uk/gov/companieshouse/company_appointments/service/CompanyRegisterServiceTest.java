@@ -15,9 +15,9 @@ import uk.gov.companieshouse.company_appointments.exception.BadRequestException;
 @ExtendWith(MockitoExtension.class)
 class CompanyRegisterServiceTest {
 
-    private CompanyRegisterService companyRegisterService;
-
     private final static String PUBLIC_REGISTER = "public-register";
+
+    private CompanyRegisterService companyRegisterService;
 
     @BeforeEach
     void setUp() {

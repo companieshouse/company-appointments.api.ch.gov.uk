@@ -52,6 +52,8 @@ class CompanyAppointmentFullRecordControllerITest {
     private static final String NULL_FIELD_APPOINTMENT_ID = "testNullFieldsId123";
     private static final String DELTA_AT = "20220925171003950844";
     private static final String X_DELTA_AT = "x-delta-at";
+    private static final String OFFICER_ID = "officer_id";
+    private static final String X_OFFICER_ID = "x-officer-id";
 
     @Autowired
     private MockMvc mockMvc;
@@ -128,12 +130,13 @@ class CompanyAppointmentFullRecordControllerITest {
     @Test
     void testReturn200IfOfficerIsDeleted() throws Exception{
         ResultActions result = mockMvc
-                .perform(delete("/company/{company_number}/appointments/{appointment_id}/full_record/delete", COMPANY_NUMBER,
+                .perform(delete("/company/{company_number}/appointments/{appointment_id}/full_record", COMPANY_NUMBER,
                         APPOINTMENT_ID)
                         .header("ERIC-Identity", "123").header("ERIC-Identity-Type", "key")
                         .header("ERIC-authorised-key-privileges", "internal-app")
                         .header("x-request-id", "contextId")
-                        .header(X_DELTA_AT, DELTA_AT));
+                        .header(X_DELTA_AT, DELTA_AT)
+                        .header(X_OFFICER_ID, OFFICER_ID));
 
         result.andExpect(status().isOk());
 
@@ -175,12 +178,13 @@ class CompanyAppointmentFullRecordControllerITest {
     @ExtendWith(OutputCaptureExtension.class)
     void shouldPublishResourceChangedWhenAppointmentHasAlreadyBeenDeleted(CapturedOutput capture) throws Exception{
         ResultActions result = mockMvc
-                .perform(delete("/company/{company_number}/appointments/{appointment_id}/full_record/delete",
+                .perform(delete("/company/{company_number}/appointments/{appointment_id}/full_record",
                         COMPANY_NUMBER, "Incorrect")
                         .header("ERIC-Identity", "123").header("ERIC-Identity-Type", "key")
                         .header("ERIC-authorised-key-privileges", "internal-app")
                         .header("x-request-id", "contextId")
-                        .header(X_DELTA_AT, DELTA_AT));
+                        .header(X_DELTA_AT, DELTA_AT)
+                        .header(X_OFFICER_ID, OFFICER_ID));
 
         result.andExpect(status().isOk());
 

@@ -618,7 +618,7 @@ class OfficerAppointmentsControllerITest {
         mongoTemplate.findAllAndRemove(query, "delta_appointments");
     }
 
-    static private List<Document> buildCorporateAppointments(String companyStatus) throws IOException {
+    private static List<Document> buildCorporateAppointments(String companyStatus) throws IOException {
         List<String> corporateOfficerRoles = new ArrayList<>();
         for (final String role : OFFICER_ROLES) {
             if (role.contains("corporate")) { // exclude non-corporate roles
@@ -649,7 +649,7 @@ class OfficerAppointmentsControllerITest {
         return documents; // results in 150 documents
     }
 
-    static private List<Document> buildNaturalAppointments(String companyStatus) throws IOException {
+    private static List<Document> buildNaturalAppointments(String companyStatus) throws IOException {
         List<String> corporateOfficerRoles = new ArrayList<>();
         for (final String role : OFFICER_ROLES) {
             if (!role.contains("corporate")) { // exclude corporate roles

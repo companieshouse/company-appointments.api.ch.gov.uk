@@ -6,9 +6,9 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
@@ -28,27 +28,20 @@ class CompanyAppointmentFullRecordControllerTest {
     private static final String COMPANY_NUMBER = "123456";
     private static final String APPOINTMENT_ID = "345678";
     private static final String DELTA_AT = "20140925171003950844";
+    private static final String OFFICER_ID = "officer_id";
 
+    @InjectMocks
     private CompanyAppointmentFullRecordController companyAppointmentFullRecordController;
 
     @Mock
     private CompanyAppointmentFullRecordService companyAppointmentService;
-
-    @Mock
-    private FullRecordCompanyOfficerApi appointment;
-
-    @Mock
-    private CompanyAppointmentFullRecordView appointmentView;
-
     @Mock
     private DeleteAppointmentService deleteAppointmentService;
 
-    @BeforeEach
-    void setUp() {
-        companyAppointmentFullRecordController = new CompanyAppointmentFullRecordController(
-                companyAppointmentService,
-                deleteAppointmentService);
-    }
+    @Mock
+    private FullRecordCompanyOfficerApi appointment;
+    @Mock
+    private CompanyAppointmentFullRecordView appointmentView;
 
     @Test
     void testControllerReturns200StatusAndCompanyAppointmentsData() throws NotFoundException {
@@ -56,7 +49,8 @@ class CompanyAppointmentFullRecordControllerTest {
         when(companyAppointmentService.getAppointment(COMPANY_NUMBER, APPOINTMENT_ID)).thenReturn(appointmentView);
 
         // when
-        ResponseEntity<CompanyAppointmentFullRecordView> response = companyAppointmentFullRecordController.getAppointment(COMPANY_NUMBER,
+        ResponseEntity<CompanyAppointmentFullRecordView> response = companyAppointmentFullRecordController.getAppointment(
+                COMPANY_NUMBER,
                 APPOINTMENT_ID);
 
         // then
@@ -71,7 +65,8 @@ class CompanyAppointmentFullRecordControllerTest {
         when(companyAppointmentService.getAppointment(any(), any())).thenThrow(NotFoundException.class);
 
         // when
-        ResponseEntity<CompanyAppointmentFullRecordView> response = companyAppointmentFullRecordController.getAppointment(COMPANY_NUMBER,
+        ResponseEntity<CompanyAppointmentFullRecordView> response = companyAppointmentFullRecordController.getAppointment(
+                COMPANY_NUMBER,
                 APPOINTMENT_ID);
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
@@ -117,32 +112,8 @@ class CompanyAppointmentFullRecordControllerTest {
     @Test
     void testControllerReturns200WhenOfficerDeleted() {
         ResponseEntity<Void> response = companyAppointmentFullRecordController.deleteOfficerData(COMPANY_NUMBER,
-                APPOINTMENT_ID, DELTA_AT);
+                APPOINTMENT_ID, OFFICER_ID, DELTA_AT);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
-    }
-
-    @Test
-    void testControllerReturns404WhenOfficerNotDeleted() {
-        doThrow(NotFoundException.class).when(deleteAppointmentService).deleteAppointment(any(), any(), any());
-
-        ResponseEntity<Void> response = companyAppointmentFullRecordController.deleteOfficerData(COMPANY_NUMBER,
-                APPOINTMENT_ID, DELTA_AT);
-
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-    }
-
-    @Test
-    void testControllerReturns503StatusWhenDeleteEndpointIsCalled() {
-        // given
-        doThrow(ServiceUnavailableException.class)
-                .when(deleteAppointmentService).deleteAppointment(any(), any(), any());
-
-        // when
-        ResponseEntity<Void> response = companyAppointmentFullRecordController.deleteOfficerData(COMPANY_NUMBER,
-                APPOINTMENT_ID, DELTA_AT);
-
-        // then
-        assertEquals(HttpStatus.SERVICE_UNAVAILABLE, response.getStatusCode());
     }
 }

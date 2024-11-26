@@ -4,6 +4,7 @@ import java.time.Instant;
 import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.api.chskafka.ChangedResource;
 import uk.gov.companieshouse.api.chskafka.ChangedResourceEvent;
+import uk.gov.companieshouse.company_appointments.logging.DataMapHolder;
 import uk.gov.companieshouse.company_appointments.model.data.ResourceChangedRequest;
 import uk.gov.companieshouse.company_appointments.util.DateTimeProcessor;
 
@@ -24,7 +25,7 @@ public class ResourceChangedRequestMapper {
                         request.appointmentId()))
                 .resourceKind("company-officers")
                 .event(event)
-                .contextId(request.contextId());
+                .contextId(DataMapHolder.getRequestId());
 
         if (Boolean.TRUE.equals(request.isDelete())) {
             event.setType("deleted");

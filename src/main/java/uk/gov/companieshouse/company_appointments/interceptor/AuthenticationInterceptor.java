@@ -1,5 +1,7 @@
 package uk.gov.companieshouse.company_appointments.interceptor;
 
+import static uk.gov.companieshouse.company_appointments.CompanyAppointmentsApplication.APPLICATION_NAME_SPACE;
+
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringUtils;
@@ -10,18 +12,19 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import uk.gov.companieshouse.company_appointments.logging.DataMapHolder;
 import uk.gov.companieshouse.logging.Logger;
+import uk.gov.companieshouse.logging.LoggerFactory;
 
 @Component
 public class AuthenticationInterceptor implements HandlerInterceptor {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(APPLICATION_NAME_SPACE);
+
     public static final String ERIC_IDENTITY = "ERIC-Identity";
     public static final String ERIC_IDENTITY_TYPE = "ERIC-Identity-Type";
-    private final Logger logger;
 
     private final AuthenticationHelper authenticationHelper;
 
-    public AuthenticationInterceptor(Logger logger, AuthenticationHelper authenticationHelper) {
-        this.logger = logger;
+    public AuthenticationInterceptor(AuthenticationHelper authenticationHelper) {
         this.authenticationHelper = authenticationHelper;
     }
 
@@ -31,19 +34,19 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
 
         if (StringUtils.isEmpty(request.getHeader(ERIC_IDENTITY)) ||
                 (StringUtils.isEmpty(identityType) || isInvalidIdentityType(identityType))) {
-            logger.errorRequest(request, "User not authenticated", DataMapHolder.getLogMap());
+            LOGGER.errorRequest(request, "User not authenticated", DataMapHolder.getLogMap());
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return false;
         }
 
         if (!isKeyAuthorised(request, identityType)) {
-            logger.errorRequest(request, "Supplied key does not have sufficient privilege for the action",
+            LOGGER.errorRequest(request, "Supplied key does not have sufficient privilege for the action",
                     DataMapHolder.getLogMap());
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
             return false;
         }
 
-        logger.debugRequest(request, "User authenticated", DataMapHolder.getLogMap());
+        LOGGER.debugRequest(request, "User authenticated", DataMapHolder.getLogMap());
         return true;
     }
 

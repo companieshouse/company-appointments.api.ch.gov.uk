@@ -35,5 +35,5 @@ Feature: Delete full record officer information
       Given CHS kafka is unavailable
       And the user is authenticated and authorised with internal app privileges
       When a request is sent to the DELETE endpoint to delete an officer
-      And I should receive a 503 status code
+      And I should receive a 502 status code
       And the record should be deleted successfully

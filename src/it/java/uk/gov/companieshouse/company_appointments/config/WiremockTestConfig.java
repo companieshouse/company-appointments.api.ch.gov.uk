@@ -8,20 +8,19 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
-import org.springframework.http.HttpHeaders;
-
 import java.util.ArrayList;
 import java.util.List;
+import org.springframework.http.HttpHeaders;
 
 public class WiremockTestConfig {
 
-    private static final int port = 8888;
+    private static final int PORT = 8888;
 
     private static WireMockServer wireMockServer = null;
 
     public static void setupWiremock() {
         if (wireMockServer == null) {
-            wireMockServer = new WireMockServer(port);
+            wireMockServer = new WireMockServer(PORT);
             wireMockServer.start();
             configureFor("localhost", wireMockServer.port());
         } else {
@@ -33,10 +32,7 @@ public class WiremockTestConfig {
         if (wireMockServer == null) {
             throw new RuntimeException("Wiremock not initialised");
         }
-        wireMockServer.resetRequests();
         wireMockServer.resetAll();
-        wireMockServer.stop();
-        wireMockServer.start();
     }
 
     public static void stubKafkaApi(Integer responseCode) throws InterruptedException {

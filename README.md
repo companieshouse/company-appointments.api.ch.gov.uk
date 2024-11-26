@@ -34,6 +34,12 @@ Application specific attributes | Value                                | Descrip
 - Ensure the terraform runner local plan executes without issues. For information on terraform runners please see the [Terraform Runner Quickstart guide](https://companieshouse.atlassian.net/wiki/spaces/DEVOPS/pages/1694236886/Terraform+Runner+Quickstart).
 - If you encounter any issues or have questions, reach out to the team on the **#platform** slack channel.
 
+### Building the docker image with local changes, requires access to AWS ECR
+
+```bash
+  mvn compile jib:dockerBuild
+```
+
 ### Vault Configuration Updates
 - Any secrets required for this service will be stored in Vault. For any updates to the Vault configuration, please consult with the **#platform** team and submit a workflow request.
 

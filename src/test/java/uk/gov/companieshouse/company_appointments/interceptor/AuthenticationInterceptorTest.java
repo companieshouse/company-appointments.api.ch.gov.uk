@@ -15,7 +15,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
-import uk.gov.companieshouse.logging.Logger;
 
 @ExtendWith(MockitoExtension.class)
 class AuthenticationInterceptorTest {
@@ -28,9 +27,6 @@ class AuthenticationInterceptorTest {
     public static final String AUTH_TYPE_OAUTH_2 = "oauth2";
     public static final String AUTH_TYPE_KEY = "key";
     private AuthenticationInterceptor authenticationInterceptor;
-
-    @Mock
-    private Logger logger;
 
     @Mock
     private HttpServletRequest request;
@@ -46,7 +42,7 @@ class AuthenticationInterceptorTest {
 
     @BeforeEach
     void setUp() {
-        authenticationInterceptor = new AuthenticationInterceptor(logger, authenticationHelper);
+        authenticationInterceptor = new AuthenticationInterceptor(authenticationHelper);
     }
 
     @Test
@@ -151,7 +147,7 @@ class AuthenticationInterceptorTest {
         when(request.getHeader(ERIC_IDENTITY)).thenReturn(USER);
         when(request.getHeader(ERIC_IDENTITY_TYPE)).thenReturn(AUTH_TYPE_KEY);
         when(authenticationHelper.getApiKeyPrivileges(request))
-                .thenReturn(new String[] {INTERNAL_APP});
+                .thenReturn(new String[]{INTERNAL_APP});
 
         // when
         boolean actual = authenticationInterceptor.preHandle(request, response, handler);
@@ -168,7 +164,7 @@ class AuthenticationInterceptorTest {
         when(request.getHeader(ERIC_IDENTITY)).thenReturn(USER);
         when(request.getHeader(ERIC_IDENTITY_TYPE)).thenReturn(AUTH_TYPE_OAUTH_2);
         when(authenticationHelper.getApiKeyPrivileges(request))
-                .thenReturn(new String[] {INTERNAL_APP});
+                .thenReturn(new String[]{INTERNAL_APP});
 
         // when
         boolean actual = authenticationInterceptor.preHandle(request, response, handler);

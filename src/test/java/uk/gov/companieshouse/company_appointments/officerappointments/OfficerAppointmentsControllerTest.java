@@ -22,7 +22,7 @@ import uk.gov.companieshouse.company_appointments.exception.BadRequestException;
 @ExtendWith(MockitoExtension.class)
 class OfficerAppointmentsControllerTest {
 
-    private final static String OFFICER_ID = "567890";
+    private static final String OFFICER_ID = "567890";
 
     @InjectMocks
     private OfficerAppointmentsController controller;

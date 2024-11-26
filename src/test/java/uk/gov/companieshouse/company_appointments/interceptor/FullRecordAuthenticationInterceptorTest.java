@@ -20,10 +20,10 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.companieshouse.logging.Logger;
 
 @ExtendWith(MockitoExtension.class)
 class FullRecordAuthenticationInterceptorTest {
+
     private FullRecordAuthenticationInterceptor authenticationInterceptor;
 
     @Mock
@@ -34,14 +34,12 @@ class FullRecordAuthenticationInterceptorTest {
     private Object handler;
     @Mock
     private AuthenticationHelper authHelper;
-    @Mock
-    private Logger logger;
     @Captor
     private ArgumentCaptor<String> companyNumber;
 
     @BeforeEach
     void setUp() {
-        authenticationInterceptor = new FullRecordAuthenticationInterceptor(authHelper, logger);
+        authenticationInterceptor = new FullRecordAuthenticationInterceptor(authHelper);
     }
 
     @Test
