@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.company_appointments.service;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -37,6 +38,7 @@ import uk.gov.companieshouse.api.appointment.FullRecordCompanyOfficerApi;
 import uk.gov.companieshouse.api.appointment.InternalData;
 import uk.gov.companieshouse.api.appointment.SensitiveData;
 import uk.gov.companieshouse.company_appointments.api.ResourceChangedApiService;
+import uk.gov.companieshouse.company_appointments.exception.ConflictException;
 import uk.gov.companieshouse.company_appointments.exception.FailedToTransformException;
 import uk.gov.companieshouse.company_appointments.exception.NotFoundException;
 import uk.gov.companieshouse.company_appointments.exception.ServiceUnavailableException;
@@ -274,12 +276,18 @@ class CompanyAppointmentFullRecordServiceTest {
                 : Optional.empty());
 
         // When
-        companyAppointmentService.upsertAppointmentDelta(fullRecordCompanyOfficerApi);
+        Executable actual = () -> companyAppointmentService.upsertAppointmentDelta(fullRecordCompanyOfficerApi);
 
         // then
-        VerificationMode expectedTimes = (deltaExists && shouldBeStale) ? never() : times(1);
-        verify(companyAppointmentRepository, expectedTimes).save(
-                any(CompanyAppointmentDocument.class));
+        if (shouldBeStale){
+            assertThrows(ConflictException.class, actual);
+            verify(companyAppointmentRepository, times(0)).save(
+                    any(CompanyAppointmentDocument.class));
+        } else {
+            assertDoesNotThrow(actual);
+            verify(companyAppointmentRepository).save(
+                    any(CompanyAppointmentDocument.class));
+        }
     }
 
     @Test

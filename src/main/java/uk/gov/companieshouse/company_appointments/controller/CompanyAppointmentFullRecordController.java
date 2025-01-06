@@ -2,6 +2,7 @@ package uk.gov.companieshouse.company_appointments.controller;
 
 import jakarta.validation.Valid;
 import java.util.Optional;
+import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import uk.gov.companieshouse.api.appointment.FullRecordCompanyOfficerApi;
 import uk.gov.companieshouse.company_appointments.CompanyAppointmentsApplication;
+import uk.gov.companieshouse.company_appointments.exception.ConflictException;
 import uk.gov.companieshouse.company_appointments.exception.NotFoundException;
 import uk.gov.companieshouse.company_appointments.exception.ServiceUnavailableException;
 import uk.gov.companieshouse.company_appointments.logging.DataMapHolder;
@@ -77,6 +79,9 @@ public class CompanyAppointmentFullRecordController {
         } catch (IllegalArgumentException ex) {
             LOGGER.info(ex.getMessage(), DataMapHolder.getLogMap());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        } catch (ConflictException ex) {
+            LOGGER.error(ex.getMessage(), DataMapHolder.getLogMap());
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
     }
 

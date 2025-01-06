@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import uk.gov.companieshouse.api.appointment.FullRecordCompanyOfficerApi;
 import uk.gov.companieshouse.company_appointments.CompanyAppointmentsApplication;
 import uk.gov.companieshouse.company_appointments.api.ResourceChangedApiService;
+import uk.gov.companieshouse.company_appointments.exception.ConflictException;
 import uk.gov.companieshouse.company_appointments.exception.FailedToTransformException;
 import uk.gov.companieshouse.company_appointments.exception.NotFoundException;
 import uk.gov.companieshouse.company_appointments.exception.ServiceUnavailableException;
@@ -93,9 +94,10 @@ public class CompanyAppointmentFullRecordService {
     }
 
     private void updateDocument(CompanyAppointmentDocument document, CompanyAppointmentDocument existingDocument,
-            DeltaTimestamp instant) throws ServiceUnavailableException {
+            DeltaTimestamp instant) throws ServiceUnavailableException, ConflictException {
         if (isDeltaStale(document.getDeltaAt(), existingDocument.getDeltaAt())) {
             logStaleIncomingDelta(document, existingDocument.getDeltaAt());
+            throw new ConflictException("Received stale delta");
         } else {
             try {
                 saveDocument(document, instant, existingDocument.getCreated());
@@ -115,7 +117,7 @@ public class CompanyAppointmentFullRecordService {
         Map<String, Object> logInfo = DataMapHolder.getLogMap();
         logInfo.put("incomingDeltaAt", appointmentAPI.getDeltaAt().toString());
         logInfo.put("existingDeltaAt",
-                existingDelta.toString().isBlank() ? existingDelta.toString() : "No existing delta");
+                existingDelta.toString().isBlank() ? "No existing delta" : existingDelta.toString());
         final String context = appointmentAPI.getAppointmentId();
         LOGGER.errorContext(context, "Received stale delta", null, logInfo);
     }

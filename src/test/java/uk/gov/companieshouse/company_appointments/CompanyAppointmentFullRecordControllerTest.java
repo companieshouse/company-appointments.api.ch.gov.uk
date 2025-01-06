@@ -16,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import uk.gov.companieshouse.api.appointment.ExternalData;
 import uk.gov.companieshouse.api.appointment.FullRecordCompanyOfficerApi;
 import uk.gov.companieshouse.company_appointments.controller.CompanyAppointmentFullRecordController;
+import uk.gov.companieshouse.company_appointments.exception.ConflictException;
 import uk.gov.companieshouse.company_appointments.exception.NotFoundException;
 import uk.gov.companieshouse.company_appointments.exception.ServiceUnavailableException;
 import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentFullRecordView;
@@ -107,6 +108,19 @@ class CompanyAppointmentFullRecordControllerTest {
 
         // then
         assertEquals(HttpStatus.SERVICE_UNAVAILABLE, response.getStatusCode());
+    }
+
+    @Test
+    void testControllerReturns409StatusWhenStaleDeltaReceived() {
+        // given
+        doThrow(ConflictException.class).when(companyAppointmentService).upsertAppointmentDelta(any());
+        when(appointment.getExternalData()).thenReturn(new ExternalData().companyNumber(COMPANY_NUMBER));
+
+        // when
+        ResponseEntity<Void> response = companyAppointmentFullRecordController.submitOfficerData(appointment);
+
+        // then
+        assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
     }
 
     @Test
