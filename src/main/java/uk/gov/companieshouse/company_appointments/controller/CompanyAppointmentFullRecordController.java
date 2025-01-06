@@ -2,7 +2,6 @@ package uk.gov.companieshouse.company_appointments.controller;
 
 import jakarta.validation.Valid;
 import java.util.Optional;
-import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
