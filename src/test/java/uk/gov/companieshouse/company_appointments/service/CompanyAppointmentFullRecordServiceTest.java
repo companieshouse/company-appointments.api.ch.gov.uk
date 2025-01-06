@@ -80,14 +80,12 @@ class CompanyAppointmentFullRecordServiceTest {
 
     private static Stream<Arguments> deltaAtTestCases() {
         return Stream.of(
-                // existingDelta, incomingDelta, deltaExists, shouldBeStale
-                Arguments.of("2022-01-13T00:00:00.000000Z", DELTA_AT_LATER, false, false),
+                // existingDelta, incomingDelta, deltaExists
+                Arguments.of("2022-01-13T00:00:00.000000Z", DELTA_AT_LATER, false),
                 // delta does not exist
-                Arguments.of("2022-01-13T00:00:00.000000Z", DELTA_AT_LATER, true, false),
+                Arguments.of("2022-01-13T00:00:00.000000Z", DELTA_AT_LATER, true),
                 // Newer timestamp not stale
-                Arguments.of("2022-01-13T00:00:00.000000Z", DELTA_AT_STALE, true, true),
-                // Older timestamp stale
-                Arguments.of("2022-01-12T00:00:00.000000Z", DELTA_AT_STALE, true, false)
+                Arguments.of("2022-01-12T00:00:00.000000Z", DELTA_AT_STALE, true)
                 // 1 == 1 so delta should be stale
         );
     }
@@ -249,11 +247,10 @@ class CompanyAppointmentFullRecordServiceTest {
 
     @ParameterizedTest
     @MethodSource("deltaAtTestCases")
-    void testRejectStaleDelta(
+    void testValidDeltaAt(
             final Instant existingDeltaAt,
             final OffsetDateTime incomingDeltaAt,
-            boolean deltaExists,
-            boolean shouldBeStale) {
+            boolean deltaExists) {
 
         // given
         fullRecordCompanyOfficerApi.getInternalData().setDeltaAt(incomingDeltaAt);
@@ -276,18 +273,40 @@ class CompanyAppointmentFullRecordServiceTest {
                 : Optional.empty());
 
         // When
+        companyAppointmentService.upsertAppointmentDelta(fullRecordCompanyOfficerApi);
+
+        // then
+        verify(companyAppointmentRepository).save(any(CompanyAppointmentDocument.class));
+    }
+
+    @Test
+    void testRejectStaleDelta() {
+        // given
+        fullRecordCompanyOfficerApi.getInternalData().setDeltaAt(DELTA_AT_STALE);
+
+        DeltaOfficerData data = DeltaOfficerData.Builder.builder().build();
+        DeltaSensitiveData sensitiveData = new DeltaSensitiveData();
+        String expectedCompanyNumber = "companyNumber";
+        String expectedId = "id";
+
+        CompanyAppointmentDocument deltaAppointmentDocument = buildDeltaAppointmentDocument(
+                Instant.parse("2022-01-13T00:00:00.000000Z"), data, sensitiveData);
+        CompanyAppointmentDocument transformedAppointmentApi = builtDeltaAppointmentApi(
+                data, sensitiveData, DELTA_AT_STALE.toInstant());
+
+        when(deltaAppointmentTransformer.transform(any(FullRecordCompanyOfficerApi.class)))
+                .thenReturn(transformedAppointmentApi);
+
+        when(companyAppointmentRepository.readByCompanyNumberAndID(expectedCompanyNumber,
+                expectedId)).thenReturn(Optional.of(deltaAppointmentDocument));
+
+        // when
         Executable actual = () -> companyAppointmentService.upsertAppointmentDelta(fullRecordCompanyOfficerApi);
 
         // then
-        if (shouldBeStale){
-            assertThrows(ConflictException.class, actual);
-            verify(companyAppointmentRepository, times(0)).save(
-                    any(CompanyAppointmentDocument.class));
-        } else {
-            assertDoesNotThrow(actual);
-            verify(companyAppointmentRepository).save(
-                    any(CompanyAppointmentDocument.class));
-        }
+        assertThrows(ConflictException.class, actual);
+        verify(companyAppointmentRepository, times(0)).save(
+                any(CompanyAppointmentDocument.class));
     }
 
     @Test
