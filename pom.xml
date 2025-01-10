@@ -5,7 +5,7 @@
     <parent>
         <groupId>uk.gov.companieshouse</groupId>
         <artifactId>companies-house-parent</artifactId>
-        <version>2.1.9</version>
+        <version>2.1.11</version>
         <relativePath />
     </parent>
     <artifactId>company-appointments.api.ch.gov.uk</artifactId>
@@ -16,13 +16,13 @@
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
-        <spring-boot-dependencies.version>3.4.0</spring-boot-dependencies.version>
+        <spring-boot-dependencies.version>3.4.1</spring-boot-dependencies.version>
         <maven-surefire-plugin.version>3.5.2</maven-surefire-plugin.version>
         <maven-failsafe-plugin.version>3.5.2</maven-failsafe-plugin.version>
         <maven-build-helper-plugin.version>3.6.0</maven-build-helper-plugin.version>
         <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
         <jacoco-maven-plugin.version>0.8.12</jacoco-maven-plugin.version>
-        <jib-maven-plugin.version>3.4.2</jib-maven-plugin.version>
+        <jib-maven-plugin.version>3.4.4</jib-maven-plugin.version>
         <io-cucumber.version>7.20.1</io-cucumber.version>
         <wiremock.version>3.9.2</wiremock.version>
         <commons.io.version>2.17.0</commons.io.version>
@@ -31,7 +31,7 @@
         <structured-logging.version>3.0.20</structured-logging.version>
         <sdk-manager-java.version>3.0.9</sdk-manager-java.version>
         <api-sdk-manager-java-library.version>3.0.6</api-sdk-manager-java-library.version>
-        <private-api-sdk-java.version>4.0.240</private-api-sdk-java.version>
+        <private-api-sdk-java.version>4.0.258</private-api-sdk-java.version>
         <api-helper-java-library.version>3.0.1</api-helper-java-library.version>
         <api-security-java.version>2.0.8</api-security-java.version>
 

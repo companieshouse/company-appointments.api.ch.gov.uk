@@ -43,6 +43,7 @@ Feature: Upsert full record officer information
     And the delta for payload "<payloadFile>" is a stale delta for "<appointmentId>"
     When a request is sent to the PUT endpoint to upsert an officers delta
     Then a request should NOT be sent to the resource changed endpoint
+    And I should receive a 409 status code
     And the changes within the delta for "<appointmentId>" should NOT be persisted in the database
 
 
