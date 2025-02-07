@@ -6,7 +6,7 @@
         <groupId>uk.gov.companieshouse</groupId>
         <artifactId>companies-house-parent</artifactId>
         <version>2.1.11</version>
-        <relativePath />
+        <relativePath/>
     </parent>
     <artifactId>company-appointments.api.ch.gov.uk</artifactId>
     <version>unversioned</version>
