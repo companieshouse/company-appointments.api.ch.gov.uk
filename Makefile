@@ -2,14 +2,7 @@ artifact_name       := company-appointments.api.ch.gov.uk
 version             := unversioned
 
 dependency_check_base_suppressions:=common_suppressions_spring_6.xml
-
-# dependency_check_suppressions_repo_branch
-# The branch of the dependency-check-suppressions repository to use
-# as the source of the suppressions file.
-# This should point to "main" branch when being used for release,
-# but can point to a different branch for experimentation/development.
-dependency_check_suppressions_repo_branch:=feature/suppressions-for-company-accounts-api
-
+dependency_check_suppressions_repo_branch:=main
 dependency_check_minimum_cvss := 4
 dependency_check_assembly_analyzer_enabled := false
 dependency_check_suppressions_repo_url:=git@github.com:companieshouse/dependency-check-suppressions.git
@@ -100,7 +93,7 @@ dependency-check:
 	suppressions_path="$${suppressions_home}/suppressions/$(dependency_check_base_suppressions)"; \
 	if [  -f "$${suppressions_path}" ]; then \
 		cp -av "$${suppressions_path}" $(suppressions_file); \
-		mvn org.owasp:dependency-check-maven:check -DfailBuildOnCVSS=$(dependency_check_minimum_cvss) -DassemblyAnalyzerEnabled=$(dependency_check_assembly_analyzer_enabled) -DsuppressionFiles=$(suppressions_file); \
+		mvn org.owasp:dependency-check-maven:check -Dformats="json,html" -DprettyPrint -DfailBuildOnCVSS=$(dependency_check_minimum_cvss) -DassemblyAnalyzerEnabled=$(dependency_check_assembly_analyzer_enabled) -DsuppressionFiles=$(suppressions_file); \
 	else \
 		printf -- "\n ERROR Cannot find suppressions file at '%s'\n" "$${suppressions_path}" >&2; \
 		exit 1; \
@@ -108,3 +101,4 @@ dependency-check:
 
 .PHONY: security-check
 security-check: dependency-check
+
