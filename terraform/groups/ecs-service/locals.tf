@@ -8,7 +8,7 @@ locals {
   eric_port                   = "10000"
   docker_repo                 = "company-appointments.api.ch.gov.uk"
   kms_alias                   = "alias/${var.aws_profile}/environment-services-kms"
-  lb_listener_rule_priority   = 82
+  lb_listener_rule_priority   = 4
   lb_listener_paths           = ["/company/*/appointments/*", "/company/*/appointments", "/company/*/officers", "/officers/*/appointments"]
   healthcheck_path            = "/healthcheck" #healthcheck path for company-appointments
   healthcheck_matcher         = "200"
