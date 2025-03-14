@@ -20,11 +20,11 @@ class ItemsPerPageServiceTest {
 
     @ParameterizedTest
     @MethodSource("itemsPerPageScenarios")
-    void testGetItemsPerPage(ItemsPerPageTestArgument argument) {
+    void testAdjustItemsPerPage(ItemsPerPageTestArgument argument) {
         // given
 
         // when
-        int actual = service.getItemsPerPage(argument.getItemsPerPage(), argument.getAuthPrivileges());
+        int actual = service.adjustItemsPerPage(argument.getItemsPerPage(), argument.getAuthPrivileges());
 
         // then
         assertEquals(argument.getExpectedItemsPerPage(), actual);

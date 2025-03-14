@@ -50,6 +50,10 @@ class OfficerAppointmentsServiceTest {
     @Mock
     private FilterService filterService;
     @Mock
+    private ItemsPerPageService itemsPerPageService;
+    @Mock
+    private SortingThresholdService sortingThresholdService;
+    @Mock
     private AppointmentList appointmentList;
     @Mock
     private CompanyAppointmentDocument companyAppointmentDocument;
@@ -135,12 +139,14 @@ class OfficerAppointmentsServiceTest {
         // given
         Filter filter = new Filter(argument.filterEnabled(), argument.filterStatuses());
 
+        when(itemsPerPageService.adjustItemsPerPage(any(), any())).thenReturn(argument.itemsPerPage());
         when(filterService.prepareFilter(any(), any())).thenReturn(filter);
+        when(repository.countTotal(any(), anyBoolean(), any())).thenReturn(3);
+        when(sortingThresholdService.shouldSort(anyInt(), any())).thenReturn(true);
         when(repository.findOfficerAppointmentsIds(anyString(), anyBoolean(), any(), anyInt(), anyInt()))
                 .thenReturn(officerAppointments);
         when(officerAppointments.getIds()).thenReturn(List.of(APPOINTMENT_ID));
         when(repository.findFullOfficerAppointments(any())).thenReturn(List.of(companyAppointmentDocument));
-        when(repository.countTotal(any(), anyBoolean(), any())).thenReturn(3);
         when(repository.countResigned(any())).thenReturn(1);
         when(repository.countInactive(any())).thenReturn(1);
         when(filterService.findFirstActiveAppointment(any())).thenReturn(Optional.of(companyAppointmentDocument));
@@ -152,12 +158,14 @@ class OfficerAppointmentsServiceTest {
         // then
         assertTrue(actual.isPresent());
         assertEquals(appointmentList, actual.get());
+        verify(itemsPerPageService).adjustItemsPerPage(argument.itemsPerPage(), null);
         verify(filterService).prepareFilter(argument.request().filter(), OFFICER_ID);
+        verify(repository).countTotal(OFFICER_ID, argument.filterEnabled(), argument.filterStatuses());
+        verify(sortingThresholdService).shouldSort(3, null);
         verify(repository).findOfficerAppointmentsIds(OFFICER_ID, argument.filterEnabled(), argument.filterStatuses(),
                 argument.startIndex(), argument.itemsPerPage());
         verify(repository).findFullOfficerAppointments(List.of(APPOINTMENT_ID));
-        verify(repository).countTotal(OFFICER_ID, argument.filterEnabled(), argument.filterStatuses());
-        verify(repository).countInactive(OFFICER_ID);
+        verify(repository).countResigned(OFFICER_ID);
         verify(repository).countInactive(OFFICER_ID);
         verify(filterService).findFirstActiveAppointment(List.of(companyAppointmentDocument));
         verify(mapper).mapOfficerAppointments(MapperRequest.builder()
@@ -177,12 +185,14 @@ class OfficerAppointmentsServiceTest {
         // given
         Filter filter = new Filter(argument.filterEnabled(), argument.filterStatuses());
 
+        when(itemsPerPageService.adjustItemsPerPage(any(), any())).thenReturn(argument.itemsPerPage());
         when(filterService.prepareFilter(any(), any())).thenReturn(filter);
+        when(repository.countTotal(any(), anyBoolean(), any())).thenReturn(3);
+        when(sortingThresholdService.shouldSort(anyInt(), any())).thenReturn(true);
         when(repository.findOfficerAppointmentsIds(anyString(), anyBoolean(), any(), anyInt(), anyInt()))
                 .thenReturn(officerAppointments);
         when(officerAppointments.getIds()).thenReturn(List.of(APPOINTMENT_ID));
         when(repository.findFullOfficerAppointments(any())).thenReturn(List.of(companyAppointmentDocument));
-        when(repository.countTotal(any(), anyBoolean(), any())).thenReturn(3);
         when(filterService.findFirstActiveAppointment(any())).thenReturn(Optional.of(companyAppointmentDocument));
         when(mapper.mapOfficerAppointments(any())).thenReturn(Optional.of(appointmentList));
 
@@ -192,11 +202,13 @@ class OfficerAppointmentsServiceTest {
         // then
         assertTrue(actual.isPresent());
         assertEquals(appointmentList, actual.get());
+        verify(itemsPerPageService).adjustItemsPerPage(argument.itemsPerPage(), null);
         verify(filterService).prepareFilter(argument.request().filter(), OFFICER_ID);
+        verify(repository).countTotal(OFFICER_ID, argument.filterEnabled(), argument.filterStatuses());
+        verify(sortingThresholdService).shouldSort(3, null);
         verify(repository).findOfficerAppointmentsIds(OFFICER_ID, argument.filterEnabled(), argument.filterStatuses(),
                 argument.startIndex(), argument.itemsPerPage());
         verify(repository).findFullOfficerAppointments(List.of(APPOINTMENT_ID));
-        verify(repository).countTotal(OFFICER_ID, argument.filterEnabled(), argument.filterStatuses());
         verifyNoMoreInteractions(repository);
         verify(filterService).findFirstActiveAppointment(List.of(companyAppointmentDocument));
         verify(mapper).mapOfficerAppointments(MapperRequest.builder()
@@ -214,16 +226,19 @@ class OfficerAppointmentsServiceTest {
     @Test
     void getOfficerAppointmentsNonActiveFirstAppointment() throws BadRequestException {
         // given
-        Filter filter = new Filter(false, List.of());
+        OfficerAppointmentsRequest request = OfficerAppointmentsRequest.builder()
+                .officerId(OFFICER_ID)
+                .itemsPerPage(ITEMS_PER_PAGE)
+                .build();
 
-        OfficerAppointmentsRequest request = new OfficerAppointmentsRequest(OFFICER_ID, null, null, ITEMS_PER_PAGE);
-
-        when(filterService.prepareFilter(any(), any())).thenReturn(filter);
+        when(itemsPerPageService.adjustItemsPerPage(any(), any())).thenReturn(ITEMS_PER_PAGE);
+        when(filterService.prepareFilter(any(), any())).thenReturn(new Filter(false, List.of()));
+        when(repository.countTotal(any(), anyBoolean(), any())).thenReturn(3);
+        when(sortingThresholdService.shouldSort(anyInt(), any())).thenReturn(true);
         when(repository.findOfficerAppointmentsIds(anyString(), anyBoolean(), any(), anyInt(), anyInt()))
                 .thenReturn(officerAppointments);
         when(officerAppointments.getIds()).thenReturn(List.of(APPOINTMENT_ID));
         when(repository.findFullOfficerAppointments(any())).thenReturn(List.of(companyAppointmentDocument));
-        when(repository.countTotal(any(), anyBoolean(), any())).thenReturn(3);
         when(repository.countResigned(any())).thenReturn(1);
         when(repository.countInactive(any())).thenReturn(1);
         when(filterService.findFirstActiveAppointment(any())).thenReturn(Optional.empty());
@@ -236,12 +251,14 @@ class OfficerAppointmentsServiceTest {
         // then
         assertTrue(actual.isPresent());
         assertEquals(appointmentList, actual.get());
+        verify(itemsPerPageService).adjustItemsPerPage(ITEMS_PER_PAGE, null);
         verify(filterService).prepareFilter(null, OFFICER_ID);
+        verify(repository).countTotal(OFFICER_ID, false, List.of());
+        verify(sortingThresholdService).shouldSort(3, null);
         verify(repository).findOfficerAppointmentsIds(OFFICER_ID, false, List.of(),
                 0, ITEMS_PER_PAGE);
         verify(repository).findFullOfficerAppointments(List.of(APPOINTMENT_ID));
-        verify(repository).countTotal(OFFICER_ID, false, List.of());
-        verify(repository).countInactive(OFFICER_ID);
+        verify(repository).countResigned(OFFICER_ID);
         verify(repository).countInactive(OFFICER_ID);
         verify(filterService).findFirstActiveAppointment(List.of(companyAppointmentDocument));
         verify(repository).findLatestAppointment(OFFICER_ID);
@@ -260,25 +277,34 @@ class OfficerAppointmentsServiceTest {
     @Test
     void getOfficerAppointmentsEmpty() throws BadRequestException {
         // given
+        OfficerAppointmentsRequest request = OfficerAppointmentsRequest.builder()
+                .officerId(OFFICER_ID)
+                .itemsPerPage(ITEMS_PER_PAGE)
+                .build();
+
+        when(itemsPerPageService.adjustItemsPerPage(any(), any())).thenReturn(ITEMS_PER_PAGE);
         when(filterService.prepareFilter(any(), any())).thenReturn(new Filter(false, List.of()));
+        when(repository.countTotal(any(), anyBoolean(), any())).thenReturn(0);
+        when(sortingThresholdService.shouldSort(anyInt(), any())).thenReturn(true);
         when(repository.findOfficerAppointmentsIds(any(), anyBoolean(), any(), anyInt(), anyInt()))
                 .thenReturn(officerAppointments);
         when(officerAppointments.getIds()).thenReturn(List.of());
 
         // when
-        Optional<AppointmentList> actual = service.getOfficerAppointments(
-                new OfficerAppointmentsRequest(OFFICER_ID, null, null, ITEMS_PER_PAGE));
+        Optional<AppointmentList> actual = service.getOfficerAppointments(request);
 
         // then
         assertTrue(actual.isEmpty());
+        verify(itemsPerPageService).adjustItemsPerPage(ITEMS_PER_PAGE, null);
         verify(filterService).prepareFilter(null, OFFICER_ID);
-        verify(repository).findOfficerAppointmentsIds(OFFICER_ID, false, List.of(), 0, ITEMS_PER_PAGE);
-        verify(repository).findFullOfficerAppointments(List.of());
         verify(repository).countTotal(OFFICER_ID, false, List.of());
-        verify(repository).countInactive(OFFICER_ID);
+        verify(sortingThresholdService).shouldSort(0, null);
+        verify(repository).findOfficerAppointmentsIds(OFFICER_ID, false, List.of(), 0, ITEMS_PER_PAGE);
+        verify(repository).countResigned(OFFICER_ID);
         verify(repository).countInactive(OFFICER_ID);
         verify(filterService).findFirstActiveAppointment(List.of());
         verify(repository).findLatestAppointment(OFFICER_ID);
+        verifyNoMoreInteractions(repository);
         verify(mapper).mapOfficerAppointments(MapperRequest.builder()
                 .startIndex(START_INDEX)
                 .itemsPerPage(ITEMS_PER_PAGE)
@@ -286,6 +312,102 @@ class OfficerAppointmentsServiceTest {
                 .totalResults(0)
                 .resignedCount(0)
                 .inactiveCount(0)
+                .build());
+    }
+
+    @Test
+    void getOfficerAppointmentsUnsortedOverThreshold() throws BadRequestException {
+        // given
+        String authPrivileges = "internal";
+        OfficerAppointmentsRequest request = OfficerAppointmentsRequest.builder()
+                .officerId(OFFICER_ID)
+                .itemsPerPage(ITEMS_PER_PAGE)
+                .authPrivileges(authPrivileges)
+                .build();
+
+        when(itemsPerPageService.adjustItemsPerPage(any(), any())).thenReturn(ITEMS_PER_PAGE);
+        when(filterService.prepareFilter(any(), any())).thenReturn(new Filter(false, List.of()));
+        when(repository.countTotal(any(), anyBoolean(), any())).thenReturn(501);
+        when(sortingThresholdService.shouldSort(anyInt(), any())).thenReturn(false);
+        when(repository.findOfficerAppointmentsUnsorted(anyString(), anyBoolean(), any(), anyInt(), anyInt()))
+                .thenReturn(List.of(companyAppointmentDocument));
+        when(repository.countResigned(any())).thenReturn(1);
+        when(repository.countInactive(any())).thenReturn(1);
+        when(filterService.findFirstActiveAppointment(any())).thenReturn(Optional.of(companyAppointmentDocument));
+        when(mapper.mapOfficerAppointments(any())).thenReturn(Optional.of(appointmentList));
+
+        // when
+        Optional<AppointmentList> actual = service.getOfficerAppointments(request);
+
+        // then
+        assertTrue(actual.isPresent());
+        assertEquals(appointmentList, actual.get());
+        verify(itemsPerPageService).adjustItemsPerPage(ITEMS_PER_PAGE, authPrivileges);
+        verify(filterService).prepareFilter(null, OFFICER_ID);
+        verify(repository).countTotal(OFFICER_ID, false, List.of());
+        verify(sortingThresholdService).shouldSort(501, authPrivileges);
+        verify(repository).findOfficerAppointmentsUnsorted(OFFICER_ID, false, List.of(),
+                0, ITEMS_PER_PAGE);
+        verify(repository).countResigned(OFFICER_ID);
+        verify(repository).countInactive(OFFICER_ID);
+        verify(filterService).findFirstActiveAppointment(List.of(companyAppointmentDocument));
+        verifyNoMoreInteractions(repository);
+        verify(mapper).mapOfficerAppointments(MapperRequest.builder()
+                .startIndex(START_INDEX)
+                .itemsPerPage(ITEMS_PER_PAGE)
+                .firstAppointment(companyAppointmentDocument)
+                .officerAppointments(List.of(companyAppointmentDocument))
+                .totalResults(501)
+                .resignedCount(1)
+                .inactiveCount(1)
+                .build());
+    }
+
+    @Test
+    void getOfficerAppointmentsSortedUnderThreshold() throws BadRequestException {
+        // given
+        OfficerAppointmentsRequest request = OfficerAppointmentsRequest.builder()
+                .officerId(OFFICER_ID)
+                .itemsPerPage(ITEMS_PER_PAGE)
+                .build();
+
+        when(itemsPerPageService.adjustItemsPerPage(any(), any())).thenReturn(ITEMS_PER_PAGE);
+        when(filterService.prepareFilter(any(), any())).thenReturn(new Filter(false, List.of()));
+        when(repository.countTotal(any(), anyBoolean(), any())).thenReturn(499);
+        when(sortingThresholdService.shouldSort(anyInt(), any())).thenReturn(true);
+        when(repository.findOfficerAppointmentsIds(anyString(), anyBoolean(), any(), anyInt(), anyInt()))
+                .thenReturn(officerAppointments);
+        when(officerAppointments.getIds()).thenReturn(List.of(APPOINTMENT_ID));
+        when(repository.findFullOfficerAppointments(any())).thenReturn(List.of(companyAppointmentDocument));
+        when(repository.countResigned(any())).thenReturn(1);
+        when(repository.countInactive(any())).thenReturn(1);
+        when(filterService.findFirstActiveAppointment(any())).thenReturn(Optional.of(companyAppointmentDocument));
+        when(mapper.mapOfficerAppointments(any())).thenReturn(Optional.of(appointmentList));
+
+        // when
+        Optional<AppointmentList> actual = service.getOfficerAppointments(request);
+
+        // then
+        assertTrue(actual.isPresent());
+        assertEquals(appointmentList, actual.get());
+        verify(itemsPerPageService).adjustItemsPerPage(ITEMS_PER_PAGE, null);
+        verify(filterService).prepareFilter(null, OFFICER_ID);
+        verify(repository).countTotal(OFFICER_ID, false, List.of());
+        verify(sortingThresholdService).shouldSort(499, null);
+        verify(repository).findOfficerAppointmentsIds(OFFICER_ID, false, List.of(), 0, ITEMS_PER_PAGE);
+        verify(repository).findFullOfficerAppointments(List.of(APPOINTMENT_ID));
+        verify(repository).countResigned(OFFICER_ID);
+        verify(repository).countInactive(OFFICER_ID);
+        verify(filterService).findFirstActiveAppointment(List.of(companyAppointmentDocument));
+        verifyNoMoreInteractions(repository);
+        verify(mapper).mapOfficerAppointments(MapperRequest.builder()
+                .startIndex(START_INDEX)
+                .itemsPerPage(ITEMS_PER_PAGE)
+                .firstAppointment(companyAppointmentDocument)
+                .officerAppointments(List.of(companyAppointmentDocument))
+                .totalResults(499)
+                .resignedCount(1)
+                .inactiveCount(1)
                 .build());
     }
 

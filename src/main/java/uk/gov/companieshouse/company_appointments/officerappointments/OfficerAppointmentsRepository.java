@@ -69,6 +69,26 @@ interface OfficerAppointmentsRepository extends MongoRepository<CompanyAppointme
             List<String> filterStatuses, int startIndex, int pageSize);
 
     @Aggregation(pipeline = {
+            "{ $match: { "
+                    + "$and: [ "
+                    + "{'officer_id': ?0 },"
+                    + "{ $or: [ "
+                    + "{ 'data.resigned_on': { $exists: false } },"
+                    + "{ 'data.resigned_on': { $not: { $exists: ?1 } } }"
+                    + "]"
+                    + "},"
+                    + "{ 'company_status': { $nin: ?2 } }"
+                    + "]"
+                    + "}"
+                    + "}",
+            "{ $skip: ?3 }",
+            "{ $limit: ?4 }"
+    })
+    @Meta(allowDiskUse = true)
+    List<CompanyAppointmentDocument> findOfficerAppointmentsUnsorted(String officerId, boolean filterEnabled,
+            List<String> filterStatuses, int startIndex, int pageSize);
+
+    @Aggregation(pipeline = {
             "{ $match: { _id: { $in: ?0 } } }",
 
             "{ $addFields: {"

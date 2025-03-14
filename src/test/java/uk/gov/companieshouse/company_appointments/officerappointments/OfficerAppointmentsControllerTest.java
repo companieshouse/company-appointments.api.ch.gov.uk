@@ -3,7 +3,6 @@ package uk.gov.companieshouse.company_appointments.officerappointments;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -31,16 +30,12 @@ class OfficerAppointmentsControllerTest {
     private OfficerAppointmentsService service;
 
     @Mock
-    private ItemsPerPageService itemsPerPageService;
-
-    @Mock
     private AppointmentList officerAppointments;
 
     @Test
     @DisplayName("Call to get officer appointments returns http 200 ok and officer appointments api")
     void testGetOfficerAppointments() throws BadRequestException {
         // given
-        when(itemsPerPageService.getItemsPerPage(any(), anyString())).thenReturn(5);
         when(service.getOfficerAppointments(any())).thenReturn(Optional.of(officerAppointments));
 
         // when
@@ -49,14 +44,13 @@ class OfficerAppointmentsControllerTest {
         // then
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(officerAppointments, response.getBody());
-        verify(service).getOfficerAppointments(new OfficerAppointmentsRequest(OFFICER_ID, null, 0, 5));
+        verify(service).getOfficerAppointments(new OfficerAppointmentsRequest(OFFICER_ID, null, 0, 5, ""));
     }
 
     @Test
     @DisplayName("Call to get officer appointments returns http 404 not found when officer id does not exist")
     void testGetOfficerAppointmentsNotFound() throws BadRequestException {
         // given
-        when(itemsPerPageService.getItemsPerPage(any(), anyString())).thenReturn(35);
         when(service.getOfficerAppointments(any())).thenReturn(Optional.empty());
 
         // when
@@ -65,14 +59,13 @@ class OfficerAppointmentsControllerTest {
         // then
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         assertNull(response.getBody());
-        verify(service).getOfficerAppointments(new OfficerAppointmentsRequest(OFFICER_ID, null, null, 35));
+        verify(service).getOfficerAppointments(new OfficerAppointmentsRequest(OFFICER_ID, null, null, null, ""));
     }
 
     @Test
     @DisplayName("Call to get officer appointments returns http 400 bad request when filter parameter is invalid")
     void testGetOfficerAppointmentsBadRequest() throws BadRequestException {
         // given
-        when(itemsPerPageService.getItemsPerPage(any(), anyString())).thenReturn(35);
         when(service.getOfficerAppointments(any())).thenThrow(BadRequestException.class);
 
         // when
@@ -81,6 +74,6 @@ class OfficerAppointmentsControllerTest {
         // then
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertNull(response.getBody());
-        verify(service).getOfficerAppointments(new OfficerAppointmentsRequest(OFFICER_ID, "invalid", null, 35));
+        verify(service).getOfficerAppointments(new OfficerAppointmentsRequest(OFFICER_ID, "invalid", null, null, ""));
     }
 }

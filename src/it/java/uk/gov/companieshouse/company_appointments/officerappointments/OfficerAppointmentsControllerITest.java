@@ -303,10 +303,10 @@ class OfficerAppointmentsControllerITest {
         assertTrue(mongoTemplate.find(query, CompanyAppointmentDocument.class).isEmpty());
     }
 
-    @DisplayName("Should return HTTP 200 OK and a list of 500K appointments for an officer with 400K appointments")
+    @DisplayName("Should return HTTP 200 OK and a list of 500 appointments for an officer with 400K appointments")
     @Test
     @Disabled("Causes a Java Heap memory exception on Concourse")
-    void getOfficerAppointmentsInternalWhenOfficerHas150KAppointments() throws Exception {
+    void getOfficerAppointmentsInternalUnsortedWhenOfficerHas400KAppointments() throws Exception {
         // given
         final String officerId = UUID.randomUUID().toString();
         final int expectedItemsPerPage = 500;

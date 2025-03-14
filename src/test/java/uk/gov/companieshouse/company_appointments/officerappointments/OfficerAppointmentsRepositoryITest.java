@@ -85,6 +85,7 @@ class OfficerAppointmentsRepositoryITest {
                 START_INDEX, DEFAULT_ITEMS_PER_PAGE);
 
         // then
+        assertEquals(6, appointmentsIds.getIds().size());
         assertEquals("active_1", appointmentsIds.getIds().get(0));
         assertEquals("dissolved_1", appointmentsIds.getIds().get(1));
         assertEquals("active_2", appointmentsIds.getIds().get(2));
@@ -116,8 +117,10 @@ class OfficerAppointmentsRepositoryITest {
                 FILTER_STATUSES, START_INDEX, DEFAULT_ITEMS_PER_PAGE);
 
         // then
+        assertEquals(3, appointmentsIds.getIds().size());
         assertEquals("active_1", appointmentsIds.getIds().get(0));
         assertEquals("active_2", appointmentsIds.getIds().get(1));
+        assertEquals("active_3", appointmentsIds.getIds().get(2));
     }
 
     @DisplayName("Repository returns no appointments IDs when there are no matches when the filter is enabled")
@@ -143,6 +146,7 @@ class OfficerAppointmentsRepositoryITest {
                 4);
 
         // then
+        assertEquals(4, appointmentsIds.getIds().size());
         assertEquals("dissolved_1", appointmentsIds.getIds().get(0));
         assertEquals("active_2", appointmentsIds.getIds().get(1));
         assertEquals("active_3", appointmentsIds.getIds().get(2));
@@ -159,6 +163,7 @@ class OfficerAppointmentsRepositoryITest {
                 FILTER_STATUSES, 1, 3);
 
         // then
+        assertEquals(2, appointmentsIds.getIds().size());
         assertEquals("active_2", appointmentsIds.getIds().get(0));
         assertEquals("active_3", appointmentsIds.getIds().get(1));
     }
@@ -188,6 +193,7 @@ class OfficerAppointmentsRepositoryITest {
         List<CompanyAppointmentDocument> documents = repository.findFullOfficerAppointments(appointmentsIds);
 
         // then
+        assertEquals(6, documents.size());
         assertEquals(appointmentsIds, documents.stream().map(CompanyAppointmentDocument::getId).toList());
     }
 
@@ -309,5 +315,114 @@ class OfficerAppointmentsRepositoryITest {
 
         // then
         assertNull(actual);
+    }
+
+    @DisplayName("Repository returns unsorted officer appointments")
+    @Test
+    void findOfficerAppointmentsUnsorted() {
+        // given
+
+        // when
+        List<CompanyAppointmentDocument> appointments = repository.findOfficerAppointmentsUnsorted(OFFICER_ID, false, emptyList(),
+                START_INDEX, DEFAULT_ITEMS_PER_PAGE);
+
+        // then
+        assertEquals(6, appointments.size());
+        assertEquals("dissolved_1", appointments.get(0).getId());
+        assertEquals("active_3", appointments.get(1).getId());
+        assertEquals("resigned_2", appointments.get(2).getId());
+        assertEquals("active_2", appointments.get(3).getId());
+        assertEquals("resigned_1", appointments.get(4).getId());
+        assertEquals("active_1", appointments.get(5).getId());
+    }
+
+    @DisplayName("Repository returns no unsorted appointments when there are no matches")
+    @Test
+    void findOfficerAppointmentsUnsortedNoResults() {
+        // given
+
+        // when
+        List<CompanyAppointmentDocument> appointments = repository.findOfficerAppointmentsUnsorted("officerId", false,
+                emptyList(),
+                START_INDEX, DEFAULT_ITEMS_PER_PAGE);
+
+        // then
+        assertTrue(appointments.isEmpty());
+    }
+
+    @DisplayName("Repository returns only active unsorted appointments when the filter is enabled")
+    @Test
+    void findActiveOfficerAppointmentsUnsorted() {
+        // given
+
+        // when
+        List<CompanyAppointmentDocument> appointments = repository.findOfficerAppointmentsUnsorted(OFFICER_ID, true,
+                FILTER_STATUSES, START_INDEX, DEFAULT_ITEMS_PER_PAGE);
+
+        // then
+        assertEquals(3, appointments.size());
+        assertEquals("active_3", appointments.get(0).getId());
+        assertEquals("active_2", appointments.get(1).getId());
+        assertEquals("active_1", appointments.get(2).getId());
+    }
+
+    @DisplayName("Repository returns no unsorted appointments when there are no matches when the filter is enabled")
+    @Test
+    void findActiveOfficerAppointmentsUnsortedNoResults() {
+        // given
+
+        // when
+        List<CompanyAppointmentDocument> appointments = repository.findOfficerAppointmentsUnsorted("officerId", true, emptyList(),
+                START_INDEX, DEFAULT_ITEMS_PER_PAGE);
+
+        // then
+        assertTrue(appointments.isEmpty());
+    }
+
+    @DisplayName("Repository returns a paged list of unsorted officer appointments")
+    @Test
+    void findOfficerAppointmentsUnsortedWithPaging() {
+        // given
+
+        // when
+        List<CompanyAppointmentDocument> appointments = repository.findOfficerAppointmentsUnsorted(OFFICER_ID, false, emptyList(),
+                1,
+                4);
+
+        // then
+        assertEquals(4, appointments.size());
+        assertEquals("active_3", appointments.get(0).getId());
+        assertEquals("resigned_2", appointments.get(1).getId());
+        assertEquals("active_2", appointments.get(2).getId());
+        assertEquals("resigned_1", appointments.get(3).getId());
+    }
+
+    @DisplayName("Repository returns a paged list of unsorted officer appointments with the filter applied")
+    @Test
+    void findActiveOfficerAppointmentsUnsortedWithPaging() {
+        // given
+
+        // when
+        List<CompanyAppointmentDocument> appointments = repository.findOfficerAppointmentsUnsorted(OFFICER_ID, true,
+                FILTER_STATUSES, 1, 3);
+
+        // then
+        assertEquals(2, appointments.size());
+        assertEquals("active_2", appointments.get(0).getId());
+        assertEquals("active_1", appointments.get(1).getId());
+    }
+
+    @DisplayName("Repository returns no unsorted officer appointments when start index is greater than total matches")
+    @Test
+    void findOfficerAppointmentsUnsortedHighStartIndex() {
+        // given
+
+        // when
+        List<CompanyAppointmentDocument> appointments = repository.findOfficerAppointmentsUnsorted(OFFICER_ID, false, emptyList(),
+                10,
+                DEFAULT_ITEMS_PER_PAGE);
+
+        // then
+        assertTrue(appointments.isEmpty());
     }
 }

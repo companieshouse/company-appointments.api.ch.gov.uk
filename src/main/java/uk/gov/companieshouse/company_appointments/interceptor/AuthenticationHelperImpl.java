@@ -1,11 +1,11 @@
 package uk.gov.companieshouse.company_appointments.interceptor;
 
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang.ArrayUtils;
 import org.springframework.stereotype.Component;
 
@@ -14,18 +14,17 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class AuthenticationHelperImpl implements AuthenticationHelper {
+
     public static final String OAUTH2_IDENTITY_TYPE = "oauth2";
     public static final String API_KEY_IDENTITY_TYPE = "key";
+    public static final String ERIC_AUTHORISED_KEY_PRIVILEGES_HEADER = "ERIC-Authorised-Key-Privileges";
 
-    public static final int USER_EMAIL_INDEX = 0;
-    public static final int USER_FORENAME_INDEX = 1;
-    public static final int USER_SURNAME_INDEX = 2;
-    public static final String INTERNAL_APP_PRIVILEGE = "internal-app";
+    private static final int USER_EMAIL_INDEX = 0;
+    private static final int USER_FORENAME_INDEX = 1;
+    private static final int USER_SURNAME_INDEX = 2;
+    private static final String INTERNAL_APP_PRIVILEGE = "internal-app";
     private static final String SENSITIVE_DATA_PRIVILEGE = "sensitive-data";
-    public static final String ERIC_AUTHORISED_KEY_PRIVILEGES_HEADER
-            = "ERIC-Authorised-Key-Privileges";
-    private static final String ERIC_AUTHORISED_TOKEN_PERMISSIONS_HEADER
-            = "ERIC-Authorised-Token-Permissions";
+    private static final String ERIC_AUTHORISED_TOKEN_PERMISSIONS_HEADER = "ERIC-Authorised-Token-Permissions";
     private static final String ERIC_IDENTITY = "ERIC-Identity";
     private static final String ERIC_IDENTITY_TYPE = "ERIC-Identity-Type";
     private static final String ERIC_AUTHORISED_USER = "ERIC-Authorised-User";
@@ -34,7 +33,6 @@ public class AuthenticationHelperImpl implements AuthenticationHelper {
     private static final String COMPANY_OFFICER_PERMISSION = "company_officers";
     private static final String READ_PROTECTED = "readprotected";
     private static final String COMPANY_NUMBER_PERMISSION = "company_number";
-
     private static final String GET_METHOD = "GET";
 
     @Override
@@ -162,6 +160,13 @@ public class AuthenticationHelperImpl implements AuthenticationHelper {
                 privileges.get(COMPANY_OFFICER_PERMISSION).contains(READ_PROTECTED) &&
                 privileges.containsKey(COMPANY_NUMBER_PERMISSION) &&
                 privileges.get(COMPANY_NUMBER_PERMISSION).contains(companyNumber);
+    }
+
+    public static boolean hasInternalAppPrivileges(String authPrivileges) {
+        return Optional.ofNullable(authPrivileges)
+                .map(rawAuthPrivileges -> rawAuthPrivileges.split(","))
+                .map(privileges -> ArrayUtils.contains(privileges, INTERNAL_APP_PRIVILEGE))
+                .orElse(false);
     }
 
     private String getRequestHeader(HttpServletRequest request, String header) {
