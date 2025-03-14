@@ -1,11 +1,10 @@
 package uk.gov.companieshouse.company_appointments.officerappointments;
 
-import static uk.gov.companieshouse.company_appointments.interceptor.AuthenticationHelperImpl.INTERNAL_APP_PRIVILEGE;
+import static uk.gov.companieshouse.company_appointments.interceptor.AuthenticationHelperImpl.hasInternalAppPrivileges;
 
-import java.util.Optional;
-import org.apache.commons.lang.ArrayUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import uk.gov.companieshouse.company_appointments.logging.DataMapHolder;
 
 @Component
 public class ItemsPerPageService {
@@ -15,11 +14,11 @@ public class ItemsPerPageService {
 
     private final int maxItemsPerPageInternal;
 
-    public ItemsPerPageService(@Value("${items-per-page-max-internal}") final int maxItemsPerPageInternal) {
+    public ItemsPerPageService(@Value("${officer-appointments.items-per-page-max-internal}") final int maxItemsPerPageInternal) {
         this.maxItemsPerPageInternal = maxItemsPerPageInternal;
     }
 
-    public int getItemsPerPage(Integer itemsPerPage, String authPrivileges) {
+    public int adjustItemsPerPage(Integer itemsPerPage, String authPrivileges) {
         if (itemsPerPage == null || itemsPerPage == 0) {
             itemsPerPage = DEFAULT_ITEMS_PER_PAGE;
         } else {
@@ -27,13 +26,7 @@ public class ItemsPerPageService {
                     maxItemsPerPageInternal : MAX_ITEMS_PER_PAGE_EXTERNAL;
             itemsPerPage = Math.min(Math.abs(itemsPerPage), maxItemsPerPage);
         }
+        DataMapHolder.get().itemsPerPage(String.valueOf(itemsPerPage));
         return itemsPerPage;
-    }
-
-    private boolean hasInternalAppPrivileges(String authPrivileges) {
-        return Optional.ofNullable(authPrivileges)
-                .map(rawAuthPrivileges -> rawAuthPrivileges.split(","))
-                .map(privileges -> ArrayUtils.contains(privileges, INTERNAL_APP_PRIVILEGE))
-                .orElse(false);
     }
 }
