@@ -21,11 +21,9 @@ class OfficerAppointmentsController {
     private static final Logger LOGGER = LoggerFactory.getLogger(CompanyAppointmentsApplication.APPLICATION_NAME_SPACE);
 
     private final OfficerAppointmentsService service;
-    private final ItemsPerPageService itemsPerPageService;
 
-    OfficerAppointmentsController(OfficerAppointmentsService service, ItemsPerPageService itemsPerPageService) {
+    OfficerAppointmentsController(OfficerAppointmentsService service) {
         this.service = service;
-        this.itemsPerPageService = itemsPerPageService;
     }
 
     @GetMapping(path = "/officers/{officer_id}/appointments")
@@ -40,15 +38,23 @@ class OfficerAppointmentsController {
                     .officerId(officerId);
             LOGGER.info("Fetching officer appointments", DataMapHolder.getLogMap());
 
-            int adjustedItemsPerPage = itemsPerPageService.getItemsPerPage(itemsPerPage, authPrivileges);
-            return service.getOfficerAppointments(new OfficerAppointmentsRequest(officerId, filter, startIndex, adjustedItemsPerPage))
+            OfficerAppointmentsRequest request = OfficerAppointmentsRequest.builder()
+                    .officerId(officerId)
+                    .filter(filter)
+                    .startIndex(startIndex)
+                    .itemsPerPage(itemsPerPage)
+                    .authPrivileges(authPrivileges)
+                    .build();
+            return service.getOfficerAppointments(request)
                     .map(ResponseEntity::ok)
                     .orElseGet(() -> {
-                        LOGGER.info(String.format("No appointments found for officer ID %s", officerId), DataMapHolder.getLogMap());
+                        LOGGER.info(String.format("No appointments found for officer ID %s", officerId),
+                                DataMapHolder.getLogMap());
                         return ResponseEntity.notFound().build();
                     });
         } catch (BadRequestException ex) {
-            LOGGER.info(String.format("Invalid filter parameter supplied: %s, officer ID %s", filter, officerId), DataMapHolder.getLogMap());
+            LOGGER.info(String.format("Invalid filter parameter supplied: %s, officer ID %s", filter, officerId),
+                    DataMapHolder.getLogMap());
             return ResponseEntity.badRequest().build();
         }
     }
