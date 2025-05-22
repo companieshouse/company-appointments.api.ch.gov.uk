@@ -1,0 +1,42 @@
+{
+  "_id" : "active_appointed_before_2",
+  "data" : {
+    "person_number" : "1234567890",
+    "etag" : "04f9e3527169562a674bc813e0f68f8a37ae83b4",
+    "service_address" : {
+      "address_line_1" : "1 Crown Way",
+      "address_line_2" : "Pavement",
+      "locality" : "Cardiff",
+      "postal_code" : "CF14 3UZ",
+      "premises" : "First Floor"
+    },
+    "service_address_is_same_as_registered_office_address" : false,
+    "appointed_before" : ISODate("1989-12-31T00:00:00.000Z"),
+    "is_pre_1992_appointment" : true,
+    "links" : {
+      "self" : "/company/12345678/appointments/active_appointed_before_2",
+      "officer" : {
+        "self" : "/officers/5VEOBB4a9dlB_iugw_vieHjWpCk",
+        "appointments" : "/officers/5VEOBB4a9dlB_iugw_vieHjWpCk/appointments"
+      }
+    },
+    "officer_role" : "corporate-secretary",
+    "company_name" : "TEST COMPANY LIMITED",
+    "company_number" : "12345678"
+  },
+  "internal_id" : "2500085646",
+  "appointment_id" : "active_appointed_before_2",
+  "officer_id" : "5VEOBB4a9dlB_iugw_vieHjWpCk",
+  "previous_officer_id" : "vuIAhYYbRDhqzx9b3e_jd6Xhmes",
+  "company_number" : "12345678",
+  "updated" : {
+    "at" : ISODate("2024-04-25T13:28:28.738Z")
+  },
+  "created" : {
+    "at" : ISODate("2024-04-25T13:28:28.738Z")
+  },
+  "delta_at" : ISODate("2025-04-19T13:42:17.615Z"),
+  "officer_role_sort_order" : NumberInt(10),
+  "company_name" : "TEST COMPANY",
+  "company_status" : "active"
+}

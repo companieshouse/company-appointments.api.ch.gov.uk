@@ -1,6 +1,6 @@
 {
-  "_id" : "active_2",
-  "appointment_id" : "active_2",
+  "_id" : "active_appointed_on_2",
+  "appointment_id" : "active_appointed_on_2",
   "company_name" : "TEST COMPANY LIMITED",
   "company_number" : "12345678",
   "company_status" : "active",
@@ -13,10 +13,10 @@
     "country_of_residence" : "United Kingdom",
     "links" : {
       "officer" : {
-        "self" : "/officers/active_2",
-        "appointments" : "/officers/active_2/appointments"
+        "self" : "/officers/active_appointed_on_2",
+        "appointments" : "/officers/active_appointed_on_2/appointments"
       },
-      "self" : "/company/12345678/appointments/active_2"
+      "self" : "/company/12345678/appointments/active_appointed_on_2"
     },
     "nationality" : "British",
     "forename" : "John",

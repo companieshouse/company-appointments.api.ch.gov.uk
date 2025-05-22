@@ -329,7 +329,7 @@ class OfficerAppointmentsServiceTest {
         when(filterService.prepareFilter(any(), any())).thenReturn(new Filter(false, List.of()));
         when(repository.countTotal(any(), anyBoolean(), any())).thenReturn(501);
         when(sortingThresholdService.shouldSort(anyInt(), any())).thenReturn(false);
-        when(repository.findOfficerAppointmentsUnsorted(anyString(), anyBoolean(), any(), anyInt(), anyInt()))
+        when(repository.findOfficerAppointments(anyString(), anyBoolean(), any(), anyInt(), anyInt()))
                 .thenReturn(List.of(companyAppointmentDocument));
         when(repository.countResigned(any())).thenReturn(1);
         when(repository.countInactive(any())).thenReturn(1);
@@ -346,7 +346,7 @@ class OfficerAppointmentsServiceTest {
         verify(filterService).prepareFilter(null, OFFICER_ID);
         verify(repository).countTotal(OFFICER_ID, false, List.of());
         verify(sortingThresholdService).shouldSort(501, authPrivileges);
-        verify(repository).findOfficerAppointmentsUnsorted(OFFICER_ID, false, List.of(),
+        verify(repository).findOfficerAppointments(OFFICER_ID, false, List.of(),
                 0, ITEMS_PER_PAGE);
         verify(repository).countResigned(OFFICER_ID);
         verify(repository).countInactive(OFFICER_ID);

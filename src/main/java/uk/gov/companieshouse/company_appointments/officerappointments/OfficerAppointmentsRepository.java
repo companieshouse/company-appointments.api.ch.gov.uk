@@ -81,11 +81,17 @@ interface OfficerAppointmentsRepository extends MongoRepository<CompanyAppointme
                     + "]"
                     + "}"
                     + "}",
+            "{"
+                    + "$addFields: {"
+                    + "'__sort_active__': { $ifNull: ['$data.appointed_on', { $toDate: '$data.appointed_before' } ] }"
+                    + "}"
+                    + "}",
+            "{ $sort:  {'__sort_active__': -1 } }",
             "{ $skip: ?3 }",
             "{ $limit: ?4 }"
     })
     @Meta(allowDiskUse = true)
-    List<CompanyAppointmentDocument> findOfficerAppointmentsUnsorted(String officerId, boolean filterEnabled,
+    List<CompanyAppointmentDocument> findOfficerAppointments(String officerId, boolean filterEnabled,
             List<String> filterStatuses, int startIndex, int pageSize);
 
     @Aggregation(pipeline = {

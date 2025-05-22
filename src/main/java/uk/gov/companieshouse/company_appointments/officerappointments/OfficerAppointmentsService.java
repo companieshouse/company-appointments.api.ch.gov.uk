@@ -53,7 +53,7 @@ class OfficerAppointmentsService {
                 documents = List.of();
             }
         } else {
-            documents = repository.findOfficerAppointmentsUnsorted(officerId, filterEnabled, filterStatuses, startIndex,
+            documents = repository.findOfficerAppointments(officerId, filterEnabled, filterStatuses, startIndex,
                     adjustedItemsPerPage);
         }
 
