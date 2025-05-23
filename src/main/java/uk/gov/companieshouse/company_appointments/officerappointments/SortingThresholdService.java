@@ -17,7 +17,7 @@ class SortingThresholdService {
         this.externalSortingThreshold = externalSortingThreshold;
     }
 
-    boolean shouldSort(int totalResults, String authPrivileges) {
+    boolean shouldSortByActiveThenResigned(int totalResults, String authPrivileges) {
         int sortingThreshold = hasInternalAppPrivileges(authPrivileges) ? internalSortingThreshold : externalSortingThreshold;
         return sortingThreshold == -1 || totalResults <= sortingThreshold;
     }

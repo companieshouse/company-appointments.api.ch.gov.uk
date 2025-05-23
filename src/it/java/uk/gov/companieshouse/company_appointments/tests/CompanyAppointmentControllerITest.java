@@ -37,7 +37,6 @@ import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.system.CapturedOutput;
 import org.springframework.boot.test.system.OutputCaptureExtension;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -45,6 +44,7 @@ import org.springframework.data.mongodb.core.SimpleMongoClientDatabaseFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
@@ -84,7 +84,7 @@ class CompanyAppointmentControllerITest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @MockBean
+    @MockitoBean
     private CompanyMetricsApiService companyMetricsApiService;
 
     @Mock
@@ -110,7 +110,7 @@ class CompanyAppointmentControllerITest {
     @Test
     void testReturn200OKIfOfficerIsFound() throws Exception {
         //when
-        ResultActions result = mockMvc.perform(get("/company/{company_number}/appointments/{appointment_id}", COMPANY_NUMBER, "active_1")
+        ResultActions result = mockMvc.perform(get("/company/{company_number}/appointments/{appointment_id}", COMPANY_NUMBER, "active_appointed_on_1")
                 .header(X_REQUEST_ID, CONTEXT_ID)
                 .header(ERIC_IDENTITY, "123")
                 .header(ERIC_IDENTITY_TYPE, "key")
@@ -120,7 +120,7 @@ class CompanyAppointmentControllerITest {
         //then
         result.andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.name", is("NOSURNAME, Noname1 Noname2")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.appointed_on", is("2024-08-26")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.appointed_on", is("2025-08-26")))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.date_of_birth", not(contains("day"))))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.date_of_birth.year", is(1980)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.date_of_birth.month", is(1)));

@@ -12,13 +12,13 @@ class SortingThresholdServiceTest {
 
     @ParameterizedTest
     @MethodSource("sortingThresholdScenarios")
-    void testShouldSortGivenTotalResultsAndThresholds(SortingThresholdTestArgument argument) {
+    void testShouldSortByActiveThenResignedGivenTotalResultsAndThresholds(SortingThresholdTestArgument argument) {
         // given
         SortingThresholdService service = new SortingThresholdService(argument.internalSortingThreshold(),
                 argument.externalSortingThreshold());
 
         // when
-        boolean actual = service.shouldSort(argument.totalResults(), argument.authPrivileges());
+        boolean actual = service.shouldSortByActiveThenResigned(argument.totalResults(), argument.authPrivileges());
 
         // then
         assertEquals(argument.expected(), actual);

@@ -142,7 +142,7 @@ class OfficerAppointmentsServiceTest {
         when(itemsPerPageService.adjustItemsPerPage(any(), any())).thenReturn(argument.itemsPerPage());
         when(filterService.prepareFilter(any(), any())).thenReturn(filter);
         when(repository.countTotal(any(), anyBoolean(), any())).thenReturn(3);
-        when(sortingThresholdService.shouldSort(anyInt(), any())).thenReturn(true);
+        when(sortingThresholdService.shouldSortByActiveThenResigned(anyInt(), any())).thenReturn(true);
         when(repository.findOfficerAppointmentsIds(anyString(), anyBoolean(), any(), anyInt(), anyInt()))
                 .thenReturn(officerAppointments);
         when(officerAppointments.getIds()).thenReturn(List.of(APPOINTMENT_ID));
@@ -161,7 +161,7 @@ class OfficerAppointmentsServiceTest {
         verify(itemsPerPageService).adjustItemsPerPage(argument.itemsPerPage(), null);
         verify(filterService).prepareFilter(argument.request().filter(), OFFICER_ID);
         verify(repository).countTotal(OFFICER_ID, argument.filterEnabled(), argument.filterStatuses());
-        verify(sortingThresholdService).shouldSort(3, null);
+        verify(sortingThresholdService).shouldSortByActiveThenResigned(3, null);
         verify(repository).findOfficerAppointmentsIds(OFFICER_ID, argument.filterEnabled(), argument.filterStatuses(),
                 argument.startIndex(), argument.itemsPerPage());
         verify(repository).findFullOfficerAppointments(List.of(APPOINTMENT_ID));
@@ -188,7 +188,7 @@ class OfficerAppointmentsServiceTest {
         when(itemsPerPageService.adjustItemsPerPage(any(), any())).thenReturn(argument.itemsPerPage());
         when(filterService.prepareFilter(any(), any())).thenReturn(filter);
         when(repository.countTotal(any(), anyBoolean(), any())).thenReturn(3);
-        when(sortingThresholdService.shouldSort(anyInt(), any())).thenReturn(true);
+        when(sortingThresholdService.shouldSortByActiveThenResigned(anyInt(), any())).thenReturn(true);
         when(repository.findOfficerAppointmentsIds(anyString(), anyBoolean(), any(), anyInt(), anyInt()))
                 .thenReturn(officerAppointments);
         when(officerAppointments.getIds()).thenReturn(List.of(APPOINTMENT_ID));
@@ -205,7 +205,7 @@ class OfficerAppointmentsServiceTest {
         verify(itemsPerPageService).adjustItemsPerPage(argument.itemsPerPage(), null);
         verify(filterService).prepareFilter(argument.request().filter(), OFFICER_ID);
         verify(repository).countTotal(OFFICER_ID, argument.filterEnabled(), argument.filterStatuses());
-        verify(sortingThresholdService).shouldSort(3, null);
+        verify(sortingThresholdService).shouldSortByActiveThenResigned(3, null);
         verify(repository).findOfficerAppointmentsIds(OFFICER_ID, argument.filterEnabled(), argument.filterStatuses(),
                 argument.startIndex(), argument.itemsPerPage());
         verify(repository).findFullOfficerAppointments(List.of(APPOINTMENT_ID));
@@ -234,7 +234,7 @@ class OfficerAppointmentsServiceTest {
         when(itemsPerPageService.adjustItemsPerPage(any(), any())).thenReturn(ITEMS_PER_PAGE);
         when(filterService.prepareFilter(any(), any())).thenReturn(new Filter(false, List.of()));
         when(repository.countTotal(any(), anyBoolean(), any())).thenReturn(3);
-        when(sortingThresholdService.shouldSort(anyInt(), any())).thenReturn(true);
+        when(sortingThresholdService.shouldSortByActiveThenResigned(anyInt(), any())).thenReturn(true);
         when(repository.findOfficerAppointmentsIds(anyString(), anyBoolean(), any(), anyInt(), anyInt()))
                 .thenReturn(officerAppointments);
         when(officerAppointments.getIds()).thenReturn(List.of(APPOINTMENT_ID));
@@ -254,7 +254,7 @@ class OfficerAppointmentsServiceTest {
         verify(itemsPerPageService).adjustItemsPerPage(ITEMS_PER_PAGE, null);
         verify(filterService).prepareFilter(null, OFFICER_ID);
         verify(repository).countTotal(OFFICER_ID, false, List.of());
-        verify(sortingThresholdService).shouldSort(3, null);
+        verify(sortingThresholdService).shouldSortByActiveThenResigned(3, null);
         verify(repository).findOfficerAppointmentsIds(OFFICER_ID, false, List.of(),
                 0, ITEMS_PER_PAGE);
         verify(repository).findFullOfficerAppointments(List.of(APPOINTMENT_ID));
@@ -285,7 +285,7 @@ class OfficerAppointmentsServiceTest {
         when(itemsPerPageService.adjustItemsPerPage(any(), any())).thenReturn(ITEMS_PER_PAGE);
         when(filterService.prepareFilter(any(), any())).thenReturn(new Filter(false, List.of()));
         when(repository.countTotal(any(), anyBoolean(), any())).thenReturn(0);
-        when(sortingThresholdService.shouldSort(anyInt(), any())).thenReturn(true);
+        when(sortingThresholdService.shouldSortByActiveThenResigned(anyInt(), any())).thenReturn(true);
         when(repository.findOfficerAppointmentsIds(any(), anyBoolean(), any(), anyInt(), anyInt()))
                 .thenReturn(officerAppointments);
         when(officerAppointments.getIds()).thenReturn(List.of());
@@ -298,7 +298,7 @@ class OfficerAppointmentsServiceTest {
         verify(itemsPerPageService).adjustItemsPerPage(ITEMS_PER_PAGE, null);
         verify(filterService).prepareFilter(null, OFFICER_ID);
         verify(repository).countTotal(OFFICER_ID, false, List.of());
-        verify(sortingThresholdService).shouldSort(0, null);
+        verify(sortingThresholdService).shouldSortByActiveThenResigned(0, null);
         verify(repository).findOfficerAppointmentsIds(OFFICER_ID, false, List.of(), 0, ITEMS_PER_PAGE);
         verify(repository).countResigned(OFFICER_ID);
         verify(repository).countInactive(OFFICER_ID);
@@ -328,8 +328,8 @@ class OfficerAppointmentsServiceTest {
         when(itemsPerPageService.adjustItemsPerPage(any(), any())).thenReturn(ITEMS_PER_PAGE);
         when(filterService.prepareFilter(any(), any())).thenReturn(new Filter(false, List.of()));
         when(repository.countTotal(any(), anyBoolean(), any())).thenReturn(501);
-        when(sortingThresholdService.shouldSort(anyInt(), any())).thenReturn(false);
-        when(repository.findOfficerAppointmentsUnsorted(anyString(), anyBoolean(), any(), anyInt(), anyInt()))
+        when(sortingThresholdService.shouldSortByActiveThenResigned(anyInt(), any())).thenReturn(false);
+        when(repository.findRecentOfficerAppointments(anyString(), anyBoolean(), any(), anyInt(), anyInt()))
                 .thenReturn(List.of(companyAppointmentDocument));
         when(repository.countResigned(any())).thenReturn(1);
         when(repository.countInactive(any())).thenReturn(1);
@@ -345,8 +345,8 @@ class OfficerAppointmentsServiceTest {
         verify(itemsPerPageService).adjustItemsPerPage(ITEMS_PER_PAGE, authPrivileges);
         verify(filterService).prepareFilter(null, OFFICER_ID);
         verify(repository).countTotal(OFFICER_ID, false, List.of());
-        verify(sortingThresholdService).shouldSort(501, authPrivileges);
-        verify(repository).findOfficerAppointmentsUnsorted(OFFICER_ID, false, List.of(),
+        verify(sortingThresholdService).shouldSortByActiveThenResigned(501, authPrivileges);
+        verify(repository).findRecentOfficerAppointments(OFFICER_ID, false, List.of(),
                 0, ITEMS_PER_PAGE);
         verify(repository).countResigned(OFFICER_ID);
         verify(repository).countInactive(OFFICER_ID);
@@ -374,7 +374,7 @@ class OfficerAppointmentsServiceTest {
         when(itemsPerPageService.adjustItemsPerPage(any(), any())).thenReturn(ITEMS_PER_PAGE);
         when(filterService.prepareFilter(any(), any())).thenReturn(new Filter(false, List.of()));
         when(repository.countTotal(any(), anyBoolean(), any())).thenReturn(499);
-        when(sortingThresholdService.shouldSort(anyInt(), any())).thenReturn(true);
+        when(sortingThresholdService.shouldSortByActiveThenResigned(anyInt(), any())).thenReturn(true);
         when(repository.findOfficerAppointmentsIds(anyString(), anyBoolean(), any(), anyInt(), anyInt()))
                 .thenReturn(officerAppointments);
         when(officerAppointments.getIds()).thenReturn(List.of(APPOINTMENT_ID));
@@ -393,7 +393,7 @@ class OfficerAppointmentsServiceTest {
         verify(itemsPerPageService).adjustItemsPerPage(ITEMS_PER_PAGE, null);
         verify(filterService).prepareFilter(null, OFFICER_ID);
         verify(repository).countTotal(OFFICER_ID, false, List.of());
-        verify(sortingThresholdService).shouldSort(499, null);
+        verify(sortingThresholdService).shouldSortByActiveThenResigned(499, null);
         verify(repository).findOfficerAppointmentsIds(OFFICER_ID, false, List.of(), 0, ITEMS_PER_PAGE);
         verify(repository).findFullOfficerAppointments(List.of(APPOINTMENT_ID));
         verify(repository).countResigned(OFFICER_ID);

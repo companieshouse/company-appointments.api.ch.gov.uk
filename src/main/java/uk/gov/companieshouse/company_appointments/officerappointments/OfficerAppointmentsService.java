@@ -43,7 +43,7 @@ class OfficerAppointmentsService {
 
         List<CompanyAppointmentDocument> documents;
 
-        if (sortingThresholdService.shouldSort(totalResults, authPrivileges)) {
+        if (sortingThresholdService.shouldSortByActiveThenResigned(totalResults, authPrivileges)) {
             List<String> appointmentsIds = repository.findOfficerAppointmentsIds(officerId, filterEnabled, filterStatuses,
                     startIndex, adjustedItemsPerPage).getIds();
 
@@ -53,7 +53,7 @@ class OfficerAppointmentsService {
                 documents = List.of();
             }
         } else {
-            documents = repository.findOfficerAppointmentsUnsorted(officerId, filterEnabled, filterStatuses, startIndex,
+            documents = repository.findRecentOfficerAppointments(officerId, filterEnabled, filterStatuses, startIndex,
                     adjustedItemsPerPage);
         }
 
