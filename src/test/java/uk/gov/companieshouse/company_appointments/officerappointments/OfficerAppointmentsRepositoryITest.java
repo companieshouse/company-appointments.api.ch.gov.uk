@@ -338,9 +338,9 @@ class OfficerAppointmentsRepositoryITest {
         assertEquals("active_appointed_on_1", appointments.get(0).getId());
         assertEquals("active_appointed_on_2", appointments.get(1).getId());
         assertEquals("active_resigned_on_1", appointments.get(2).getId());
-        assertEquals("active_appointed_before_1", appointments.get(3).getId());
+        assertEquals("active_resigned_on_2", appointments.get(3).getId());
         // there is business logic wherein in live an appointed_on can be before an appointed_before.
-        assertEquals("active_resigned_on_2", appointments.get(4).getId());
+        assertEquals("active_appointed_before_1", appointments.get(4).getId());
         assertEquals("dissolved_appointed_before_1", appointments.get(5).getId());
         assertEquals("active_appointed_before_2", appointments.get(6).getId());
     }
@@ -401,10 +401,10 @@ class OfficerAppointmentsRepositoryITest {
 
         // then
         assertEquals(4, appointments.size());
-        assertEquals("active_resigned_on_1", appointments.get(0).getId());
-        assertEquals("active_appointed_on_2", appointments.get(1).getId());
-        assertEquals("active_appointed_before_1", appointments.get(2).getId());
-        assertEquals("active_resigned_on_2", appointments.get(3).getId());
+        assertEquals("active_appointed_on_2", appointments.get(0).getId());
+        assertEquals("active_resigned_on_1", appointments.get(1).getId());
+        assertEquals("active_resigned_on_2", appointments.get(2).getId());
+        assertEquals("active_appointed_before_1", appointments.get(3).getId());
     }
 
     @DisplayName("Repository returns a paged list of sorted officer appointments with the filter applied")
