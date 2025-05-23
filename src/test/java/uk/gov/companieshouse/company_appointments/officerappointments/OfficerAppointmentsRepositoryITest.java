@@ -324,13 +324,13 @@ class OfficerAppointmentsRepositoryITest {
         assertNull(actual);
     }
 
-    @DisplayName("Repository returns officer appointments sorted to appointed_on and appointed_before dates descending")
+    @DisplayName("Repository returns recent officer appointments sorted to appointed_on and appointed_before dates descending")
     @Test
     void findOfficerAppointments() {
         // given
 
         // when
-        List<CompanyAppointmentDocument> appointments = repository.findOfficerAppointments(OFFICER_ID, false, emptyList(),
+        List<CompanyAppointmentDocument> appointments = repository.findRecentOfficerAppointments(OFFICER_ID, false, emptyList(),
                 START_INDEX, DEFAULT_ITEMS_PER_PAGE);
 
         // then
@@ -351,7 +351,7 @@ class OfficerAppointmentsRepositoryITest {
         // given
 
         // when
-        List<CompanyAppointmentDocument> appointments = repository.findOfficerAppointments("officerId", false,
+        List<CompanyAppointmentDocument> appointments = repository.findRecentOfficerAppointments("officerId", false,
                 emptyList(),
                 START_INDEX, DEFAULT_ITEMS_PER_PAGE);
 
@@ -365,7 +365,7 @@ class OfficerAppointmentsRepositoryITest {
         // given
 
         // when
-        List<CompanyAppointmentDocument> appointments = repository.findOfficerAppointments(OFFICER_ID, true,
+        List<CompanyAppointmentDocument> appointments = repository.findRecentOfficerAppointments(OFFICER_ID, true,
                 FILTER_STATUSES, START_INDEX, DEFAULT_ITEMS_PER_PAGE);
 
         // then
@@ -382,7 +382,7 @@ class OfficerAppointmentsRepositoryITest {
         // given
 
         // when
-        List<CompanyAppointmentDocument> appointments = repository.findOfficerAppointments("officerId", true, emptyList(),
+        List<CompanyAppointmentDocument> appointments = repository.findRecentOfficerAppointments("officerId", true, emptyList(),
                 START_INDEX, DEFAULT_ITEMS_PER_PAGE);
 
         // then
@@ -395,7 +395,7 @@ class OfficerAppointmentsRepositoryITest {
         // given
 
         // when
-        List<CompanyAppointmentDocument> appointments = repository.findOfficerAppointments(OFFICER_ID, false, emptyList(),
+        List<CompanyAppointmentDocument> appointments = repository.findRecentOfficerAppointments(OFFICER_ID, false, emptyList(),
                 1,
                 4);
 
@@ -413,7 +413,7 @@ class OfficerAppointmentsRepositoryITest {
         // given
 
         // when
-        List<CompanyAppointmentDocument> appointments = repository.findOfficerAppointments(OFFICER_ID, true,
+        List<CompanyAppointmentDocument> appointments = repository.findRecentOfficerAppointments(OFFICER_ID, true,
                 FILTER_STATUSES, 1, 3);
 
         // then
@@ -423,13 +423,13 @@ class OfficerAppointmentsRepositoryITest {
         assertEquals("active_appointed_before_2", appointments.get(2).getId());
     }
 
-    @DisplayName("Repository returns no unsorted officer appointments when start index is greater than total matches")
+    @DisplayName("Repository returns no officer appointments when start index is greater than total matches")
     @Test
     void findOfficerAppointmentsHighStartIndex() {
         // given
 
         // when
-        List<CompanyAppointmentDocument> appointments = repository.findOfficerAppointments(OFFICER_ID, false, emptyList(),
+        List<CompanyAppointmentDocument> appointments = repository.findRecentOfficerAppointments(OFFICER_ID, false, emptyList(),
                 10,
                 DEFAULT_ITEMS_PER_PAGE);
 

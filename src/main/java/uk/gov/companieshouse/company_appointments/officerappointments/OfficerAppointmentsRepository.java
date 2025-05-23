@@ -91,7 +91,7 @@ interface OfficerAppointmentsRepository extends MongoRepository<CompanyAppointme
             "{ $limit: ?4 }"
     })
     @Meta(allowDiskUse = true)
-    List<CompanyAppointmentDocument> findOfficerAppointments(String officerId, boolean filterEnabled,
+    List<CompanyAppointmentDocument> findRecentOfficerAppointments(String officerId, boolean filterEnabled,
             List<String> filterStatuses, int startIndex, int pageSize);
 
     @Aggregation(pipeline = {
