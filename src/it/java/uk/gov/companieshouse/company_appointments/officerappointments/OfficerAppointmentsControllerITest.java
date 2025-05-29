@@ -577,7 +577,7 @@ class OfficerAppointmentsControllerITest {
         mongoTemplate.findAllAndRemove(query, "delta_appointments");
     }
 
-    @DisplayName("Should use the name of the most recently appointed appointment when there are no active appointments")
+    @DisplayName("Should use the name of the most recently appointed_on then appointed_before date appointment when there are no active appointments")
     @Test
     void getNonActiveOfficerAppointments() throws Exception {
         // given
@@ -601,15 +601,19 @@ class OfficerAppointmentsControllerITest {
                 .andExpect(jsonPath("$.resigned_count", is(1)))
                 .andExpect(jsonPath("$.inactive_count", is(1)))
                 .andExpect(jsonPath("$.date_of_birth", not(contains("day"))))
-                .andExpect(jsonPath("$.date_of_birth.year", is(1970)))
-                .andExpect(jsonPath("$.date_of_birth.month", is(1)))
+                .andExpect(jsonPath("$.date_of_birth.year", is(1990)))
+                .andExpect(jsonPath("$.date_of_birth.month", is(2)))
                 .andExpect(jsonPath("$.is_corporate_officer", is(false)))
                 .andExpect(jsonPath("$.items_per_page", is(35)))
                 .andExpect(jsonPath("$.kind", is("personal-appointment")))
                 .andExpect(jsonPath("$.links.self",
                         is("/officers/%s/appointments".formatted(NON_ACTIVE_OFFICER_ID))))
                 .andExpect(jsonPath("$.items", hasSize(2)))
-                .andExpect(jsonPath("$.name", is("Noname1 Noname2 NOSURNAME")))
+                .andExpect(jsonPath("$.items[0].name", is("Noname1 Noname2 NOSURNAME")))
+                .andExpect(jsonPath("$.items[1].name", is("John Forename Doe")))
+                .andExpect(jsonPath("$.items[0].appointed_before", is("1992-07-26")))
+                .andExpect(jsonPath("$.items[1].appointed_on", is("1990-08-26")))
+                .andExpect(jsonPath("$.name", is("John Forename Doe")))
                 .andExpect(jsonPath("$.start_index", is(0)));
 
         // Clean up
