@@ -1,8 +1,6 @@
 artifact_name       := company-appointments.api.ch.gov.uk
 version             := unversioned
 
-dependency_check_runner := 416670754337.dkr.ecr.eu-west-2.amazonaws.com/dependency-check-runner
-
 .PHONY: clean
 clean:
 	mvn clean
@@ -64,9 +62,3 @@ sonar:
 .PHONY: sonar-pr-analysis
 sonar-pr-analysis:
 	mvn sonar:sonar -P sonar-pr-analysis
-
-.PHONY: dependency-check
-dependency-check:
-	docker run --rm -e DEPENDENCY_CHECK_SUPPRESSIONS_HOME=/opt -v "$$(pwd)":/app -w /app ${dependency_check_runner} --repo-name="$(basename "$$(pwd)")"
-.PHONY: security-check
-security-check: dependency-check
