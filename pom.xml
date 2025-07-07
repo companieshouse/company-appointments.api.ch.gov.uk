@@ -16,22 +16,24 @@
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
-        <spring-boot-dependencies.version>3.4.1</spring-boot-dependencies.version>
-        <maven-surefire-plugin.version>3.5.2</maven-surefire-plugin.version>
-        <maven-failsafe-plugin.version>3.5.2</maven-failsafe-plugin.version>
-        <maven-build-helper-plugin.version>3.6.0</maven-build-helper-plugin.version>
+        <spring-boot-dependencies.version>3.5.3</spring-boot-dependencies.version>
+        <maven-build-helper-plugin.version>3.6.1</maven-build-helper-plugin.version>
         <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
-        <jacoco-maven-plugin.version>0.8.12</jacoco-maven-plugin.version>
-        <jib-maven-plugin.version>3.4.4</jib-maven-plugin.version>
-        <io-cucumber.version>7.20.1</io-cucumber.version>
-        <wiremock.version>3.9.2</wiremock.version>
-        <commons.io.version>2.17.0</commons.io.version>
+        <jacoco-maven-plugin.version>0.8.13</jacoco-maven-plugin.version>
+        <jib-maven-plugin.version>3.4.6</jib-maven-plugin.version>
+        <io-cucumber.version>7.23.0</io-cucumber.version>
+        <wiremock.version>3.13.1</wiremock.version>
+        <commons-io.version>2.19.0</commons-io.version>
+        <xmlunit-core.version>2.10.3</xmlunit-core.version>
+        <commons-compress.version>1.27.1</commons-compress.version>
+        <maven-compiler-plugin.version>3.14.0</maven-compiler-plugin.version>
+        <opentelemetry-instrumentation-bom.version>2.14.0</opentelemetry-instrumentation-bom.version>
 
         <!-- internal dependencies -->
-        <structured-logging.version>3.0.20</structured-logging.version>
-        <sdk-manager-java.version>3.0.9</sdk-manager-java.version>
-        <api-sdk-manager-java-library.version>3.0.6</api-sdk-manager-java-library.version>
-        <private-api-sdk-java.version>4.0.258</private-api-sdk-java.version>
+        <structured-logging.version>3.0.34</structured-logging.version>
+        <sdk-manager-java.version>3.0.10</sdk-manager-java.version>
+        <api-sdk-manager-java-library.version>3.0.7</api-sdk-manager-java-library.version>
+        <private-api-sdk-java.version>4.0.317</private-api-sdk-java.version>
         <api-helper-java-library.version>3.0.1</api-helper-java-library.version>
         <api-security-java.version>2.0.8</api-security-java.version>
 
@@ -47,10 +49,17 @@
             ${project.basedir}/target/site/jacoco/jacoco.xml
         </sonar.coverage.jacoco.xmlReportPaths>
         <sonar.jacoco.reports>${project.basedir}/target/site</sonar.jacoco.reports>
-    </properties>
+      </properties>
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+              <groupId>io.opentelemetry.instrumentation</groupId>
+              <artifactId>opentelemetry-instrumentation-bom</artifactId>
+              <version>${opentelemetry-instrumentation-bom.version}</version>
+              <type>pom</type>
+              <scope>import</scope>
+            </dependency>
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
@@ -73,13 +82,13 @@
         <dependency>
             <groupId>org.xmlunit</groupId>
             <artifactId>xmlunit-core</artifactId>
-            <version>2.10.0</version>
+            <version>${xmlunit-core.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-compress</artifactId>
-            <version>1.27.1</version>
+            <version>${commons-compress.version}</version>
         </dependency>
         <!-- Transitive deps end here -->
         <dependency>
@@ -110,6 +119,10 @@
                 </exclusion>
             </exclusions>
         </dependency>
+            <dependency>
+              <groupId>org.springframework.boot</groupId>
+              <artifactId>spring-boot-starter-logging</artifactId>
+            </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-tomcat</artifactId>
@@ -117,6 +130,10 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+          <groupId>io.opentelemetry.instrumentation</groupId>
+          <artifactId>opentelemetry-spring-boot-starter</artifactId>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
@@ -214,7 +231,7 @@
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
-            <version>${commons.io.version}</version>
+            <version>${commons-io.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -245,14 +262,6 @@
                 </exclusion>
             </exclusions>
         </dependency>
-      <!-- Overrides -->
-      <!-- CVE-2024-38810-->
-      <dependency>
-        <groupId>org.springframework.security</groupId>
-        <artifactId>spring-security-config</artifactId>
-        <version>6.3.3</version>
-      </dependency>
-
     </dependencies>
 
     <build>
@@ -260,7 +269,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.13.0</version>
+                <version>${maven-compiler-plugin.version}</version>
                 <configuration>
                     <compilerArgs>
                         <arg>-parameters</arg>
@@ -363,7 +372,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>${maven-surefire-plugin.version}</version>
+                <version>${spring-boot-dependencies.version}</version>
                 <configuration>
                     <argLine>-Dfile.encoding=UTF-8</argLine>
                     <argLine>${surefireArgLine}</argLine>
@@ -377,7 +386,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <version>${maven-failsafe-plugin.version}</version>
+                <version>${spring-boot-dependencies.version}</version>
                 <executions>
                     <execution>
                         <phase>integration-test</phase>
