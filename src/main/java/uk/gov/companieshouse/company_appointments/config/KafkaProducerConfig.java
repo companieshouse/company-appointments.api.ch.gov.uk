@@ -17,7 +17,7 @@ public class KafkaProducerConfig {
 
     private final String bootstrapAddress;
 
-    public KafkaProducerConfig(@Value(value = "${spring.kafka.bootstrap-servers}") String bootstrapAddress) {
+    public KafkaProducerConfig(@Value("${spring.kafka.bootstrap-servers}") String bootstrapAddress) {
         this.bootstrapAddress = bootstrapAddress;
     }
 
