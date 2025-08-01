@@ -21,9 +21,9 @@
         "appointments" : "/officers/<officer_id>/appointments"
       }
     },
-    "officer_role" : "<officer_role>",
+    "officer_role" : "corporate-director",
     "identification" : {
-      "identification_type" : "<identification_type>",
+      "identification_type" : "uk-limited-company",
       "legal_authority" : "Legal Auth",
       "legal_form" : "Legal Form",
       "place_registered" : "United Kingdom",

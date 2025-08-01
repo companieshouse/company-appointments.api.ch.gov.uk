@@ -34,6 +34,7 @@ import uk.gov.companieshouse.api.appointment.ExternalData;
 import uk.gov.companieshouse.api.appointment.FullRecordCompanyOfficerApi;
 import uk.gov.companieshouse.api.appointment.InternalData;
 import uk.gov.companieshouse.api.appointment.SensitiveData;
+import uk.gov.companieshouse.company_appointments.api.OfficerMergeClient;
 import uk.gov.companieshouse.company_appointments.api.ResourceChangedApiService;
 import uk.gov.companieshouse.company_appointments.exception.ConflictException;
 import uk.gov.companieshouse.company_appointments.exception.FailedToTransformException;
@@ -63,6 +64,8 @@ class CompanyAppointmentFullRecordServiceTest {
     private ResourceChangedApiService resourceChangedApiService;
     @Mock
     private CompanyAppointmentMapper companyAppointmentMapper;
+    @Mock
+    private OfficerMergeClient officerMergeClient;
     @Captor
     private ArgumentCaptor<CompanyAppointmentDocument> captor;
 
@@ -91,7 +94,7 @@ class CompanyAppointmentFullRecordServiceTest {
     void setUp() {
         companyAppointmentService =
                 new CompanyAppointmentFullRecordService(deltaAppointmentTransformer,
-                        companyAppointmentRepository, resourceChangedApiService, CLOCK);
+                        companyAppointmentRepository, resourceChangedApiService, CLOCK, officerMergeClient);
     }
 
     @Test
