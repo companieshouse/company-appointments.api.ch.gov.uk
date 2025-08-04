@@ -11,12 +11,12 @@ import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import uk.gov.companieshouse.api.appointment.FullRecordCompanyOfficerApi;
 import uk.gov.companieshouse.company_appointments.CompanyAppointmentsApplication;
-import uk.gov.companieshouse.company_appointments.api.OfficerMergeClient;
 import uk.gov.companieshouse.company_appointments.api.ResourceChangedApiService;
 import uk.gov.companieshouse.company_appointments.exception.ConflictException;
 import uk.gov.companieshouse.company_appointments.exception.FailedToTransformException;
 import uk.gov.companieshouse.company_appointments.exception.NotFoundException;
 import uk.gov.companieshouse.company_appointments.exception.ServiceUnavailableException;
+import uk.gov.companieshouse.company_appointments.kafka.OfficerMergeProducer;
 import uk.gov.companieshouse.company_appointments.logging.DataMapHolder;
 import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentDocument;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaTimestamp;
@@ -36,18 +36,18 @@ public class CompanyAppointmentFullRecordService {
     private final CompanyAppointmentRepository companyAppointmentRepository;
     private final ResourceChangedApiService resourceChangedApiService;
     private final Clock clock;
-    private final OfficerMergeClient officerMergeClient;
+    private final OfficerMergeProducer officerMergeProducer;
 
     public CompanyAppointmentFullRecordService(
             DeltaAppointmentTransformer deltaAppointmentTransformer,
             CompanyAppointmentRepository companyAppointmentRepository,
             ResourceChangedApiService resourceChangedApiService,
-            Clock clock, OfficerMergeClient officerMergeClient) {
+            Clock clock, OfficerMergeProducer officerMergeProducer) {
         this.deltaAppointmentTransformer = deltaAppointmentTransformer;
         this.companyAppointmentRepository = companyAppointmentRepository;
         this.resourceChangedApiService = resourceChangedApiService;
         this.clock = clock;
-        this.officerMergeClient = officerMergeClient;
+        this.officerMergeProducer = officerMergeProducer;
     }
 
     public CompanyAppointmentFullRecordView getAppointment(String companyNumber, String appointmentID)
@@ -156,7 +156,7 @@ public class CompanyAppointmentFullRecordService {
         companyAppointmentRepository.save(document);
 
         if (!isBlank(previousOfficerId)) {
-            officerMergeClient.invokeOfficerMerge(document.getOfficerId(), previousOfficerId);
+            officerMergeProducer.invokeOfficerMerge(document.getOfficerId(), previousOfficerId);
             LOGGER.debug(String.format("Officer merge invoked successfully for officer ID: %s, with previous officer ID: %s",
                     document.getOfficerId(), previousOfficerId), DataMapHolder.getLogMap());
         }

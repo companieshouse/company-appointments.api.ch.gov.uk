@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -37,12 +36,12 @@ import uk.gov.companieshouse.api.appointment.ExternalData;
 import uk.gov.companieshouse.api.appointment.FullRecordCompanyOfficerApi;
 import uk.gov.companieshouse.api.appointment.InternalData;
 import uk.gov.companieshouse.api.appointment.SensitiveData;
-import uk.gov.companieshouse.company_appointments.api.OfficerMergeClient;
 import uk.gov.companieshouse.company_appointments.api.ResourceChangedApiService;
 import uk.gov.companieshouse.company_appointments.exception.ConflictException;
 import uk.gov.companieshouse.company_appointments.exception.FailedToTransformException;
 import uk.gov.companieshouse.company_appointments.exception.NotFoundException;
 import uk.gov.companieshouse.company_appointments.exception.ServiceUnavailableException;
+import uk.gov.companieshouse.company_appointments.kafka.OfficerMergeProducer;
 import uk.gov.companieshouse.company_appointments.mapper.CompanyAppointmentMapper;
 import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentDocument;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaItemLinkTypes;
@@ -68,7 +67,7 @@ class CompanyAppointmentFullRecordServiceTest {
     @Mock
     private CompanyAppointmentMapper companyAppointmentMapper;
     @Mock
-    private OfficerMergeClient officerMergeClient;
+    private OfficerMergeProducer officerMergeProducer;
     @Captor
     private ArgumentCaptor<CompanyAppointmentDocument> captor;
 
@@ -97,7 +96,7 @@ class CompanyAppointmentFullRecordServiceTest {
     void setUp() {
         companyAppointmentService =
                 new CompanyAppointmentFullRecordService(deltaAppointmentTransformer,
-                        companyAppointmentRepository, resourceChangedApiService, CLOCK, officerMergeClient);
+                        companyAppointmentRepository, resourceChangedApiService, CLOCK, officerMergeProducer);
     }
 
     @Test
@@ -348,7 +347,7 @@ class CompanyAppointmentFullRecordServiceTest {
 
         // then
         verify(companyAppointmentRepository).save(captor.capture());
-        verify(officerMergeClient).invokeOfficerMerge("officerId", "oldOfficerId");
+        verify(officerMergeProducer).invokeOfficerMerge("officerId", "oldOfficerId");
         assertNotNull(captor.getValue().getData().getEtag());
     }
 
@@ -379,7 +378,7 @@ class CompanyAppointmentFullRecordServiceTest {
 
         // then
         verify(companyAppointmentRepository).save(captor.capture());
-        verify(officerMergeClient).invokeOfficerMerge("officerId", "oldOfficerId");
+        verify(officerMergeProducer).invokeOfficerMerge("officerId", "oldOfficerId");
         assertNotNull(captor.getValue().getData().getEtag());
     }
 
@@ -414,7 +413,7 @@ class CompanyAppointmentFullRecordServiceTest {
 
         // then
         verify(companyAppointmentRepository).save(captor.capture());
-        verifyNoInteractions(officerMergeClient);
+        verifyNoInteractions(officerMergeProducer);
         assertNotNull(captor.getValue().getData().getEtag());
     }
 
