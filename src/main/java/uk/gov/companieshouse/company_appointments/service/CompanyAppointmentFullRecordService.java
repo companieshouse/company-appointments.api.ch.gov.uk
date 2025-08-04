@@ -107,10 +107,11 @@ public class CompanyAppointmentFullRecordService {
         } else {
             //Check for officer merge criteria and log old id if applicable
             String previousOfficerId = null;
-            if (!document.getOfficerId().equals(existingDocument.getOfficerId())) {
+            if (!document.getOfficerId().equals(existingDocument.getOfficerId()) &&
+                    !isBlank(existingDocument.getOfficerId())) {
                 previousOfficerId = existingDocument.getOfficerId();
             } else if (!document.getOfficerId().equals(document.getPreviousOfficerId()) &&
-                    !document.getPreviousOfficerId().isBlank()) {
+                    !isBlank(document.getPreviousOfficerId())) {
                 previousOfficerId = document.getPreviousOfficerId();
             }
 
@@ -132,7 +133,7 @@ public class CompanyAppointmentFullRecordService {
         Map<String, Object> logInfo = DataMapHolder.getLogMap();
         logInfo.put("incomingDeltaAt", appointmentAPI.getDeltaAt().toString());
         logInfo.put("existingDeltaAt",
-                existingDelta.toString().isBlank() ? "No existing delta" : existingDelta.toString());
+                isBlank(existingDelta.toString()) ? "No existing delta" : existingDelta.toString());
         final String context = appointmentAPI.getAppointmentId();
         LOGGER.errorContext(context, "Received stale delta", null, logInfo);
     }
