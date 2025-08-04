@@ -9,8 +9,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
-import uk.gov.companieshouse.company_appointments.model.OfficerMergeMessage;
 import uk.gov.companieshouse.company_appointments.serdes.OfficerMergeSerialiser;
+import uk.gov.companieshouse.officermerge.OfficerMerge;
 
 @Configuration
 public class KafkaProducerConfig {
@@ -22,18 +22,17 @@ public class KafkaProducerConfig {
     }
 
     @Bean
-    public ProducerFactory<String, OfficerMergeMessage> producerFactory() {
+    public ProducerFactory<String, OfficerMerge> producerFactory() {
         return new DefaultKafkaProducerFactory<>(
                 Map.of(
                         ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress,
                         ProducerConfig.ACKS_CONFIG, "all",
                         ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class,
-                        ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, OfficerMergeSerialiser.class)
-        );
+                        ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, OfficerMergeSerialiser.class));
     }
 
     @Bean
-    public KafkaTemplate<String, OfficerMergeMessage> kafkaTemplate() {
-        return new KafkaTemplate<>(producerFactory());
+    public KafkaTemplate<String, OfficerMerge> kafkaTemplate(ProducerFactory<String, OfficerMerge> producerFactory) {
+        return new KafkaTemplate<>(producerFactory);
     }
 }

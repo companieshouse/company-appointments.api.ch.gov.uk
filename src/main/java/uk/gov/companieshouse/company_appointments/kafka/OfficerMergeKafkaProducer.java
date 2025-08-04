@@ -9,36 +9,37 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.company_appointments.exception.BadGatewayException;
 import uk.gov.companieshouse.company_appointments.logging.DataMapHolder;
-import uk.gov.companieshouse.company_appointments.model.OfficerMergeMessage;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.logging.LoggerFactory;
+import uk.gov.companieshouse.officermerge.OfficerMerge;
 
 @Component
-public class KafkaPublisher {
+public class OfficerMergeKafkaProducer implements OfficerMergeProducer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(APPLICATION_NAME_SPACE);
 
-    private final KafkaTemplate<String, OfficerMergeMessage> kafkaTemplate;
+    private final KafkaTemplate<String, OfficerMerge> kafkaTemplate;
     private final String officerMergeTopic;
 
-    public KafkaPublisher(KafkaTemplate<String, OfficerMergeMessage> kafkaTemplate,
+    public OfficerMergeKafkaProducer(KafkaTemplate<String, OfficerMerge> kafkaTemplate,
             @Value("${kafka.officer-merge.topic}") String officerMergeTopic) {
         this.kafkaTemplate = kafkaTemplate;
         this.officerMergeTopic = officerMergeTopic;
     }
 
-    public void publishToOfficerMergeTopic(OfficerMergeMessage message) {
+    public void invokeOfficerMerge(String officerId, String previousOfficerID) {
         try {
-            kafkaTemplate.send(officerMergeTopic, message).join();
+            OfficerMerge officerMerge = new OfficerMerge(officerId, previousOfficerID, DataMapHolder.getRequestId());
+            kafkaTemplate.send(officerMergeTopic, officerMerge).join();
         } catch (CompletionException ex) {
-            final String msg = "Completion error occurred when completing the Kafka send future";
-            LOGGER.error(msg);
+            final String msg = "Completion error during Kafka send Future";
+            LOGGER.info(msg, DataMapHolder.getLogMap());
             throw new BadGatewayException(msg, ex);
         } catch (KafkaException ex) {
-            final String msg = "Error occurred when publishing to the officer-merge topic";
-            LOGGER.error(msg);
+            final String msg = "Error publishing to officer-merge topic";
+            LOGGER.info(msg, DataMapHolder.getLogMap());
             throw new BadGatewayException(msg, ex);
         }
-        LOGGER.info("Successfully published message to the officer-merge topic", DataMapHolder.getLogMap());
+        LOGGER.info("Successfully published message to officer-merge topic", DataMapHolder.getLogMap());
     }
 }

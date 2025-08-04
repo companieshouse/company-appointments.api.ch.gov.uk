@@ -7,24 +7,21 @@ import org.apache.avro.io.Encoder;
 import org.apache.avro.io.EncoderFactory;
 import org.apache.avro.reflect.ReflectDatumWriter;
 import org.apache.kafka.common.serialization.Serializer;
-import uk.gov.companieshouse.company_appointments.model.OfficerMergeMessage;
+import uk.gov.companieshouse.company_appointments.exception.SerDesException;
+import uk.gov.companieshouse.officermerge.OfficerMerge;
 
-public class OfficerMergeSerialiser implements Serializer<OfficerMergeMessage> {
+public class OfficerMergeSerialiser implements Serializer<OfficerMerge> {
 
     @Override
-    public byte[] serialize(String topic, OfficerMergeMessage message) {
+    public byte[] serialize(String topic, OfficerMerge message) {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         Encoder encoder = EncoderFactory.get().directBinaryEncoder(outputStream, null);
-        DatumWriter<OfficerMergeMessage> writer = getDatumWriter();
+        DatumWriter<OfficerMerge> writer = new ReflectDatumWriter<>(OfficerMerge.class);
         try {
             writer.write(message, encoder);
         } catch (IOException ex) {
-            throw new RuntimeException("Error serialising Officer Merge message", ex);
+            throw new SerDesException("Error serialising OfficerMerge message", ex);
         }
         return outputStream.toByteArray();
-    }
-
-    public DatumWriter<OfficerMergeMessage> getDatumWriter() {
-        return new ReflectDatumWriter<>(OfficerMergeMessage.class);
     }
 }
