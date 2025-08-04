@@ -16,27 +16,29 @@
   <properties>
     <maven.compiler.source>21</maven.compiler.source>
     <maven.compiler.target>21</maven.compiler.target>
-    <spring-boot-dependencies.version>3.5.3</spring-boot-dependencies.version>
+    <spring-boot-dependencies.version>3.5.4</spring-boot-dependencies.version>
+    <maven-surefire.version>3.5.3</maven-surefire.version>
+    <maven-failsafe.version>3.5.3</maven-failsafe.version>
     <maven-build-helper-plugin.version>3.6.1</maven-build-helper-plugin.version>
     <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
     <jacoco-maven-plugin.version>0.8.13</jacoco-maven-plugin.version>
     <jib-maven-plugin.version>3.4.6</jib-maven-plugin.version>
     <io-cucumber.version>7.23.0</io-cucumber.version>
     <wiremock.version>3.13.1</wiremock.version>
-    <commons-io.version>2.19.0</commons-io.version>
+    <commons-io.version>2.20.0</commons-io.version>
     <xmlunit-core.version>2.10.3</xmlunit-core.version>
-    <commons-compress.version>1.27.1</commons-compress.version>
+    <commons-compress.version>1.28.0</commons-compress.version>
     <maven-compiler-plugin.version>3.14.0</maven-compiler-plugin.version>
-    <opentelemetry-instrumentation-bom.version>2.14.0</opentelemetry-instrumentation-bom.version>
+    <opentelemetry-instrumentation-bom.version>2.18.1</opentelemetry-instrumentation-bom.version>
 
     <!-- internal dependencies -->
-    <structured-logging.version>3.0.34</structured-logging.version>
-    <sdk-manager-java.version>3.0.10</sdk-manager-java.version>
+    <structured-logging.version>3.0.38</structured-logging.version>
+    <sdk-manager-java.version>3.0.11</sdk-manager-java.version>
     <api-sdk-manager-java-library.version>3.0.7</api-sdk-manager-java-library.version>
-    <private-api-sdk-java.version>4.0.317</private-api-sdk-java.version>
+    <private-api-sdk-java.version>4.0.333</private-api-sdk-java.version>
     <api-helper-java-library.version>3.0.1</api-helper-java-library.version>
-    <api-security-java.version>2.0.8</api-security-java.version>
-    <kafka-models.version>3.0.19</kafka-models.version>
+    <api-security-java.version>2.0.11</api-security-java.version>
+    <kafka-models.version>3.0.20</kafka-models.version>
 
     <skip.integration.tests>false</skip.integration.tests>
     <skip.unit.tests>false</skip.unit.tests>
@@ -81,15 +83,9 @@
   <dependencies>
     <!-- Transitive deps start here -->
     <dependency>
-      <groupId>org.xmlunit</groupId>
-      <artifactId>xmlunit-core</artifactId>
-      <version>${xmlunit-core.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>org.apache.commons</groupId>
-      <artifactId>commons-compress</artifactId>
-      <version>${commons-compress.version}</version>
+      <artifactId>commons-lang3</artifactId>
+      <version>3.18.0</version>
     </dependency>
     <!-- Transitive deps end here -->
     <dependency>
@@ -139,7 +135,7 @@
     <dependency>
       <groupId>uk.gov.companieshouse</groupId>
       <artifactId>kafka-models</artifactId>
-      <version>unversioned</version>
+      <version>${kafka-models.version}</version>
     </dependency>
     <dependency>
       <groupId>io.opentelemetry.instrumentation</groupId>
@@ -211,12 +207,26 @@
           <groupId>javax.servlet</groupId>
           <artifactId>servlet-api</artifactId>
         </exclusion>
+        <exclusion>
+          <groupId>io.grpc</groupId>
+          <artifactId>grpc-api</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>io.grpc</groupId>
+          <artifactId>grpc-context</artifactId>
+        </exclusion>
       </exclusions>
     </dependency>
     <dependency>
       <groupId>uk.gov.companieshouse</groupId>
       <artifactId>api-helper-java</artifactId>
       <version>${api-helper-java-library.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>commons-lang</groupId>
+          <artifactId>commons-lang</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>io.cucumber</groupId>
@@ -392,7 +402,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>${spring-boot-dependencies.version}</version>
+        <version>${maven-surefire.version}</version>
         <configuration>
           <argLine>-Dfile.encoding=UTF-8</argLine>
           <argLine>${surefireArgLine}</argLine>
@@ -406,7 +416,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-failsafe-plugin</artifactId>
-        <version>${spring-boot-dependencies.version}</version>
+        <version>${maven-failsafe.version}</version>
         <executions>
           <execution>
             <phase>integration-test</phase>
