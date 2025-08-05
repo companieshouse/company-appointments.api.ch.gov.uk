@@ -16,12 +16,16 @@ public class OfficerMergeSerialiser implements Serializer<OfficerMerge> {
     public byte[] serialize(String topic, OfficerMerge message) {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         Encoder encoder = EncoderFactory.get().directBinaryEncoder(outputStream, null);
-        DatumWriter<OfficerMerge> writer = new ReflectDatumWriter<>(OfficerMerge.class);
+        DatumWriter<OfficerMerge> writer = getDatumWriter();
         try {
             writer.write(message, encoder);
         } catch (IOException ex) {
             throw new SerDesException("Error serialising OfficerMerge message", ex);
         }
         return outputStream.toByteArray();
+    }
+
+    public DatumWriter<OfficerMerge> getDatumWriter() {
+        return new ReflectDatumWriter<>(OfficerMerge.class);
     }
 }
