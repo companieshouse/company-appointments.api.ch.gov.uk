@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -224,11 +226,13 @@ class CompanyAppointmentFullRecordServiceTest {
         // given
         CompanyAppointmentDocument deltaAppointmentDocument = new CompanyAppointmentDocument()
                 .id("appointmentId")
+                .officerId("officerId")
                 .companyNumber("012345678")
                 .deltaAt(Instant.parse("2023-11-06T16:30:00.000000Z"));
 
         CompanyAppointmentDocument existingDocument = new CompanyAppointmentDocument()
                 .id("appointmentId")
+                .officerId("officerId")
                 .companyNumber("012345678")
                 .deltaAt(Instant.parse("2023-11-06T12:00:00.000000Z"));
 
@@ -417,33 +421,34 @@ class CompanyAppointmentFullRecordServiceTest {
         assertNotNull(captor.getValue().getData().getEtag());
     }
 
-    // TODO: Have the officer merge invocation fail and throw error
     @Test
     void testUpdateAppointmentWhenOfficerMergeFails() {
         // given
-        CompanyAppointmentDocument deltaAppointmentDocument = new CompanyAppointmentDocument()
-                .id("appointmentId")
-                .companyNumber("012345678")
-                .deltaAt(Instant.parse("2023-11-06T16:30:00.000000Z"));
+        DeltaOfficerData data = DeltaOfficerData.Builder.builder()
+                .officerRole("director")
+                .etag("etag")
+                .build();
+        DeltaSensitiveData sensitiveData = new DeltaSensitiveData()
+                .setDateOfBirth(Instant.parse("1990-01-12T01:02:30.456789Z"));
+        CompanyAppointmentDocument deltaAppointmentDocument = buildDeltaAppointmentDocument(
+                Instant.parse("2022-01-12T00:00:00.000000Z"), data, sensitiveData);
+        CompanyAppointmentDocument transformedAppointmentApi = builtDeltaAppointmentApi(
+                data, sensitiveData, Instant.parse("2022-01-13T00:00:00.000000Z"));
 
-        CompanyAppointmentDocument existingDocument = new CompanyAppointmentDocument()
-                .id("appointmentId")
-                .companyNumber("012345678")
-                .deltaAt(Instant.parse("2023-11-06T12:00:00.000000Z"));
+        when(companyAppointmentRepository.readByCompanyNumberAndID(anyString(), anyString()))
+                .thenReturn(Optional.of(deltaAppointmentDocument));
+        when(deltaAppointmentTransformer.transform(any(FullRecordCompanyOfficerApi.class)))
+                .thenReturn(transformedAppointmentApi);
 
-        when(deltaAppointmentTransformer.transform(any(FullRecordCompanyOfficerApi.class))).thenReturn(
-                deltaAppointmentDocument);
-
-        when(companyAppointmentRepository.readByCompanyNumberAndID(any(), any())).thenReturn(Optional.of(existingDocument));
-        //when(officerMergeClient.invokeOfficerMerge(anyString(), anyString())).thenThrow(ServiceUnavailableException.class);
+        doThrow(ServiceUnavailableException.class).when(officerMergeProducer).invokeOfficerMerge(anyString(), anyString());
 
         // When
-        Executable executable = () -> companyAppointmentService.upsertAppointmentDelta(
-                fullRecordCompanyOfficerApi);
+        Executable executable = () -> companyAppointmentService.upsertAppointmentDelta(fullRecordCompanyOfficerApi);
 
         // then
         assertThrows(ServiceUnavailableException.class, executable);
-        verify(companyAppointmentRepository).save(deltaAppointmentDocument);
+        verify(companyAppointmentRepository).save(captor.capture());
+        verifyNoInteractions(resourceChangedApiService);
     }
 
     private FullRecordCompanyOfficerApi buildFullRecordOfficer() {
