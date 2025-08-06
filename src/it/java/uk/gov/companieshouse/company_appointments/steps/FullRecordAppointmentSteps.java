@@ -16,6 +16,8 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.Collections;
 import java.util.Optional;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.core.io.ClassPathResource;
@@ -24,9 +26,11 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.kafka.test.utils.KafkaTestUtils;
 import uk.gov.companieshouse.api.appointment.FullRecordCompanyOfficerApi;
 import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentDocument;
 import uk.gov.companieshouse.company_appointments.repository.CompanyAppointmentRepository;
+import uk.gov.companieshouse.officermerge.OfficerMerge;
 
 public class FullRecordAppointmentSteps {
 
@@ -53,6 +57,9 @@ public class FullRecordAppointmentSteps {
 
     @Autowired
     private CompanyAppointmentRepository companyAppointmentRepository;
+
+    @Autowired
+    public KafkaConsumer<String, byte[]> kafkaConsumer;
 
     @Given("the user is authenticated and authorised with internal app privileges")
     public void userIsAuthenticatedAndAuthorisedWithInternalAppPrivileges() {
@@ -90,6 +97,14 @@ public class FullRecordAppointmentSteps {
         FullRecordCompanyOfficerApi fullRecordCompanyOfficerApi = objectMapper.readValue(file, FullRecordCompanyOfficerApi.class);
         OffsetDateTime deltaAt = actual.getDeltaAt().atOffset(ZoneOffset.UTC);
         fullRecordCompanyOfficerApi.getInternalData().setDeltaAt(deltaAt.plusDays(1L));
+
+        CONTEXT.set("getRecord", fullRecordCompanyOfficerApi);
+    }
+
+    @Given("the delta is a valid officer merge delta")
+    public void thisDeltaIsValidOfficerMergeDelta() {
+        FullRecordCompanyOfficerApi fullRecordCompanyOfficerApi = CONTEXT.get("getRecord");
+        fullRecordCompanyOfficerApi.getExternalData().setPreviousOfficerId("oldOfficerId");
 
         CONTEXT.set("getRecord", fullRecordCompanyOfficerApi);
     }
@@ -206,5 +221,12 @@ public class FullRecordAppointmentSteps {
     public void recordShouldBeDeletedSuccessFully() {
         Optional<CompanyAppointmentDocument> appointment = companyAppointmentRepository.findById(APPOINTMENT_ID);
         assertThat(appointment).isEmpty();
+    }
+
+    @Then("a message is placed on the officer merge kafka topic")
+    public void aMessageIsPlacedOnTheOfficerMergeKafkaTopic() {
+        ConsumerRecord<String, byte[]> singleRecord = KafkaTestUtils.getSingleRecord(kafkaConsumer, "officer-merge");
+
+        assertThat(singleRecord.value()).isNotNull();
     }
 }

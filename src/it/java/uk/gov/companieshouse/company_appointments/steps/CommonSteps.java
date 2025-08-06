@@ -22,17 +22,20 @@ import io.cucumber.java.en.Then;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import org.apache.commons.io.IOUtils;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.SimpleMongoClientDatabaseFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.kafka.core.KafkaTemplate;
 import uk.gov.companieshouse.api.chskafka.ChangedResource;
 import uk.gov.companieshouse.company_appointments.config.WiremockTestConfig;
 import uk.gov.companieshouse.company_appointments.repository.CompanyAppointmentRepository;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.logging.LoggerFactory;
+import uk.gov.companieshouse.officermerge.OfficerMerge;
 
 public class CommonSteps {
 
@@ -48,6 +51,9 @@ public class CommonSteps {
 
     @Autowired
     private CompanyAppointmentRepository companyAppointmentRepository;
+
+    @Autowired
+    private KafkaTemplate<String, OfficerMerge> kafkaTemplate;
 
     @BeforeAll
     public static void setup() {
@@ -70,6 +76,7 @@ public class CommonSteps {
     @Given("CHS kafka is available")
     public void theChsKafkaApiIsAvailable() throws InterruptedException {
         WiremockTestConfig.stubKafkaApi(HttpStatus.OK.value());
+        assertThat(kafkaTemplate).isNotNull();
     }
 
     @Given("CHS kafka is unavailable")

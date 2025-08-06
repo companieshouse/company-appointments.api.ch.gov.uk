@@ -94,3 +94,23 @@ Feature: Upsert full record officer information
       | payloadFile                        | appointmentId               |
       | natural_officer_full_record_PUT    | 7IjxamNGLlqtIingmTZJJ42Hw9Q |
       | corporate_officer_full_record_PUT  | 7IjxamNGLlqtIingmTZJJ42Hw9Q |
+
+  Scenario Outline: Successfully process officer merge delta
+
+    Given the company appointments api is running
+    And CHS kafka is available
+    And the user is authenticated and authorised with internal app privileges
+    And the delta for payload "<payloadFile>" is the most recent delta for "<appointmentId>"
+    And the delta is a valid officer merge delta
+    When a request is sent to the PUT endpoint to upsert an officers delta
+    Then a message is placed on the officer merge kafka topic
+    And a request is sent to the resource changed endpoint
+    And the event type is "<eventType>"
+    And the request body is a valid resource changed request
+    And I should receive a 200 status code
+    And the record should be saved
+
+    Examples:
+      | payloadFile                             | appointmentId               | eventType |
+      | natural_officer_full_record_PUT         | 7IjxamNGLlqtIingmTZJJ42Hw9Q | changed   |
+      | corporate_officer_full_record_PUT       | 7IjxamNGLlqtIingmTZJJ42Hw9Q | changed   |
