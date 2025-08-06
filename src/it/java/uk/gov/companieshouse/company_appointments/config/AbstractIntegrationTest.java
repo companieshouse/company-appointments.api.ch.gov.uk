@@ -1,8 +1,8 @@
 package uk.gov.companieshouse.company_appointments.config;
 
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import uk.gov.companieshouse.company_appointments.api.CompanyMetricsApiService;
 
 /**
@@ -13,6 +13,6 @@ import uk.gov.companieshouse.company_appointments.api.CompanyMetricsApiService;
 @ActiveProfiles({"test"})
 public abstract class AbstractIntegrationTest extends AbstractMongoConfig {
 
-    @MockBean
+    @MockitoBean
     public CompanyMetricsApiService companyMetricsApiService;
 }
