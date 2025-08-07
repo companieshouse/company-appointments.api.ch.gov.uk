@@ -20,13 +20,10 @@ import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
 import org.springframework.kafka.listener.ContainerProperties;
-import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer;
 import org.testcontainers.containers.KafkaContainer;
-import org.testcontainers.kafka.ConfluentKafkaContainer;
 import org.testcontainers.utility.DockerImageName;
 import uk.gov.companieshouse.company_appointments.serdes.OfficerMergeSerialiser;
 import uk.gov.companieshouse.officermerge.OfficerMerge;
-import uk.gov.companieshouse.stream.ResourceChangedData;
 
 @TestConfiguration
 public class TestKafkaConfig {
@@ -54,33 +51,18 @@ public class TestKafkaConfig {
     }
 
     @Bean
-    ConcurrentKafkaListenerContainerFactory<String, byte[]> listenerContainerFactory() {
-        ConcurrentKafkaListenerContainerFactory<String, byte[]> factory
-                = new ConcurrentKafkaListenerContainerFactory<>();
-        factory.setConsumerFactory(kafkaConsumerFactory());
-        factory.getContainerProperties().setIdleBetweenPolls(0);
-        factory.getContainerProperties().setPollTimeout(10L);
-        factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.RECORD);
-
-        return factory;
-    }
-
-    @Bean
-    public ConsumerFactory<String, byte[]> kafkaConsumerFactory() {
-        return new DefaultKafkaConsumerFactory<>(consumerConfigs(kafkaContainer()), new StringDeserializer(),
-                new ByteArrayDeserializer());
-    }
-
-    @Bean
-    public Map<String, Object> consumerConfigs(KafkaContainer kafkaContainer) {
-        Map<String, Object> props = new HashMap<>();
-        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaContainer.getBootstrapServers());
-        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, UUID.randomUUID().toString());
-        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ByteArrayDeserializer.class);
-        props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false");
-        return props;
+    KafkaConsumer<String, byte[]> kafkaConsumer() {
+        KafkaConsumer<String, byte[]> consumer = new KafkaConsumer<>(
+                Map.of(
+                        ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaContainer().getBootstrapServers(),
+                        ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class,
+                        ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ByteArrayDeserializer.class,
+                        ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest",
+                        ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false",
+                        ConsumerConfig.GROUP_ID_CONFIG, UUID.randomUUID().toString()),
+                new StringDeserializer(), new ByteArrayDeserializer());
+        consumer.subscribe(List.of("officer-merge"));
+        return consumer;
     }
 
     @Bean

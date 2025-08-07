@@ -30,6 +30,8 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.SimpleMongoClientDatabaseFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import uk.gov.companieshouse.api.chskafka.ChangedResource;
 import uk.gov.companieshouse.company_appointments.config.WiremockTestConfig;
 import uk.gov.companieshouse.company_appointments.repository.CompanyAppointmentRepository;

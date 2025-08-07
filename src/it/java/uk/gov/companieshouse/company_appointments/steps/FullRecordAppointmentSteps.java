@@ -11,11 +11,16 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import java.io.File;
 import java.io.IOException;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.Collections;
 import java.util.Optional;
+import org.apache.avro.io.DatumReader;
+import org.apache.avro.io.Decoder;
+import org.apache.avro.io.DecoderFactory;
+import org.apache.avro.reflect.ReflectDatumReader;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -106,7 +111,14 @@ public class FullRecordAppointmentSteps {
         FullRecordCompanyOfficerApi fullRecordCompanyOfficerApi = CONTEXT.get("getRecord");
         fullRecordCompanyOfficerApi.getExternalData().setPreviousOfficerId("oldOfficerId");
 
+        OfficerMerge officerMerge = new OfficerMerge(
+                fullRecordCompanyOfficerApi.getExternalData().getOfficerId(),
+                "oldOfficerId",
+                "5234234234"
+        );
+
         CONTEXT.set("getRecord", fullRecordCompanyOfficerApi);
+        CONTEXT.set("officerMerge", officerMerge);
     }
 
     @Given("the delta for payload {string} is a stale delta for {string}")
@@ -224,9 +236,15 @@ public class FullRecordAppointmentSteps {
     }
 
     @Then("a message is placed on the officer merge kafka topic")
-    public void aMessageIsPlacedOnTheOfficerMergeKafkaTopic() {
-        ConsumerRecord<String, byte[]> singleRecord = KafkaTestUtils.getSingleRecord(kafkaConsumer, "officer-merge");
+    public void aMessageIsPlacedOnTheOfficerMergeKafkaTopic() throws IOException {
+        byte[] actualBytes = KafkaTestUtils.getSingleRecord(kafkaConsumer, "officer-merge",
+                Duration.ofMillis(10000L)).value();
+        assertThat(actualBytes).isNotNull();
 
-        assertThat(singleRecord.value()).isNotNull();
+        Decoder decoder = DecoderFactory.get().binaryDecoder(actualBytes, null);
+        DatumReader<OfficerMerge> reader = new ReflectDatumReader<>(OfficerMerge.class);
+        OfficerMerge actual = reader.read(null, decoder);
+
+        assertEquals(CONTEXT.get("officerMerge"), actual);
     }
 }
