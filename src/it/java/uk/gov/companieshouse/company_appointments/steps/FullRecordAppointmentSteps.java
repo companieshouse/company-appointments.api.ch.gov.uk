@@ -21,7 +21,6 @@ import org.apache.avro.io.DatumReader;
 import org.apache.avro.io.Decoder;
 import org.apache.avro.io.DecoderFactory;
 import org.apache.avro.reflect.ReflectDatumReader;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -64,7 +63,7 @@ public class FullRecordAppointmentSteps {
     private CompanyAppointmentRepository companyAppointmentRepository;
 
     @Autowired
-    public KafkaConsumer<String, byte[]> kafkaConsumer;
+    public KafkaConsumer<String, byte[]> testConsumer;
 
     @Given("the user is authenticated and authorised with internal app privileges")
     public void userIsAuthenticatedAndAuthorisedWithInternalAppPrivileges() {
@@ -237,7 +236,7 @@ public class FullRecordAppointmentSteps {
 
     @Then("a message is placed on the officer merge kafka topic")
     public void aMessageIsPlacedOnTheOfficerMergeKafkaTopic() throws IOException {
-        byte[] actualBytes = KafkaTestUtils.getSingleRecord(kafkaConsumer, "officer-merge",
+        byte[] actualBytes = KafkaTestUtils.getSingleRecord(testConsumer, "officer-merge",
                 Duration.ofMillis(10000L)).value();
         assertThat(actualBytes).isNotNull();
 

@@ -105,7 +105,6 @@ public class CompanyAppointmentFullRecordService {
             logStaleIncomingDelta(document, existingDocument.getDeltaAt());
             throw new ConflictException("Received stale delta");
         } else {
-            //Check for officer merge criteria and log old id if applicable
             String previousOfficerId = null;
             if (!document.getOfficerId().equals(existingDocument.getOfficerId()) &&
                     !isBlank(existingDocument.getOfficerId())) {
@@ -157,8 +156,6 @@ public class CompanyAppointmentFullRecordService {
 
         if (!isBlank(previousOfficerId)) {
             officerMergeProducer.invokeOfficerMerge(document.getOfficerId(), previousOfficerId);
-            LOGGER.debug(String.format("Officer merge invoked successfully for officer ID: %s, with previous officer ID: %s",
-                    document.getOfficerId(), previousOfficerId), DataMapHolder.getLogMap());
         }
 
         resourceChangedApiService.invokeChsKafkaApi(

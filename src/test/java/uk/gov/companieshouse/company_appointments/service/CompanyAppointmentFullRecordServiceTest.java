@@ -353,6 +353,7 @@ class CompanyAppointmentFullRecordServiceTest {
         verify(companyAppointmentRepository).save(captor.capture());
         verify(officerMergeProducer).invokeOfficerMerge("officerId", "oldOfficerId");
         assertNotNull(captor.getValue().getData().getEtag());
+        //TODO Add resource changed verification
     }
 
     @Test
@@ -384,6 +385,7 @@ class CompanyAppointmentFullRecordServiceTest {
         verify(companyAppointmentRepository).save(captor.capture());
         verify(officerMergeProducer).invokeOfficerMerge("officerId", "oldOfficerId");
         assertNotNull(captor.getValue().getData().getEtag());
+        //TODO Add resource changed verification
     }
 
     @ParameterizedTest
@@ -419,6 +421,7 @@ class CompanyAppointmentFullRecordServiceTest {
         verify(companyAppointmentRepository).save(captor.capture());
         verifyNoInteractions(officerMergeProducer);
         assertNotNull(captor.getValue().getData().getEtag());
+        //TODO Add resource changed verification
     }
 
     @Test
@@ -450,6 +453,8 @@ class CompanyAppointmentFullRecordServiceTest {
         verify(companyAppointmentRepository).save(captor.capture());
         verifyNoInteractions(resourceChangedApiService);
     }
+
+    // TODO: Add coverage for the isBlank checks in the update method
 
     private FullRecordCompanyOfficerApi buildFullRecordOfficer() {
         FullRecordCompanyOfficerApi output = new FullRecordCompanyOfficerApi();

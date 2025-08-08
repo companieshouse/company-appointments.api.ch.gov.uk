@@ -27,9 +27,11 @@ public class OfficerMergeKafkaProducer implements OfficerMergeProducer {
         this.officerMergeTopic = officerMergeTopic;
     }
 
-    public void invokeOfficerMerge(String officerId, String previousOfficerID) {
+    public void invokeOfficerMerge(String officerId, String previousOfficerId) {
         try {
-            OfficerMerge officerMerge = new OfficerMerge(officerId, previousOfficerID, DataMapHolder.getRequestId());
+            DataMapHolder.get().officerId(officerId); //TODO Add previous officer id to structured logging and add to log map here
+
+            OfficerMerge officerMerge = new OfficerMerge(officerId, previousOfficerId, DataMapHolder.getRequestId());
             kafkaTemplate.send(officerMergeTopic, officerMerge).join();
         } catch (CompletionException ex) {
             final String msg = "Completion error during Kafka send Future";
