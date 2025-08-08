@@ -29,7 +29,7 @@ public class OfficerMergeKafkaProducer implements OfficerMergeProducer {
 
     public void invokeOfficerMerge(String officerId, String previousOfficerId) {
         try {
-            DataMapHolder.get().officerId(officerId); //TODO Add previous officer id to structured logging and add to log map here
+            DataMapHolder.get().officerId(officerId).previousOfficerId(previousOfficerId);
 
             OfficerMerge officerMerge = new OfficerMerge(officerId, previousOfficerId, DataMapHolder.getRequestId());
             kafkaTemplate.send(officerMergeTopic, officerMerge).join();

@@ -50,6 +50,7 @@ import uk.gov.companieshouse.company_appointments.model.data.DeltaItemLinkTypes;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaOfficerData;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaOfficerLinkTypes;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaSensitiveData;
+import uk.gov.companieshouse.company_appointments.model.data.ResourceChangedRequest;
 import uk.gov.companieshouse.company_appointments.model.transformer.DeltaAppointmentTransformer;
 import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentFullRecordView;
 import uk.gov.companieshouse.company_appointments.model.view.DateOfBirthView;
@@ -353,7 +354,8 @@ class CompanyAppointmentFullRecordServiceTest {
         verify(companyAppointmentRepository).save(captor.capture());
         verify(officerMergeProducer).invokeOfficerMerge("officerId", "oldOfficerId");
         assertNotNull(captor.getValue().getData().getEtag());
-        //TODO Add resource changed verification
+        verify(resourceChangedApiService).invokeChsKafkaApi(new ResourceChangedRequest(
+                transformedAppointmentApi.getCompanyNumber(), transformedAppointmentApi.getId(), null, false));
     }
 
     @Test
@@ -385,7 +387,8 @@ class CompanyAppointmentFullRecordServiceTest {
         verify(companyAppointmentRepository).save(captor.capture());
         verify(officerMergeProducer).invokeOfficerMerge("officerId", "oldOfficerId");
         assertNotNull(captor.getValue().getData().getEtag());
-        //TODO Add resource changed verification
+        verify(resourceChangedApiService).invokeChsKafkaApi(new ResourceChangedRequest(
+                transformedAppointmentApi.getCompanyNumber(), transformedAppointmentApi.getId(), null, false));
     }
 
     @ParameterizedTest
@@ -421,7 +424,8 @@ class CompanyAppointmentFullRecordServiceTest {
         verify(companyAppointmentRepository).save(captor.capture());
         verifyNoInteractions(officerMergeProducer);
         assertNotNull(captor.getValue().getData().getEtag());
-        //TODO Add resource changed verification
+        verify(resourceChangedApiService).invokeChsKafkaApi(new ResourceChangedRequest(
+                transformedAppointmentApi.getCompanyNumber(), transformedAppointmentApi.getId(), null, false));
     }
 
     @Test
@@ -454,7 +458,39 @@ class CompanyAppointmentFullRecordServiceTest {
         verifyNoInteractions(resourceChangedApiService);
     }
 
-    // TODO: Add coverage for the isBlank checks in the update method
+    @Test
+    void testOfficerMergeNotInvokedWhenMongoOfficerIdIsBlank() {
+        // given
+        DeltaOfficerData data = DeltaOfficerData.Builder.builder()
+                .officerRole("director")
+                .etag("etag")
+                .build();
+        DeltaSensitiveData sensitiveData = new DeltaSensitiveData()
+                .setDateOfBirth(Instant.parse("1990-01-12T01:02:30.456789Z"));
+        CompanyAppointmentDocument deltaAppointmentDocument = buildDeltaAppointmentDocument(
+                Instant.parse("2022-01-12T00:00:00.000000Z"), data, sensitiveData);
+        deltaAppointmentDocument.officerId("");
+        CompanyAppointmentDocument transformedAppointmentApi = builtDeltaAppointmentApi(
+                data, sensitiveData, Instant.parse("2022-01-13T00:00:00.000000Z"));
+        transformedAppointmentApi.previousOfficerId(transformedAppointmentApi.getOfficerId());
+
+        when(companyAppointmentRepository.readByCompanyNumberAndID(
+                transformedAppointmentApi.getCompanyNumber(),
+                transformedAppointmentApi.getId())).thenReturn(
+                Optional.of(deltaAppointmentDocument));
+        when(deltaAppointmentTransformer.transform(any(FullRecordCompanyOfficerApi.class)))
+                .thenReturn(transformedAppointmentApi);
+
+        // When
+        companyAppointmentService.upsertAppointmentDelta(fullRecordCompanyOfficerApi);
+
+        // then
+        verify(companyAppointmentRepository).save(captor.capture());
+        verifyNoInteractions(officerMergeProducer);
+        assertNotNull(captor.getValue().getData().getEtag());
+        verify(resourceChangedApiService).invokeChsKafkaApi(new ResourceChangedRequest(
+                transformedAppointmentApi.getCompanyNumber(), transformedAppointmentApi.getId(), null, false));
+    }
 
     private FullRecordCompanyOfficerApi buildFullRecordOfficer() {
         FullRecordCompanyOfficerApi output = new FullRecordCompanyOfficerApi();
