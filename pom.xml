@@ -44,14 +44,16 @@
     <skip.unit.tests>false</skip.unit.tests>
 
     <!--sonar configuration-->
+    <sonar.token>${CODE_ANALYSIS_TOKEN}</sonar.token>
+    <sonar.login></sonar.login>
+    <sonar.password></sonar.password>
+    <sonar.projectName>company-appointments.api.ch.gov.uk</sonar.projectName>
     <sonar.projectKey>uk.gov.companieshouse:company-appointments.api.ch.gov.uk</sonar.projectKey>
-    <sonar.sources>src/main</sonar.sources>
-    <sonar.tests>src/test,src/it</sonar.tests>
-    <sonar.verbose>true</sonar.verbose>
     <sonar.coverage.jacoco.xmlReportPaths>
-      ${project.basedir}/target/site/jacoco/jacoco.xml
+      ${project.build.directory}/site/jacoco/jacoco.xml
     </sonar.coverage.jacoco.xmlReportPaths>
-    <sonar.jacoco.reports>${project.basedir}/target/site</sonar.jacoco.reports>
+    <sonar.jacoco.reports>${project.build.directory}/site</sonar.jacoco.reports>
+    <sonar.exclusions>**/model/**</sonar.exclusions>
   </properties>
 
   <dependencyManagement>
