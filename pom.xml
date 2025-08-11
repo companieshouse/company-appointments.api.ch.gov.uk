@@ -44,6 +44,10 @@
     <skip.unit.tests>false</skip.unit.tests>
 
     <!--sonar configuration-->
+    <sonar.token>${CODE_ANALYSIS_TOKEN}</sonar.token>
+    <sonar.login></sonar.login>
+    <sonar.password></sonar.password>
+    <sonar.projectName>company-appointments.api.ch.gov.uk</sonar.projectName>
     <sonar.projectKey>uk.gov.companieshouse:company-appointments.api.ch.gov.uk</sonar.projectKey>
     <sonar.sources>src/main</sonar.sources>
     <sonar.tests>src/test,src/it</sonar.tests>
