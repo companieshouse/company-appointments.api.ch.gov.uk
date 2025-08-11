@@ -7,6 +7,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.verify;
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.companieshouse.company_appointments.CompanyAppointmentsApplication.APPLICATION_NAME_SPACE;
+import static uk.gov.companieshouse.company_appointments.config.AbstractIntegrationTest.kafkaContainer;
 import static uk.gov.companieshouse.company_appointments.config.AbstractMongoConfig.mongoDBContainer;
 import static uk.gov.companieshouse.company_appointments.config.CucumberContext.CONTEXT;
 import static uk.gov.companieshouse.company_appointments.config.WiremockTestConfig.getServeEvents;
@@ -28,11 +29,13 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.SimpleMongoClientDatabaseFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.kafka.core.KafkaTemplate;
 import uk.gov.companieshouse.api.chskafka.ChangedResource;
 import uk.gov.companieshouse.company_appointments.config.WiremockTestConfig;
 import uk.gov.companieshouse.company_appointments.repository.CompanyAppointmentRepository;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.logging.LoggerFactory;
+import uk.gov.companieshouse.officermerge.OfficerMerge;
 
 public class CommonSteps {
 
@@ -49,12 +52,17 @@ public class CommonSteps {
     @Autowired
     private CompanyAppointmentRepository companyAppointmentRepository;
 
+    @Autowired
+    private KafkaTemplate<String, OfficerMerge> kafkaTemplate;
+
     @BeforeAll
     public static void setup() {
         mongoDBContainer.start();
         mongoTemplate = new MongoTemplate(new SimpleMongoClientDatabaseFactory(mongoDBContainer.getReplicaSetUrl()));
         mongoTemplate.dropCollection("delta_appointments");
         mongoTemplate.createCollection("delta_appointments");
+
+        kafkaContainer.start();
     }
 
     @Before
@@ -70,6 +78,7 @@ public class CommonSteps {
     @Given("CHS kafka is available")
     public void theChsKafkaApiIsAvailable() throws InterruptedException {
         WiremockTestConfig.stubKafkaApi(HttpStatus.OK.value());
+        assertThat(kafkaTemplate).isNotNull();
     }
 
     @Given("CHS kafka is unavailable")

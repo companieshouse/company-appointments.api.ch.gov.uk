@@ -1,10 +1,13 @@
 package uk.gov.companieshouse.company_appointments.service;
 
+import static org.apache.commons.lang3.StringUtils.isBlank;
+
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Map;
 import java.util.Optional;
 import org.springframework.dao.DataAccessException;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import uk.gov.companieshouse.api.appointment.FullRecordCompanyOfficerApi;
 import uk.gov.companieshouse.company_appointments.CompanyAppointmentsApplication;
@@ -13,6 +16,7 @@ import uk.gov.companieshouse.company_appointments.exception.ConflictException;
 import uk.gov.companieshouse.company_appointments.exception.FailedToTransformException;
 import uk.gov.companieshouse.company_appointments.exception.NotFoundException;
 import uk.gov.companieshouse.company_appointments.exception.ServiceUnavailableException;
+import uk.gov.companieshouse.company_appointments.kafka.OfficerMergeProducer;
 import uk.gov.companieshouse.company_appointments.logging.DataMapHolder;
 import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentDocument;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaTimestamp;
@@ -32,16 +36,18 @@ public class CompanyAppointmentFullRecordService {
     private final CompanyAppointmentRepository companyAppointmentRepository;
     private final ResourceChangedApiService resourceChangedApiService;
     private final Clock clock;
+    private final OfficerMergeProducer officerMergeProducer;
 
     public CompanyAppointmentFullRecordService(
             DeltaAppointmentTransformer deltaAppointmentTransformer,
             CompanyAppointmentRepository companyAppointmentRepository,
             ResourceChangedApiService resourceChangedApiService,
-            Clock clock) {
+            Clock clock, OfficerMergeProducer officerMergeProducer) {
         this.deltaAppointmentTransformer = deltaAppointmentTransformer;
         this.companyAppointmentRepository = companyAppointmentRepository;
         this.resourceChangedApiService = resourceChangedApiService;
         this.clock = clock;
+        this.officerMergeProducer = officerMergeProducer;
     }
 
     public CompanyAppointmentFullRecordView getAppointment(String companyNumber, String appointmentID)
@@ -99,8 +105,17 @@ public class CompanyAppointmentFullRecordService {
             logStaleIncomingDelta(document, existingDocument.getDeltaAt());
             throw new ConflictException("Received stale delta");
         } else {
+            String previousOfficerId = null;
+            if (!document.getOfficerId().equals(existingDocument.getOfficerId()) &&
+                    !isBlank(existingDocument.getOfficerId())) {
+                previousOfficerId = existingDocument.getOfficerId();
+            } else if (!document.getOfficerId().equals(document.getPreviousOfficerId()) &&
+                    !isBlank(document.getPreviousOfficerId())) {
+                previousOfficerId = document.getPreviousOfficerId();
+            }
+
             try {
-                saveDocument(document, instant, existingDocument.getCreated());
+                saveDocument(document, instant, existingDocument.getCreated(), previousOfficerId);
             } catch (ServiceUnavailableException e) {
                 LOGGER.info("Call to Kafka API failed", DataMapHolder.getLogMap());
                 throw e;
@@ -117,7 +132,7 @@ public class CompanyAppointmentFullRecordService {
         Map<String, Object> logInfo = DataMapHolder.getLogMap();
         logInfo.put("incomingDeltaAt", appointmentAPI.getDeltaAt().toString());
         logInfo.put("existingDeltaAt",
-                existingDelta.toString().isBlank() ? "No existing delta" : existingDelta.toString());
+                isBlank(existingDelta.toString()) ? "No existing delta" : existingDelta.toString());
         final String context = appointmentAPI.getAppointmentId();
         LOGGER.errorContext(context, "Received stale delta", null, logInfo);
     }
@@ -125,18 +140,24 @@ public class CompanyAppointmentFullRecordService {
     private void insertDocument(CompanyAppointmentDocument document, DeltaTimestamp instant)
             throws ServiceUnavailableException {
         try {
-            saveDocument(document, instant, instant);
+            saveDocument(document, instant, instant, null);
         } catch (ServiceUnavailableException e) {
             LOGGER.info("Call to Kafka API failed", DataMapHolder.getLogMap());
             throw e;
         }
     }
 
-    private void saveDocument(CompanyAppointmentDocument document, DeltaTimestamp updatedAt, DeltaTimestamp createdAt) {
+    private void saveDocument(CompanyAppointmentDocument document, DeltaTimestamp updatedAt, DeltaTimestamp createdAt,
+            @Nullable String previousOfficerId) {
         document.updated(updatedAt);
         document.created(createdAt);
 
         companyAppointmentRepository.save(document);
+
+        if (!isBlank(previousOfficerId)) {
+            officerMergeProducer.invokeOfficerMerge(document.getOfficerId(), previousOfficerId);
+        }
+
         resourceChangedApiService.invokeChsKafkaApi(
                 new ResourceChangedRequest(document.getCompanyNumber(),
                         document.getAppointmentId(), null, false));

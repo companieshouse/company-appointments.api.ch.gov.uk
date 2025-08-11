@@ -4,8 +4,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.time.Clock;
@@ -22,6 +25,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.function.Executable;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
@@ -39,12 +43,14 @@ import uk.gov.companieshouse.company_appointments.exception.ConflictException;
 import uk.gov.companieshouse.company_appointments.exception.FailedToTransformException;
 import uk.gov.companieshouse.company_appointments.exception.NotFoundException;
 import uk.gov.companieshouse.company_appointments.exception.ServiceUnavailableException;
+import uk.gov.companieshouse.company_appointments.kafka.OfficerMergeProducer;
 import uk.gov.companieshouse.company_appointments.mapper.CompanyAppointmentMapper;
 import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentDocument;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaItemLinkTypes;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaOfficerData;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaOfficerLinkTypes;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaSensitiveData;
+import uk.gov.companieshouse.company_appointments.model.data.ResourceChangedRequest;
 import uk.gov.companieshouse.company_appointments.model.transformer.DeltaAppointmentTransformer;
 import uk.gov.companieshouse.company_appointments.model.view.CompanyAppointmentFullRecordView;
 import uk.gov.companieshouse.company_appointments.model.view.DateOfBirthView;
@@ -63,6 +69,8 @@ class CompanyAppointmentFullRecordServiceTest {
     private ResourceChangedApiService resourceChangedApiService;
     @Mock
     private CompanyAppointmentMapper companyAppointmentMapper;
+    @Mock
+    private OfficerMergeProducer officerMergeProducer;
     @Captor
     private ArgumentCaptor<CompanyAppointmentDocument> captor;
 
@@ -91,7 +99,7 @@ class CompanyAppointmentFullRecordServiceTest {
     void setUp() {
         companyAppointmentService =
                 new CompanyAppointmentFullRecordService(deltaAppointmentTransformer,
-                        companyAppointmentRepository, resourceChangedApiService, CLOCK);
+                        companyAppointmentRepository, resourceChangedApiService, CLOCK, officerMergeProducer);
     }
 
     @Test
@@ -219,11 +227,13 @@ class CompanyAppointmentFullRecordServiceTest {
         // given
         CompanyAppointmentDocument deltaAppointmentDocument = new CompanyAppointmentDocument()
                 .id("appointmentId")
+                .officerId("officerId")
                 .companyNumber("012345678")
                 .deltaAt(Instant.parse("2023-11-06T16:30:00.000000Z"));
 
         CompanyAppointmentDocument existingDocument = new CompanyAppointmentDocument()
                 .id("appointmentId")
+                .officerId("officerId")
                 .companyNumber("012345678")
                 .deltaAt(Instant.parse("2023-11-06T12:00:00.000000Z"));
 
@@ -315,6 +325,173 @@ class CompanyAppointmentFullRecordServiceTest {
                 companyAppointmentService.upsertAppointmentDelta(new FullRecordCompanyOfficerApi()));
     }
 
+    @Test
+    void testOfficerMergeInvokedOnMismatchInOfficerIdsBetweenDeltaAndMongo() {
+        // given
+        DeltaOfficerData data = DeltaOfficerData.Builder.builder()
+                .officerRole("director")
+                .etag("etag")
+                .build();
+        DeltaSensitiveData sensitiveData = new DeltaSensitiveData()
+                .setDateOfBirth(Instant.parse("1990-01-12T01:02:30.456789Z"));
+        CompanyAppointmentDocument deltaAppointmentDocument = buildDeltaAppointmentDocument(
+                Instant.parse("2022-01-12T00:00:00.000000Z"), data, sensitiveData);
+        deltaAppointmentDocument.officerId("oldOfficerId");
+        CompanyAppointmentDocument transformedAppointmentApi = builtDeltaAppointmentApi(
+                data, sensitiveData, Instant.parse("2022-01-13T00:00:00.000000Z"));
+
+        when(companyAppointmentRepository.readByCompanyNumberAndID(
+                transformedAppointmentApi.getCompanyNumber(),
+                transformedAppointmentApi.getId())).thenReturn(
+                Optional.of(deltaAppointmentDocument));
+        when(deltaAppointmentTransformer.transform(any(FullRecordCompanyOfficerApi.class)))
+                .thenReturn(transformedAppointmentApi);
+
+        // When
+        companyAppointmentService.upsertAppointmentDelta(fullRecordCompanyOfficerApi);
+
+        // then
+        verify(companyAppointmentRepository).save(captor.capture());
+        verify(officerMergeProducer).invokeOfficerMerge("officerId", "oldOfficerId");
+        assertNotNull(captor.getValue().getData().getEtag());
+        verify(resourceChangedApiService).invokeChsKafkaApi(new ResourceChangedRequest(
+                transformedAppointmentApi.getCompanyNumber(), transformedAppointmentApi.getId(), null, false));
+    }
+
+    @Test
+    void testOfficerMergeInvokedOnMismatchInOfficerIdAndPreviousOfficerIdInDelta() {
+        // given
+        DeltaOfficerData data = DeltaOfficerData.Builder.builder()
+                .officerRole("director")
+                .etag("etag")
+                .build();
+        DeltaSensitiveData sensitiveData = new DeltaSensitiveData()
+                .setDateOfBirth(Instant.parse("1990-01-12T01:02:30.456789Z"));
+        CompanyAppointmentDocument deltaAppointmentDocument = buildDeltaAppointmentDocument(
+                Instant.parse("2022-01-12T00:00:00.000000Z"), data, sensitiveData);
+        CompanyAppointmentDocument transformedAppointmentApi = builtDeltaAppointmentApi(
+                data, sensitiveData, Instant.parse("2022-01-13T00:00:00.000000Z"));
+        transformedAppointmentApi.previousOfficerId("oldOfficerId");
+
+        when(companyAppointmentRepository.readByCompanyNumberAndID(
+                transformedAppointmentApi.getCompanyNumber(),
+                transformedAppointmentApi.getId())).thenReturn(
+                Optional.of(deltaAppointmentDocument));
+        when(deltaAppointmentTransformer.transform(any(FullRecordCompanyOfficerApi.class)))
+                .thenReturn(transformedAppointmentApi);
+
+        // When
+        companyAppointmentService.upsertAppointmentDelta(fullRecordCompanyOfficerApi);
+
+        // then
+        verify(companyAppointmentRepository).save(captor.capture());
+        verify(officerMergeProducer).invokeOfficerMerge("officerId", "oldOfficerId");
+        assertNotNull(captor.getValue().getData().getEtag());
+        verify(resourceChangedApiService).invokeChsKafkaApi(new ResourceChangedRequest(
+                transformedAppointmentApi.getCompanyNumber(), transformedAppointmentApi.getId(), null, false));
+    }
+
+    @ParameterizedTest
+    @CsvSource(value = {
+            "''",
+            "null"
+    }, nullValues = "null")
+    void testEmptyPreviousOfficerIdInDeltaProcessesWithoutOfficerMerge(String previousOfficerId) {
+        // given
+        DeltaOfficerData data = DeltaOfficerData.Builder.builder()
+                .officerRole("director")
+                .etag("etag")
+                .build();
+        DeltaSensitiveData sensitiveData = new DeltaSensitiveData()
+                .setDateOfBirth(Instant.parse("1990-01-12T01:02:30.456789Z"));
+        CompanyAppointmentDocument deltaAppointmentDocument = buildDeltaAppointmentDocument(
+                Instant.parse("2022-01-12T00:00:00.000000Z"), data, sensitiveData);
+        CompanyAppointmentDocument transformedAppointmentApi = builtDeltaAppointmentApi(
+                data, sensitiveData, Instant.parse("2022-01-13T00:00:00.000000Z"));
+        transformedAppointmentApi.previousOfficerId(previousOfficerId);
+
+        when(companyAppointmentRepository.readByCompanyNumberAndID(
+                transformedAppointmentApi.getCompanyNumber(),
+                transformedAppointmentApi.getId())).thenReturn(
+                Optional.of(deltaAppointmentDocument));
+        when(deltaAppointmentTransformer.transform(any(FullRecordCompanyOfficerApi.class)))
+                .thenReturn(transformedAppointmentApi);
+
+        // When
+        companyAppointmentService.upsertAppointmentDelta(fullRecordCompanyOfficerApi);
+
+        // then
+        verify(companyAppointmentRepository).save(captor.capture());
+        verifyNoInteractions(officerMergeProducer);
+        assertNotNull(captor.getValue().getData().getEtag());
+        verify(resourceChangedApiService).invokeChsKafkaApi(new ResourceChangedRequest(
+                transformedAppointmentApi.getCompanyNumber(), transformedAppointmentApi.getId(), null, false));
+    }
+
+    @Test
+    void testUpdateAppointmentWhenOfficerMergeFails() {
+        // given
+        DeltaOfficerData data = DeltaOfficerData.Builder.builder()
+                .officerRole("director")
+                .etag("etag")
+                .build();
+        DeltaSensitiveData sensitiveData = new DeltaSensitiveData()
+                .setDateOfBirth(Instant.parse("1990-01-12T01:02:30.456789Z"));
+        CompanyAppointmentDocument deltaAppointmentDocument = buildDeltaAppointmentDocument(
+                Instant.parse("2022-01-12T00:00:00.000000Z"), data, sensitiveData);
+        CompanyAppointmentDocument transformedAppointmentApi = builtDeltaAppointmentApi(
+                data, sensitiveData, Instant.parse("2022-01-13T00:00:00.000000Z"));
+
+        when(companyAppointmentRepository.readByCompanyNumberAndID(anyString(), anyString()))
+                .thenReturn(Optional.of(deltaAppointmentDocument));
+        when(deltaAppointmentTransformer.transform(any(FullRecordCompanyOfficerApi.class)))
+                .thenReturn(transformedAppointmentApi);
+
+        doThrow(ServiceUnavailableException.class).when(officerMergeProducer).invokeOfficerMerge(anyString(), anyString());
+
+        // When
+        Executable executable = () -> companyAppointmentService.upsertAppointmentDelta(fullRecordCompanyOfficerApi);
+
+        // then
+        assertThrows(ServiceUnavailableException.class, executable);
+        verify(companyAppointmentRepository).save(captor.capture());
+        verifyNoInteractions(resourceChangedApiService);
+    }
+
+    @Test
+    void testOfficerMergeNotInvokedWhenMongoOfficerIdIsBlank() {
+        // given
+        DeltaOfficerData data = DeltaOfficerData.Builder.builder()
+                .officerRole("director")
+                .etag("etag")
+                .build();
+        DeltaSensitiveData sensitiveData = new DeltaSensitiveData()
+                .setDateOfBirth(Instant.parse("1990-01-12T01:02:30.456789Z"));
+        CompanyAppointmentDocument deltaAppointmentDocument = buildDeltaAppointmentDocument(
+                Instant.parse("2022-01-12T00:00:00.000000Z"), data, sensitiveData);
+        deltaAppointmentDocument.officerId("");
+        CompanyAppointmentDocument transformedAppointmentApi = builtDeltaAppointmentApi(
+                data, sensitiveData, Instant.parse("2022-01-13T00:00:00.000000Z"));
+        transformedAppointmentApi.previousOfficerId(transformedAppointmentApi.getOfficerId());
+
+        when(companyAppointmentRepository.readByCompanyNumberAndID(
+                transformedAppointmentApi.getCompanyNumber(),
+                transformedAppointmentApi.getId())).thenReturn(
+                Optional.of(deltaAppointmentDocument));
+        when(deltaAppointmentTransformer.transform(any(FullRecordCompanyOfficerApi.class)))
+                .thenReturn(transformedAppointmentApi);
+
+        // When
+        companyAppointmentService.upsertAppointmentDelta(fullRecordCompanyOfficerApi);
+
+        // then
+        verify(companyAppointmentRepository).save(captor.capture());
+        verifyNoInteractions(officerMergeProducer);
+        assertNotNull(captor.getValue().getData().getEtag());
+        verify(resourceChangedApiService).invokeChsKafkaApi(new ResourceChangedRequest(
+                transformedAppointmentApi.getCompanyNumber(), transformedAppointmentApi.getId(), null, false));
+    }
+
     private FullRecordCompanyOfficerApi buildFullRecordOfficer() {
         FullRecordCompanyOfficerApi output = new FullRecordCompanyOfficerApi();
 
@@ -367,7 +544,7 @@ class CompanyAppointmentFullRecordServiceTest {
                 .sensitiveData(sensitiveData)
                 .internalId("internalId")
                 .appointmentId("id")
-                .officerId("officerid")
+                .officerId("officerId")
                 .previousOfficerId("previousOfficerId")
                 .companyNumber("companyNumber")
                 .updatedBy("updatedBy")

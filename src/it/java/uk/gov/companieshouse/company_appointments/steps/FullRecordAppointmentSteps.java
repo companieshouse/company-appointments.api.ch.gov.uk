@@ -11,11 +11,17 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import java.io.File;
 import java.io.IOException;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.Collections;
 import java.util.Optional;
+import org.apache.avro.io.DatumReader;
+import org.apache.avro.io.Decoder;
+import org.apache.avro.io.DecoderFactory;
+import org.apache.avro.reflect.ReflectDatumReader;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.core.io.ClassPathResource;
@@ -24,9 +30,11 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.kafka.test.utils.KafkaTestUtils;
 import uk.gov.companieshouse.api.appointment.FullRecordCompanyOfficerApi;
 import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentDocument;
 import uk.gov.companieshouse.company_appointments.repository.CompanyAppointmentRepository;
+import uk.gov.companieshouse.officermerge.OfficerMerge;
 
 public class FullRecordAppointmentSteps {
 
@@ -53,6 +61,9 @@ public class FullRecordAppointmentSteps {
 
     @Autowired
     private CompanyAppointmentRepository companyAppointmentRepository;
+
+    @Autowired
+    public KafkaConsumer<String, byte[]> testConsumer;
 
     @Given("the user is authenticated and authorised with internal app privileges")
     public void userIsAuthenticatedAndAuthorisedWithInternalAppPrivileges() {
@@ -92,6 +103,21 @@ public class FullRecordAppointmentSteps {
         fullRecordCompanyOfficerApi.getInternalData().setDeltaAt(deltaAt.plusDays(1L));
 
         CONTEXT.set("getRecord", fullRecordCompanyOfficerApi);
+    }
+
+    @Given("the delta is a valid officer merge delta")
+    public void thisDeltaIsValidOfficerMergeDelta() {
+        FullRecordCompanyOfficerApi fullRecordCompanyOfficerApi = CONTEXT.get("getRecord");
+        fullRecordCompanyOfficerApi.getExternalData().setPreviousOfficerId("oldOfficerId");
+
+        OfficerMerge officerMerge = new OfficerMerge(
+                fullRecordCompanyOfficerApi.getExternalData().getOfficerId(),
+                "oldOfficerId",
+                "5234234234"
+        );
+
+        CONTEXT.set("getRecord", fullRecordCompanyOfficerApi);
+        CONTEXT.set("officerMerge", officerMerge);
     }
 
     @Given("the delta for payload {string} is a stale delta for {string}")
@@ -206,5 +232,18 @@ public class FullRecordAppointmentSteps {
     public void recordShouldBeDeletedSuccessFully() {
         Optional<CompanyAppointmentDocument> appointment = companyAppointmentRepository.findById(APPOINTMENT_ID);
         assertThat(appointment).isEmpty();
+    }
+
+    @Then("a message is placed on the officer merge kafka topic")
+    public void aMessageIsPlacedOnTheOfficerMergeKafkaTopic() throws IOException {
+        byte[] actualBytes = KafkaTestUtils.getSingleRecord(testConsumer, "officer-merge",
+                Duration.ofMillis(10000L)).value();
+        assertThat(actualBytes).isNotNull();
+
+        Decoder decoder = DecoderFactory.get().binaryDecoder(actualBytes, null);
+        DatumReader<OfficerMerge> reader = new ReflectDatumReader<>(OfficerMerge.class);
+        OfficerMerge actual = reader.read(null, decoder);
+
+        assertEquals(CONTEXT.get("officerMerge"), actual);
     }
 }

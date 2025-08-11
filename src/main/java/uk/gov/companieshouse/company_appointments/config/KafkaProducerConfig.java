@@ -15,14 +15,9 @@ import uk.gov.companieshouse.officermerge.OfficerMerge;
 @Configuration
 public class KafkaProducerConfig {
 
-    private final String bootstrapAddress;
-
-    public KafkaProducerConfig(@Value("${spring.kafka.bootstrap-servers}") String bootstrapAddress) {
-        this.bootstrapAddress = bootstrapAddress;
-    }
-
     @Bean
-    public ProducerFactory<String, OfficerMerge> producerFactory() {
+    public ProducerFactory<String, OfficerMerge> producerFactory(
+            @Value("${spring.kafka.bootstrap-servers}") String bootstrapAddress) {
         return new DefaultKafkaProducerFactory<>(
                 Map.of(
                         ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress,
