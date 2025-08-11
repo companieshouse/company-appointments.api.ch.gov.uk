@@ -29,8 +29,9 @@ public class OfficerMergeKafkaProducer implements OfficerMergeProducer {
 
     public void invokeOfficerMerge(String officerId, String previousOfficerId) {
         try {
-            DataMapHolder.get().officerId(officerId).previousOfficerId(previousOfficerId);
-
+            DataMapHolder.get()
+                    .officerId(officerId)
+                    .previousOfficerId(previousOfficerId);
             OfficerMerge officerMerge = new OfficerMerge(officerId, previousOfficerId, DataMapHolder.getRequestId());
             kafkaTemplate.send(officerMergeTopic, officerMerge).join();
         } catch (CompletionException ex) {
