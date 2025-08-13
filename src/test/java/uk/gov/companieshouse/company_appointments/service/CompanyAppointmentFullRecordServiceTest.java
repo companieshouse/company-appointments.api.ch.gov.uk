@@ -393,6 +393,7 @@ class CompanyAppointmentFullRecordServiceTest {
 
     @ParameterizedTest
     @CsvSource(value = {
+            "vuIAhYYbRDhqzx9b3e_jd6Uhres",
             "''",
             "null"
     }, nullValues = "null")

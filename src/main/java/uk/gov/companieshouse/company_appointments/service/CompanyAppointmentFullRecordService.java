@@ -110,7 +110,8 @@ public class CompanyAppointmentFullRecordService {
                     !isBlank(existingDocument.getOfficerId())) {
                 previousOfficerId = existingDocument.getOfficerId();
             } else if (!document.getOfficerId().equals(document.getPreviousOfficerId()) &&
-                    !isBlank(document.getPreviousOfficerId())) {
+                    !isBlank(document.getPreviousOfficerId()) &&
+                    !"vuIAhYYbRDhqzx9b3e_jd6Uhres".equals(document.getPreviousOfficerId())) {
                 previousOfficerId = document.getPreviousOfficerId();
             }
 
