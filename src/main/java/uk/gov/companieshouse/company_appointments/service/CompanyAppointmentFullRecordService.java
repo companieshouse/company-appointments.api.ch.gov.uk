@@ -31,6 +31,7 @@ import uk.gov.companieshouse.logging.LoggerFactory;
 public class CompanyAppointmentFullRecordService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CompanyAppointmentsApplication.APPLICATION_NAME_SPACE);
+    private static final String DEFAULT_PREVIOUS_OFFICER_ID = "vuIAhYYbRDhqzx9b3e_jd6Uhres";
 
     private final DeltaAppointmentTransformer deltaAppointmentTransformer;
     private final CompanyAppointmentRepository companyAppointmentRepository;
@@ -110,7 +111,8 @@ public class CompanyAppointmentFullRecordService {
                     !isBlank(existingDocument.getOfficerId())) {
                 previousOfficerId = existingDocument.getOfficerId();
             } else if (!document.getOfficerId().equals(document.getPreviousOfficerId()) &&
-                    !isBlank(document.getPreviousOfficerId())) {
+                    !isBlank(document.getPreviousOfficerId()) &&
+                    !DEFAULT_PREVIOUS_OFFICER_ID.equals(document.getPreviousOfficerId())) {
                 previousOfficerId = document.getPreviousOfficerId();
             }
 
