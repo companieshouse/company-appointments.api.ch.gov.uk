@@ -162,7 +162,7 @@ public class CompanyAppointmentMapper {
     }
 
     private DateOfBirth mapDateOfBirth(Instant dob, boolean registerView) {
-        return registerView ? mapDateOfBirth(dob, dob.atZone(UTC).getDayOfMonth()) : mapDateOfBirth(dob, null);
+        return mapDateOfBirth(dob, null);
     }
 
     private DateOfBirth mapDateOfBirth(Instant dob, Integer day) {
