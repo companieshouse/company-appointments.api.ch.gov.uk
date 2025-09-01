@@ -74,6 +74,11 @@
             <artifactId>tomcat-embed-core</artifactId>
             <version>${tomcat-embed-core.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.tomcat.embed</groupId>
+            <artifactId>tomcat-embed-websocket</artifactId>
+            <version>11.0.9</version>
+        </dependency>
         <!-- Transitive Dependencies End -->
 
         <dependency>
