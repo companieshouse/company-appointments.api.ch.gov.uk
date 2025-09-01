@@ -20,13 +20,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.companieshouse.api.appointment.*;
 import uk.gov.companieshouse.company_appointments.exception.FailedToTransformException;
-import uk.gov.companieshouse.company_appointments.model.data.DeltaContactDetails;
-import uk.gov.companieshouse.company_appointments.model.data.DeltaFormerNames;
-import uk.gov.companieshouse.company_appointments.model.data.DeltaIdentification;
-import uk.gov.companieshouse.company_appointments.model.data.DeltaItemLinkTypes;
-import uk.gov.companieshouse.company_appointments.model.data.DeltaOfficerData;
-import uk.gov.companieshouse.company_appointments.model.data.DeltaPrincipalOfficeAddress;
-import uk.gov.companieshouse.company_appointments.model.data.DeltaServiceAddress;
+import uk.gov.companieshouse.company_appointments.model.data.*;
 
 @ExtendWith(MockitoExtension.class)
 class DeltaOfficerDataTransformerTest {
@@ -53,6 +47,8 @@ class DeltaOfficerDataTransformerTest {
     @Mock
     private Identification identification;
     @Mock
+    private IdentityVerificationDetails identityVerificationDetails;
+    @Mock
     private PrincipalOfficeAddress principalOfficeAddress;
 
     @Mock
@@ -62,12 +58,15 @@ class DeltaOfficerDataTransformerTest {
     @Mock
     private DeltaIdentification deltaIdentification;
     @Mock
+    DeltaIdentityVerificationDetails deltaIdentityVerificationDetails;
+    @Mock
     private DeltaPrincipalOfficeAddress deltaPrincipalOfficeAddress;
 
     @Test
     void shouldTransformData() throws FailedToTransformException {
         // given
         when(identificationTransformer.transform(any(Identification.class))).thenReturn(deltaIdentification);
+        when(identityVerificationDetailsTransformer.transform(any(IdentityVerificationDetails.class))).thenReturn(deltaIdentityVerificationDetails);
         when(itemLinkTypesTransformer.transform(any(ItemLinkTypes.class))).thenReturn(deltaItemLinkTypes);
         when(principalOfficeAddressTransformer.transform(any(PrincipalOfficeAddress.class))).thenReturn(deltaPrincipalOfficeAddress);
         when(serviceAddressTransformer.transform(any(ServiceAddress.class))).thenReturn(deltaServiceAddress);
@@ -83,6 +82,7 @@ class DeltaOfficerDataTransformerTest {
 
         assertThat(actual).isEqualTo(expected);
         verify(identificationTransformer).transform(identification);
+        verify(identityVerificationDetailsTransformer).transform(identityVerificationDetails);
         verify(itemLinkTypesTransformer).transform(itemLinkTypes);
         verify(principalOfficeAddressTransformer).transform(principalOfficeAddress);
         verify(serviceAddressTransformer).transform(serviceAddress);
@@ -93,6 +93,7 @@ class DeltaOfficerDataTransformerTest {
         // given
         Data source = buildSource()
                 .identification(null)
+                .identityVerificationDetails(null)
                 .links(emptyList())
                 .principalOfficeAddress(null)
                 .serviceAddress(null)
@@ -101,6 +102,7 @@ class DeltaOfficerDataTransformerTest {
 
         DeltaOfficerData expected = buildExpected()
                 .setIdentification(null)
+                .setIdentityVerificationDetails(null)
                 .setLinks(null)
                 .setPrincipalOfficeAddress(null)
                 .setServiceAddress(null)
@@ -116,6 +118,7 @@ class DeltaOfficerDataTransformerTest {
 
         assertThat(actual).isEqualTo(expected);
         verifyNoInteractions(identificationTransformer);
+        verifyNoInteractions(identityVerificationDetailsTransformer);
         verifyNoInteractions(itemLinkTypesTransformer);
         verifyNoInteractions(principalOfficeAddressTransformer);
         verifyNoInteractions(serviceAddressTransformer);
@@ -178,6 +181,7 @@ class DeltaOfficerDataTransformerTest {
                 .officerRole(Data.OfficerRoleEnum.DIRECTOR)
                 .isSecureOfficer(false)
                 .identification(identification)
+                .identityVerificationDetails(identityVerificationDetails)
                 .companyName("company name")
                 .surname("surname")
                 .forename("forename")
@@ -210,6 +214,7 @@ class DeltaOfficerDataTransformerTest {
                 .setOfficerRole("director")
                 .setSecureOfficer(false)
                 .setIdentification(deltaIdentification)
+                .setIdentityVerificationDetails(deltaIdentityVerificationDetails)
                 .setCompanyName("company name")
                 .setSurname("surname")
                 .setForename("forename")

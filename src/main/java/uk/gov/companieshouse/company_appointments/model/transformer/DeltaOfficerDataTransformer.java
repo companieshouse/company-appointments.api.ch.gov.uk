@@ -65,7 +65,7 @@ public class DeltaOfficerDataTransformer implements Transformative<Data, DeltaOf
             entity.setSecureOfficer(source.getIsSecureOfficer());
             entity.setIdentification(source.getIdentification() != null?
                     identificationTransformer.transform(source.getIdentification()) : null);
-            entity.setIdentityVerificationDetails(source.getIdentityVerificationDetails() != null ?
+            entity.setIdentityVerificationDetails(source.getIdentityVerificationDetails() != null?
                     identityVerificationDetailsTransformer.transform(source.getIdentityVerificationDetails()) : null);
             entity.setCompanyName(source.getCompanyName());
             entity.setSurname(source.getSurname());

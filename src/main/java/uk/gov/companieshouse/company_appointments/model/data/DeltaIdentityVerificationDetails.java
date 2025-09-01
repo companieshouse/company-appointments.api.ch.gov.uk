@@ -46,8 +46,6 @@ public class DeltaIdentityVerificationDetails {
     @Field("preferred_name")
     private String preferredName;
 
-
-
     public List<String> getAntiMoneyLaunderingSupervisoryBodies() {
         return antiMoneyLaunderingSupervisoryBodies;
     }
