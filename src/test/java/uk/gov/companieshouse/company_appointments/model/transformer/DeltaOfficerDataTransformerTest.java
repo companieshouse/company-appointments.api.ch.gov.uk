@@ -18,13 +18,7 @@ import org.junit.jupiter.api.function.Executable;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.companieshouse.api.appointment.ContactDetails;
-import uk.gov.companieshouse.api.appointment.Data;
-import uk.gov.companieshouse.api.appointment.FormerNames;
-import uk.gov.companieshouse.api.appointment.Identification;
-import uk.gov.companieshouse.api.appointment.ItemLinkTypes;
-import uk.gov.companieshouse.api.appointment.PrincipalOfficeAddress;
-import uk.gov.companieshouse.api.appointment.ServiceAddress;
+import uk.gov.companieshouse.api.appointment.*;
 import uk.gov.companieshouse.company_appointments.exception.FailedToTransformException;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaContactDetails;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaFormerNames;
@@ -41,6 +35,8 @@ class DeltaOfficerDataTransformerTest {
 
     @Mock
     private DeltaIdentificationTransformer identificationTransformer;
+    @Mock
+    private DeltaIdentityVerificationDetailsTransformer identityVerificationDetailsTransformer;
     @Mock
     private DeltaItemLinkTypesTransformer itemLinkTypesTransformer;
     @Mock
