@@ -66,7 +66,7 @@ public class CompanyAppointmentMapper {
                 .countryOfResidence(isSecretary ? null : data.getCountryOfResidence())
                 .dateOfBirth(isSecretary ? null : Optional.ofNullable(companyAppointment.getSensitiveData())
                         .map(DeltaSensitiveData::getDateOfBirth)
-                        .map(dob -> mapDateOfBirth(dob))
+                        .map(this::mapDateOfBirth)
                         .orElse(null))
                 .links(mapLinks(data.getLinks()))
                 .nationality(data.getNationality())
