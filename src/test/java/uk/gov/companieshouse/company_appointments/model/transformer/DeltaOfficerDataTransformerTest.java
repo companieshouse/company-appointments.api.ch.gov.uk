@@ -136,6 +136,7 @@ class DeltaOfficerDataTransformerTest {
                 .setFormerNames(null);
 
         when(identificationTransformer.transform(any(Identification.class))).thenReturn(deltaIdentification);
+        when(identityVerificationDetailsTransformer.transform(any(IdentityVerificationDetails.class))).thenReturn(deltaIdentityVerificationDetails);
         when(principalOfficeAddressTransformer.transform(any(PrincipalOfficeAddress.class))).thenReturn(deltaPrincipalOfficeAddress);
         when(serviceAddressTransformer.transform(any(ServiceAddress.class))).thenReturn(deltaServiceAddress);
 
@@ -148,6 +149,7 @@ class DeltaOfficerDataTransformerTest {
 
         assertThat(actual).isEqualTo(expected);
         verify(identificationTransformer).transform(identification);
+        verify(identityVerificationDetailsTransformer).transform(identityVerificationDetails);
         verifyNoInteractions(itemLinkTypesTransformer);
         verify(principalOfficeAddressTransformer).transform(principalOfficeAddress);
         verify(serviceAddressTransformer).transform(serviceAddress);
