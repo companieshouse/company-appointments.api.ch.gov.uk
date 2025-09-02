@@ -30,6 +30,8 @@
     <commons-compress.version>1.28.0</commons-compress.version>
     <maven-compiler-plugin.version>3.14.0</maven-compiler-plugin.version>
     <opentelemetry-instrumentation-bom.version>2.18.1</opentelemetry-instrumentation-bom.version>
+    <spring-core.version>6.2.10</spring-core.version>
+    <tomcat-embed-dependencies.version>10.1.44</tomcat-embed-dependencies.version>
 
     <!-- internal dependencies -->
     <structured-logging.version>3.0.39</structured-logging.version>
@@ -293,6 +295,28 @@
           <artifactId>itu</artifactId>
         </exclusion>
       </exclusions>
+    </dependency>
+
+    <!-- CVE-2025-41242 and CVE-2025-48989 -->
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-core</artifactId>
+      <version>${spring-core.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.tomcat.embed</groupId>
+      <artifactId>tomcat-embed-core</artifactId>
+      <version>${tomcat-embed-dependencies.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.tomcat.embed</groupId>
+      <artifactId>tomcat-embed-websocket</artifactId>
+      <version>${tomcat-embed-dependencies.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.tomcat.embed</groupId>
+      <artifactId>tomcat-embed-el</artifactId>
+      <version>${tomcat-embed-dependencies.version}</version>
     </dependency>
   </dependencies>
 
