@@ -16,7 +16,7 @@
   <properties>
     <maven.compiler.source>21</maven.compiler.source>
     <maven.compiler.target>21</maven.compiler.target>
-    <spring-boot-dependencies.version>3.5.4</spring-boot-dependencies.version>
+    <spring-boot-dependencies.version>3.5.5</spring-boot-dependencies.version>
     <maven-surefire.version>3.5.3</maven-surefire.version>
     <maven-failsafe.version>3.5.3</maven-failsafe.version>
     <maven-build-helper-plugin.version>3.6.1</maven-build-helper-plugin.version>
@@ -43,7 +43,16 @@
     <skip.integration.tests>false</skip.integration.tests>
     <skip.unit.tests>false</skip.unit.tests>
 
-    <!--sonar configuration-->
+      <!-- Transitive Dependencies -->
+      <!-- When the latest version of a direct dependency has vulnerable transative dependencies please define them here -->
+      <!-- Also define the direct dependency from which the dependency has derived -->
+      <!-- Once a new version of the parent dependency contains a fix, please upgrade and remove transative dependency -->
+
+      <!-- Direct dependency: spring-boot-starter-tomcat.version: 3.5.5 -->
+      <tomcat-embed-core.version>11.0.10</tomcat-embed-core.version>
+
+
+      <!--sonar configuration-->
     <sonar.token>${CODE_ANALYSIS_TOKEN}</sonar.token>
     <sonar.login></sonar.login>
     <sonar.password></sonar.password>
@@ -58,7 +67,21 @@
 
   <dependencyManagement>
     <dependencies>
-      <dependency>
+        <!-- Transitive Dependencies -->
+        <!-- CVE-2025-52520 -->
+        <dependency>
+            <groupId>org.apache.tomcat.embed</groupId>
+            <artifactId>tomcat-embed-core</artifactId>
+            <version>${tomcat-embed-core.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.tomcat.embed</groupId>
+            <artifactId>tomcat-embed-websocket</artifactId>
+            <version>${tomcat-embed-core.version}</version>
+        </dependency>
+        <!-- Transitive Dependencies End -->
+
+        <dependency>
         <groupId>io.opentelemetry.instrumentation</groupId>
         <artifactId>opentelemetry-instrumentation-bom</artifactId>
         <version>${opentelemetry-instrumentation-bom.version}</version>

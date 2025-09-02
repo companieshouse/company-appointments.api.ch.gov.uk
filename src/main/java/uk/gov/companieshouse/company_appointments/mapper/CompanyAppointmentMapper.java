@@ -66,7 +66,7 @@ public class CompanyAppointmentMapper {
                 .countryOfResidence(isSecretary ? null : data.getCountryOfResidence())
                 .dateOfBirth(isSecretary ? null : Optional.ofNullable(companyAppointment.getSensitiveData())
                         .map(DeltaSensitiveData::getDateOfBirth)
-                        .map(dob -> mapDateOfBirth(dob, registerView))
+                        .map(this::mapDateOfBirth)
                         .orElse(null))
                 .links(mapLinks(data.getLinks()))
                 .nationality(data.getNationality())
@@ -161,13 +161,10 @@ public class CompanyAppointmentMapper {
                 .orElse(null);
     }
 
-    private DateOfBirth mapDateOfBirth(Instant dob, boolean registerView) {
-        return registerView ? mapDateOfBirth(dob, dob.atZone(UTC).getDayOfMonth()) : mapDateOfBirth(dob, null);
-    }
-
-    private DateOfBirth mapDateOfBirth(Instant dob, Integer day) {
+    private DateOfBirth mapDateOfBirth(Instant dob) {
         return new DateOfBirth()
-                .day(day)
+                // Day of birth being null is intentional
+                .day(null)
                 .month(dob.atZone(UTC).getMonthValue())
                 .year(dob.atZone(UTC).getYear());
     }

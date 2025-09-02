@@ -301,7 +301,7 @@ class CompanyAppointmentMapperTest {
                 companyAppointmentData(officerData().build()), true);
         //then
         assertEquals(expectedCompanyAppointment()
-                .dateOfBirth(new DateOfBirth().day(1).month(1).year(1980)), actual);
+                .dateOfBirth(new DateOfBirth().day(null).month(1).year(1980)), actual);
     }
 
     @Test
