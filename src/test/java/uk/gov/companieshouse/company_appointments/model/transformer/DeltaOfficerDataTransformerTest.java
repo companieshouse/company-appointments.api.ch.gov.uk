@@ -18,9 +18,23 @@ import org.junit.jupiter.api.function.Executable;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.companieshouse.api.appointment.*;
+import uk.gov.companieshouse.api.appointment.ContactDetails;
+import uk.gov.companieshouse.api.appointment.Data;
+import uk.gov.companieshouse.api.appointment.FormerNames;
+import uk.gov.companieshouse.api.appointment.Identification;
+import uk.gov.companieshouse.api.appointment.IdentityVerificationDetails;
+import uk.gov.companieshouse.api.appointment.ItemLinkTypes;
+import uk.gov.companieshouse.api.appointment.PrincipalOfficeAddress;
+import uk.gov.companieshouse.api.appointment.ServiceAddress;
 import uk.gov.companieshouse.company_appointments.exception.FailedToTransformException;
-import uk.gov.companieshouse.company_appointments.model.data.*;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaContactDetails;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaFormerNames;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaIdentification;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaIdentityVerificationDetails;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaItemLinkTypes;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaOfficerData;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaPrincipalOfficeAddress;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaServiceAddress;
 
 @ExtendWith(MockitoExtension.class)
 class DeltaOfficerDataTransformerTest {
