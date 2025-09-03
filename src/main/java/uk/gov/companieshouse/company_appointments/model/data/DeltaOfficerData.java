@@ -50,6 +50,9 @@ public class DeltaOfficerData {
   @Field("identification")
   private DeltaIdentification identification;
 
+  @Field("identity_verification_details")
+  private DeltaIdentityVerificationDetails identityVerificationDetails;
+
   @Field("company_name")
   private String companyName;
 
@@ -105,6 +108,7 @@ public class DeltaOfficerData {
     officerRole = builder.officerRole;
     isSecureOfficer = builder.isSecureOfficer;
     identification = builder.identification;
+    identityVerificationDetails = builder.identityVerificationDetails;
     companyName = builder.companyName;
     surname = builder.surname;
     forename = builder.forename;
@@ -248,6 +252,14 @@ public class DeltaOfficerData {
     return this;
   }
 
+  public DeltaIdentityVerificationDetails getIdentityVerificationDetails() { return identityVerificationDetails; }
+
+  public DeltaOfficerData setIdentityVerificationDetails(
+          DeltaIdentityVerificationDetails identityVerificationDetails) {
+    this.identityVerificationDetails = identityVerificationDetails;
+    return this;
+  }
+
   public String getCompanyName() {
     return companyName;
   }
@@ -382,6 +394,7 @@ public class DeltaOfficerData {
         Objects.equals(this.officerRole, data.officerRole) &&
         Objects.equals(this.isSecureOfficer, data.isSecureOfficer) &&
         Objects.equals(this.identification, data.identification) &&
+        Objects.equals(this.identityVerificationDetails, data.identityVerificationDetails) &&
         Objects.equals(this.companyName, data.companyName) &&
         Objects.equals(this.surname, data.surname) &&
         Objects.equals(this.forename, data.forename) &&
@@ -398,7 +411,7 @@ public class DeltaOfficerData {
 
   @Override
   public int hashCode() {
-    return Objects.hash(personNumber, etag, serviceAddress, serviceAddressIsSameAsRegisteredOfficeAddress, countryOfResidence, appointedOn, appointedBefore, isPre1992Appointment, links, nationality, occupation, officerRole, isSecureOfficer, identification, companyName, surname, forename, honours, otherForenames, title, companyNumber, contactDetails, principalOfficeAddress, resignedOn, responsibilities, formerNames);
+    return Objects.hash(personNumber, etag, serviceAddress, serviceAddressIsSameAsRegisteredOfficeAddress, countryOfResidence, appointedOn, appointedBefore, isPre1992Appointment, links, nationality, occupation, officerRole, isSecureOfficer, identification, identityVerificationDetails, companyName, surname, forename, honours, otherForenames, title, companyNumber, contactDetails, principalOfficeAddress, resignedOn, responsibilities, formerNames);
   }
 
   @Override
@@ -419,6 +432,7 @@ public class DeltaOfficerData {
             + "    officerRole: " + toIndentedString(officerRole) + "\n"
             + "    isSecureOfficer: " + toIndentedString(isSecureOfficer) + "\n"
             + "    identification: " + toIndentedString(identification) + "\n"
+            + "    identityVerificationDetails: " + toIndentedString(identityVerificationDetails) + "\n"
             + "    companyName: " + toIndentedString(companyName) + "\n"
             + "    surname: " + toIndentedString(surname) + "\n"
             + "    forename: " + toIndentedString(forename) + "\n"
@@ -461,6 +475,7 @@ public class DeltaOfficerData {
     private String officerRole;
     private Boolean isSecureOfficer;
     private DeltaIdentification identification;
+    private DeltaIdentityVerificationDetails identityVerificationDetails;
     private String companyName;
     private String surname;
     private String forename;
@@ -548,6 +563,11 @@ public class DeltaOfficerData {
 
     public Builder identification(DeltaIdentification identification) {
       this.identification = identification;
+      return this;
+    }
+
+    public Builder identityVerificationDetails(DeltaIdentityVerificationDetails identityVerificationDetails) {
+      this.identityVerificationDetails = identityVerificationDetails;
       return this;
     }
 

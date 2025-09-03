@@ -19,15 +19,18 @@ public class DeltaOfficerDataTransformer implements Transformative<Data, DeltaOf
     private final DeltaItemLinkTypesTransformer itemLinkTypesTransformer;
     private final DeltaPrincipalOfficeAddressTransformer principalOfficeAddressTransformer;
     private final DeltaServiceAddressTransformer serviceAddressTransformer;
+    private final DeltaIdentityVerificationDetailsTransformer identityVerificationDetailsTransformer;
 
     public DeltaOfficerDataTransformer(DeltaIdentificationTransformer identificationTransformer,
-            DeltaItemLinkTypesTransformer itemLinkTypesTransformer,
-            DeltaPrincipalOfficeAddressTransformer principalOfficeAddressTransformer,
-            DeltaServiceAddressTransformer serviceAddressTransformer) {
+                                       DeltaItemLinkTypesTransformer itemLinkTypesTransformer,
+                                       DeltaPrincipalOfficeAddressTransformer principalOfficeAddressTransformer,
+                                       DeltaServiceAddressTransformer serviceAddressTransformer,
+                                       DeltaIdentityVerificationDetailsTransformer identityVerificationDetailsTransformer) {
         this.identificationTransformer = identificationTransformer;
         this.itemLinkTypesTransformer = itemLinkTypesTransformer;
         this.principalOfficeAddressTransformer = principalOfficeAddressTransformer;
         this.serviceAddressTransformer = serviceAddressTransformer;
+        this.identityVerificationDetailsTransformer = identityVerificationDetailsTransformer;
     }
 
     @Override
@@ -62,6 +65,8 @@ public class DeltaOfficerDataTransformer implements Transformative<Data, DeltaOf
             entity.setSecureOfficer(source.getIsSecureOfficer());
             entity.setIdentification(source.getIdentification() != null?
                     identificationTransformer.transform(source.getIdentification()) : null);
+            entity.setIdentityVerificationDetails(source.getIdentityVerificationDetails() != null?
+                    identityVerificationDetailsTransformer.transform(source.getIdentityVerificationDetails()) : null);
             entity.setCompanyName(source.getCompanyName());
             entity.setSurname(source.getSurname());
             entity.setForename(source.getForename());
