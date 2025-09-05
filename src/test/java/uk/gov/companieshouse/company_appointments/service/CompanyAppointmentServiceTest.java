@@ -101,7 +101,7 @@ class CompanyAppointmentServiceTest {
     @Test
     void testFetchAppointmentReturnsMappedAppointmentData() throws NotFoundException {
         CompanyAppointmentDocument appointmentDocument = buildCompanyAppointmentDocument(
-                buildOfficerData().etag("etag").build(),
+                buildOfficerData().build(),
                 ACTIVE);
 
         // given
@@ -113,7 +113,6 @@ class CompanyAppointmentServiceTest {
 
         // then
         assertEquals(OfficerSummary.class, result.getClass());
-        assertEquals("etag", result.getEtag());
         verify(companyAppointmentRepository).readByCompanyNumberAndAppointmentID(COMPANY_NUMBER, APPOINTMENT_ID);
     }
 
