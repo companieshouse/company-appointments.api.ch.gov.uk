@@ -69,8 +69,7 @@ public class CompanyAppointmentService {
                         companyNumber, appointmentID)
                 .orElseThrow(() -> new NotFoundException(
                         String.format("Appointment [%s] for company [%s] not found", appointmentID, companyNumber)));
-        return companyAppointmentMapper.map(appointmentDocument)
-                .etag(appointmentDocument.getData().getEtag());
+        return companyAppointmentMapper.map(appointmentDocument);
     }
 
     public OfficerList fetchAppointmentsForCompany(FetchAppointmentsRequest request)
