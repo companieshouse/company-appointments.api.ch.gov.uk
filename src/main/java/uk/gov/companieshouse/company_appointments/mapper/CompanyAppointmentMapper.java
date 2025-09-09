@@ -1,5 +1,13 @@
 package uk.gov.companieshouse.company_appointments.mapper;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.api.appointment.Address;
 import uk.gov.companieshouse.api.appointment.ContactDetails;
@@ -28,15 +36,6 @@ import uk.gov.companieshouse.company_appointments.model.data.DeltaServiceAddress
 import uk.gov.companieshouse.company_appointments.roles.RoleHelper;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.logging.LoggerFactory;
-
-import java.time.Instant;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static java.time.ZoneOffset.UTC;
 

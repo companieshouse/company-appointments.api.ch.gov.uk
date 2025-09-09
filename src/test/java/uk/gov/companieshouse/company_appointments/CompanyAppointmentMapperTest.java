@@ -1,5 +1,9 @@
 package uk.gov.companieshouse.company_appointments;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.util.Collections;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import uk.gov.companieshouse.api.appointment.Address;
@@ -25,11 +29,6 @@ import uk.gov.companieshouse.company_appointments.model.data.DeltaPrincipalOffic
 import uk.gov.companieshouse.company_appointments.model.data.DeltaSensitiveData;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaServiceAddress;
 import uk.gov.companieshouse.company_appointments.roles.SecretarialRoles;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
