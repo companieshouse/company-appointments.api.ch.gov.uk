@@ -68,6 +68,7 @@ public class CompanyAppointmentMapper {
                         .map(DeltaSensitiveData::getDateOfBirth)
                         .map(this::mapDateOfBirth)
                         .orElse(null))
+                .etag(data.getEtag())
                 .links(mapLinks(data.getLinks()))
                 .nationality(data.getNationality())
                 .occupation(data.getOccupation())
