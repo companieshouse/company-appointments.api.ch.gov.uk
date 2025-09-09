@@ -1,5 +1,7 @@
 package uk.gov.companieshouse.company_appointments.mapper;
 
+import static java.time.ZoneOffset.UTC;
+
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
@@ -36,8 +38,6 @@ import uk.gov.companieshouse.company_appointments.model.data.DeltaServiceAddress
 import uk.gov.companieshouse.company_appointments.roles.RoleHelper;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.logging.LoggerFactory;
-
-import static java.time.ZoneOffset.UTC;
 
 @Component
 public class CompanyAppointmentMapper {

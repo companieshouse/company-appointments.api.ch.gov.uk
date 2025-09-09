@@ -1,5 +1,7 @@
 package uk.gov.companieshouse.company_appointments;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -29,8 +31,6 @@ import uk.gov.companieshouse.company_appointments.model.data.DeltaPrincipalOffic
 import uk.gov.companieshouse.company_appointments.model.data.DeltaSensitiveData;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaServiceAddress;
 import uk.gov.companieshouse.company_appointments.roles.SecretarialRoles;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class CompanyAppointmentMapperTest {
 
