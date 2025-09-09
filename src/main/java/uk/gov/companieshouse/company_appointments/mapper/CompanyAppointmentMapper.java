@@ -16,6 +16,7 @@ import uk.gov.companieshouse.api.appointment.ContactDetails;
 import uk.gov.companieshouse.api.appointment.CorporateIdent;
 import uk.gov.companieshouse.api.appointment.DateOfBirth;
 import uk.gov.companieshouse.api.appointment.FormerNames;
+import uk.gov.companieshouse.api.appointment.IdentityVerificationDetails;
 import uk.gov.companieshouse.api.appointment.ItemLinkTypes;
 import uk.gov.companieshouse.api.appointment.OfficerLinkTypes;
 import uk.gov.companieshouse.api.appointment.OfficerSummary;
@@ -27,6 +28,7 @@ import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentD
 import uk.gov.companieshouse.company_appointments.model.data.DeltaContactDetails;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaFormerNames;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaIdentification;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaIdentityVerificationDetails;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaItemLinkTypes;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaOfficerData;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaOfficerLinkTypes;
@@ -75,6 +77,7 @@ public class CompanyAppointmentMapper {
                 .officerRole(OfficerRoleEnum.fromValue(data.getOfficerRole()))
                 .address(mapAddress(data.getServiceAddress()))
                 .identification(mapCorporateInfo(data.getIdentification()))
+                .identityVerificationDetails(mapIdentityVerificationDetails(data.getIdentityVerificationDetails()))
                 .formerNames(mapFormerNames(data.getFormerNames()))
                 .name(mapOfficerName(data))
                 .responsibilities(data.getResponsibilities())
@@ -187,5 +190,25 @@ public class CompanyAppointmentMapper {
             result = String.join(", ", result, data.getTitle());
         }
         return result;
+    }
+
+    private IdentityVerificationDetails mapIdentityVerificationDetails(DeltaIdentityVerificationDetails details) {
+        if (details != null) {
+            return new IdentityVerificationDetails()
+                    .antiMoneyLaunderingSupervisoryBodies(details.getAntiMoneyLaunderingSupervisoryBodies())
+                    .appointmentVerificationEndOn(getLocalDate(details.getAppointmentVerificationEndOn()))
+                    .appointmentVerificationStatementDate(getLocalDate(details.getAppointmentVerificationStatementDate()))
+                    .appointmentVerificationStatementDueOn(getLocalDate(details.getAppointmentVerificationStatementDueOn()))
+                    .appointmentVerificationStartOn(getLocalDate(details.getAppointmentVerificationStartOn()))
+                    .authorisedCorporateServiceProviderName(details.getAuthorisedCorporateServiceProviderName())
+                    .identityVerifiedOn(getLocalDate(details.getIdentityVerifiedOn()))
+                    .preferredName(details.getPreferredName());
+        } else {
+            return null;
+        }
+    }
+
+    private LocalDate getLocalDate(Instant date) {
+        return date != null ? LocalDate.from(date.atZone(UTC)) : null;
     }
 }

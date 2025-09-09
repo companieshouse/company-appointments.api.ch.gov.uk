@@ -13,6 +13,7 @@ import uk.gov.companieshouse.api.appointment.ContactDetails;
 import uk.gov.companieshouse.api.appointment.CorporateIdent;
 import uk.gov.companieshouse.api.appointment.DateOfBirth;
 import uk.gov.companieshouse.api.appointment.FormerNames;
+import uk.gov.companieshouse.api.appointment.IdentityVerificationDetails;
 import uk.gov.companieshouse.api.appointment.ItemLinkTypes;
 import uk.gov.companieshouse.api.appointment.OfficerLinkTypes;
 import uk.gov.companieshouse.api.appointment.OfficerSummary;
@@ -22,6 +23,7 @@ import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentD
 import uk.gov.companieshouse.company_appointments.model.data.DeltaContactDetails;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaFormerNames;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaIdentification;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaIdentityVerificationDetails;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaItemLinkTypes;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaOfficerData;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaOfficerLinkTypes;
@@ -145,6 +147,20 @@ class CompanyAppointmentMapperTest {
                         .legalForm("Legal form")
                         .placeRegistered("Place registered")
                         .registrationNumber("Registration number")), actual);
+    }
+
+    @Test
+    void testCompanyAppointmentMapperWithIdentityVerificationDetails() {
+        //when
+        OfficerSummary actual = companyAppointmentMapper.map(companyAppointmentData(officerData()
+                .companyName("Company Name")
+                .identityVerificationDetails(new DeltaIdentityVerificationDetails())
+                .build()));
+
+        //then
+        assertEquals(expectedCompanyAppointment()
+                .name("Company Name")
+                .identityVerificationDetails(new IdentityVerificationDetails()), actual);
     }
 
     @Test

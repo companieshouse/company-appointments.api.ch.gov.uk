@@ -27,6 +27,7 @@ import uk.gov.companieshouse.api.officer.AppointmentLinkTypes;
 import uk.gov.companieshouse.api.officer.ContactDetails;
 import uk.gov.companieshouse.api.officer.CorporateIdent;
 import uk.gov.companieshouse.api.officer.FormerNames;
+import uk.gov.companieshouse.api.officer.IdentityVerificationDetails;
 import uk.gov.companieshouse.api.officer.NameElements;
 import uk.gov.companieshouse.api.officer.OfficerAppointmentSummary;
 import uk.gov.companieshouse.api.officer.OfficerAppointmentSummary.OfficerRoleEnum;
@@ -34,6 +35,7 @@ import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentD
 import uk.gov.companieshouse.company_appointments.model.data.DeltaContactDetails;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaFormerNames;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaIdentification;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaIdentityVerificationDetails;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaOfficerData;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaPrincipalOfficeAddress;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaServiceAddress;
@@ -79,6 +81,12 @@ class ItemsMapperTest {
     private DeltaIdentification identificationData;
     @Mock
     private NameElements nameElements;
+    @Mock
+    private IdentityVerificationDetailsMapper identityVerificationDetailsMapper;
+    @Mock
+    private IdentityVerificationDetails identityVerificationDetails;
+    @Mock
+    private DeltaIdentityVerificationDetails deltaIdentityVerificationDetails;
 
     private final Instant appointedBefore = Instant.from(
             LocalDate.of(1993, 3, 13).atStartOfDay(ZoneOffset.UTC));
@@ -104,6 +112,7 @@ class ItemsMapperTest {
         when(identificationMapper.map(any())).thenReturn(corporateIdent);
         when(roleMapper.mapOfficerRole(anyString())).thenReturn(OfficerRoleEnum.DIRECTOR);
         when(nameMapper.mapNameElements(any())).thenReturn(nameElements);
+        when(identityVerificationDetailsMapper.map(any())).thenReturn(identityVerificationDetails);
 
         List<CompanyAppointmentDocument> appointmentList = getAppointmentList();
 
@@ -124,6 +133,7 @@ class ItemsMapperTest {
         verify(formerNamesMapper).map(singletonList(formerNamesData));
         verify(identificationMapper).map(identificationData);
         verify(roleMapper).mapOfficerRole("director");
+        verify(identityVerificationDetailsMapper).map(deltaIdentityVerificationDetails);
     }
 
     @Test
@@ -187,6 +197,7 @@ class ItemsMapperTest {
                 .setTitle("Mrs")
                 .setFormerNames(singletonList(formerNamesData))
                 .setIdentification(identificationData)
+                .setIdentityVerificationDetails(deltaIdentityVerificationDetails)
                 .setCountryOfResidence("UK")
                 .setContactDetails(contactDetailsData)
                 .setPre1992Appointment(false)
@@ -217,6 +228,7 @@ class ItemsMapperTest {
                 .countryOfResidence("UK")
                 .formerNames(singletonList(formerNames))
                 .identification(corporateIdent)
+                .identityVerificationDetails(identityVerificationDetails)
                 .isPre1992Appointment(false)
                 .links(new AppointmentLinkTypes().company("/company/12345678"))
                 .nameElements(nameElements)

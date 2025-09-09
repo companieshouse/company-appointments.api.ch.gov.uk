@@ -20,14 +20,16 @@ class ItemsMapper {
     private final FormerNamesMapper formerNamesMapper;
     private final IdentificationMapper identificationMapper;
     private final OfficerRoleMapper roleMapper;
+    private final IdentityVerificationDetailsMapper identityVerificationDetailsMapper;
 
     ItemsMapper(AddressMapper addressMapper,
-            ContactDetailsMapper contactDetailsMapper,
-            NameMapper nameMapper,
-            LocalDateMapper localDateMapper,
-            FormerNamesMapper formerNamesMapper,
-            IdentificationMapper identificationMapper,
-            OfficerRoleMapper roleMapper) {
+                ContactDetailsMapper contactDetailsMapper,
+                NameMapper nameMapper,
+                LocalDateMapper localDateMapper,
+                FormerNamesMapper formerNamesMapper,
+                IdentificationMapper identificationMapper,
+                OfficerRoleMapper roleMapper,
+                IdentityVerificationDetailsMapper identityVerificationDetailsMapper) {
         this.addressMapper = addressMapper;
         this.contactDetailsMapper = contactDetailsMapper;
         this.nameMapper = nameMapper;
@@ -35,6 +37,7 @@ class ItemsMapper {
         this.formerNamesMapper = formerNamesMapper;
         this.identificationMapper = identificationMapper;
         this.roleMapper = roleMapper;
+        this.identityVerificationDetailsMapper = identityVerificationDetailsMapper;
     }
 
     List<OfficerAppointmentSummary> map(List<CompanyAppointmentDocument> appointments) {
@@ -53,6 +56,8 @@ class ItemsMapper {
                                 .countryOfResidence(data.getCountryOfResidence())
                                 .formerNames(formerNamesMapper.map(data.getFormerNames()))
                                 .identification(identificationMapper.map(data.getIdentification()))
+                                .identityVerificationDetails(
+                                        identityVerificationDetailsMapper.map(data.getIdentityVerificationDetails()))
                                 .isPre1992Appointment(data.getPre1992Appointment())
                                 .links(new AppointmentLinkTypes()
                                         .company(String.format("/company/%s", data.getCompanyNumber())))
