@@ -6,28 +6,37 @@ import uk.gov.companieshouse.company_appointments.model.data.DeltaIdentityVerifi
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.function.Consumer;
 
 import static java.time.ZoneOffset.UTC;
-import static java.util.Optional.ofNullable;
 
 @Component
 class IdentityVerificationDetailsMapper {
 
     IdentityVerificationDetails map(DeltaIdentityVerificationDetails deltaDetails) {
-        return ofNullable(deltaDetails)
-                .map(details -> new IdentityVerificationDetails()
-                        .antiMoneyLaunderingSupervisoryBodies(details.getAntiMoneyLaunderingSupervisoryBodies())
-                        .appointmentVerificationEndOn(getLocalDate(details.getAppointmentVerificationEndOn()))
-                        .appointmentVerificationStatementDate(getLocalDate(details.getAppointmentVerificationStatementDate()))
-                        .appointmentVerificationStatementDueOn(getLocalDate(details.getAppointmentVerificationStatementDueOn()))
-                        .appointmentVerificationStartOn(getLocalDate(details.getAppointmentVerificationStartOn()))
-                        .authorisedCorporateServiceProviderName(details.getAuthorisedCorporateServiceProviderName())
-                        .identityVerifiedOn(getLocalDate(details.getIdentityVerifiedOn()))
-                        .preferredName(details.getPreferredName())
-                ).orElse(null);
+        if (deltaDetails == null) return null;
+
+        IdentityVerificationDetails ivd = new IdentityVerificationDetails();
+
+        setIfNotNull(ivd::setAntiMoneyLaunderingSupervisoryBodies, deltaDetails.getAntiMoneyLaunderingSupervisoryBodies());
+        setIfNotNull(ivd::setAppointmentVerificationEndOn, getLocalDate(deltaDetails.getAppointmentVerificationEndOn()));
+        setIfNotNull(ivd::setAppointmentVerificationStatementDate, getLocalDate(deltaDetails.getAppointmentVerificationStatementDate()));
+        setIfNotNull(ivd::setAppointmentVerificationStatementDueOn, getLocalDate(deltaDetails.getAppointmentVerificationStatementDueOn()));
+        setIfNotNull(ivd::setAppointmentVerificationStartOn, getLocalDate(deltaDetails.getAppointmentVerificationStartOn()));
+        setIfNotNull(ivd::setAuthorisedCorporateServiceProviderName, deltaDetails.getAuthorisedCorporateServiceProviderName());
+        setIfNotNull(ivd::setIdentityVerifiedOn, getLocalDate(deltaDetails.getIdentityVerifiedOn()));
+        setIfNotNull(ivd::setPreferredName, deltaDetails.getPreferredName());
+
+        return ivd;
     }
 
     private LocalDate getLocalDate(Instant date) {
         return date != null ? LocalDate.from(date.atZone(UTC)) : null;
+    }
+
+    private <T> void setIfNotNull(Consumer<T> setter, T value) {
+        if (value != null) {
+            setter.accept(value);
+        }
     }
 }
