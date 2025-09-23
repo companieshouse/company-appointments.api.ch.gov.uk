@@ -6,6 +6,8 @@ import uk.gov.companieshouse.company_appointments.exception.FailedToTransformExc
 import uk.gov.companieshouse.company_appointments.model.data.DeltaIdentityVerificationDetails;
 
 import java.time.Instant;
+import java.time.LocalDate;
+import java.util.function.Consumer;
 
 import static java.time.ZoneOffset.UTC;
 
@@ -17,24 +19,31 @@ public class DeltaIdentityVerificationDetailsTransformer implements Transformati
     }
 
     @Override
-    public DeltaIdentityVerificationDetails transform(IdentityVerificationDetails source, DeltaIdentityVerificationDetails output) throws FailedToTransformException {
+    public DeltaIdentityVerificationDetails transform(IdentityVerificationDetails source, DeltaIdentityVerificationDetails output)
+            throws FailedToTransformException {
         try {
-            return output
-                    .setAntiMoneyLaunderingSupervisoryBodies(source.getAntiMoneyLaunderingSupervisoryBodies() != null ?
-                    source.getAntiMoneyLaunderingSupervisoryBodies() : null)
-                    .setAppointmentVerificationEndOn(
-                            Instant.from(source.getAppointmentVerificationEndOn().atStartOfDay(UTC)))
-                    .setAppointmentVerificationStatementDate(
-                            Instant.from(source.getAppointmentVerificationStatementDate().atStartOfDay(UTC)))
-                    .setAppointmentVerificationStatementDueOn(
-                            Instant.from(source.getAppointmentVerificationStatementDueOn().atStartOfDay(UTC)))
-                    .setAppointmentVerificationStartOn(
-                            Instant.from(source.getAppointmentVerificationStartOn().atStartOfDay(UTC)))
-                    .setAuthorisedCorporateServiceProviderName(source.getAuthorisedCorporateServiceProviderName())
-                    .setIdentityVerifiedOn(Instant.from(source.getIdentityVerifiedOn().atStartOfDay(UTC)))
-                    .setPreferredName(source.getPreferredName());
+            setIfNotNull(output::setAntiMoneyLaunderingSupervisoryBodies, source.getAntiMoneyLaunderingSupervisoryBodies());
+            setIfNotNull(output::setAppointmentVerificationEndOn, toInstant(source.getAppointmentVerificationEndOn()));
+            setIfNotNull(output::setAppointmentVerificationStatementDate, toInstant(source.getAppointmentVerificationStatementDate()));
+            setIfNotNull(output::setAppointmentVerificationStatementDueOn, toInstant(source.getAppointmentVerificationStatementDueOn()));
+            setIfNotNull(output::setAppointmentVerificationStartOn, toInstant(source.getAppointmentVerificationStartOn()));
+            setIfNotNull(output::setAuthorisedCorporateServiceProviderName, source.getAuthorisedCorporateServiceProviderName());
+            setIfNotNull(output::setIdentityVerifiedOn, toInstant(source.getIdentityVerifiedOn()));
+            setIfNotNull(output::setPreferredName, source.getPreferredName());
+
+            return output;
         } catch (Exception e) {
             throw new FailedToTransformException(String.format("Failed to transform IdentityVerificationDetails: %s", e.getMessage()));
         }
+    }
+
+    private <T> void setIfNotNull(Consumer<T> setter, T value) {
+        if (value != null) {
+            setter.accept(value);
+        }
+    }
+
+    private Instant toInstant(LocalDate date) {
+        return date != null ? Instant.from(date.atStartOfDay(UTC)) : null;
     }
 }

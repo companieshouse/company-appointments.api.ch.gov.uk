@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -193,18 +194,25 @@ public class CompanyAppointmentMapper {
     }
 
     private IdentityVerificationDetails mapIdentityVerificationDetails(DeltaIdentityVerificationDetails details) {
-        if (details != null) {
-            return new IdentityVerificationDetails()
-                    .antiMoneyLaunderingSupervisoryBodies(details.getAntiMoneyLaunderingSupervisoryBodies())
-                    .appointmentVerificationEndOn(getLocalDate(details.getAppointmentVerificationEndOn()))
-                    .appointmentVerificationStatementDate(getLocalDate(details.getAppointmentVerificationStatementDate()))
-                    .appointmentVerificationStatementDueOn(getLocalDate(details.getAppointmentVerificationStatementDueOn()))
-                    .appointmentVerificationStartOn(getLocalDate(details.getAppointmentVerificationStartOn()))
-                    .authorisedCorporateServiceProviderName(details.getAuthorisedCorporateServiceProviderName())
-                    .identityVerifiedOn(getLocalDate(details.getIdentityVerifiedOn()))
-                    .preferredName(details.getPreferredName());
-        } else {
-            return null;
+        if (details == null) return null;
+
+        IdentityVerificationDetails ivd = new IdentityVerificationDetails();
+
+        setIfNotNull(ivd::setAntiMoneyLaunderingSupervisoryBodies, details.getAntiMoneyLaunderingSupervisoryBodies());
+        setIfNotNull(ivd::setAppointmentVerificationEndOn, getLocalDate(details.getAppointmentVerificationEndOn()));
+        setIfNotNull(ivd::setAppointmentVerificationStatementDate, getLocalDate(details.getAppointmentVerificationStatementDate()));
+        setIfNotNull(ivd::setAppointmentVerificationStatementDueOn, getLocalDate(details.getAppointmentVerificationStatementDueOn()));
+        setIfNotNull(ivd::setAppointmentVerificationStartOn, getLocalDate(details.getAppointmentVerificationStartOn()));
+        setIfNotNull(ivd::setAuthorisedCorporateServiceProviderName, details.getAuthorisedCorporateServiceProviderName());
+        setIfNotNull(ivd::setIdentityVerifiedOn, getLocalDate(details.getIdentityVerifiedOn()));
+        setIfNotNull(ivd::setPreferredName, details.getPreferredName());
+
+        return ivd;
+    }
+
+    private <T> void setIfNotNull(Consumer<T> setter, T value) {
+        if (value != null) {
+            setter.accept(value);
         }
     }
 
