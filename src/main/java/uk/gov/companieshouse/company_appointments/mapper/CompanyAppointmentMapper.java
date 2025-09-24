@@ -199,19 +199,19 @@ public class CompanyAppointmentMapper {
         IdentityVerificationDetails ivd = new IdentityVerificationDetails();
 
         if (details.getAppointmentVerificationEndOn() != null) {
-            ivd.setAppointmentVerificationEndOn(LocalDate.from(details.getAppointmentVerificationEndOn().atZone(UTC)));
+            ivd.setAppointmentVerificationEndOn(Optional.ofNullable(LocalDate.from(details.getAppointmentVerificationEndOn().atZone(UTC))).orElse(null));
         }
         if (details.getAppointmentVerificationStatementDate() != null) {
-            ivd.setAppointmentVerificationStatementDate(LocalDate.from(details.getAppointmentVerificationStatementDate().atZone(UTC)));
+            ivd.setAppointmentVerificationStatementDate(Optional.ofNullable(LocalDate.from(details.getAppointmentVerificationStatementDate().atZone(UTC))).orElse(null));;
         }
         if (details.getAppointmentVerificationStatementDueOn() != null) {
-            ivd.setAppointmentVerificationStatementDueOn(LocalDate.from(details.getAppointmentVerificationStatementDueOn().atZone(UTC)));
+            ivd.setAppointmentVerificationStatementDueOn(Optional.ofNullable(LocalDate.from(details.getAppointmentVerificationStatementDueOn().atZone(UTC))).orElse(null));;
         }
         if (details.getAppointmentVerificationStartOn() != null) {
-            ivd.setAppointmentVerificationStartOn(LocalDate.from(details.getAppointmentVerificationStartOn().atZone(UTC)));
+            ivd.setAppointmentVerificationStartOn(Optional.ofNullable(LocalDate.from(details.getAppointmentVerificationStartOn().atZone(UTC))).orElse(null));;
         }
         if (details.getIdentityVerifiedOn() != null) {
-            ivd.setIdentityVerifiedOn(LocalDate.from(details.getIdentityVerifiedOn().atZone(UTC)));
+            ivd.setIdentityVerifiedOn(Optional.ofNullable(LocalDate.from(details.getIdentityVerifiedOn().atZone(UTC))).orElse(null));;
         }
 
         ivd.setAuthorisedCorporateServiceProviderName(details.getAuthorisedCorporateServiceProviderName());

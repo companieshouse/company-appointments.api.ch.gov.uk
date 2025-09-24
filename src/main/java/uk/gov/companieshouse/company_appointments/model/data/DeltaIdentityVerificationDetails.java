@@ -60,6 +60,7 @@ public class DeltaIdentityVerificationDetails {
         return antiMoneyLaunderingSupervisoryBodies;
     }
 
+    @Nullable
     public DeltaIdentityVerificationDetails setAntiMoneyLaunderingSupervisoryBodies(List<String> antiMoneyLaunderingSupervisoryBodies) {
         this.antiMoneyLaunderingSupervisoryBodies = antiMoneyLaunderingSupervisoryBodies;
         return this;
@@ -70,6 +71,7 @@ public class DeltaIdentityVerificationDetails {
         return appointmentVerificationEndOn;
     }
 
+    @Nullable
     public DeltaIdentityVerificationDetails setAppointmentVerificationEndOn(Instant appointmentVerificationEndOn) {
         this.appointmentVerificationEndOn = appointmentVerificationEndOn;
         return this;
@@ -80,6 +82,7 @@ public class DeltaIdentityVerificationDetails {
         return appointmentVerificationStatementDate;
     }
 
+    @Nullable
     public DeltaIdentityVerificationDetails setAppointmentVerificationStatementDate(Instant appointmentVerificationStatementDate) {
         this.appointmentVerificationStatementDate = appointmentVerificationStatementDate;
         return this;
@@ -90,6 +93,7 @@ public class DeltaIdentityVerificationDetails {
         return appointmentVerificationStatementDueOn;
     }
 
+    @Nullable
     public DeltaIdentityVerificationDetails setAppointmentVerificationStatementDueOn(Instant appointmentVerificationStatementDueOn) {
         this.appointmentVerificationStatementDueOn = appointmentVerificationStatementDueOn;
         return this;
@@ -100,6 +104,7 @@ public class DeltaIdentityVerificationDetails {
         return appointmentVerificationStartOn;
     }
 
+    @Nullable
     public DeltaIdentityVerificationDetails setAppointmentVerificationStartOn(Instant appointmentVerificationStartOn) {
         this.appointmentVerificationStartOn = appointmentVerificationStartOn;
         return this;
@@ -110,6 +115,7 @@ public class DeltaIdentityVerificationDetails {
         return authorisedCorporateServiceProviderName;
     }
 
+    @Nullable
     public DeltaIdentityVerificationDetails setAuthorisedCorporateServiceProviderName(String authorisedCorporateServiceProviderName) {
         this.authorisedCorporateServiceProviderName = authorisedCorporateServiceProviderName;
         return this;
@@ -120,6 +126,7 @@ public class DeltaIdentityVerificationDetails {
         return identityVerifiedOn;
     }
 
+    @Nullable
     public DeltaIdentityVerificationDetails setIdentityVerifiedOn(Instant identityVerifiedOn) {
         this.identityVerifiedOn = identityVerifiedOn;
         return this;
@@ -130,6 +137,7 @@ public class DeltaIdentityVerificationDetails {
         return preferredName;
     }
 
+    @Nullable
     public DeltaIdentityVerificationDetails setPreferredName(String preferredName) {
         this.preferredName = preferredName;
         return this;
