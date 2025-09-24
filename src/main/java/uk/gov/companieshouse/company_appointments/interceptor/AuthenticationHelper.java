@@ -1,8 +1,8 @@
 package uk.gov.companieshouse.company_appointments.interceptor;
 
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Map;
-import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * Helper class for authenticating users

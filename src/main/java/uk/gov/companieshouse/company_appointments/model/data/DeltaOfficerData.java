@@ -1,9 +1,9 @@
 package uk.gov.companieshouse.company_appointments.model.data;
 
+import jakarta.validation.Valid;
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
-import jakarta.validation.Valid;
 import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.lang.Nullable;
 

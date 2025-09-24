@@ -1,16 +1,15 @@
 package uk.gov.companieshouse.company_appointments.model.transformer;
 
-import org.jetbrains.annotations.NotNull;
-import org.junit.jupiter.api.Test;
-import uk.gov.companieshouse.api.appointment.IdentityVerificationDetails;
-import uk.gov.companieshouse.company_appointments.model.data.DeltaIdentityVerificationDetails;
+import static java.time.ZoneOffset.UTC;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
-
-import static java.time.ZoneOffset.UTC;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.Test;
+import uk.gov.companieshouse.api.appointment.IdentityVerificationDetails;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaIdentityVerificationDetails;
 
 class DeltaIdentityVerificationDetailsTransformerTest {
 

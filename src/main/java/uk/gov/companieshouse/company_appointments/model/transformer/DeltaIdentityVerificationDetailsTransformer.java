@@ -1,15 +1,14 @@
 package uk.gov.companieshouse.company_appointments.model.transformer;
 
-import org.springframework.stereotype.Component;
-import uk.gov.companieshouse.api.appointment.IdentityVerificationDetails;
-import uk.gov.companieshouse.company_appointments.exception.FailedToTransformException;
-import uk.gov.companieshouse.company_appointments.model.data.DeltaIdentityVerificationDetails;
+import static java.time.ZoneOffset.UTC;
 
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.function.Consumer;
-
-import static java.time.ZoneOffset.UTC;
+import org.springframework.stereotype.Component;
+import uk.gov.companieshouse.api.appointment.IdentityVerificationDetails;
+import uk.gov.companieshouse.company_appointments.exception.FailedToTransformException;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaIdentityVerificationDetails;
 
 @Component
 public class DeltaIdentityVerificationDetailsTransformer implements Transformative<IdentityVerificationDetails, DeltaIdentityVerificationDetails> {

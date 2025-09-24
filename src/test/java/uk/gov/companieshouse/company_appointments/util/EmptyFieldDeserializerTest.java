@@ -1,15 +1,14 @@
 package uk.gov.companieshouse.company_appointments.util;
 
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import java.nio.charset.StandardCharsets;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Test;
 import uk.gov.companieshouse.api.appointment.FullRecordCompanyOfficerApi;
-
-import java.nio.charset.StandardCharsets;
-
-import static org.junit.jupiter.api.Assertions.assertNull;
 
 class EmptyFieldDeserializerTest {
 

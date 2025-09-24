@@ -1,13 +1,12 @@
 package uk.gov.companieshouse.company_appointments.model.data;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
-import org.springframework.data.mongodb.core.mapping.Field;
-
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.lang.Nullable;
 
 /**
