@@ -198,21 +198,17 @@ public class CompanyAppointmentMapper {
 
         IdentityVerificationDetails ivd = new IdentityVerificationDetails();
 
-        if (details.getAppointmentVerificationEndOn() != null) {
-            ivd.setAppointmentVerificationEndOn(Optional.ofNullable(LocalDate.from(details.getAppointmentVerificationEndOn().atZone(UTC))).orElse(null));
-        }
-        if (details.getAppointmentVerificationStatementDate() != null) {
-            ivd.setAppointmentVerificationStatementDate(Optional.ofNullable(LocalDate.from(details.getAppointmentVerificationStatementDate().atZone(UTC))).orElse(null));;
-        }
-        if (details.getAppointmentVerificationStatementDueOn() != null) {
-            ivd.setAppointmentVerificationStatementDueOn(Optional.ofNullable(LocalDate.from(details.getAppointmentVerificationStatementDueOn().atZone(UTC))).orElse(null));;
-        }
-        if (details.getAppointmentVerificationStartOn() != null) {
-            ivd.setAppointmentVerificationStartOn(Optional.ofNullable(LocalDate.from(details.getAppointmentVerificationStartOn().atZone(UTC))).orElse(null));;
-        }
-        if (details.getIdentityVerifiedOn() != null) {
-            ivd.setIdentityVerifiedOn(Optional.ofNullable(LocalDate.from(details.getIdentityVerifiedOn().atZone(UTC))).orElse(null));;
-        }
+        Optional<Instant> appointmentVerificationEndOn = Optional.ofNullable(details.getAppointmentVerificationEndOn());
+        Optional<Instant> appointmentVerificationStatementDate = Optional.ofNullable(details.getAppointmentVerificationStatementDate());
+        Optional<Instant> appointmentVerificationStatementDueOn = Optional.ofNullable(details.getAppointmentVerificationStatementDueOn());
+        Optional<Instant> appointmentVerificationStartOn = Optional.ofNullable(details.getAppointmentVerificationStartOn());
+        Optional<Instant> identityVerifiedOn = Optional.ofNullable(details.getIdentityVerifiedOn());
+
+        appointmentVerificationEndOn.ifPresent(instant -> ivd.setAppointmentVerificationEndOn(LocalDate.from(instant.atZone(UTC))));
+        appointmentVerificationStatementDate.ifPresent(instant -> ivd.setAppointmentVerificationStatementDate(LocalDate.from(instant.atZone(UTC))));
+        appointmentVerificationStatementDueOn.ifPresent(instant -> ivd.setAppointmentVerificationStatementDueOn(LocalDate.from(instant.atZone(UTC))));
+        appointmentVerificationStartOn.ifPresent(instant -> ivd.appointmentVerificationStartOn(LocalDate.from(instant.atZone(UTC))));
+        identityVerifiedOn.ifPresent(instant -> ivd.identityVerifiedOn(LocalDate.from(instant.atZone(UTC))));
 
         ivd.setAuthorisedCorporateServiceProviderName(details.getAuthorisedCorporateServiceProviderName());
         ivd.setAntiMoneyLaunderingSupervisoryBodies(details.getAntiMoneyLaunderingSupervisoryBodies());
