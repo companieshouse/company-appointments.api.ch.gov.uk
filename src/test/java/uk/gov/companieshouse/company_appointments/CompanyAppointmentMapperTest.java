@@ -1,11 +1,15 @@
 package uk.gov.companieshouse.company_appointments;
 
+import static java.time.ZoneOffset.UTC;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.time.temporal.TemporalAccessor;
 import java.util.Collections;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import uk.gov.companieshouse.api.appointment.Address;
@@ -330,12 +334,46 @@ class CompanyAppointmentMapperTest {
         assertEquals(pre1992AppointmentSummary(), actual);
     }
 
+    @Test
+    void testNullIdentityVerificationDetails() {
+        OfficerSummary actual = companyAppointmentMapper.map(
+                companyAppointmentData(officerData()
+                        .identityVerificationDetails(new DeltaIdentityVerificationDetails()
+                                .setAuthorisedCorporateServiceProviderName(null)
+                                .setIdentityVerifiedOn(null)
+                                .setPreferredName(null)
+                                .setAppointmentVerificationEndOn(null)
+                                .setAntiMoneyLaunderingSupervisoryBodies(null)
+                                .setAppointmentVerificationStatementDueOn(null)
+                        ).build()), true);
+
+        assertEquals(nullIdvSummary(), actual);
+    }
+
+    @Test
+    void testPartiallyNullIdentityVerificationDetails() {
+        OfficerSummary actual = companyAppointmentMapper.map(
+                companyAppointmentData(officerData()
+                        .identityVerificationDetails(new DeltaIdentityVerificationDetails()
+                                .setAppointmentVerificationStartOn(Instant.ofEpochSecond(1758706814L))
+                                .setAppointmentVerificationEndOn(null)
+                                .setAppointmentVerificationStatementDate(Instant.ofEpochSecond(1758706814L))
+                                .setAppointmentVerificationEndOn(null)
+                                .setIdentityVerifiedOn(Instant.ofEpochSecond(1758706814L))
+                                .setAntiMoneyLaunderingSupervisoryBodies(null)
+                                .setPreferredName("Preferred Name")
+                                .setAuthorisedCorporateServiceProviderName(null)
+                        ).build()), true);
+
+        assertEquals(partiallyNullIdvSummary(), actual);
+    }
+
     private CompanyAppointmentDocument companyAppointmentData(DeltaOfficerData officerData) {
         return new CompanyAppointmentDocument()
                 .id("123")
                 .data(officerData)
                 .sensitiveData(new DeltaSensitiveData().setDateOfBirth(
-                        LocalDateTime.of(1980, 1, 1, 12, 0).toInstant(ZoneOffset.UTC)))
+                        LocalDateTime.of(1980, 1, 1, 12, 0).toInstant(UTC)))
                 .companyStatus("active");
     }
 
@@ -343,9 +381,9 @@ class CompanyAppointmentMapperTest {
         return DeltaOfficerData.Builder.builder()
                 .isPre1992Appointment(true)
                 .appointedBefore(LocalDateTime.of(1991, 11, 10, 0, 0)
-                        .toInstant(ZoneOffset.UTC))
+                        .toInstant(UTC))
                 .resignedOn(LocalDateTime.of(2020, 8, 26, 13, 0)
-                        .toInstant(ZoneOffset.UTC))
+                        .toInstant(UTC))
                 .countryOfResidence("Country")
                 .links(new DeltaItemLinkTypes()
                         .setSelf("/company/12345678/appointment/123")
@@ -384,12 +422,96 @@ class CompanyAppointmentMapperTest {
                         .locality("Locality"));
     }
 
+    private OfficerSummary nullIdvSummary() {
+        return new OfficerSummary()
+                .appointedOn(LocalDate.of(2020, 8, 26))
+                .resignedOn(LocalDate.of(2020, 8, 26))
+                .countryOfResidence("Country")
+                .dateOfBirth(new DateOfBirth()
+                        .month(1)
+                        .year(1980))
+                .links(new ItemLinkTypes()
+                        .self("/company/12345678/appointment/123")
+                        .officer(new OfficerLinkTypes()
+                                .self(null)
+                                .appointments("/officers/abc/appointments")))
+                .nationality("Nationality")
+                .occupation("Occupation")
+                .officerRole(OfficerSummary.OfficerRoleEnum.MANAGING_OFFICER)
+                .etag("ETAG")
+                .address(new Address()
+                        .addressLine1("Address 1")
+                        .addressLine2("Address 2")
+                        .careOf("Care of")
+                        .country("Country")
+                        .locality("Locality")
+                        .postalCode("AB01 9XY")
+                        .poBox("PO Box")
+                        .premises("Premises")
+                        .region("Region"))
+                .responsibilities("responsibilities")
+                .contactDetails(new ContactDetails()
+                        .contactName("Name"))
+                .personNumber("personNumber")
+                .identityVerificationDetails(new IdentityVerificationDetails()
+                        .appointmentVerificationStartOn(null)
+                        .appointmentVerificationEndOn(null)
+                        .appointmentVerificationStatementDate(null)
+                        .appointmentVerificationEndOn(null)
+                        .identityVerifiedOn(null)
+                        .antiMoneyLaunderingSupervisoryBodies(null)
+                        .preferredName(null)
+                        .authorisedCorporateServiceProviderName(null));
+    }
+
+    private OfficerSummary partiallyNullIdvSummary() {
+        return new OfficerSummary()
+                .appointedOn(LocalDate.of(2020, 8, 26))
+                .resignedOn(LocalDate.of(2020, 8, 26))
+                .countryOfResidence("Country")
+                .dateOfBirth(new DateOfBirth()
+                        .month(1)
+                        .year(1980))
+                .links(new ItemLinkTypes()
+                        .self("/company/12345678/appointment/123")
+                        .officer(new OfficerLinkTypes()
+                                .self(null)
+                                .appointments("/officers/abc/appointments")))
+                .nationality("Nationality")
+                .occupation("Occupation")
+                .officerRole(OfficerSummary.OfficerRoleEnum.MANAGING_OFFICER)
+                .etag("ETAG")
+                .address(new Address()
+                        .addressLine1("Address 1")
+                        .addressLine2("Address 2")
+                        .careOf("Care of")
+                        .country("Country")
+                        .locality("Locality")
+                        .postalCode("AB01 9XY")
+                        .poBox("PO Box")
+                        .premises("Premises")
+                        .region("Region"))
+                .responsibilities("responsibilities")
+                .contactDetails(new ContactDetails()
+                        .contactName("Name"))
+                .personNumber("personNumber")
+                .identityVerificationDetails(new IdentityVerificationDetails()
+                        .appointmentVerificationStartOn(LocalDate.from(Instant.ofEpochSecond(1758706814L).atZone(UTC)))
+                        .appointmentVerificationEndOn(null)
+                        .appointmentVerificationStatementDate(LocalDate.from(Instant.ofEpochSecond(1758706814L).atZone(UTC)))
+                        .appointmentVerificationEndOn(null)
+                        .identityVerifiedOn(LocalDate.from(Instant.ofEpochSecond(1758706814L).atZone(UTC)))
+                        .antiMoneyLaunderingSupervisoryBodies(null)
+                        .preferredName("Preferred Name")
+                        .authorisedCorporateServiceProviderName(null));
+    }
+
     private DeltaOfficerData.Builder officerData() {
         return DeltaOfficerData.Builder.builder()
                 .appointedOn(LocalDateTime.of(2020, 8, 26, 12, 0)
-                        .toInstant(ZoneOffset.UTC))
+                        .toInstant(UTC))
                 .resignedOn(LocalDateTime.of(2020, 8, 26, 13, 0)
-                        .toInstant(ZoneOffset.UTC))
+                        .toInstant(UTC))
                 .countryOfResidence("Country")
                 .links(new DeltaItemLinkTypes()
                         .setSelf("/company/12345678/appointment/123")
@@ -412,7 +534,16 @@ class CompanyAppointmentMapperTest {
                         .setRegion("Region"))
                 .responsibilities("responsibilities")
                 .contactDetails(new DeltaContactDetails().setContactName("Name"))
-                .personNumber("personNumber");
+                .personNumber("personNumber")
+                .identityVerificationDetails(new DeltaIdentityVerificationDetails()
+                        .setAppointmentVerificationStartOn(Instant.ofEpochSecond(1758706814L))
+                        .setAppointmentVerificationEndOn(Instant.ofEpochSecond(1760007009L))
+                        .setAppointmentVerificationStatementDate(Instant.ofEpochSecond(1758706814L))
+                        .setAppointmentVerificationEndOn(Instant.ofEpochSecond(1760007009L))
+                        .setIdentityVerifiedOn(Instant.ofEpochSecond(1758706814L))
+                        .setAntiMoneyLaunderingSupervisoryBodies(List.of("AML Body"))
+                        .setPreferredName("Preferred Name")
+                        .setAuthorisedCorporateServiceProviderName("Authorised Name"));
     }
 
     private OfficerSummary expectedCompanyAppointment() {
@@ -445,6 +576,15 @@ class CompanyAppointmentMapperTest {
                 .responsibilities("responsibilities")
                 .contactDetails(new ContactDetails()
                         .contactName("Name"))
-                .personNumber("personNumber");
+                .personNumber("personNumber")
+                .identityVerificationDetails(new IdentityVerificationDetails()
+                        .appointmentVerificationStartOn(LocalDate.from(Instant.ofEpochSecond(1758706814L).atZone(UTC)))
+                        .appointmentVerificationEndOn(LocalDate.from(Instant.ofEpochSecond(1760007009L).atZone(UTC)))
+                        .appointmentVerificationStatementDate(LocalDate.from(Instant.ofEpochSecond(1758706814L).atZone(UTC)))
+                        .appointmentVerificationEndOn(LocalDate.from(Instant.ofEpochSecond(1760007009L).atZone(UTC)))
+                        .identityVerifiedOn(LocalDate.from(Instant.ofEpochSecond(1758706814L).atZone(UTC)))
+                        .antiMoneyLaunderingSupervisoryBodies(List.of("AML Body"))
+                        .preferredName("Preferred Name")
+                        .authorisedCorporateServiceProviderName("Authorised Name"));
     }
 }

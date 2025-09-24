@@ -8,6 +8,7 @@ import org.springframework.data.mongodb.core.mapping.Field;
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
+import org.springframework.lang.Nullable;
 
 /**
  * The type Delta identity verification details.
@@ -16,36 +17,45 @@ public class DeltaIdentityVerificationDetails {
 
     @JsonProperty("anti_money_laundering_supervisory_bodies")
     @Field("anti_money_laundering_supervisory_bodies")
+    @Nullable
     private List<String> antiMoneyLaunderingSupervisoryBodies;
 
     @JsonProperty("appointment_verification_end_on")
     @Field("appointment_verification_end_on")
+    @Nullable
     private Instant appointmentVerificationEndOn;
 
     @JsonProperty("appointment_verification_statement_date")
     @Field("appointment_verification_statement_date")
+    @Nullable
     private Instant appointmentVerificationStatementDate;
 
     @JsonProperty("appointment_verification_statement_due_on")
     @Field("appointment_verification_statement_due_on")
+    @Nullable
     private Instant appointmentVerificationStatementDueOn;
 
     @JsonProperty("appointment_verification_start_on")
     @Field("appointment_verification_start_on")
+    @Nullable
     private Instant appointmentVerificationStartOn;
 
     @JsonProperty("authorised_corporate_service_provider_name")
     @Field("authorised_corporate_service_provider_name")
+    @Nullable
     private String authorisedCorporateServiceProviderName;
 
     @JsonProperty("identity_verified_on")
     @Field("identity_verified_on")
+    @Nullable
     private Instant identityVerifiedOn;
 
     @JsonProperty("preferred_name")
     @Field("preferred_name")
+    @Nullable
     private String preferredName;
 
+    @Nullable
     public List<String> getAntiMoneyLaunderingSupervisoryBodies() {
         return antiMoneyLaunderingSupervisoryBodies;
     }
@@ -55,6 +65,7 @@ public class DeltaIdentityVerificationDetails {
         return this;
     }
 
+    @Nullable
     public Instant getAppointmentVerificationEndOn() {
         return appointmentVerificationEndOn;
     }
@@ -64,6 +75,7 @@ public class DeltaIdentityVerificationDetails {
         return this;
     }
 
+    @Nullable
     public Instant getAppointmentVerificationStatementDate() {
         return appointmentVerificationStatementDate;
     }
@@ -73,6 +85,7 @@ public class DeltaIdentityVerificationDetails {
         return this;
     }
 
+    @Nullable
     public Instant getAppointmentVerificationStatementDueOn() {
         return appointmentVerificationStatementDueOn;
     }
@@ -82,6 +95,7 @@ public class DeltaIdentityVerificationDetails {
         return this;
     }
 
+    @Nullable
     public Instant getAppointmentVerificationStartOn() {
         return appointmentVerificationStartOn;
     }
@@ -91,6 +105,7 @@ public class DeltaIdentityVerificationDetails {
         return this;
     }
 
+    @Nullable
     public String getAuthorisedCorporateServiceProviderName() {
         return authorisedCorporateServiceProviderName;
     }
@@ -100,6 +115,7 @@ public class DeltaIdentityVerificationDetails {
         return this;
     }
 
+    @Nullable
     public Instant getIdentityVerifiedOn() {
         return identityVerifiedOn;
     }
@@ -109,6 +125,7 @@ public class DeltaIdentityVerificationDetails {
         return this;
     }
 
+    @Nullable
     public String getPreferredName() {
         return preferredName;
     }

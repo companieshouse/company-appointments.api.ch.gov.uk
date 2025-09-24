@@ -198,25 +198,26 @@ public class CompanyAppointmentMapper {
 
         IdentityVerificationDetails ivd = new IdentityVerificationDetails();
 
-        setIfNotNull(ivd::setAntiMoneyLaunderingSupervisoryBodies, details.getAntiMoneyLaunderingSupervisoryBodies());
-        setIfNotNull(ivd::setAppointmentVerificationEndOn, getLocalDate(details.getAppointmentVerificationEndOn()));
-        setIfNotNull(ivd::setAppointmentVerificationStatementDate, getLocalDate(details.getAppointmentVerificationStatementDate()));
-        setIfNotNull(ivd::setAppointmentVerificationStatementDueOn, getLocalDate(details.getAppointmentVerificationStatementDueOn()));
-        setIfNotNull(ivd::setAppointmentVerificationStartOn, getLocalDate(details.getAppointmentVerificationStartOn()));
-        setIfNotNull(ivd::setAuthorisedCorporateServiceProviderName, details.getAuthorisedCorporateServiceProviderName());
-        setIfNotNull(ivd::setIdentityVerifiedOn, getLocalDate(details.getIdentityVerifiedOn()));
-        setIfNotNull(ivd::setPreferredName, details.getPreferredName());
+        if (Optional.ofNullable(details.getAppointmentVerificationEndOn()).isPresent()) {
+            ivd.setAppointmentVerificationEndOn(LocalDate.from(details.getAppointmentVerificationEndOn().atZone(UTC)));
+        }
+        if (Optional.ofNullable(details.getAppointmentVerificationStatementDate()).isPresent()) {
+            ivd.setAppointmentVerificationStatementDate(LocalDate.from(details.getAppointmentVerificationStatementDate().atZone(UTC)));
+        }
+        if (Optional.ofNullable(details.getAppointmentVerificationStatementDueOn()).isPresent()) {
+            ivd.setAppointmentVerificationStatementDueOn(LocalDate.from(details.getAppointmentVerificationStatementDueOn().atZone(UTC)));
+        }
+        if (Optional.ofNullable(details.getAppointmentVerificationStartOn()).isPresent()) {
+            ivd.setAppointmentVerificationStartOn(LocalDate.from(details.getAppointmentVerificationStartOn().atZone(UTC)));
+        }
+        if (Optional.ofNullable(details.getIdentityVerifiedOn()).isPresent()) {
+            ivd.setIdentityVerifiedOn(LocalDate.from(details.getIdentityVerifiedOn().atZone(UTC)));
+        }
+
+        ivd.setAuthorisedCorporateServiceProviderName(details.getAuthorisedCorporateServiceProviderName());
+        ivd.setAntiMoneyLaunderingSupervisoryBodies(details.getAntiMoneyLaunderingSupervisoryBodies());
+        ivd.setPreferredName(details.getPreferredName());
 
         return ivd;
-    }
-
-    private <T> void setIfNotNull(Consumer<T> setter, T value) {
-        if (value != null) {
-            setter.accept(value);
-        }
-    }
-
-    private LocalDate getLocalDate(Instant date) {
-        return date != null ? LocalDate.from(date.atZone(UTC)) : null;
     }
 }
