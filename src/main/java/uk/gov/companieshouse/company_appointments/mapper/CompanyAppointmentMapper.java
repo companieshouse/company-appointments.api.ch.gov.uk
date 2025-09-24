@@ -198,19 +198,19 @@ public class CompanyAppointmentMapper {
 
         IdentityVerificationDetails ivd = new IdentityVerificationDetails();
 
-        if (Optional.ofNullable(details.getAppointmentVerificationEndOn()).isPresent()) {
+        if (details.getAppointmentVerificationEndOn() != null) {
             ivd.setAppointmentVerificationEndOn(LocalDate.from(details.getAppointmentVerificationEndOn().atZone(UTC)));
         }
-        if (Optional.ofNullable(details.getAppointmentVerificationStatementDate()).isPresent()) {
+        if (details.getAppointmentVerificationStatementDate() != null) {
             ivd.setAppointmentVerificationStatementDate(LocalDate.from(details.getAppointmentVerificationStatementDate().atZone(UTC)));
         }
-        if (Optional.ofNullable(details.getAppointmentVerificationStatementDueOn()).isPresent()) {
+        if (details.getAppointmentVerificationStatementDueOn() != null) {
             ivd.setAppointmentVerificationStatementDueOn(LocalDate.from(details.getAppointmentVerificationStatementDueOn().atZone(UTC)));
         }
-        if (Optional.ofNullable(details.getAppointmentVerificationStartOn()).isPresent()) {
+        if (details.getAppointmentVerificationStartOn() != null) {
             ivd.setAppointmentVerificationStartOn(LocalDate.from(details.getAppointmentVerificationStartOn().atZone(UTC)));
         }
-        if (Optional.ofNullable(details.getIdentityVerifiedOn()).isPresent()) {
+        if (details.getIdentityVerifiedOn() != null) {
             ivd.setIdentityVerifiedOn(LocalDate.from(details.getIdentityVerifiedOn().atZone(UTC)));
         }
 
