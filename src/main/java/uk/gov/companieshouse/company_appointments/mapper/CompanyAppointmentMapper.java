@@ -7,7 +7,6 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -198,25 +197,22 @@ public class CompanyAppointmentMapper {
 
         IdentityVerificationDetails ivd = new IdentityVerificationDetails();
 
-        setIfNotNull(ivd::setAntiMoneyLaunderingSupervisoryBodies, details.getAntiMoneyLaunderingSupervisoryBodies());
-        setIfNotNull(ivd::setAppointmentVerificationEndOn, getLocalDate(details.getAppointmentVerificationEndOn()));
-        setIfNotNull(ivd::setAppointmentVerificationStatementDate, getLocalDate(details.getAppointmentVerificationStatementDate()));
-        setIfNotNull(ivd::setAppointmentVerificationStatementDueOn, getLocalDate(details.getAppointmentVerificationStatementDueOn()));
-        setIfNotNull(ivd::setAppointmentVerificationStartOn, getLocalDate(details.getAppointmentVerificationStartOn()));
-        setIfNotNull(ivd::setAuthorisedCorporateServiceProviderName, details.getAuthorisedCorporateServiceProviderName());
-        setIfNotNull(ivd::setIdentityVerifiedOn, getLocalDate(details.getIdentityVerifiedOn()));
-        setIfNotNull(ivd::setPreferredName, details.getPreferredName());
+        Optional<Instant> appointmentVerificationEndOn = Optional.ofNullable(details.getAppointmentVerificationEndOn());
+        Optional<Instant> appointmentVerificationStatementDate = Optional.ofNullable(details.getAppointmentVerificationStatementDate());
+        Optional<Instant> appointmentVerificationStatementDueOn = Optional.ofNullable(details.getAppointmentVerificationStatementDueOn());
+        Optional<Instant> appointmentVerificationStartOn = Optional.ofNullable(details.getAppointmentVerificationStartOn());
+        Optional<Instant> identityVerifiedOn = Optional.ofNullable(details.getIdentityVerifiedOn());
+
+        appointmentVerificationEndOn.ifPresent(instant -> ivd.setAppointmentVerificationEndOn(LocalDate.from(instant.atZone(UTC))));
+        appointmentVerificationStatementDate.ifPresent(instant -> ivd.setAppointmentVerificationStatementDate(LocalDate.from(instant.atZone(UTC))));
+        appointmentVerificationStatementDueOn.ifPresent(instant -> ivd.setAppointmentVerificationStatementDueOn(LocalDate.from(instant.atZone(UTC))));
+        appointmentVerificationStartOn.ifPresent(instant -> ivd.appointmentVerificationStartOn(LocalDate.from(instant.atZone(UTC))));
+        identityVerifiedOn.ifPresent(instant -> ivd.identityVerifiedOn(LocalDate.from(instant.atZone(UTC))));
+
+        ivd.setAuthorisedCorporateServiceProviderName(details.getAuthorisedCorporateServiceProviderName());
+        ivd.setAntiMoneyLaunderingSupervisoryBodies(details.getAntiMoneyLaunderingSupervisoryBodies());
+        ivd.setPreferredName(details.getPreferredName());
 
         return ivd;
-    }
-
-    private <T> void setIfNotNull(Consumer<T> setter, T value) {
-        if (value != null) {
-            setter.accept(value);
-        }
-    }
-
-    private LocalDate getLocalDate(Instant date) {
-        return date != null ? LocalDate.from(date.atZone(UTC)) : null;
     }
 }

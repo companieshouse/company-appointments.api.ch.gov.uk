@@ -1,14 +1,13 @@
 package uk.gov.companieshouse.company_appointments.officerappointments;
 
-import org.springframework.stereotype.Component;
-import uk.gov.companieshouse.api.officer.IdentityVerificationDetails;
-import uk.gov.companieshouse.company_appointments.model.data.DeltaIdentityVerificationDetails;
+import static java.time.ZoneOffset.UTC;
 
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.function.Consumer;
-
-import static java.time.ZoneOffset.UTC;
+import org.springframework.stereotype.Component;
+import uk.gov.companieshouse.api.officer.IdentityVerificationDetails;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaIdentityVerificationDetails;
 
 @Component
 class IdentityVerificationDetailsMapper {

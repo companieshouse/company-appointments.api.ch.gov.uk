@@ -21,8 +21,8 @@ import uk.gov.companieshouse.company_appointments.controller.CompanyAppointmentC
 import uk.gov.companieshouse.company_appointments.exception.BadRequestException;
 import uk.gov.companieshouse.company_appointments.exception.NotFoundException;
 import uk.gov.companieshouse.company_appointments.exception.ServiceUnavailableException;
-import uk.gov.companieshouse.company_appointments.service.CompanyAppointmentService;
 import uk.gov.companieshouse.company_appointments.model.FetchAppointmentsRequest;
+import uk.gov.companieshouse.company_appointments.service.CompanyAppointmentService;
 
 @ExtendWith(MockitoExtension.class)
 public class CompanyAppointmentControllerTest {

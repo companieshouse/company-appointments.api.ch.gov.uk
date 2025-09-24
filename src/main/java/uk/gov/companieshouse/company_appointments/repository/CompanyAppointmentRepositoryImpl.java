@@ -19,7 +19,6 @@ import static uk.gov.companieshouse.company_appointments.roles.SecretarialRoles.
 import static uk.gov.companieshouse.company_appointments.roles.SecretarialRoles.SECRETARY;
 
 import java.util.List;
-
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
