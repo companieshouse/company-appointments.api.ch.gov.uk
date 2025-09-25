@@ -192,26 +192,26 @@ public class CompanyAppointmentMapper {
         return result;
     }
 
-    private IdentityVerificationDetails mapIdentityVerificationDetails(DeltaIdentityVerificationDetails details) {
-        if (details == null) return null;
+    private IdentityVerificationDetails mapIdentityVerificationDetails(DeltaIdentityVerificationDetails deltaDetails) {
+        if (deltaDetails == null) return null;
 
         IdentityVerificationDetails ivd = new IdentityVerificationDetails();
 
-        Optional<Instant> appointmentVerificationEndOn = Optional.ofNullable(details.getAppointmentVerificationEndOn());
-        Optional<Instant> appointmentVerificationStatementDate = Optional.ofNullable(details.getAppointmentVerificationStatementDate());
-        Optional<Instant> appointmentVerificationStatementDueOn = Optional.ofNullable(details.getAppointmentVerificationStatementDueOn());
-        Optional<Instant> appointmentVerificationStartOn = Optional.ofNullable(details.getAppointmentVerificationStartOn());
-        Optional<Instant> identityVerifiedOn = Optional.ofNullable(details.getIdentityVerifiedOn());
+        Optional<Instant> appointmentVerificationEndOn = Optional.ofNullable(deltaDetails.getAppointmentVerificationEndOn());
+        Optional<Instant> appointmentVerificationStatementDate = Optional.ofNullable(deltaDetails.getAppointmentVerificationStatementDate());
+        Optional<Instant> appointmentVerificationStatementDueOn = Optional.ofNullable(deltaDetails.getAppointmentVerificationStatementDueOn());
+        Optional<Instant> appointmentVerificationStartOn = Optional.ofNullable(deltaDetails.getAppointmentVerificationStartOn());
+        Optional<Instant> identityVerifiedOn = Optional.ofNullable(deltaDetails.getIdentityVerifiedOn());
 
         appointmentVerificationEndOn.ifPresent(instant -> ivd.setAppointmentVerificationEndOn(LocalDate.from(instant.atZone(UTC))));
         appointmentVerificationStatementDate.ifPresent(instant -> ivd.setAppointmentVerificationStatementDate(LocalDate.from(instant.atZone(UTC))));
         appointmentVerificationStatementDueOn.ifPresent(instant -> ivd.setAppointmentVerificationStatementDueOn(LocalDate.from(instant.atZone(UTC))));
-        appointmentVerificationStartOn.ifPresent(instant -> ivd.appointmentVerificationStartOn(LocalDate.from(instant.atZone(UTC))));
-        identityVerifiedOn.ifPresent(instant -> ivd.identityVerifiedOn(LocalDate.from(instant.atZone(UTC))));
+        appointmentVerificationStartOn.ifPresent(instant -> ivd.setAppointmentVerificationStartOn(LocalDate.from(instant.atZone(UTC))));
+        identityVerifiedOn.ifPresent(instant -> ivd.setIdentityVerifiedOn(LocalDate.from(instant.atZone(UTC))));
 
-        ivd.setAuthorisedCorporateServiceProviderName(details.getAuthorisedCorporateServiceProviderName());
-        ivd.setAntiMoneyLaunderingSupervisoryBodies(details.getAntiMoneyLaunderingSupervisoryBodies());
-        ivd.setPreferredName(details.getPreferredName());
+        ivd.setAuthorisedCorporateServiceProviderName(deltaDetails.getAuthorisedCorporateServiceProviderName());
+        ivd.setAntiMoneyLaunderingSupervisoryBodies(deltaDetails.getAntiMoneyLaunderingSupervisoryBodies());
+        ivd.setPreferredName(deltaDetails.getPreferredName());
 
         return ivd;
     }

@@ -4,7 +4,7 @@ import static java.time.ZoneOffset.UTC;
 
 import java.time.Instant;
 import java.time.LocalDate;
-import java.util.function.Consumer;
+import java.util.Optional;
 import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.api.appointment.IdentityVerificationDetails;
 import uk.gov.companieshouse.company_appointments.exception.FailedToTransformException;
@@ -21,28 +21,25 @@ public class DeltaIdentityVerificationDetailsTransformer implements Transformati
     public DeltaIdentityVerificationDetails transform(IdentityVerificationDetails source, DeltaIdentityVerificationDetails output)
             throws FailedToTransformException {
         try {
-            setIfNotNull(output::setAntiMoneyLaunderingSupervisoryBodies, source.getAntiMoneyLaunderingSupervisoryBodies());
-            setIfNotNull(output::setAppointmentVerificationEndOn, toInstant(source.getAppointmentVerificationEndOn()));
-            setIfNotNull(output::setAppointmentVerificationStatementDate, toInstant(source.getAppointmentVerificationStatementDate()));
-            setIfNotNull(output::setAppointmentVerificationStatementDueOn, toInstant(source.getAppointmentVerificationStatementDueOn()));
-            setIfNotNull(output::setAppointmentVerificationStartOn, toInstant(source.getAppointmentVerificationStartOn()));
-            setIfNotNull(output::setAuthorisedCorporateServiceProviderName, source.getAuthorisedCorporateServiceProviderName());
-            setIfNotNull(output::setIdentityVerifiedOn, toInstant(source.getIdentityVerifiedOn()));
-            setIfNotNull(output::setPreferredName, source.getPreferredName());
+            Optional<LocalDate> appointmentVerificationEndOn = Optional.ofNullable(source.getAppointmentVerificationEndOn());
+            Optional<LocalDate> appointmentVerificationStatementDate = Optional.ofNullable(source.getAppointmentVerificationStatementDate());
+            Optional<LocalDate> appointmentVerificationStatementDueOn = Optional.ofNullable(source.getAppointmentVerificationStatementDueOn());
+            Optional<LocalDate> appointmentVerificationStartOn = Optional.ofNullable(source.getAppointmentVerificationStartOn());
+            Optional<LocalDate> identityVerifiedOn = Optional.ofNullable(source.getIdentityVerifiedOn());
+
+            appointmentVerificationEndOn.ifPresent(localDate -> output.setAppointmentVerificationEndOn(Instant.from(localDate.atStartOfDay(UTC))));
+            appointmentVerificationStatementDate.ifPresent(localDate -> output.setAppointmentVerificationStatementDate(Instant.from(localDate.atStartOfDay(UTC))));
+            appointmentVerificationStatementDueOn.ifPresent(localDate -> output.setAppointmentVerificationStatementDueOn(Instant.from(localDate.atStartOfDay(UTC))));
+            appointmentVerificationStartOn.ifPresent(localDate -> output.setAppointmentVerificationStartOn(Instant.from(localDate.atStartOfDay(UTC))));
+            identityVerifiedOn.ifPresent(localDate -> output.setIdentityVerifiedOn(Instant.from(localDate.atStartOfDay(UTC))));
+
+            output.setAuthorisedCorporateServiceProviderName(source.getAuthorisedCorporateServiceProviderName());
+            output.setAntiMoneyLaunderingSupervisoryBodies(source.getAntiMoneyLaunderingSupervisoryBodies());
+            output.setPreferredName(source.getPreferredName());
 
             return output;
         } catch (Exception e) {
             throw new FailedToTransformException(String.format("Failed to transform IdentityVerificationDetails: %s", e.getMessage()));
         }
-    }
-
-    private <T> void setIfNotNull(Consumer<T> setter, T value) {
-        if (value != null) {
-            setter.accept(value);
-        }
-    }
-
-    private Instant toInstant(LocalDate date) {
-        return date != null ? Instant.from(date.atStartOfDay(UTC)) : null;
     }
 }
