@@ -22,13 +22,11 @@ public class DeltaIdentityVerificationDetailsTransformer implements Transformati
             throws FailedToTransformException {
         try {
             Optional<LocalDate> appointmentVerificationEndOn = Optional.ofNullable(source.getAppointmentVerificationEndOn());
-            Optional<LocalDate> appointmentVerificationStatementDate = Optional.ofNullable(source.getAppointmentVerificationStatementDate());
             Optional<LocalDate> appointmentVerificationStatementDueOn = Optional.ofNullable(source.getAppointmentVerificationStatementDueOn());
             Optional<LocalDate> appointmentVerificationStartOn = Optional.ofNullable(source.getAppointmentVerificationStartOn());
             Optional<LocalDate> identityVerifiedOn = Optional.ofNullable(source.getIdentityVerifiedOn());
 
             appointmentVerificationEndOn.ifPresent(localDate -> output.setAppointmentVerificationEndOn(Instant.from(localDate.atStartOfDay(UTC))));
-            appointmentVerificationStatementDate.ifPresent(localDate -> output.setAppointmentVerificationStatementDate(Instant.from(localDate.atStartOfDay(UTC))));
             appointmentVerificationStatementDueOn.ifPresent(localDate -> output.setAppointmentVerificationStatementDueOn(Instant.from(localDate.atStartOfDay(UTC))));
             appointmentVerificationStartOn.ifPresent(localDate -> output.setAppointmentVerificationStartOn(Instant.from(localDate.atStartOfDay(UTC))));
             identityVerifiedOn.ifPresent(localDate -> output.setIdentityVerifiedOn(Instant.from(localDate.atStartOfDay(UTC))));

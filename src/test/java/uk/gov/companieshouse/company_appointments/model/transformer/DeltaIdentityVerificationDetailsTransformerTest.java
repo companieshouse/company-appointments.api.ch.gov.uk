@@ -24,7 +24,6 @@ class DeltaIdentityVerificationDetailsTransformerTest {
 
         assertThat(result.getAntiMoneyLaunderingSupervisoryBodies()).isEqualTo(List.of("Supervisory Body"));
         assertThat(result.getAppointmentVerificationEndOn()).isEqualTo(getInstantForDayOfMonth(10));
-        assertThat(result.getAppointmentVerificationStatementDate()).isEqualTo(getInstantForDayOfMonth(11));
         assertThat(result.getAppointmentVerificationStatementDueOn()).isEqualTo(getInstantForDayOfMonth(12));
         assertThat(result.getAppointmentVerificationStartOn()).isEqualTo(getInstantForDayOfMonth(13));
         assertThat(result.getAuthorisedCorporateServiceProviderName()).isEqualTo("Provider");
@@ -40,7 +39,6 @@ class DeltaIdentityVerificationDetailsTransformerTest {
 
         assertThat(result.getAntiMoneyLaunderingSupervisoryBodies()).isNull();
         assertThat(result.getAppointmentVerificationEndOn()).isEqualTo(getInstantForDayOfMonth(10));
-        assertThat(result.getAppointmentVerificationStatementDate()).isEqualTo(getInstantForDayOfMonth(11));
         assertThat(result.getAppointmentVerificationStatementDueOn()).isEqualTo(getInstantForDayOfMonth(12));
         assertThat(result.getAppointmentVerificationStartOn()).isEqualTo(getInstantForDayOfMonth(13));
         assertThat(result.getAuthorisedCorporateServiceProviderName()).isEqualTo("Provider");
@@ -52,7 +50,6 @@ class DeltaIdentityVerificationDetailsTransformerTest {
         IdentityVerificationDetails identityVerificationDetails = new IdentityVerificationDetails();
         identityVerificationDetails.setAntiMoneyLaunderingSupervisoryBodies(supervisoryBodies);
         identityVerificationDetails.setAppointmentVerificationEndOn(getLocalDateForDayOfMonth(10));
-        identityVerificationDetails.setAppointmentVerificationStatementDate(getLocalDateForDayOfMonth(11));
         identityVerificationDetails.setAppointmentVerificationStatementDueOn(getLocalDateForDayOfMonth(12));
         identityVerificationDetails.setAppointmentVerificationStartOn(getLocalDateForDayOfMonth(13));
         identityVerificationDetails.setAuthorisedCorporateServiceProviderName("Provider");

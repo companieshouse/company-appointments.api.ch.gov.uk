@@ -18,13 +18,11 @@ class IdentityVerificationDetailsMapper {
         IdentityVerificationDetails ivd = new IdentityVerificationDetails();
 
         Optional<Instant> appointmentVerificationEndOn = Optional.ofNullable(deltaDetails.getAppointmentVerificationEndOn());
-        Optional<Instant> appointmentVerificationStatementDate = Optional.ofNullable(deltaDetails.getAppointmentVerificationStatementDate());
         Optional<Instant> appointmentVerificationStatementDueOn = Optional.ofNullable(deltaDetails.getAppointmentVerificationStatementDueOn());
         Optional<Instant> appointmentVerificationStartOn = Optional.ofNullable(deltaDetails.getAppointmentVerificationStartOn());
         Optional<Instant> identityVerifiedOn = Optional.ofNullable(deltaDetails.getIdentityVerifiedOn());
 
         appointmentVerificationEndOn.ifPresent(instant -> ivd.setAppointmentVerificationEndOn(LocalDate.from(instant.atZone(UTC))));
-        appointmentVerificationStatementDate.ifPresent(instant -> ivd.setAppointmentVerificationStatementDate(LocalDate.from(instant.atZone(UTC))));
         appointmentVerificationStatementDueOn.ifPresent(instant -> ivd.setAppointmentVerificationStatementDueOn(LocalDate.from(instant.atZone(UTC))));
         appointmentVerificationStartOn.ifPresent(instant -> ivd.appointmentVerificationStartOn(LocalDate.from(instant.atZone(UTC))));
         identityVerifiedOn.ifPresent(instant -> ivd.identityVerifiedOn(LocalDate.from(instant.atZone(UTC))));
