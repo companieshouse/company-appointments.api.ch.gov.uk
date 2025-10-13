@@ -198,13 +198,11 @@ public class CompanyAppointmentMapper {
         IdentityVerificationDetails ivd = new IdentityVerificationDetails();
 
         Optional<Instant> appointmentVerificationEndOn = Optional.ofNullable(deltaDetails.getAppointmentVerificationEndOn());
-        Optional<Instant> appointmentVerificationStatementDate = Optional.ofNullable(deltaDetails.getAppointmentVerificationStatementDate());
         Optional<Instant> appointmentVerificationStatementDueOn = Optional.ofNullable(deltaDetails.getAppointmentVerificationStatementDueOn());
         Optional<Instant> appointmentVerificationStartOn = Optional.ofNullable(deltaDetails.getAppointmentVerificationStartOn());
         Optional<Instant> identityVerifiedOn = Optional.ofNullable(deltaDetails.getIdentityVerifiedOn());
 
         appointmentVerificationEndOn.ifPresent(instant -> ivd.setAppointmentVerificationEndOn(LocalDate.from(instant.atZone(UTC))));
-        appointmentVerificationStatementDate.ifPresent(instant -> ivd.setAppointmentVerificationStatementDate(LocalDate.from(instant.atZone(UTC))));
         appointmentVerificationStatementDueOn.ifPresent(instant -> ivd.setAppointmentVerificationStatementDueOn(LocalDate.from(instant.atZone(UTC))));
         appointmentVerificationStartOn.ifPresent(instant -> ivd.setAppointmentVerificationStartOn(LocalDate.from(instant.atZone(UTC))));
         identityVerifiedOn.ifPresent(instant -> ivd.setIdentityVerifiedOn(LocalDate.from(instant.atZone(UTC))));

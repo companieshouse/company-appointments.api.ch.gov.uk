@@ -24,11 +24,6 @@ public class DeltaIdentityVerificationDetails {
     @Nullable
     private Instant appointmentVerificationEndOn;
 
-    @JsonProperty("appointment_verification_statement_date")
-    @Field("appointment_verification_statement_date")
-    @Nullable
-    private Instant appointmentVerificationStatementDate;
-
     @JsonProperty("appointment_verification_statement_due_on")
     @Field("appointment_verification_statement_due_on")
     @Nullable
@@ -76,16 +71,6 @@ public class DeltaIdentityVerificationDetails {
         return this;
     }
 
-    @Nullable
-    public Instant getAppointmentVerificationStatementDate() {
-        return appointmentVerificationStatementDate;
-    }
-
-    @Nullable
-    public DeltaIdentityVerificationDetails setAppointmentVerificationStatementDate(Instant appointmentVerificationStatementDate) {
-        this.appointmentVerificationStatementDate = appointmentVerificationStatementDate;
-        return this;
-    }
 
     @Nullable
     public Instant getAppointmentVerificationStatementDueOn() {
@@ -160,8 +145,6 @@ public class DeltaIdentityVerificationDetails {
                 this.antiMoneyLaunderingSupervisoryBodies, that.antiMoneyLaunderingSupervisoryBodies) &&
                 Objects.equals(this.appointmentVerificationEndOn, that.appointmentVerificationEndOn) &&
                 Objects.equals(
-                        this.appointmentVerificationStatementDate, that.appointmentVerificationStatementDate) &&
-                Objects.equals(
                         this.appointmentVerificationStatementDueOn, that.appointmentVerificationStatementDueOn) &&
                 Objects.equals(this.appointmentVerificationStartOn, that.appointmentVerificationStartOn) &&
                 Objects.equals(
@@ -172,8 +155,7 @@ public class DeltaIdentityVerificationDetails {
 
     @Override
     public int hashCode() {
-        return Objects.hash(antiMoneyLaunderingSupervisoryBodies, appointmentVerificationEndOn,
-                appointmentVerificationStatementDate, appointmentVerificationStatementDueOn,
+        return Objects.hash(antiMoneyLaunderingSupervisoryBodies, appointmentVerificationEndOn, appointmentVerificationStatementDueOn,
                 appointmentVerificationStartOn, authorisedCorporateServiceProviderName,
                 identityVerifiedOn, preferredName);
     }
