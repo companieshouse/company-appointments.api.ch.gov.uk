@@ -37,7 +37,7 @@
     <structured-logging.version>3.0.39</structured-logging.version>
     <sdk-manager-java.version>3.0.11</sdk-manager-java.version>
     <api-sdk-manager-java-library.version>3.0.7</api-sdk-manager-java-library.version>
-    <private-api-sdk-java.version>4.0.388</private-api-sdk-java.version>
+    <private-api-sdk-java.version>4.0.403</private-api-sdk-java.version>
     <api-helper-java-library.version>3.0.1</api-helper-java-library.version>
     <api-security-java.version>2.0.11</api-security-java.version>
     <kafka-models.version>3.0.20</kafka-models.version>
