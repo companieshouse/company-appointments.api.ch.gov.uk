@@ -17,8 +17,8 @@
     <maven.compiler.source>21</maven.compiler.source>
     <maven.compiler.target>21</maven.compiler.target>
     <spring-boot-dependencies.version>3.5.5</spring-boot-dependencies.version>
-    <maven-surefire.version>3.5.3</maven-surefire.version>
-    <maven-failsafe.version>3.5.3</maven-failsafe.version>
+    <maven-surefire.version>3.5.4</maven-surefire.version>
+    <maven-failsafe.version>3.5.4</maven-failsafe.version>
     <maven-build-helper-plugin.version>3.6.1</maven-build-helper-plugin.version>
     <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
     <jacoco-maven-plugin.version>0.8.13</jacoco-maven-plugin.version>
