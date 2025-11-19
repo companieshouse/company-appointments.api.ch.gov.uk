@@ -316,7 +316,7 @@ class CompanyAppointmentMapperTest {
     void testCompanyAppointmentMapperWithRegisterViewTrue() {
         //when
         OfficerSummary actual = companyAppointmentMapper.map(
-                companyAppointmentData(officerData().build()), true);
+                companyAppointmentData(officerData().build()));
         //then
         assertEquals(expectedCompanyAppointment()
                 .dateOfBirth(new DateOfBirth().day(null).month(1).year(1980)), actual);
@@ -343,7 +343,7 @@ class CompanyAppointmentMapperTest {
                                 .setAppointmentVerificationEndOn(null)
                                 .setAntiMoneyLaunderingSupervisoryBodies(null)
                                 .setAppointmentVerificationStatementDueOn(null)
-                        ).build()), true);
+                        ).build()));
 
         assertEquals(nullIdvSummary(), actual);
     }
@@ -360,7 +360,7 @@ class CompanyAppointmentMapperTest {
                                 .setAntiMoneyLaunderingSupervisoryBodies(null)
                                 .setPreferredName("Preferred Name")
                                 .setAuthorisedCorporateServiceProviderName(null)
-                        ).build()), true);
+                        ).build()));
 
         assertEquals(partiallyNullIdvSummary(), actual);
     }

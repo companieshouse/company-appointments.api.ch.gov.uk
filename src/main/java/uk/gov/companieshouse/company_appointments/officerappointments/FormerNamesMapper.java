@@ -17,7 +17,7 @@ class FormerNamesMapper {
                         .map(names -> new FormerNames()
                                 .forenames(names.getForenames())
                                 .surname(names.getSurname()))
-                        .collect(Collectors.toList()))
+                        .toList())
                 .orElse(null);
     }
 }

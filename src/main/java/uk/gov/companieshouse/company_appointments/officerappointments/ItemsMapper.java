@@ -69,6 +69,6 @@ class ItemsMapper {
                                 .resignedOn(localDateMapper.map(data.getResignedOn()))
                                 .responsibilities(data.getResponsibilities()))
                         .orElse(new OfficerAppointmentSummary()))
-                .collect(Collectors.toList());
+                .toList();
     }
 }
