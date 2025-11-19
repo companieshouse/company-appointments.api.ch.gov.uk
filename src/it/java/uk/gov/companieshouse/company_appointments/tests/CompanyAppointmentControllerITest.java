@@ -8,7 +8,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static uk.gov.companieshouse.company_appointments.util.TestUtils.COMPANY_STATUSES;
 import static uk.gov.companieshouse.company_appointments.util.TestUtils.CORPORATE_APPOINTMENT_DOC_PATHS;
 import static uk.gov.companieshouse.company_appointments.util.TestUtils.IDENTITY_TYPES;
@@ -28,7 +27,6 @@ import java.util.UUID;
 import org.apache.commons.io.IOUtils;
 import org.bson.Document;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -41,7 +39,6 @@ import org.springframework.boot.test.system.CapturedOutput;
 import org.springframework.boot.test.system.OutputCaptureExtension;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.SimpleMongoClientDatabaseFactory;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -52,7 +49,6 @@ import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import uk.gov.companieshouse.api.appointment.OfficerList;
-import uk.gov.companieshouse.api.appointment.PatchAppointmentNameStatusApi;
 import uk.gov.companieshouse.api.metrics.AppointmentsApi;
 import uk.gov.companieshouse.api.metrics.CountsApi;
 import uk.gov.companieshouse.api.metrics.MetricsApi;
@@ -93,10 +89,13 @@ class CompanyAppointmentControllerITest {
     @BeforeAll
     static void start() throws IOException {
         System.setProperty("spring.data.mongodb.uri", mongoDBContainer.getReplicaSetUrl());
-        MongoTemplate mongoTemplate = new MongoTemplate(new SimpleMongoClientDatabaseFactory(mongoDBContainer.getReplicaSetUrl()));
+        MongoTemplate mongoTemplate = new MongoTemplate(
+                new SimpleMongoClientDatabaseFactory(mongoDBContainer.getReplicaSetUrl()));
         mongoTemplate.createCollection("delta_appointments");
-        mongoTemplate.insert(Document.parse(IOUtils.resourceToString("/appointment-data.json", StandardCharsets.UTF_8)), "delta_appointments");
-        mongoTemplate.insert(Document.parse(IOUtils.resourceToString("/appointment-data2.json", StandardCharsets.UTF_8)), "delta_appointments");
+        mongoTemplate.insert(Document.parse(IOUtils.resourceToString("/appointment-data.json", StandardCharsets.UTF_8)),
+                "delta_appointments");
+        mongoTemplate.insert(Document.parse(IOUtils.resourceToString("/appointment-data2.json", StandardCharsets.UTF_8)),
+                "delta_appointments");
         mongoTemplate.insert(Document.parse(
                         IOUtils.resourceToString("/delta-appointment-data.json", StandardCharsets.UTF_8)),
                 "delta_appointments");
@@ -110,12 +109,13 @@ class CompanyAppointmentControllerITest {
     @Test
     void testReturn200OKIfOfficerIsFound() throws Exception {
         //when
-        ResultActions result = mockMvc.perform(get("/company/{company_number}/appointments/{appointment_id}", COMPANY_NUMBER, "active_appointed_on_1")
-                .header(X_REQUEST_ID, CONTEXT_ID)
-                .header(ERIC_IDENTITY, "123")
-                .header(ERIC_IDENTITY_TYPE, "key")
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON));
+        ResultActions result = mockMvc.perform(
+                get("/company/{company_number}/appointments/{appointment_id}", COMPANY_NUMBER, "active_appointed_on_1")
+                        .header(X_REQUEST_ID, CONTEXT_ID)
+                        .header(ERIC_IDENTITY, "123")
+                        .header(ERIC_IDENTITY_TYPE, "key")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON));
 
         //then
         result.andExpect(MockMvcResultMatchers.status().isOk())
@@ -334,78 +334,17 @@ class CompanyAppointmentControllerITest {
         result.andExpect(MockMvcResultMatchers.status().isBadRequest());
     }
 
-    @Test
-    @DisplayName("Returns 200 ok when PATCH existing appointments request handled successfully")
-    void testPatchExistingAppointmentCompanyNameStatus() throws Exception {
-        PatchAppointmentNameStatusApi requestBody = new PatchAppointmentNameStatusApi()
-                .companyName("company name")
-                .companyStatus("active");
-
-        mockMvc.perform(patch("/company/{company_number}/appointments", COMPANY_NUMBER)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header(X_REQUEST_ID, "5342342")
-                        .header(ERIC_IDENTITY, "SOME_IDENTITY")
-                        .header(ERIC_IDENTITY_TYPE, "key")
-                        .header(ERIC_AUTHORISED_KEY_PRIVILEGES, "internal-app")
-                        .content(objectMapper.writeValueAsString(requestBody)))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.header().string(HttpHeaders.LOCATION,
-                        String.format("/company/%s/officers", COMPANY_NUMBER)));
-    }
-
-    @Test
-    @DisplayName("Patch existing appointments endpoint returns 400 bad request when company name is missing")
-    void testPatchExistingAppointmentCompanyNameStatusMissingRequestFields() throws Exception {
-        mockMvc.perform(patch("/company/{company_number}/appointments", COMPANY_NUMBER)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header(X_REQUEST_ID, "5342342")
-                        .header(ERIC_IDENTITY, "SOME_IDENTITY")
-                        .header(ERIC_IDENTITY_TYPE, "key")
-                        .header(ERIC_AUTHORISED_KEY_PRIVILEGES, "internal-app")
-                        .content(objectMapper.writeValueAsString(new PatchAppointmentNameStatusApi())))
-                .andExpect(MockMvcResultMatchers.status().isBadRequest());
-    }
-
-    @Test
-    @DisplayName("Patch existing appointments endpoint returns 400 when invalid company status provided")
-    void testPatchExistingAppointmentCompanyNameStatusInvalidStatus() throws Exception {
-        PatchAppointmentNameStatusApi requestBody = new PatchAppointmentNameStatusApi()
-                .companyName("company name")
-                .companyStatus("fake");
-
-        mockMvc.perform(patch("/company/{company_number}/appointments", COMPANY_NUMBER)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header(X_REQUEST_ID, "5342342")
-                        .header(ERIC_IDENTITY, "SOME_IDENTITY")
-                        .header(ERIC_IDENTITY_TYPE, "key")
-                        .header(ERIC_AUTHORISED_KEY_PRIVILEGES, "internal-app")
-                        .content(objectMapper.writeValueAsString(requestBody)))
-                .andExpect(MockMvcResultMatchers.status().isBadRequest());
-    }
-
-    @Test
-    @DisplayName("Patch existing appointments endpoint returns 403 forbidden when internal app privileges is missing")
-    void testPatchExistingAppointmentCompanyNameStatusAppPrivilegesMissing() throws Exception {
-        mockMvc.perform(patch("/company/{company_number}/appointments", COMPANY_NUMBER)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header(X_REQUEST_ID, "5342342")
-                        .header(ERIC_IDENTITY, "SOME_IDENTITY")
-                        .header(ERIC_IDENTITY_TYPE, "key")
-                        .header(ERIC_AUTHORISED_KEY_PRIVILEGES, "invalid"))
-                .andExpect(MockMvcResultMatchers.status().isForbidden());
-    }
-
     @ParameterizedTest
     @CsvSource({
-        "active",
-        "liquidation",
-        "receivership",
-        "voluntary-arrangement",
-        "insolvency-proceedings",
-        "administration",
-        "open",
-        "registered",
-        "removed" })
+            "active",
+            "liquidation",
+            "receivership",
+            "voluntary-arrangement",
+            "insolvency-proceedings",
+            "administration",
+            "open",
+            "registered",
+            "removed"})
     void testReturn200OKWithActiveCompaniesWithActiveFilter(String companyStatus) throws Exception {
         // given
         final int totalNumberOfAppointmentsForEachCompany = 189;
@@ -420,17 +359,19 @@ class CompanyAppointmentControllerITest {
 
         // when
         final String companyNumber = companyStatusToCompanyNumber.get(companyStatus);
-        ResultActions result = mockMvc.perform(get("/company/{company_number}/officers?filter=active&items_per_page=500", companyNumber)
-                .header(X_REQUEST_ID, CONTEXT_ID)
-                .header(ERIC_IDENTITY, "123")
-                .header(ERIC_IDENTITY_TYPE, "key")
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON));
+        ResultActions result = mockMvc.perform(
+                get("/company/{company_number}/officers?filter=active&items_per_page=500", companyNumber)
+                        .header(X_REQUEST_ID, CONTEXT_ID)
+                        .header(ERIC_IDENTITY, "123")
+                        .header(ERIC_IDENTITY_TYPE, "key")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON));
 
         // then
         result.andExpect(MockMvcResultMatchers.status().isOk());
 
-        final OfficerList responseEntity = objectMapper.readValue(result.andReturn().getResponse().getContentAsString(), OfficerList.class);
+        final OfficerList responseEntity = objectMapper.readValue(result.andReturn().getResponse().getContentAsString(),
+                OfficerList.class);
 
         assertEquals(numberOfAppointmentsConsideredActiveForEachCompany, responseEntity.getTotalResults());
         assertEquals(numberOfAppointmentsConsideredActiveForEachCompany, responseEntity.getActiveCount());
@@ -440,9 +381,9 @@ class CompanyAppointmentControllerITest {
 
     @ParameterizedTest
     @CsvSource({
-        "dissolved",
-        "converted-closed",
-        "closed" })
+            "dissolved",
+            "converted-closed",
+            "closed"})
     void testReturn200OKWithInactiveCompaniesWithActiveFilter(String companyStatus) throws Exception {
         // given
         final int totalNumberOfAppointmentsForEachCompany = 189;
@@ -467,7 +408,8 @@ class CompanyAppointmentControllerITest {
         // then
         result.andExpect(MockMvcResultMatchers.status().isOk());
 
-        final OfficerList responseEntity = objectMapper.readValue(result.andReturn().getResponse().getContentAsString(), OfficerList.class);
+        final OfficerList responseEntity = objectMapper.readValue(result.andReturn().getResponse().getContentAsString(),
+                OfficerList.class);
 
         assertEquals(0, responseEntity.getTotalResults());
         assertEquals(0, responseEntity.getActiveCount());
@@ -476,8 +418,8 @@ class CompanyAppointmentControllerITest {
     }
 
     /**
-     * Generates 12 company numbers, one for each type of company status, and creates a Map of
-     * status (key) : company number (value).
+     * Generates 12 company numbers, one for each type of company status, and creates a Map of status (key) : company number
+     * (value).
      */
     private static void createCompanyNumbers() {
         companyStatusToCompanyNumber = new HashMap<>();
@@ -496,7 +438,7 @@ class CompanyAppointmentControllerITest {
         }
 
         List<Document> documents = new ArrayList<>();
-        for (final String path :CORPORATE_APPOINTMENT_DOC_PATHS) { // loops 3 times
+        for (final String path : CORPORATE_APPOINTMENT_DOC_PATHS) { // loops 3 times
             final String json = IOUtils.resourceToString(path, StandardCharsets.UTF_8);
 
             for (final String type : IDENTITY_TYPES) { // loops 5 times

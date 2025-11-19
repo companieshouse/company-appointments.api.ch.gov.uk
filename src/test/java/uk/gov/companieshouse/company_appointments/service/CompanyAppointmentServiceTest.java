@@ -10,7 +10,6 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
@@ -21,13 +20,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.function.Executable;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.dao.DataAccessResourceFailureException;
 import uk.gov.companieshouse.api.appointment.LinkTypes;
 import uk.gov.companieshouse.api.appointment.OfficerList;
 import uk.gov.companieshouse.api.appointment.OfficerList.KindEnum;
@@ -51,7 +48,6 @@ import uk.gov.companieshouse.company_appointments.model.data.DeltaPrincipalOffic
 import uk.gov.companieshouse.company_appointments.model.data.DeltaSensitiveData;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaServiceAddress;
 import uk.gov.companieshouse.company_appointments.repository.CompanyAppointmentRepository;
-import uk.gov.companieshouse.company_appointments.util.CompanyStatusValidator;
 
 @ExtendWith(MockitoExtension.class)
 class CompanyAppointmentServiceTest {
@@ -66,9 +62,6 @@ class CompanyAppointmentServiceTest {
 
     @Mock
     private CompanyAppointmentRepository companyAppointmentRepository;
-
-    @Mock
-    private CompanyStatusValidator companyStatusValidator;
 
     @Mock
     private Clock clock;
@@ -93,9 +86,8 @@ class CompanyAppointmentServiceTest {
         companyAppointmentService = new CompanyAppointmentService(companyAppointmentRepository,
                 companyAppointmentMapper,
                 companyRegisterService,
-                companyMetricsApiService,
-                companyStatusValidator,
-                clock);
+                companyMetricsApiService
+        );
     }
 
     @Test
@@ -248,7 +240,7 @@ class CompanyAppointmentServiceTest {
                         .withFilter(ACTIVE)
                         .withOrderBy(ORDER_BY)
                         .build();
-        
+
         when(companyAppointmentRepository.getCompanyAppointments(any(), any(), any(), anyInt(),
                 anyInt(), anyBoolean(), anyBoolean())).thenReturn(Collections.emptyList());
 
@@ -560,121 +552,6 @@ class CompanyAppointmentServiceTest {
 
         assertEquals(1, result.getTotalResults());
         assertEquals(1, result.getItems().size());
-    }
-
-    @Test
-    @DisplayName("Test update a companies appointments")
-    void shouldUpdateCompanyAppointments() {
-        // given
-        when(companyStatusValidator.isValidCompanyStatus(anyString())).thenReturn(true);
-        when(companyAppointmentRepository.patchAppointmentNameStatusInCompany(anyString(),
-                anyString(), anyString(), any(), anyString())).thenReturn(2L);
-
-        // when
-        companyAppointmentService.patchCompanyNameStatus(COMPANY_NUMBER, COMPANY_NAME, OPEN_STATUS);
-
-        // then
-        verify(companyStatusValidator).isValidCompanyStatus(OPEN_STATUS);
-        verify(companyAppointmentRepository).patchAppointmentNameStatusInCompany(
-                eq(COMPANY_NUMBER),
-                eq(COMPANY_NAME), eq(OPEN_STATUS), any(), anyString());
-    }
-
-    @DisplayName("Test throw BadRequestException when updating a companies appointments when missing company name")
-    @Test
-    void shouldThrowBadRequestExceptionWhenUpdatingAppointmentsWhenMissingCompanyName() {
-        // given
-        // when
-        Executable executable = () -> companyAppointmentService.patchCompanyNameStatus(
-                COMPANY_NUMBER, "", OPEN_STATUS);
-
-        // then
-        BadRequestException exception = assertThrows(BadRequestException.class, executable);
-        assertEquals(
-                "Company name and/or company status missing",
-                exception.getMessage());
-        verifyNoInteractions(companyStatusValidator);
-        verifyNoInteractions(companyAppointmentRepository);
-    }
-
-    @DisplayName("Test throw BadRequestException when updating a companies appointments when missing company status")
-    @Test
-    void shouldThrowBadRequestExceptionWhenUpdatingCompanyAppointmentsWhenMissingCompanyStatus() {
-        // given
-        // when
-        Executable executable = () -> companyAppointmentService.patchCompanyNameStatus(
-                COMPANY_NUMBER, COMPANY_NAME, "");
-
-        // then
-        BadRequestException exception = assertThrows(BadRequestException.class, executable);
-        assertEquals(
-                "Company name and/or company status missing",
-                exception.getMessage());
-        verifyNoInteractions(companyStatusValidator);
-        verifyNoInteractions(companyAppointmentRepository);
-    }
-
-    @DisplayName("Test throw BadRequestException when updating a companies appointments with invalid company status")
-    @Test
-    void shouldThrowBadRequestExceptionWhenUpdatingCompanyAppointmentsWithInvalidCompanyStatus() {
-        // given
-        when(companyStatusValidator.isValidCompanyStatus(anyString())).thenReturn(false);
-        // when
-        Executable executable = () -> companyAppointmentService.patchCompanyNameStatus(
-                COMPANY_NUMBER, COMPANY_NAME, FAKE_STATUS);
-
-        // then
-        BadRequestException exception = assertThrows(BadRequestException.class, executable);
-        assertEquals(
-                "Invalid company status provided",
-                exception.getMessage());
-        verify(companyStatusValidator).isValidCompanyStatus(FAKE_STATUS);
-        verifyNoInteractions(companyAppointmentRepository);
-    }
-
-    @DisplayName("Test throw ServiceUnavailableException when updating a companies appointments when and Mongo is down")
-    @Test
-    void shouldThrowServiceUnavailableExceptionWhenUpdatingCompanyAppointmentsAndMongoDown() {
-        // given
-        when(companyStatusValidator.isValidCompanyStatus(anyString())).thenReturn(true);
-        when(companyAppointmentRepository.patchAppointmentNameStatusInCompany(anyString(),
-                anyString(), anyString(), any(), anyString()))
-                .thenThrow(new DataAccessResourceFailureException(""));
-        // when
-        Executable executable = () -> companyAppointmentService.patchCompanyNameStatus(
-                COMPANY_NUMBER, COMPANY_NAME, OPEN_STATUS);
-
-        // then
-        ServiceUnavailableException exception = assertThrows(ServiceUnavailableException.class,
-                executable);
-        assertEquals(
-                "MongoDB error when patching company name/status",
-                exception.getMessage());
-        verify(companyStatusValidator).isValidCompanyStatus(OPEN_STATUS);
-        verify(companyAppointmentRepository).patchAppointmentNameStatusInCompany(
-                eq(COMPANY_NUMBER),
-                eq(COMPANY_NAME), eq(OPEN_STATUS), any(), anyString());
-    }
-
-    @DisplayName("Test throw NotFoundException when updating a companies appointments when company number not found")
-    @Test
-    void shouldThrowNotFoundExceptionWhenUpdatingCompanyAppointmentsWhenCompanyNumberNotFound() {
-        // given
-        when(companyStatusValidator.isValidCompanyStatus(anyString())).thenReturn(true);
-        when(companyAppointmentRepository.patchAppointmentNameStatusInCompany(anyString(),
-                anyString(), anyString(), any(), anyString())).thenReturn(0L);
-        // when
-        Executable executable = () -> companyAppointmentService.patchCompanyNameStatus(
-                COMPANY_NUMBER, COMPANY_NAME, OPEN_STATUS);
-
-        // then
-        NotFoundException exception = assertThrows(NotFoundException.class, executable);
-        assertEquals("No appointments found for company during PATCH request",
-                exception.getMessage());
-        verify(companyStatusValidator).isValidCompanyStatus(OPEN_STATUS);
-        verify(companyAppointmentRepository).patchAppointmentNameStatusInCompany(
-                eq(COMPANY_NUMBER),
-                eq(COMPANY_NAME), eq(OPEN_STATUS), any(), anyString());
     }
 
     private CompanyAppointmentDocument buildCompanyAppointmentDocument(DeltaOfficerData data,

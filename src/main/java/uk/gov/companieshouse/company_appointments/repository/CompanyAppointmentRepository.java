@@ -22,9 +22,4 @@ public interface CompanyAppointmentRepository extends
 
     @Query(value = "{'company_number' : '?0', '_id' : '?1'}", delete = true)
     void deleteByCompanyNumberAndID(String companyNumber, String appointmentId);
-
-    @Query("{ 'company_number': ?0 }")
-    @Update("{ $set: { 'company_name': ?1, 'company_status': ?2, 'updated.at': ?3, 'data.etag': ?4 } }")
-    long patchAppointmentNameStatusInCompany(String companyId, String companyName,
-            String companyStatus, Instant at, String etag);
 }
