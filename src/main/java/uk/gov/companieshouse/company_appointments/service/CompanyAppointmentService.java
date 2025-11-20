@@ -1,17 +1,10 @@
 package uk.gov.companieshouse.company_appointments.service;
 
-import static org.apache.commons.lang3.StringUtils.isBlank;
-
-import java.time.Clock;
-import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.dao.DataAccessException;
-import org.springframework.dao.TransientDataAccessException;
 import org.springframework.stereotype.Service;
-import uk.gov.companieshouse.GenerateEtagUtil;
 import uk.gov.companieshouse.api.appointment.LinkTypes;
 import uk.gov.companieshouse.api.appointment.OfficerList;
 import uk.gov.companieshouse.api.appointment.OfficerSummary;
@@ -29,7 +22,6 @@ import uk.gov.companieshouse.company_appointments.model.FetchAppointmentsRequest
 import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentDocument;
 import uk.gov.companieshouse.company_appointments.model.data.CompanyStatus;
 import uk.gov.companieshouse.company_appointments.repository.CompanyAppointmentRepository;
-import uk.gov.companieshouse.company_appointments.util.CompanyStatusValidator;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.logging.LoggerFactory;
 
@@ -43,23 +35,17 @@ public class CompanyAppointmentService {
 
     private final CompanyAppointmentRepository companyAppointmentRepository;
     private final CompanyAppointmentMapper companyAppointmentMapper;
-    private final CompanyStatusValidator companyStatusValidator;
     private final CompanyRegisterService companyRegisterService;
     private final CompanyMetricsApiService companyMetricsApiService;
-    private final Clock clock;
 
     public CompanyAppointmentService(CompanyAppointmentRepository companyAppointmentRepository,
             CompanyAppointmentMapper companyAppointmentMapper,
             CompanyRegisterService companyRegisterService,
-            CompanyMetricsApiService companyMetricsApiService,
-            CompanyStatusValidator companyStatusValidator,
-            Clock clock) {
+            CompanyMetricsApiService companyMetricsApiService) {
         this.companyAppointmentRepository = companyAppointmentRepository;
         this.companyAppointmentMapper = companyAppointmentMapper;
         this.companyRegisterService = companyRegisterService;
         this.companyMetricsApiService = companyMetricsApiService;
-        this.companyStatusValidator = companyStatusValidator;
-        this.clock = clock;
     }
 
     public OfficerSummary fetchAppointment(String companyNumber, String appointmentID) throws NotFoundException {
@@ -137,37 +123,6 @@ public class CompanyAppointmentService {
                 .itemsPerPage(itemsPerPage)
                 .links(new LinkTypes().self(String.format("/company/%s/officers", companyNumber)))
                 .etag(allAppointmentData.getFirst().getData().getEtag());
-    }
-
-    public void patchCompanyNameStatus(String companyNumber, String companyName,
-            String companyStatus)
-            throws BadRequestException, NotFoundException, ServiceUnavailableException {
-        if (isBlank(companyName) || isBlank(companyStatus)) {
-            LOGGER.error("Company name and/or company status missing", DataMapHolder.getLogMap());
-            throw new BadRequestException("Company name and/or company status missing");
-        }
-        if (!companyStatusValidator.isValidCompanyStatus(companyStatus)) {
-            LOGGER.error("Invalid company status provided", DataMapHolder.getLogMap());
-            throw new BadRequestException("Invalid company status provided");
-        }
-
-        try {
-            long updatedCount = companyAppointmentRepository.patchAppointmentNameStatusInCompany(
-                    companyNumber,
-                    companyName, companyStatus, Instant.now(clock),
-                    GenerateEtagUtil.generateEtag());
-            if (updatedCount == 0) {
-                LOGGER.info("No appointments found for company during PATCH request", DataMapHolder.getLogMap());
-                throw new NotFoundException("No appointments found for company during PATCH request");
-            }
-            LOGGER.info("Appointments for company updated successfully", DataMapHolder.getLogMap());
-        } catch (TransientDataAccessException ex) {
-            LOGGER.info("Recoverable MongoDB error when patching company name/status", DataMapHolder.getLogMap());
-            throw new ServiceUnavailableException("Recoverable MongoDB error when patching company name/status", ex);
-        } catch (DataAccessException ex) {
-            LOGGER.error("MongoDB error when patching company name/status", DataMapHolder.getLogMap());
-            throw new ServiceUnavailableException("MongoDB error when patching company name/status", ex);
-        }
     }
 
     private boolean checkFilterEnabled(String filter) {

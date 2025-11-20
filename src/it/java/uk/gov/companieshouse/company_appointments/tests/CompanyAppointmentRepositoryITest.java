@@ -1,14 +1,10 @@
 package uk.gov.companieshouse.company_appointments.tests;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.List;
 import java.util.Optional;
 import org.apache.commons.io.IOUtils;
 import org.bson.Document;
@@ -75,33 +71,6 @@ class CompanyAppointmentRepositoryITest {
         mongoTemplate.insert(document, "delta_appointments");
     }
 
-    @DisplayName("Repository successfully updates the company name and status for all appointments in company")
-    @Test
-    void shouldPatchAllAppointmentsNameStatusInCompany() {
-        // given
-        Instant at = Instant.now().truncatedTo(ChronoUnit.SECONDS);
-
-        // when
-        long result = repository.patchAppointmentNameStatusInCompany(COMPANY_NUMBER, "test name",
-                "test status", at, "etag");
-
-        // then
-        assertEquals(2L, result);
-
-        List.of(APPOINTMENT_ID, APPOINTMENT_ID_2).forEach(id -> {
-            Optional<CompanyAppointmentDocument> actual = repository.findById(id);
-            assertTrue(actual.isPresent());
-            assertEquals("test name", actual.get().getCompanyName());
-            assertEquals("test status", actual.get().getCompanyStatus());
-            assertEquals(at, actual.get().getUpdated().getAt());
-            assertEquals("etag", actual.get().getData().getEtag());
-        });
-
-        Optional<CompanyAppointmentDocument> actual = repository.findById(APPOINTMENT_ID_3);
-        assertTrue(actual.isPresent());
-        assertEquals(INITIAL_APPOINTMENT_ID, actual.get().getData().getEtag());
-    }
-
     @DisplayName("Repository returns true when appointment exists")
     @Test
     void existsByIdTrue() {
@@ -129,7 +98,8 @@ class CompanyAppointmentRepositoryITest {
     void readByCompanyNumberAndAppointmentID() {
         // given
         // when
-        Optional<CompanyAppointmentDocument> actual = repository.readByCompanyNumberAndAppointmentID(COMPANY_NUMBER, APPOINTMENT_ID);
+        Optional<CompanyAppointmentDocument> actual = repository.readByCompanyNumberAndAppointmentID(COMPANY_NUMBER,
+                APPOINTMENT_ID);
 
         // then
         assertTrue(actual.isPresent());
