@@ -36,7 +36,6 @@ class CompanyAppointmentRepositoryITest {
     private static final String COMPANY_NUMBER = "12345678";
     private static final String COMPANY_NUMBER_2 = "anotherCompanyNumber";
     private static final String FAKE_APPOINTMENT_ID = "aBCdIdonotexistCD";
-    private static final String INITIAL_APPOINTMENT_ID = "fedb91fa70ce4ef335d6d2e24f2f7242c9360a69";
 
     @Autowired
     private CompanyAppointmentRepository repository;

@@ -24,8 +24,6 @@ import uk.gov.companieshouse.company_appointments.service.CompanyAppointmentServ
 @ExtendWith(MockitoExtension.class)
 public class CompanyAppointmentControllerTest {
 
-    public static final String COMPANY_NAME = "NewCo";
-    public static final String COMPANY_STATUS_ACTIVE = "active";
     private static final String COMPANY_NUMBER = "123456";
     private static final String APPOINTMENT_ID = "345678";
 
