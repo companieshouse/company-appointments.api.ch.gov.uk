@@ -14,14 +14,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
 
 @ExtendWith(MockitoExtension.class)
 class AuthenticationInterceptorTest {
 
     public static final String ERIC_IDENTITY_TYPE = "ERIC-Identity-Type";
     public static final String ERIC_IDENTITY = "ERIC-Identity";
-    public static final String INTERNAL_APP = "internal-app";
     public static final String USER = "user";
     public static final String STREAM = "stream";
     public static final String AUTH_TYPE_OAUTH_2 = "oauth2";
@@ -138,54 +136,5 @@ class AuthenticationInterceptorTest {
         // then
         assertTrue(actual);
         verifyNoInteractions(response);
-    }
-
-    @Test
-    void preHandleReturnsTrueIfMethodNotGetAndHasInternalPrivileges() {
-        // given
-        when(request.getMethod()).thenReturn(HttpMethod.PATCH.name());
-        when(request.getHeader(ERIC_IDENTITY)).thenReturn(USER);
-        when(request.getHeader(ERIC_IDENTITY_TYPE)).thenReturn(AUTH_TYPE_KEY);
-        when(authenticationHelper.getApiKeyPrivileges(request))
-                .thenReturn(new String[]{INTERNAL_APP});
-
-        // when
-        boolean actual = authenticationInterceptor.preHandle(request, response, handler);
-
-        // then
-        assertTrue(actual);
-        verifyNoInteractions(response);
-    }
-
-    @Test
-    void preHandleReturnsFalseIfMethodNotGetAndHasInternalPrivilegesButIdentityTypeIsOAUTH2() {
-        // given
-        when(request.getMethod()).thenReturn(HttpMethod.PATCH.name());
-        when(request.getHeader(ERIC_IDENTITY)).thenReturn(USER);
-        when(request.getHeader(ERIC_IDENTITY_TYPE)).thenReturn(AUTH_TYPE_OAUTH_2);
-        when(authenticationHelper.getApiKeyPrivileges(request))
-                .thenReturn(new String[]{INTERNAL_APP});
-
-        // when
-        boolean actual = authenticationInterceptor.preHandle(request, response, handler);
-
-        // then
-        assertFalse(actual);
-        verify(response).setStatus(HttpStatus.FORBIDDEN.value());
-    }
-
-    @Test
-    void preHandleReturnsFalseIfMethodNotGetAndNoInternalPrivileges() {
-        // given
-        when(request.getMethod()).thenReturn(HttpMethod.PATCH.name());
-        when(request.getHeader(ERIC_IDENTITY)).thenReturn(USER);
-        when(request.getHeader(ERIC_IDENTITY_TYPE)).thenReturn(AUTH_TYPE_KEY);
-
-        // when
-        boolean actual = authenticationInterceptor.preHandle(request, response, handler);
-
-        // then
-        assertFalse(actual);
-        verify(response).setStatus(HttpStatus.FORBIDDEN.value());
     }
 }

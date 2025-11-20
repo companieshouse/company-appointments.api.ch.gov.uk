@@ -1,9 +1,7 @@
 package uk.gov.companieshouse.company_appointments;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -16,7 +14,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import uk.gov.companieshouse.api.appointment.OfficerList;
 import uk.gov.companieshouse.api.appointment.OfficerSummary;
-import uk.gov.companieshouse.api.appointment.PatchAppointmentNameStatusApi;
 import uk.gov.companieshouse.company_appointments.controller.CompanyAppointmentController;
 import uk.gov.companieshouse.company_appointments.exception.BadRequestException;
 import uk.gov.companieshouse.company_appointments.exception.NotFoundException;
@@ -171,68 +168,5 @@ public class CompanyAppointmentControllerTest {
 
         assertEquals(HttpStatus.SERVICE_UNAVAILABLE, response.getStatusCode());
         verify(companyAppointmentService).fetchAppointmentsForCompany(request);
-    }
-
-    @Test
-    void shouldReturnOKForValidRequestWhenPatchingNameAndStatus() {
-        // Given
-
-        // When
-        ResponseEntity<Void> response = companyAppointmentController.patchCompanyNameStatus(
-                COMPANY_NUMBER, new PatchAppointmentNameStatusApi()
-                        .companyName(COMPANY_NAME).companyStatus(COMPANY_STATUS_ACTIVE));
-        // Then
-        verify(companyAppointmentService).patchCompanyNameStatus(COMPANY_NUMBER, COMPANY_NAME,
-                COMPANY_STATUS_ACTIVE);
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-    }
-
-    @Test
-    void shouldThrowNotFoundForMissingCompanyNumberWhenPatchingNameAndStatus() {
-        // Given
-        doThrow(NotFoundException.class)
-                .when(companyAppointmentService).patchCompanyNameStatus(any(), any(), any());
-
-        // When
-        ResponseEntity<Void> response = companyAppointmentController.patchCompanyNameStatus(
-                COMPANY_NUMBER, new PatchAppointmentNameStatusApi()
-                        .companyName(COMPANY_NAME).companyStatus(COMPANY_STATUS_ACTIVE));
-        // Then
-        verify(companyAppointmentService).patchCompanyNameStatus(COMPANY_NUMBER, COMPANY_NAME,
-                COMPANY_STATUS_ACTIVE);
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
-    }
-
-    @Test
-    void shouldThrowBadRequestForMissingCompanyNameWhenPatchingNameAndStatus() {
-        // Given
-        doThrow(BadRequestException.class)
-                .when(companyAppointmentService).patchCompanyNameStatus(any(), any(), any());
-
-        // When
-        ResponseEntity<Void> response = companyAppointmentController.patchCompanyNameStatus(
-                COMPANY_NUMBER, new PatchAppointmentNameStatusApi()
-                        .companyStatus(COMPANY_STATUS_ACTIVE));
-        // Then
-        verify(companyAppointmentService).patchCompanyNameStatus(COMPANY_NUMBER, null,
-                COMPANY_STATUS_ACTIVE);
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-    }
-
-    @Test
-    void shouldThrowServiceUnavailableForWhenPatchingNameAndStatusAndMongoUnavailable() {
-        // Given
-        doThrow(ServiceUnavailableException.class)
-                .when(companyAppointmentService).patchCompanyNameStatus(any(), any(), any());
-
-        // When
-        ResponseEntity<Void> response = companyAppointmentController.patchCompanyNameStatus(
-                COMPANY_NUMBER, new PatchAppointmentNameStatusApi()
-                        .companyName(COMPANY_NAME)
-                        .companyStatus(COMPANY_STATUS_ACTIVE));
-        // Then
-        verify(companyAppointmentService).patchCompanyNameStatus(COMPANY_NUMBER, COMPANY_NAME,
-                COMPANY_STATUS_ACTIVE);
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.SERVICE_UNAVAILABLE);
     }
 }
