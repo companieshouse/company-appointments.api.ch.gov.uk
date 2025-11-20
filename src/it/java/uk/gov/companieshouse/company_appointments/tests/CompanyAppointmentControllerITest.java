@@ -67,7 +67,6 @@ class CompanyAppointmentControllerITest {
     private static final String X_REQUEST_ID = "x-request-id";
     private static final String ERIC_IDENTITY = "ERIC-Identity";
     private static final String ERIC_IDENTITY_TYPE = "ERIC-Identity-Type";
-    private static final String ERIC_AUTHORISED_KEY_PRIVILEGES = "ERIC-Authorised-Key-Privileges";
     private static final String CONTEXT_ID = "context_id";
     private static Map<String, String> companyStatusToCompanyNumber;
 

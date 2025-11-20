@@ -3,7 +3,6 @@ package uk.gov.companieshouse.company_appointments.officerappointments;
 import static java.util.Optional.ofNullable;
 
 import java.util.List;
-import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.api.officer.AppointedTo;
 import uk.gov.companieshouse.api.officer.AppointmentLinkTypes;
@@ -69,6 +68,6 @@ class ItemsMapper {
                                 .resignedOn(localDateMapper.map(data.getResignedOn()))
                                 .responsibilities(data.getResponsibilities()))
                         .orElse(new OfficerAppointmentSummary()))
-                .collect(Collectors.toList());
+                .toList();
     }
 }

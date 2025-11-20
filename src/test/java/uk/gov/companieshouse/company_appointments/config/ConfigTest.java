@@ -12,8 +12,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -31,9 +31,9 @@ class ConfigTest {
     private InterceptorRegistry registry;
     @Mock
     private InterceptorRegistration registration;
-    @MockBean
+    @MockitoBean
     private AuthenticationInterceptor authenticationInterceptor;
-    @MockBean
+    @MockitoBean
     private FullRecordAuthenticationInterceptor fullRecordAuthenticationInterceptor;
 
     @Test

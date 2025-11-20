@@ -45,11 +45,7 @@ public class CompanyAppointmentMapper {
     private static final Pattern REGEX = Pattern.compile("^(?i)(?=m)(?:mrs?|miss|ms|master)$");
     private static final Logger LOGGER = LoggerFactory.getLogger(CompanyAppointmentsApplication.APPLICATION_NAME_SPACE);
 
-    public OfficerSummary map(CompanyAppointmentDocument companyAppointmentData) {
-        return map(companyAppointmentData, false);
-    }
-
-    public OfficerSummary map(CompanyAppointmentDocument companyAppointment, boolean registerView) {
+    public OfficerSummary map(CompanyAppointmentDocument companyAppointment) {
         LOGGER.debug("Mapping data for appointment: " + companyAppointment.getId(), DataMapHolder.getLogMap());
 
         DeltaOfficerData data = Optional.ofNullable(companyAppointment.getData())
@@ -101,7 +97,7 @@ public class CompanyAppointmentMapper {
                                 formerName -> new FormerNames()
                                         .forenames(formerName.getForenames())
                                         .surname(formerName.getSurname()))
-                        .collect(Collectors.toList()))
+                        .toList())
                 .orElse(null);
     }
 

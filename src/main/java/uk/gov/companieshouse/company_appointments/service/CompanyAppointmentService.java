@@ -109,7 +109,7 @@ public class CompanyAppointmentService {
                 new Counts(appointmentsCounts, allAppointmentData.getFirst().getCompanyStatus(), filterEnabled);
 
         List<OfficerSummary> officerSummaries = allAppointmentData.stream()
-                .map(appointment -> companyAppointmentMapper.map(appointment, registerView))
+                .map(companyAppointmentMapper::map)
                 .toList();
 
         return new OfficerList()
