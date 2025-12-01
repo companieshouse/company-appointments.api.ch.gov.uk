@@ -16,7 +16,7 @@
   <properties>
     <maven.compiler.source>21</maven.compiler.source>
     <maven.compiler.target>21</maven.compiler.target>
-    <spring-boot-dependencies.version>3.5.5</spring-boot-dependencies.version>
+    <spring-boot-dependencies.version>3.5.7</spring-boot-dependencies.version>
     <maven-surefire.version>3.5.4</maven-surefire.version>
     <maven-failsafe.version>3.5.4</maven-failsafe.version>
     <maven-build-helper-plugin.version>3.6.1</maven-build-helper-plugin.version>
@@ -30,7 +30,7 @@
     <commons-compress.version>1.28.0</commons-compress.version>
     <maven-compiler-plugin.version>3.14.0</maven-compiler-plugin.version>
     <opentelemetry-instrumentation-bom.version>2.18.1</opentelemetry-instrumentation-bom.version>
-    <spring-core.version>6.2.10</spring-core.version>
+    <spring-core.version>6.2.11</spring-core.version>
     <tomcat-embed-dependencies.version>10.1.47</tomcat-embed-dependencies.version>
 
     <!-- internal dependencies -->
@@ -68,6 +68,7 @@
     </sonar.coverage.jacoco.xmlReportPaths>
     <sonar.jacoco.reports>${project.build.directory}/site</sonar.jacoco.reports>
     <sonar.exclusions>**/model/**</sonar.exclusions>
+    <junit-platform-console.version>5.13.2</junit-platform-console.version>
   </properties>
 
   <dependencyManagement>
@@ -106,6 +107,12 @@
         <version>${io-cucumber.version}</version>
         <type>pom</type>
         <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.junit.platform</groupId>
+        <artifactId>junit-platform-console</artifactId>
+        <version>${junit-platform-console.version}</version>
+        <scope>test</scope>
       </dependency>
     </dependencies>
   </dependencyManagement>
@@ -281,11 +288,6 @@
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-api</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.junit.platform</groupId>
-      <artifactId>junit-platform-console</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>

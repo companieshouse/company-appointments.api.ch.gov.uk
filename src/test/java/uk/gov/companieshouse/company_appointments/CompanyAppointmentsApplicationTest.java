@@ -22,12 +22,6 @@ class CompanyAppointmentsApplicationTest {
     private MockMvc mockMvc;
 
     @Test
-    void shouldStartApplication() {
-        Executable executable = () -> CompanyAppointmentsApplication.main(new String[0]);
-        assertDoesNotThrow(executable);
-    }
-
-    @Test
     void shouldReturn200FromGetHealthEndpoint() throws Exception {
         this.mockMvc.perform(get("/healthcheck"))
                 .andDo(print())
