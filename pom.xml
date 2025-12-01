@@ -68,6 +68,7 @@
     </sonar.coverage.jacoco.xmlReportPaths>
     <sonar.jacoco.reports>${project.build.directory}/site</sonar.jacoco.reports>
     <sonar.exclusions>**/model/**</sonar.exclusions>
+    <junit-platform-console.version>5.13.2</junit-platform-console.version>
   </properties>
 
   <dependencyManagement>
@@ -106,6 +107,12 @@
         <version>${io-cucumber.version}</version>
         <type>pom</type>
         <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.junit.platform</groupId>
+        <artifactId>junit-platform-console</artifactId>
+        <version>${junit-platform-console.version}</version>
+        <scope>test</scope>
       </dependency>
     </dependencies>
   </dependencyManagement>
@@ -281,11 +288,6 @@
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-api</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.junit.platform</groupId>
-      <artifactId>junit-platform-console</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
