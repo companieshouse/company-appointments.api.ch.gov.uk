@@ -54,7 +54,7 @@ build-container: build
 dist: clean build package coverage
 
 .PHONY: sonar
-sonar:
+sonar: test
 	mvn sonar:sonar
 
 .PHONY: sonar-pr-analysis
