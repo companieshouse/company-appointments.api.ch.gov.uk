@@ -29,7 +29,7 @@
     <xmlunit-core.version>2.10.3</xmlunit-core.version>
     <commons-compress.version>1.28.0</commons-compress.version>
     <maven-compiler-plugin.version>3.14.0</maven-compiler-plugin.version>
-    <opentelemetry-instrumentation-bom.version>2.18.1</opentelemetry-instrumentation-bom.version>
+    <opentelemetry-instrumentation-bom.version>2.14.0</opentelemetry-instrumentation-bom.version>
     <spring-core.version>6.2.11</spring-core.version>
     <tomcat-embed-dependencies.version>10.1.47</tomcat-embed-dependencies.version>
 
