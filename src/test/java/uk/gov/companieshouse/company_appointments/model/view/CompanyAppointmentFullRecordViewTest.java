@@ -15,6 +15,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentDocument;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaContactDetails;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaContributionSubType;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaFormerNames;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaIdentification;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaItemLinkTypes;
@@ -36,6 +37,7 @@ class CompanyAppointmentFullRecordViewTest {
     private final DeltaItemLinkTypes links = buildLinksItem();
     private final DeltaContactDetails contactDetails = buildContactDetails();
     private final DateOfBirthView dob = new DateOfBirthView(12, 1, 1989);
+    private final List<DeltaContributionSubType> contributionSubTypes = List.of(new DeltaContributionSubType("3"));
 
     private CompanyAppointmentFullRecordView testView;
 
@@ -189,6 +191,24 @@ class CompanyAppointmentFullRecordViewTest {
     }
 
     @Test
+    void contributionCurrencyType() {
+
+        assertThat(testView.getContributionCurrencyType(), is("GBP"));
+    }
+
+    @Test
+    void contributionCurrencyValue() {
+
+        assertThat(testView.getContributionCurrencyValue(), is("123.45"));
+    }
+
+    @Test
+    void contributionSubTypes() {
+
+        assertThat(testView.getContributionSubTypes(), is(contributionSubTypes));
+    }
+
+    @Test
     void serviceAddressIsSameAsRegisteredOfficeAddressTest() {
 
         assertThat(testView.getServiceAddressIsSameAsRegisteredOfficeAddress(), is(Boolean.TRUE));
@@ -267,6 +287,9 @@ class CompanyAppointmentFullRecordViewTest {
         companyAppointmentDocument.getData().setPrincipalOfficeAddress(createPrincipalOfficeAddress());
         companyAppointmentDocument.getSensitiveData().setResidentialAddressIsSameAsServiceAddress(Boolean.TRUE);
         companyAppointmentDocument.getData().setServiceAddressIsSameAsRegisteredOfficeAddress(Boolean.TRUE);
+        companyAppointmentDocument.getData().setContributionCurrencyType("GBP");
+        companyAppointmentDocument.getData().setContributionCurrencyValue("123.45");
+        companyAppointmentDocument.getData().setContributionSubTypes(contributionSubTypes);
         return companyAppointmentDocument;
     }
 

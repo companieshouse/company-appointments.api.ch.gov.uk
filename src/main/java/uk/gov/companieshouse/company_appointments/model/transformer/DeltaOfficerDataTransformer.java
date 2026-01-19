@@ -9,6 +9,7 @@ import uk.gov.companieshouse.GenerateEtagUtil;
 import uk.gov.companieshouse.api.appointment.Data;
 import uk.gov.companieshouse.company_appointments.exception.FailedToTransformException;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaContactDetails;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaContributionSubType;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaFormerNames;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaOfficerData;
 
@@ -89,6 +90,14 @@ public class DeltaOfficerDataTransformer implements Transformative<Data, DeltaOf
                             .setSurname(formerNames.getSurname())
                             .setForenames(formerNames.getForenames()))
                     .collect(Collectors.toList()) : null);
+            entity.setContributionCurrencyType(source.getContributionCurrencyType());
+            entity.setContributionCurrencyValue(source.getContributionCurrencyValue());
+            entity.setContributionSubTypes(source.getContributionSubTypes() != null ?
+                    source.getContributionSubTypes().stream()
+                            .filter(subType -> subType != null)
+                            .map(subType -> new DeltaContributionSubType()
+                                    .setSubType(subType.getSubType()))
+                            .collect(Collectors.toList()) : null);
 
             return entity;
         } catch (Exception e) {

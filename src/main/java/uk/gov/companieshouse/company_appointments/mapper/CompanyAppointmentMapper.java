@@ -13,6 +13,7 @@ import java.util.stream.Stream;
 import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.api.appointment.Address;
 import uk.gov.companieshouse.api.appointment.ContactDetails;
+import uk.gov.companieshouse.api.appointment.ContributionSubType;
 import uk.gov.companieshouse.api.appointment.CorporateIdent;
 import uk.gov.companieshouse.api.appointment.DateOfBirth;
 import uk.gov.companieshouse.api.appointment.FormerNames;
@@ -26,6 +27,7 @@ import uk.gov.companieshouse.company_appointments.CompanyAppointmentsApplication
 import uk.gov.companieshouse.company_appointments.logging.DataMapHolder;
 import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentDocument;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaContactDetails;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaContributionSubType;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaFormerNames;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaIdentification;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaIdentityVerificationDetails;
@@ -80,7 +82,10 @@ public class CompanyAppointmentMapper {
                 .principalOfficeAddress(mapPrincipalOfficeAddress(data.getPrincipalOfficeAddress()))
                 .contactDetails(mapContactDetails(data.getContactDetails()))
                 .isPre1992Appointment(data.getPre1992Appointment())
-                .personNumber(data.getPersonNumber());
+                .personNumber(data.getPersonNumber())
+                .contributionCurrencyType(data.getContributionCurrencyType())
+                .contributionCurrencyValue(data.getContributionCurrencyValue())
+                .contributionSubTypes(mapContributionSubTypes(data.getContributionSubTypes()));
         LOGGER.debug("Mapped data for appointment: " + companyAppointment.getId(), DataMapHolder.getLogMap());
         return result;
     }
@@ -97,6 +102,15 @@ public class CompanyAppointmentMapper {
                                 formerName -> new FormerNames()
                                         .forenames(formerName.getForenames())
                                         .surname(formerName.getSurname()))
+                        .toList())
+                .orElse(null);
+    }
+
+    private List<ContributionSubType> mapContributionSubTypes(List<DeltaContributionSubType> contributionSubTypes) {
+        return Optional.ofNullable(contributionSubTypes)
+                .map(subTypes -> subTypes.stream().map(
+                                subType -> new ContributionSubType()
+                                        .subType(subType.getSubType()))
                         .toList())
                 .orElse(null);
     }

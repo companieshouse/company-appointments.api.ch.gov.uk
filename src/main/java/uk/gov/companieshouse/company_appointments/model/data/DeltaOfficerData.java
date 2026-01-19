@@ -92,6 +92,15 @@ public class DeltaOfficerData {
   @Valid
   private List<DeltaFormerNames> formerNames = null;
 
+  @Field("contribution_currency_type")
+  private String contributionCurrencyType;
+
+  @Field("contribution_currency_value")
+  private String contributionCurrencyValue;
+
+  @Field("contribution_sub_types")
+  private List<DeltaContributionSubType> contributionSubTypes = null;
+
   public DeltaOfficerData() {
   }
 
@@ -123,6 +132,9 @@ public class DeltaOfficerData {
     resignedOn = builder.resignedOn;
     responsibilities = builder.responsibilities;
     formerNames = builder.formerNames;
+    contributionCurrencyType = builder.contributionCurrencyType;
+    contributionCurrencyValue = builder.contributionCurrencyValue;
+    contributionSubTypes = builder.contributionSubTypes;
   }
 
   public String getPersonNumber() {
@@ -373,6 +385,34 @@ public class DeltaOfficerData {
     return this;
   }
 
+  public String getContributionCurrencyType() {
+    return contributionCurrencyType;
+  }
+
+  public DeltaOfficerData setContributionCurrencyType(String contributionCurrencyType) {
+    this.contributionCurrencyType = contributionCurrencyType;
+    return this;
+  }
+
+  public String getContributionCurrencyValue() {
+    return contributionCurrencyValue;
+  }
+
+  public DeltaOfficerData setContributionCurrencyValue(String contributionCurrencyValue) {
+    this.contributionCurrencyValue = contributionCurrencyValue;
+    return this;
+  }
+
+  public List<DeltaContributionSubType> getContributionSubTypes() {
+    return contributionSubTypes;
+  }
+
+  public DeltaOfficerData setContributionSubTypes(
+          List<DeltaContributionSubType> contributionSubTypes) {
+    this.contributionSubTypes = contributionSubTypes;
+    return this;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -408,12 +448,14 @@ public class DeltaOfficerData {
         Objects.equals(this.principalOfficeAddress, data.principalOfficeAddress) &&
         Objects.equals(this.resignedOn, data.resignedOn) &&
         Objects.equals(this.responsibilities, data.responsibilities) &&
-        Objects.equals(this.formerNames, data.formerNames);
+        Objects.equals(this.contributionCurrencyType, data.contributionCurrencyType) &&
+        Objects.equals(this.contributionCurrencyValue, data.contributionCurrencyValue) &&
+        Objects.equals(this.contributionSubTypes, data.contributionSubTypes);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(personNumber, etag, serviceAddress, serviceAddressIsSameAsRegisteredOfficeAddress, countryOfResidence, appointedOn, appointedBefore, isPre1992Appointment, links, nationality, occupation, officerRole, isSecureOfficer, identification, identityVerificationDetails, companyName, surname, forename, honours, otherForenames, title, companyNumber, contactDetails, principalOfficeAddress, resignedOn, responsibilities, formerNames);
+    return Objects.hash(personNumber, etag, serviceAddress, serviceAddressIsSameAsRegisteredOfficeAddress, countryOfResidence, appointedOn, appointedBefore, isPre1992Appointment, links, nationality, occupation, officerRole, isSecureOfficer, identification, identityVerificationDetails, companyName, surname, forename, honours, otherForenames, title, companyNumber, contactDetails, principalOfficeAddress, resignedOn, responsibilities, formerNames, contributionCurrencyType, contributionCurrencyValue, contributionSubTypes);
   }
 
   @Override
@@ -447,6 +489,9 @@ public class DeltaOfficerData {
             + "    resignedOn: " + toIndentedString(resignedOn) + "\n"
             + "    responsibilities: " + toIndentedString(responsibilities) + "\n"
             + "    formerNames: " + toIndentedString(formerNames) + "\n"
+            + "    contributionCurrencyType: " + toIndentedString(contributionCurrencyType) + "\n"
+            + "    contributionCurrencyValue: " + toIndentedString(contributionCurrencyValue) + "\n"
+            + "    contributionSubTypes: " + toIndentedString(contributionSubTypes) + "\n"
             + "}";
   }
 
@@ -490,6 +535,9 @@ public class DeltaOfficerData {
     private Instant resignedOn;
     private String responsibilities;
     private @Valid List<DeltaFormerNames> formerNames;
+    private String contributionCurrencyType;
+    private String contributionCurrencyValue;
+    private @Valid List<DeltaContributionSubType> contributionSubTypes;
 
     private Builder() {
     }
@@ -630,6 +678,21 @@ public class DeltaOfficerData {
 
     public Builder formerNames(@Valid List<DeltaFormerNames> formerNames) {
       this.formerNames = formerNames;
+      return this;
+    }
+
+    public Builder contributionCurrencyType(String contributionCurrencyType) {
+      this.contributionCurrencyType = contributionCurrencyType;
+      return this;
+    }
+
+    public Builder contributionCurrencyValue(String contributionCurrencyValue) {
+      this.contributionCurrencyValue = contributionCurrencyValue;
+      return this;
+    }
+
+    public Builder contributionSubTypes(@Valid List<DeltaContributionSubType> contributionSubTypes) {
+      this.contributionSubTypes = contributionSubTypes;
       return this;
     }
 
