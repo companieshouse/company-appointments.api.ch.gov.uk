@@ -12,6 +12,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import uk.gov.companieshouse.api.appointment.Address;
 import uk.gov.companieshouse.api.appointment.ContactDetails;
+import uk.gov.companieshouse.api.appointment.ContributionSubType;
 import uk.gov.companieshouse.api.appointment.CorporateIdent;
 import uk.gov.companieshouse.api.appointment.DateOfBirth;
 import uk.gov.companieshouse.api.appointment.FormerNames;
@@ -23,6 +24,7 @@ import uk.gov.companieshouse.api.appointment.PrincipalOfficeAddress;
 import uk.gov.companieshouse.company_appointments.mapper.CompanyAppointmentMapper;
 import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentDocument;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaContactDetails;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaContributionSubType;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaFormerNames;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaIdentification;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaIdentityVerificationDetails;
@@ -363,6 +365,26 @@ class CompanyAppointmentMapperTest {
                         ).build()));
 
         assertEquals(partiallyNullIdvSummary(), actual);
+    }
+
+    @Test
+    void testCompanyAppointmentMapperWithContributionData() {
+        //when
+        OfficerSummary actual = companyAppointmentMapper.map(
+                companyAppointmentData(officerData()
+                        .contributionCurrencyType("UKD")
+                        .contributionCurrencyValue("45.12")
+                        .contributionSubTypes(List.of(new DeltaContributionSubType("5")))
+                        .build()));
+
+        ContributionSubType contributionSubType = new ContributionSubType();
+        contributionSubType.setSubType("5");
+
+        //then
+        assertEquals(expectedCompanyAppointment()
+                .contributionCurrencyType("UKD")
+                .contributionCurrencyValue("45.12")
+                .contributionSubTypes(List.of(contributionSubType)), actual);
     }
 
     private CompanyAppointmentDocument companyAppointmentData(DeltaOfficerData officerData) {

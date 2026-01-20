@@ -12,6 +12,9 @@ import static org.mockito.Mockito.when;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.function.Executable;
@@ -19,6 +22,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.companieshouse.api.appointment.ContactDetails;
+import uk.gov.companieshouse.api.appointment.ContributionSubType;
 import uk.gov.companieshouse.api.appointment.Data;
 import uk.gov.companieshouse.api.appointment.FormerNames;
 import uk.gov.companieshouse.api.appointment.Identification;
@@ -28,6 +32,7 @@ import uk.gov.companieshouse.api.appointment.PrincipalOfficeAddress;
 import uk.gov.companieshouse.api.appointment.ServiceAddress;
 import uk.gov.companieshouse.company_appointments.exception.FailedToTransformException;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaContactDetails;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaContributionSubType;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaFormerNames;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaIdentification;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaIdentityVerificationDetails;
@@ -112,7 +117,8 @@ class DeltaOfficerDataTransformerTest {
                 .principalOfficeAddress(null)
                 .serviceAddress(null)
                 .contactDetails(null)
-                .formerNames(emptyList());
+                .formerNames(emptyList())
+                .contributionSubTypes(emptyList());
 
         DeltaOfficerData expected = buildExpected()
                 .setIdentification(null)
@@ -121,7 +127,8 @@ class DeltaOfficerDataTransformerTest {
                 .setPrincipalOfficeAddress(null)
                 .setServiceAddress(null)
                 .setContactDetails(null)
-                .setFormerNames(emptyList());
+                .setFormerNames(emptyList())
+                .setContributionSubTypes(emptyList());
 
         // when
         DeltaOfficerData actual = transformer.transform(source);
@@ -139,15 +146,17 @@ class DeltaOfficerDataTransformerTest {
     }
 
     @Test
-    void shouldTransformDataWithNullLinksAndFormerNames() throws FailedToTransformException {
+    void shouldTransformDataWithNullLinksAndFormerNamesAndSubTypes() throws FailedToTransformException {
         // given
         Data source = buildSource()
                 .links(null)
-                .formerNames(null);
+                .formerNames(null)
+                .contributionSubTypes(null);
 
         DeltaOfficerData expected = buildExpected()
                 .setLinks(null)
-                .setFormerNames(null);
+                .setFormerNames(null)
+                .setContributionSubTypes(null);
 
         when(identificationTransformer.transform(any(Identification.class))).thenReturn(deltaIdentification);
         when(identityVerificationDetailsTransformer.transform(any(IdentityVerificationDetails.class))).thenReturn(deltaIdentityVerificationDetails);
@@ -183,6 +192,12 @@ class DeltaOfficerDataTransformerTest {
     }
 
     private Data buildSource() {
+        ContributionSubType contributionSubType = new ContributionSubType();
+        contributionSubType.setSubType("5");
+        List<ContributionSubType> subTypeList = new ArrayList<>();
+        subTypeList.add(contributionSubType);
+        subTypeList.add(null);  // 'null' value should be removed when transforming
+
         return new Data()
                 .personNumber("person number")
                 .serviceAddress(serviceAddress)
@@ -212,7 +227,10 @@ class DeltaOfficerDataTransformerTest {
                 .responsibilities("responsibilities")
                 .formerNames(singletonList(new FormerNames()
                         .forenames("John Tester")
-                        .surname("surname")));
+                        .surname("surname")))
+                .contributionCurrencyType("EUR")
+                .contributionCurrencyValue("11.22")
+                .contributionSubTypes(subTypeList);
     }
 
     private DeltaOfficerData buildExpected() {
@@ -245,6 +263,9 @@ class DeltaOfficerDataTransformerTest {
                 .setResponsibilities("responsibilities")
                 .setFormerNames(singletonList(new DeltaFormerNames()
                         .setForenames("John Tester")
-                        .setSurname("surname")));
+                        .setSurname("surname")))
+                .setContributionCurrencyType("EUR")
+                .setContributionCurrencyValue("11.22")
+                .setContributionSubTypes(List.of(new DeltaContributionSubType("5")));
     }
 }

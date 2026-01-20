@@ -13,8 +13,11 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import org.springframework.data.mongodb.core.mapping.Field;
 import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentDocument;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaContactDetails;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaContributionSubType;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaFormerNames;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaIdentification;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaItemLinkTypes;
@@ -57,6 +60,15 @@ public class CompanyAppointmentFullRecordView {
 
     @JsonProperty("former_names")
     private List<DeltaFormerNames> formerNames;
+
+    @Field("contribution_currency_type")
+    private String contributionCurrencyType;
+
+    @Field("contribution_currency_value")
+    private String contributionCurrencyValue;
+
+    @Field("contribution_sub_types")
+    private List<DeltaContributionSubType> contributionSubTypes;
 
     @JsonProperty("identification")
     private DeltaIdentification identification;
@@ -220,6 +232,30 @@ public class CompanyAppointmentFullRecordView {
         return residentialAddressIsSameAsServiceAddress;
     }
 
+    public String getContributionCurrencyType() {
+        return contributionCurrencyType;
+    }
+
+    public void setContributionCurrencyType(String contributionCurrencyType) {
+        this.contributionCurrencyType = contributionCurrencyType;
+    }
+
+    public String getContributionCurrencyValue() {
+        return contributionCurrencyValue;
+    }
+
+    public void setContributionCurrencyValue(String contributionCurrencyValue) {
+        this.contributionCurrencyValue = contributionCurrencyValue;
+    }
+
+    public List<DeltaContributionSubType> getContributionSubTypes() {
+        return contributionSubTypes;
+    }
+
+    public void setContributionSubTypes(final List<DeltaContributionSubType> contributionSubTypes) {
+        this.contributionSubTypes = contributionSubTypes;
+    }
+
     public static class Builder {
 
         private static final String FULL_RECORD = "/full_record";
@@ -266,7 +302,10 @@ public class CompanyAppointmentFullRecordView {
                     .withServiceAddressIsSameAsRegisteredOfficeAddress(api.getData().getServiceAddressIsSameAsRegisteredOfficeAddress())
                     .withResidentialAddressIsSameAsServiceAddress(Optional.ofNullable(api.getSensitiveData())
                             .map(DeltaSensitiveData::getResidentialAddressIsSameAsServiceAddress)
-                            .orElse(null));
+                            .orElse(null))
+                    .withContributionCurrencyType(api.getData().getContributionCurrencyType())
+                    .withContributionCurrencyValue(api.getData().getContributionCurrencyValue())
+                    .withContributionSubTypes(api.getData().getContributionSubTypes());
        }
 
         private static void appendSelfLinkFullRecord(CompanyAppointmentFullRecordView view) {
@@ -472,6 +511,27 @@ public class CompanyAppointmentFullRecordView {
         public Builder withResidentialAddressIsSameAsServiceAddress(Boolean residentialAddressIsSameAsServiceAddress) {
 
             buildSteps.add(view -> view.residentialAddressIsSameAsServiceAddress = residentialAddressIsSameAsServiceAddress);
+
+            return this;
+        }
+
+        public Builder withContributionCurrencyType(String contributionCurrencyType) {
+
+            buildSteps.add(view -> view.contributionCurrencyType = contributionCurrencyType);
+
+            return this;
+        }
+
+        public Builder withContributionCurrencyValue(String contributionCurrencyValue) {
+
+            buildSteps.add(view -> view.contributionCurrencyValue = contributionCurrencyValue);
+
+            return this;
+        }
+
+        public Builder withContributionSubTypes(List<DeltaContributionSubType> contributionSubTypes) {
+
+            buildSteps.add(view -> view.contributionSubTypes = contributionSubTypes);
 
             return this;
         }
