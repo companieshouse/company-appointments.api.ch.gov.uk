@@ -346,6 +346,13 @@
       <artifactId>tomcat-embed-el</artifactId>
       <version>${tomcat-embed-dependencies.version}</version>
     </dependency>
+
+    <!-- Pinning version to address CVE-2025-68161(6.3) log4j-api pulled transitively-->
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-api</artifactId>
+      <version>2.25.3</version>
+    </dependency>
   </dependencies>
 
   <build>
