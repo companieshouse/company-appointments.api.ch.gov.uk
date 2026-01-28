@@ -23,6 +23,9 @@ public class DeltaIdentification {
   @JsonProperty("registration_number")
   @Field("registration_number")
   private String registrationNumber;
+  @JsonProperty("register_location")
+  @Field("register_location")
+  private String registerLocation;
 
   public String getIdentificationType() {
     return identificationType;
@@ -69,6 +72,15 @@ public class DeltaIdentification {
     return this;
   }
 
+  public String getRegisterLocation() {
+    return registerLocation;
+  }
+
+  public DeltaIdentification setRegisterLocation(String registerLocation) {
+    this.registerLocation = registerLocation;
+    return this;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -82,12 +94,13 @@ public class DeltaIdentification {
         Objects.equals(this.legalAuthority, identification.legalAuthority) &&
         Objects.equals(this.legalForm, identification.legalForm) &&
         Objects.equals(this.placeRegistered, identification.placeRegistered) &&
-        Objects.equals(this.registrationNumber, identification.registrationNumber);
+        Objects.equals(this.registrationNumber, identification.registrationNumber) &&
+        Objects.equals(this.registerLocation, identification.registerLocation);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(identificationType, legalAuthority, legalForm, placeRegistered, registrationNumber);
+    return Objects.hash(identificationType, legalAuthority, legalForm, placeRegistered, registrationNumber, registerLocation);
   }
 
   @Override
@@ -98,6 +111,7 @@ public class DeltaIdentification {
             + "    legalForm: " + toIndentedString(legalForm) + "\n"
             + "    placeRegistered: " + toIndentedString(placeRegistered) + "\n"
             + "    registrationNumber: " + toIndentedString(registrationNumber) + "\n"
+            + "    registerLocation: " + toIndentedString(registerLocation) + "\n"
             + "}";
   }
 

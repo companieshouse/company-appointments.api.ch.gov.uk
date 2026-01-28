@@ -39,6 +39,7 @@ import uk.gov.companieshouse.company_appointments.roles.SecretarialRoles;
 class CompanyAppointmentMapperTest {
 
     public static final String IDENTIFICATION_TYPE = "eea";
+    public static final String LP_IDENTIFICATION_TYPE = "limited-partnership-corporate-partner";
     private CompanyAppointmentMapper companyAppointmentMapper;
 
     @BeforeEach
@@ -151,6 +152,32 @@ class CompanyAppointmentMapperTest {
                         .legalForm("Legal form")
                         .placeRegistered("Place registered")
                         .registrationNumber("Registration number")), actual);
+    }
+
+    @Test
+    void testCompanyAppointmentMapperWithLimitedPartnershipCorporateOfficer() {
+        //when
+        OfficerSummary actual = companyAppointmentMapper.map(companyAppointmentData(officerData()
+                .companyName("Company Name")
+                .identification(new DeltaIdentification()
+                        .setIdentificationType(LP_IDENTIFICATION_TYPE)
+                        .setLegalAuthority("Legal authority")
+                        .setLegalForm("Legal form")
+                        .setPlaceRegistered("Place registered")
+                        .setRegistrationNumber("Registration number")
+                        .setRegisterLocation("Register location"))
+                .build()));
+
+        //then
+        assertEquals(expectedCompanyAppointment()
+                .name("Company Name")
+                .identification(new CorporateIdent()
+                        .identificationType(CorporateIdent.IdentificationTypeEnum.fromValue(LP_IDENTIFICATION_TYPE))
+                        .legalAuthority("Legal authority")
+                        .legalForm("Legal form")
+                        .placeRegistered("Place registered")
+                        .registrationNumber("Registration number")
+                        .registerLocation("Register location")), actual);
     }
 
     @Test

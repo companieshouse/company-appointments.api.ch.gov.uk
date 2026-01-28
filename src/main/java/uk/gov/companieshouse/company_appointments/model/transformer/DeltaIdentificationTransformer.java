@@ -23,6 +23,7 @@ public class DeltaIdentificationTransformer implements Transformative<Identifica
             entity.setLegalForm(source.getLegalForm());
             entity.setPlaceRegistered(source.getPlaceRegistered());
             entity.setRegistrationNumber(source.getRegistrationNumber());
+            entity.setRegisterLocation(source.getRegisterLocation());
 
             return entity;
         } catch (Exception e) {

@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.company_appointments.model.data;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.util.Objects;
@@ -8,6 +9,7 @@ import java.util.Objects;
  * Contribution sub-type
  */
 public class DeltaContributionSubType {
+  @JsonProperty("sub_type")
   @Field("sub_type")
   private String subType;
 

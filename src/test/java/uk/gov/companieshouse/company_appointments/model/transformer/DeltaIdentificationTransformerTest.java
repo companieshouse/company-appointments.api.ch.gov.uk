@@ -18,7 +18,9 @@ class DeltaIdentificationTransformerTest {
                 .legalAuthority("legalAuthority")
                 .legalForm("legalForm")
                 .placeRegistered("placeRegistered")
-                .registrationNumber("registrationNumber");
+                .registrationNumber("registrationNumber")
+                .registerLocation("registerLocation");
+
 
         DeltaIdentification result = transformer.transform(identification);
 
@@ -27,6 +29,7 @@ class DeltaIdentificationTransformerTest {
         assertThat(result.getLegalForm()).isEqualTo("legalForm");
         assertThat(result.getPlaceRegistered()).isEqualTo("placeRegistered");
         assertThat(result.getRegistrationNumber()).isEqualTo("registrationNumber");
+        assertThat(result.getRegisterLocation()).isEqualTo("registerLocation");
     }
 
     @Test
@@ -35,7 +38,8 @@ class DeltaIdentificationTransformerTest {
                 .legalAuthority("legalAuthority")
                 .legalForm("legalForm")
                 .placeRegistered("placeRegistered")
-                .registrationNumber("registrationNumber");
+                .registrationNumber("registrationNumber")
+                .registerLocation("registerLocation");
 
         DeltaIdentification result = transformer.transform(identification);
 
@@ -44,5 +48,6 @@ class DeltaIdentificationTransformerTest {
         assertThat(result.getLegalForm()).isEqualTo("legalForm");
         assertThat(result.getPlaceRegistered()).isEqualTo("placeRegistered");
         assertThat(result.getRegistrationNumber()).isEqualTo("registrationNumber");
+        assertThat(result.getRegisterLocation()).isEqualTo("registerLocation");
     }
 }

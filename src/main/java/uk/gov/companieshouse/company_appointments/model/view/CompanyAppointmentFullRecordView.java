@@ -61,13 +61,13 @@ public class CompanyAppointmentFullRecordView {
     @JsonProperty("former_names")
     private List<DeltaFormerNames> formerNames;
 
-    @Field("contribution_currency_type")
+    @JsonProperty("contribution_currency_type")
     private String contributionCurrencyType;
 
-    @Field("contribution_currency_value")
+    @JsonProperty("contribution_currency_value")
     private String contributionCurrencyValue;
 
-    @Field("contribution_sub_types")
+    @JsonProperty("contribution_sub_types")
     private List<DeltaContributionSubType> contributionSubTypes;
 
     @JsonProperty("identification")

@@ -353,6 +353,7 @@ class CompanyAppointmentFullRecordViewTest {
         identification.setLegalForm("Hong Kong");
         identification.setPlaceRegistered("UK");
         identification.setRegistrationNumber("32982");
+        identification.setRegisterLocation("SWITZERLAND");
         return identification;
     }
 
