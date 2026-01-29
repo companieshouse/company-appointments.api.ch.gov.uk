@@ -206,7 +206,11 @@
               "nominee-director",
               "nominee-secretary",
               "receiver-and-manager",
-              "secretary"
+              "secretary",
+              "general-partner-in-a-limited-partnership",
+              "corporate-general-partner-in-a-limited-partnership",
+              "limited-partner-in-a-limited-partnership",
+              "corporate-limited-partner-in-a-limited-partnership"
             ],
             "type": "string",
             "example": "director"
@@ -214,6 +218,20 @@
           "resigned_on": {
             "type": "string",
             "format": "date-time"
+          },
+          "contribution_currency_type": {
+            "type": "string",
+            "example": "USD"
+          },
+          "contribution_currency_value": {
+            "type": "string",
+            "example": "11243.50"
+          },
+          "contribution_sub_types": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ContributionSubType"
+            }
           }
         }
       },
@@ -441,6 +459,16 @@
           }
         }
       },
+      "ContributionSubType": {
+        "description": "Sub type of the capital contribution, if applicable.",
+        "title": "Contribution Sub Type",
+        "properties": {
+          "sub_type": {
+            "type": "string",
+            "example": "any-other-asset"
+          }
+        }
+      },
       "Identification": {
         "description": "Identification",
         "title": "Identification",
@@ -450,7 +478,8 @@
               "EEA",
               "non-eea",
               "other-corporate-body-or-firm",
-              "uk-limited-company"
+              "uk-limited-company",
+              "limited-partnership-corporate-partner"
             ],
             "type": "string"
           },
@@ -469,6 +498,10 @@
           "registration_number": {
             "type": "string",
             "example": 32985
+          },
+          "register_location": {
+            "type": "string",
+            "example": "UNITED KINGDOM"
           }
         }
       },
