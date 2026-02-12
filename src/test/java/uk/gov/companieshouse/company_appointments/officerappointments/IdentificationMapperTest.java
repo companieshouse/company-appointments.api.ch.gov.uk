@@ -33,14 +33,16 @@ class IdentificationMapperTest {
                 .setLegalAuthority("legal authority")
                 .setLegalForm("legal form")
                 .setPlaceRegistered("place registered")
-                .setRegistrationNumber("registration number");
+                .setRegistrationNumber("registration number")
+                .setRegisterLocation("register location");
 
         CorporateIdent expected = new CorporateIdent()
                 .identificationType(IdentificationTypeEnum.UK_LIMITED_COMPANY)
                 .legalAuthority("legal authority")
                 .legalForm("legal form")
                 .placeRegistered("place registered")
-                .registrationNumber("registration number");
+                .registrationNumber("registration number")
+                .registerLocation("register location");
 
         // when
         CorporateIdent actual = mapper.map(identificationData);
