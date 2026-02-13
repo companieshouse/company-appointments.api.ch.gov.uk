@@ -22,7 +22,8 @@ class IdentificationMapper {
                         .legalAuthority(identification.getLegalAuthority())
                         .legalForm(identification.getLegalForm())
                         .placeRegistered(identification.getPlaceRegistered())
-                        .registrationNumber(identification.getRegistrationNumber()))
+                        .registrationNumber(identification.getRegistrationNumber())
+                        .registerLocation(identification.getRegisterLocation()))
                 .orElse(null);
     }
 }
