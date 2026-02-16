@@ -57,7 +57,7 @@ class CompanyAppointmentFullRecordControllerMongoUnavailableITest {
     private CompanyAppointmentRepository fullRecordRepository;
 
     @Container
-    private static final MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:5");
+    private static final MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:8.2.5");
 
     @Autowired
     private ObjectMapper objectMapper;
