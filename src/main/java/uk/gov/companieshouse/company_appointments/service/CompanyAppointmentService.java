@@ -105,12 +105,23 @@ public class CompanyAppointmentService {
                 .orElseThrow(() -> new NotFoundException(
                         String.format("Appointments metrics for company number [%s] not found", companyNumber)));
 
-        Counts counts = registerView ? new Counts(appointmentsCounts, registerType) :
-                new Counts(appointmentsCounts, allAppointmentData.getFirst().getCompanyStatus(), filterEnabled);
+        Counts counts;
+        if (registerView && (registerType.equals("general_partners") || registerType.equals("limited_partners"))) {
+            long resignedCount = allAppointmentData.stream().filter(
+                    doc -> doc.getData().getResignedOn() != null).count();
+
+            // TODO Doesn't won't work for correct paging operation as counts don't come from metrics!!!
+            counts = new Counts(allAppointmentData.size(), (int) resignedCount, allAppointmentData.getFirst().getCompanyStatus(), filterEnabled);
+        } else {
+            counts = registerView ? new Counts(appointmentsCounts, registerType) :
+                    new Counts(appointmentsCounts, allAppointmentData.getFirst().getCompanyStatus(), filterEnabled);
+        }
 
         List<OfficerSummary> officerSummaries = allAppointmentData.stream()
                 .map(companyAppointmentMapper::map)
                 .toList();
+
+        System.out.println("\n\n*** summaries: " + officerSummaries + " *** \n\n");
 
         return new OfficerList()
                 .totalResults(counts.getTotalResults())
@@ -186,6 +197,25 @@ public class CompanyAppointmentService {
             }
             totalResults = isFilterEnabled ? appointments.getActiveCount() : appointments.getTotalCount();
             resigned = appointments.getResignedCount();
+        }
+
+        private Counts(final int totalCount, final int resignedCount, final String status, final boolean isFilterEnabled) {
+            CompanyStatus companyStatus = CompanyStatus.fromValue(status);
+            final int activeCount = totalCount - resignedCount;
+            switch (companyStatus) {
+                case CLOSED:
+                case DISSOLVED:
+                case CONVERTED_CLOSED:
+                    active = 0;
+                    inactive = activeCount;
+                    break;
+                default:
+                    active = activeCount;
+                    inactive = 0;
+
+            }
+            totalResults = isFilterEnabled ? activeCount : totalCount;
+            resigned = resignedCount;
         }
 
         public int getTotalResults() {

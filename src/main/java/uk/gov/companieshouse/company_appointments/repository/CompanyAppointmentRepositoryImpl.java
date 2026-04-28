@@ -9,6 +9,10 @@ import static uk.gov.companieshouse.company_appointments.roles.DirectorRoles.COR
 import static uk.gov.companieshouse.company_appointments.roles.DirectorRoles.CORPORATE_NOMINEE_DIRECTOR;
 import static uk.gov.companieshouse.company_appointments.roles.DirectorRoles.DIRECTOR;
 import static uk.gov.companieshouse.company_appointments.roles.DirectorRoles.NOMINEE_DIRECTOR;
+import static uk.gov.companieshouse.company_appointments.roles.LimitedPartnershipRoles.CORPORATE_GENERAL_PARTNER;
+import static uk.gov.companieshouse.company_appointments.roles.LimitedPartnershipRoles.CORPORATE_LIMITED_PARTNER;
+import static uk.gov.companieshouse.company_appointments.roles.LimitedPartnershipRoles.GENERAL_PARTNER;
+import static uk.gov.companieshouse.company_appointments.roles.LimitedPartnershipRoles.LIMITED_PARTNER;
 import static uk.gov.companieshouse.company_appointments.roles.LlpRoles.CORPORATE_LLP_DESIGNATED_MEMBER;
 import static uk.gov.companieshouse.company_appointments.roles.LlpRoles.CORPORATE_LLP_MEMBER;
 import static uk.gov.companieshouse.company_appointments.roles.LlpRoles.LLP_DESIGNATED_MEMBER;
@@ -49,7 +53,16 @@ public class CompanyAppointmentRepositoryImpl implements CompanyAppointmentRepos
         Criteria criteria = where(COMPANY_NUMBER_FIELD).is(companyNumber);
 
         if (registerView) {
-            criteria.and(DATA_RESIGNED_ON_FIELD).exists(false);
+
+            System.out.println("\n\n*** registerType = >" + registerType + "< *** \n\n");
+
+            if (!registerType.equals("general_partners") && !registerType.equals("limited_partners")) {
+                criteria.and(DATA_RESIGNED_ON_FIELD).exists(false);
+            } else if (filterEnabled) {
+                criteria.and(DATA_RESIGNED_ON_FIELD).exists(false)
+                        .and(COMPANY_STATUS_FIELD).nin(List.of(DISSOLVED.getStatus(), CONVERTED_CLOSED.getStatus(), CLOSED.getStatus()));
+            }
+
             filterByRegisterType(criteria, registerType);
         } else if (filterEnabled) {
             criteria.and(DATA_RESIGNED_ON_FIELD).exists(false)
@@ -60,6 +73,8 @@ public class CompanyAppointmentRepositoryImpl implements CompanyAppointmentRepos
                 .with(sortMapper.getSort(orderBy))
                 .skip(startIndex)
                 .limit(itemsPerPage);
+
+        System.out.println("\n\n*** query = >" + query.toString() + "< *** \n\n");
 
         return mongoTemplate.find(query, CompanyAppointmentDocument.class);
     }
@@ -90,6 +105,18 @@ public class CompanyAppointmentRepositoryImpl implements CompanyAppointmentRepos
                                 CORPORATE_LLP_MEMBER.getRole(),
                                 LLP_DESIGNATED_MEMBER.getRole(),
                                 CORPORATE_LLP_DESIGNATED_MEMBER.getRole()));
+                break;
+            case "general_partners":
+                criteria.and(DATA_OFFICER_ROLE)
+                        .in(List.of(
+                                GENERAL_PARTNER.getRole(),
+                                CORPORATE_GENERAL_PARTNER.getRole()));
+                break;
+            case "limited_partners":
+                criteria.and(DATA_OFFICER_ROLE)
+                        .in(List.of(
+                                LIMITED_PARTNER.getRole(),
+                                CORPORATE_LIMITED_PARTNER.getRole()));
                 break;
             default:
                 throw new IllegalArgumentException("Invalid registerType of " + registerType);

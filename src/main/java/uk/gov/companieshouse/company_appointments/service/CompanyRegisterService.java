@@ -22,6 +22,8 @@ public class CompanyRegisterService {
         } else if (registerType.equals("llp_members")) {
             return registersApi != null && registersApi.getLlpMembers() != null && registersApi.getLlpMembers()
                     .getRegisterMovedTo().equals(PUBLIC_REGISTER);
+        } else if (registerType.equals("general_partners") || registerType.equals("limited_partners")) {
+            return true;
         } else {
             throw new BadRequestException("Incorrect register type, must be directors, secretaries or llp_members");
         }
