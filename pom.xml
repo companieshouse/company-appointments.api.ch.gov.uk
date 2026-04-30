@@ -16,7 +16,7 @@
   <properties>
     <maven.compiler.source>21</maven.compiler.source>
     <maven.compiler.target>21</maven.compiler.target>
-    <spring-boot-dependencies.version>3.5.7</spring-boot-dependencies.version>
+    <spring-boot-dependencies.version>3.5.14</spring-boot-dependencies.version>
     <maven-surefire.version>3.5.4</maven-surefire.version>
     <maven-failsafe.version>3.5.4</maven-failsafe.version>
     <maven-build-helper-plugin.version>3.6.1</maven-build-helper-plugin.version>
@@ -30,7 +30,7 @@
     <commons-compress.version>1.28.0</commons-compress.version>
     <maven-compiler-plugin.version>3.14.0</maven-compiler-plugin.version>
     <opentelemetry-instrumentation-bom.version>2.14.0</opentelemetry-instrumentation-bom.version>
-    <spring-core.version>6.2.11</spring-core.version>
+<!--    <spring-core.version>6.2.11</spring-core.version>-->
     <tomcat-embed-dependencies.version>10.1.47</tomcat-embed-dependencies.version>
 
     <!-- internal dependencies -->
@@ -75,16 +75,16 @@
     <dependencies>
         <!-- Transitive Dependencies -->
         <!-- CVE-2025-52520 -->
-        <dependency>
-            <groupId>org.apache.tomcat.embed</groupId>
-            <artifactId>tomcat-embed-core</artifactId>
-            <version>${tomcat-embed-core.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.tomcat.embed</groupId>
-            <artifactId>tomcat-embed-websocket</artifactId>
-            <version>${tomcat-embed-core.version}</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.apache.tomcat.embed</groupId>-->
+<!--            <artifactId>tomcat-embed-core</artifactId>-->
+<!--            <version>${tomcat-embed-core.version}</version>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>org.apache.tomcat.embed</groupId>-->
+<!--            <artifactId>tomcat-embed-websocket</artifactId>-->
+<!--            <version>${tomcat-embed-core.version}</version>-->
+<!--        </dependency>-->
         <!-- Transitive Dependencies End -->
 
         <dependency>
@@ -326,26 +326,26 @@
     </dependency>
 
     <!-- CVE-2025-41242 and CVE-2025-48989 -->
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-core</artifactId>
-      <version>${spring-core.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.tomcat.embed</groupId>
-      <artifactId>tomcat-embed-core</artifactId>
-      <version>${tomcat-embed-dependencies.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.tomcat.embed</groupId>
-      <artifactId>tomcat-embed-websocket</artifactId>
-      <version>${tomcat-embed-dependencies.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.tomcat.embed</groupId>
-      <artifactId>tomcat-embed-el</artifactId>
-      <version>${tomcat-embed-dependencies.version}</version>
-    </dependency>
+<!--    <dependency>-->
+<!--      <groupId>org.springframework</groupId>-->
+<!--      <artifactId>spring-core</artifactId>-->
+<!--      <version>${spring-core.version}</version>-->
+<!--    </dependency>-->
+<!--    <dependency>-->
+<!--      <groupId>org.apache.tomcat.embed</groupId>-->
+<!--      <artifactId>tomcat-embed-core</artifactId>-->
+<!--      <version>${tomcat-embed-dependencies.version}</version>-->
+<!--    </dependency>-->
+<!--    <dependency>-->
+<!--      <groupId>org.apache.tomcat.embed</groupId>-->
+<!--      <artifactId>tomcat-embed-websocket</artifactId>-->
+<!--      <version>${tomcat-embed-dependencies.version}</version>-->
+<!--    </dependency>-->
+<!--    <dependency>-->
+<!--      <groupId>org.apache.tomcat.embed</groupId>-->
+<!--      <artifactId>tomcat-embed-el</artifactId>-->
+<!--      <version>${tomcat-embed-dependencies.version}</version>-->
+<!--    </dependency>-->
 
     <!-- Pinning version to address CVE-2025-68161(6.3) log4j-api pulled transitively-->
     <dependency>
