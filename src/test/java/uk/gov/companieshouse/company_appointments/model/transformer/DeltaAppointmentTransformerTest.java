@@ -82,8 +82,10 @@ class DeltaAppointmentTransformerTest {
 
     @Test
     void testApiThrowsExceptionWhenTransformFails() {
+        final var fullRecordCompanyOfficerApi = new FullRecordCompanyOfficerApi();
+
         try {
-            deltaAppointmentTransformer.transform(new FullRecordCompanyOfficerApi());
+            deltaAppointmentTransformer.transform(fullRecordCompanyOfficerApi);
             fail("Expected a FailedToTransformException to be thrown");
         } catch (FailedToTransformException e) {
             assert (e.getMessage().contains("Failed to transform API payload:"));

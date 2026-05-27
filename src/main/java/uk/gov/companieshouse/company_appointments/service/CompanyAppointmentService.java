@@ -173,9 +173,7 @@ public class CompanyAppointmentService {
         private Counts(final AppointmentsApi appointments, final String status, final boolean isFilterEnabled) {
             CompanyStatus companyStatus = CompanyStatus.fromValue(status);
             switch (companyStatus) {
-                case CLOSED:
-                case DISSOLVED:
-                case CONVERTED_CLOSED:
+                case CLOSED, DISSOLVED, CONVERTED_CLOSED:
                     active = 0;
                     inactive = appointments.getActiveCount();
                     break;

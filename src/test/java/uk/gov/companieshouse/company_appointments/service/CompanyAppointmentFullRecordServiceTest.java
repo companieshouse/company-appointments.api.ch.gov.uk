@@ -125,7 +125,7 @@ class CompanyAppointmentFullRecordServiceTest {
                 companyAppointmentService.getAppointment(COMPANY_NUMBER, APPOINTMENT_ID);
 
         // then
-        assertEquals(result.getDateOfBirth(), new DateOfBirthView(12, 1, 1990));
+        assertEquals(new DateOfBirthView(12, 1, 1990), result.getDateOfBirth());
         verify(companyAppointmentRepository).readByCompanyNumberAndID(COMPANY_NUMBER,
                 APPOINTMENT_ID);
     }
@@ -321,8 +321,9 @@ class CompanyAppointmentFullRecordServiceTest {
         when(deltaAppointmentTransformer.transform(any(FullRecordCompanyOfficerApi.class)))
                 .thenThrow(new FailedToTransformException("message"));
 
+        final var newFullRecordCompanyOfficerApi = new FullRecordCompanyOfficerApi();
         Assert.assertThrows(ServiceUnavailableException.class, () ->
-                companyAppointmentService.upsertAppointmentDelta(new FullRecordCompanyOfficerApi()));
+                companyAppointmentService.upsertAppointmentDelta(newFullRecordCompanyOfficerApi));
     }
 
     @Test

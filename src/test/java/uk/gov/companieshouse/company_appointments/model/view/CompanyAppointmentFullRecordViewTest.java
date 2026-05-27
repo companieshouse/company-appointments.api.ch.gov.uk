@@ -347,14 +347,14 @@ class CompanyAppointmentFullRecordViewTest {
     }
 
     private DeltaIdentification buildIdentification() {
-        DeltaIdentification identification = new DeltaIdentification();
-        identification.setIdentificationType("eea");
-        identification.setLegalAuthority("Chapter 32");
-        identification.setLegalForm("Hong Kong");
-        identification.setPlaceRegistered("UK");
-        identification.setRegistrationNumber("32982");
-        identification.setRegisterLocation("SWITZERLAND");
-        return identification;
+        final var identificationToBuild = new DeltaIdentification();
+        identificationToBuild.setIdentificationType("eea");
+        identificationToBuild.setLegalAuthority("Chapter 32");
+        identificationToBuild.setLegalForm("Hong Kong");
+        identificationToBuild.setPlaceRegistered("UK");
+        identificationToBuild.setRegistrationNumber("32982");
+        identificationToBuild.setRegisterLocation("SWITZERLAND");
+        return identificationToBuild;
     }
 
     private DeltaItemLinkTypes buildLinksItem() {
@@ -367,8 +367,8 @@ class CompanyAppointmentFullRecordViewTest {
     }
 
     private DeltaContactDetails buildContactDetails() {
-        DeltaContactDetails contactDetails = new DeltaContactDetails();
-        contactDetails.setContactName("John Smith");
-        return contactDetails;
+        final var contactDetailsToBuild = new DeltaContactDetails();
+        contactDetailsToBuild.setContactName("John Smith");
+        return contactDetailsToBuild;
     }
 }

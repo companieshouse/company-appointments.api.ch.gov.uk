@@ -45,13 +45,16 @@ class OfficerAppointmentsController {
                     .itemsPerPage(itemsPerPage)
                     .authPrivileges(authPrivileges)
                     .build();
-            return service.getOfficerAppointments(request)
-                    .map(ResponseEntity::ok)
-                    .orElseGet(() -> {
-                        LOGGER.info(String.format("No appointments found for officer ID %s", officerId),
-                                DataMapHolder.getLogMap());
-                        return ResponseEntity.notFound().build();
-                    });
+
+            final var officerAppointments = service.getOfficerAppointments(request);
+            if (officerAppointments.isPresent()) {
+                return ResponseEntity.ok(officerAppointments.get());
+            }
+
+            LOGGER.info(String.format("No appointments found for officer ID %s", officerId),
+                        DataMapHolder.getLogMap());
+
+            return ResponseEntity.notFound().build();
         } catch (BadRequestException ex) {
             LOGGER.info(String.format("Invalid filter parameter supplied: %s, officer ID %s", filter, officerId),
                     DataMapHolder.getLogMap());
