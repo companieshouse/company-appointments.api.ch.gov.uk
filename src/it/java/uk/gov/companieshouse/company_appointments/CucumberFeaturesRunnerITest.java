@@ -8,5 +8,6 @@ import uk.gov.companieshouse.company_appointments.config.AbstractIntegrationTest
 @Suite
 @SelectClasspathResource("features")
 @CucumberContextConfiguration
+@SuppressWarnings("squid:S2187")
 public class CucumberFeaturesRunnerITest extends AbstractIntegrationTest {
 }

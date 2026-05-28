@@ -356,24 +356,24 @@ class CompanyAppointmentRepositoryTest {
         Map<String, Object> officerData = (Map<String, Object>) templateDocument.get("data");
         officerData.put("officer_role", officerRole);
         switch (officerRole) {
-            case "director":
-            case "corporate-director":
-            case "nominee-director":
-            case "corporate-nominee-director":
+            case "director",
+                 "corporate-director",
+                 "nominee-director",
+                 "corporate-nominee-director":
                 templateDocument.put("officer_role_sort_order", resignedOn == null ? 20 : 200);
                 break;
-            case "secretary":
-            case "corporate-secretary":
-            case "nominee-secretary":
-            case "corporate-nominee-secretary":
+            case "secretary",
+                 "corporate-secretary",
+                 "nominee-secretary",
+                 "corporate-nominee-secretary":
                 templateDocument.put("officer_role_sort_order", resignedOn == null ? 10 : 100);
                 break;
-            case "llp-member":
-            case "corporate-llp-member":
+            case "llp-member",
+                 "corporate-llp-member":
                 templateDocument.put("officer_role_sort_order", resignedOn == null ? 20 : 200);
                 break;
-            case "llp-designated-member":
-            case "corporate-llp-designated-member":
+            case "llp-designated-member",
+                 "corporate-llp-designated-member":
                 templateDocument.put("officer_role_sort_order", resignedOn == null ? 10 : 100);
                 break;
             default:

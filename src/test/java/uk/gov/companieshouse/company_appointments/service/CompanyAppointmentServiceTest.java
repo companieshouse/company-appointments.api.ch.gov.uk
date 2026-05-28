@@ -76,9 +76,6 @@ class CompanyAppointmentServiceTest {
     private static final String REGISTER_TYPE_DIRECTORS = "directors";
     private static final String REGISTER_TYPE_SECRETARIES = "secretaries";
     private static final String REGISTER_TYPE_LLPMEMBERS = "llp_members";
-    private static final String COMPANY_NAME = "ACME LTD";
-    private static final String OPEN_STATUS = "open";
-    private static final String FAKE_STATUS = "fake";
 
     @BeforeEach
     void setUp() {

@@ -3,7 +3,7 @@ package uk.gov.companieshouse.company_appointments.model.transformer;
 import static java.time.ZoneOffset.UTC;
 
 import java.time.Instant;
-import java.util.stream.Collectors;
+import java.util.Objects;
 import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.GenerateEtagUtil;
 import uk.gov.companieshouse.api.appointment.Data;
@@ -89,15 +89,15 @@ public class DeltaOfficerDataTransformer implements Transformative<Data, DeltaOf
                     .map(formerNames -> new DeltaFormerNames()
                             .setSurname(formerNames.getSurname())
                             .setForenames(formerNames.getForenames()))
-                    .collect(Collectors.toList()) : null);
+                    .toList() : null);
             entity.setContributionCurrencyType(source.getContributionCurrencyType());
             entity.setContributionCurrencyValue(source.getContributionCurrencyValue());
             entity.setContributionSubTypes(source.getContributionSubTypes() != null ?
                     source.getContributionSubTypes().stream()
-                            .filter(subType -> subType != null)
+                            .filter(Objects::nonNull)
                             .map(subType -> new DeltaContributionSubType()
                                     .setSubType(subType.getSubType()))
-                            .collect(Collectors.toList()) : null);
+                            .toList() : null);
 
             return entity;
         } catch (Exception e) {

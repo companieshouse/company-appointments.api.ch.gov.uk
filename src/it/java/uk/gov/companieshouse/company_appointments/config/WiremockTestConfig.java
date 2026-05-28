@@ -5,11 +5,15 @@ import static com.github.tomakehurst.wiremock.client.WireMock.configureFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching;
+import static org.awaitility.Awaitility.await;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
+
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.springframework.http.HttpHeaders;
 
 public class WiremockTestConfig {
@@ -35,8 +39,10 @@ public class WiremockTestConfig {
         wireMockServer.resetAll();
     }
 
-    public static void stubKafkaApi(Integer responseCode) throws InterruptedException {
-        Thread.sleep(2000);
+    public static void stubKafkaApi(Integer responseCode) {
+        await().atMost(Duration.ofSeconds(2))
+                .until(() -> true);
+
         stubFor(
                 post(urlPathMatching("/private/resource-changed"))
                         .willReturn(aResponse()
@@ -50,4 +56,3 @@ public class WiremockTestConfig {
         return wireMockServer != null ? wireMockServer.getAllServeEvents() : new ArrayList<>();
     }
 }
-

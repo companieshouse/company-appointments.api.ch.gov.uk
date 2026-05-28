@@ -22,7 +22,7 @@ import uk.gov.companieshouse.company_appointments.model.FetchAppointmentsRequest
 import uk.gov.companieshouse.company_appointments.service.CompanyAppointmentService;
 
 @ExtendWith(MockitoExtension.class)
-public class CompanyAppointmentControllerTest {
+class CompanyAppointmentControllerTest {
 
     private static final String COMPANY_NUMBER = "123456";
     private static final String APPOINTMENT_ID = "345678";

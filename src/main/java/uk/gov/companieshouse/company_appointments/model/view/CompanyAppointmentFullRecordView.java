@@ -14,7 +14,6 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.springframework.data.mongodb.core.mapping.Field;
 import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentDocument;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaContactDetails;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaContributionSubType;

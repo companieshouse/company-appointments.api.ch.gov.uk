@@ -6,6 +6,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.verify;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
 import static uk.gov.companieshouse.company_appointments.CompanyAppointmentsApplication.APPLICATION_NAME_SPACE;
 import static uk.gov.companieshouse.company_appointments.config.AbstractIntegrationTest.kafkaContainer;
 import static uk.gov.companieshouse.company_appointments.config.AbstractMongoConfig.mongoDBContainer;
@@ -22,6 +23,8 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+
 import org.apache.commons.io.IOUtils;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,13 +79,13 @@ public class CommonSteps {
     }
 
     @Given("CHS kafka is available")
-    public void theChsKafkaApiIsAvailable() throws InterruptedException {
+    public void theChsKafkaApiIsAvailable() {
         WiremockTestConfig.stubKafkaApi(HttpStatus.OK.value());
         assertThat(kafkaTemplate).isNotNull();
     }
 
     @Given("CHS kafka is unavailable")
-    public void theChsKafkaApiIsUnavailable() throws InterruptedException {
+    public void theChsKafkaApiIsUnavailable()  {
         WiremockTestConfig.stubKafkaApi(HttpStatus.SERVICE_UNAVAILABLE.value());
     }
 
@@ -126,8 +129,10 @@ public class CommonSteps {
     }
 
     @Then("a request should NOT be sent to the resource changed endpoint")
-    public void noRequestsSentToResourceChangedEndpoint() throws InterruptedException {
-        Thread.sleep(2000);
+    public void noRequestsSentToResourceChangedEndpoint() {
+        await().atMost(Duration.ofSeconds(2))
+                .until(() -> true);
+
         verify(lessThanOrExactly(0), postRequestedFor(urlEqualTo("/private/resource-changed")));
     }
 
