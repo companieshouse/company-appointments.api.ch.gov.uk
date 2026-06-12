@@ -16,7 +16,7 @@
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
-        <spring-boot-dependencies.version>3.5.14</spring-boot-dependencies.version>
+        <spring-boot-dependencies.version>3.5.15</spring-boot-dependencies.version>
         <maven-surefire.version>3.5.4</maven-surefire.version>
         <maven-failsafe.version>3.5.4</maven-failsafe.version>
         <maven-build-helper-plugin.version>3.6.1</maven-build-helper-plugin.version>
@@ -30,7 +30,7 @@
         <commons-compress.version>1.28.0</commons-compress.version>
         <maven-compiler-plugin.version>3.14.0</maven-compiler-plugin.version>
         <opentelemetry-instrumentation-bom.version>2.28.1</opentelemetry-instrumentation-bom.version>
-        <spring-core.version>6.2.18</spring-core.version>
+        <spring-core.version>6.2.19</spring-core.version>
         <tomcat-embed-dependencies.version>10.1.55</tomcat-embed-dependencies.version>
         <log4j-api.version>2.26.0</log4j-api.version>
 
