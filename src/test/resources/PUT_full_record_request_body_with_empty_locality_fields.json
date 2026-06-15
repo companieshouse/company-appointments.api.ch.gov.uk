@@ -55,7 +55,10 @@
       "principal_office_address":null,
       "resigned_on":null,
       "responsibilities":null,
-      "former_names":null
+      "former_names":null,
+      "contribution_currency_type":null,
+      "contribution_currency_value":null,
+      "contribution_sub_types":null
     },
     "sensitive_data":{
       "usual_residential_address":{

@@ -25,6 +25,7 @@ import uk.gov.companieshouse.api.officer.Address;
 import uk.gov.companieshouse.api.officer.AppointedTo;
 import uk.gov.companieshouse.api.officer.AppointmentLinkTypes;
 import uk.gov.companieshouse.api.officer.ContactDetails;
+import uk.gov.companieshouse.api.officer.ContributionSubType;
 import uk.gov.companieshouse.api.officer.CorporateIdent;
 import uk.gov.companieshouse.api.officer.FormerNames;
 import uk.gov.companieshouse.api.officer.IdentityVerificationDetails;
@@ -33,6 +34,7 @@ import uk.gov.companieshouse.api.officer.OfficerAppointmentSummary;
 import uk.gov.companieshouse.api.officer.OfficerAppointmentSummary.OfficerRoleEnum;
 import uk.gov.companieshouse.company_appointments.model.data.CompanyAppointmentDocument;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaContactDetails;
+import uk.gov.companieshouse.company_appointments.model.data.DeltaContributionSubType;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaFormerNames;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaIdentification;
 import uk.gov.companieshouse.company_appointments.model.data.DeltaIdentityVerificationDetails;
@@ -87,6 +89,12 @@ class ItemsMapperTest {
     private IdentityVerificationDetails identityVerificationDetails;
     @Mock
     private DeltaIdentityVerificationDetails deltaIdentityVerificationDetails;
+    @Mock
+    private ContributionSubTypesMapper contributionSubTypesMapper;
+    @Mock
+    private ContributionSubType contributionSubType;
+    @Mock
+    private DeltaContributionSubType contributionSubTypeData;
 
     private final Instant appointedBefore = Instant.from(
             LocalDate.of(1993, 3, 13).atStartOfDay(ZoneOffset.UTC));
@@ -113,6 +121,7 @@ class ItemsMapperTest {
         when(roleMapper.mapOfficerRole(anyString())).thenReturn(OfficerRoleEnum.DIRECTOR);
         when(nameMapper.mapNameElements(any())).thenReturn(nameElements);
         when(identityVerificationDetailsMapper.map(any())).thenReturn(identityVerificationDetails);
+        when(contributionSubTypesMapper.map(any())).thenReturn(singletonList(contributionSubType));
 
         List<CompanyAppointmentDocument> appointmentList = getAppointmentList();
 
@@ -134,6 +143,7 @@ class ItemsMapperTest {
         verify(identificationMapper).map(identificationData);
         verify(roleMapper).mapOfficerRole("director");
         verify(identityVerificationDetailsMapper).map(deltaIdentityVerificationDetails);
+        verify(contributionSubTypesMapper).map(singletonList(contributionSubTypeData));
     }
 
     @Test
@@ -155,6 +165,7 @@ class ItemsMapperTest {
         verifyNoInteractions(formerNamesMapper);
         verifyNoInteractions(identificationMapper);
         verifyNoInteractions(roleMapper);
+        verifyNoInteractions(contributionSubTypesMapper);
     }
 
     @Test
@@ -177,6 +188,7 @@ class ItemsMapperTest {
         verifyNoInteractions(formerNamesMapper);
         verifyNoInteractions(identificationMapper);
         verifyNoInteractions(roleMapper);
+        verifyNoInteractions(contributionSubTypesMapper);
     }
 
     private List<CompanyAppointmentDocument> getAppointmentList() {
@@ -211,7 +223,10 @@ class ItemsMapperTest {
                 .setAppointedBefore(appointedBefore)
                 .setOccupation("Company Director")
                 .setServiceAddress(serviceAddressData)
-                .setPrincipalOfficeAddress(deltaPrincipalOfficeAddress);
+                .setPrincipalOfficeAddress(deltaPrincipalOfficeAddress)
+                .setContributionCurrencyValue("4356.22")
+                .setContributionCurrencyType("USD")
+                .setContributionSubTypes(singletonList(contributionSubTypeData));
     }
 
     private List<OfficerAppointmentSummary> getOfficerAppointments() {
@@ -236,6 +251,9 @@ class ItemsMapperTest {
                 .occupation("Company Director")
                 .officerRole(OfficerRoleEnum.DIRECTOR)
                 .principalOfficeAddress(principalOfficeAddress)
-                .resignedOn(LocalDate.from(resignedOn.atZone(ZoneOffset.UTC))));
+                .resignedOn(LocalDate.from(resignedOn.atZone(ZoneOffset.UTC)))
+                .contributionCurrencyValue("4356.22")
+                .contributionCurrencyType("USD")
+                .contributionSubTypes(singletonList(contributionSubType)));
     }
 }

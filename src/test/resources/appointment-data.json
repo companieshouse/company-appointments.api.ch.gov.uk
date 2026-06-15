@@ -31,7 +31,17 @@
       "postal_code" : "CF14 3UZ",
       "address_line_2" : "Pavement",
       "locality" : "Cardiff"
-    }
+    },
+    "contribution_currency_type" : "EGP",
+    "contribution_currency_value" : "1266.32",
+    "contribution_sub_types": [
+      {
+        "sub_type": "money"
+      },
+      {
+        "sub_type": "land-or-property"
+      }
+    ]
   },
   "sensitive_data" : {
     "usual_residential_address" : {

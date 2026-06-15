@@ -122,7 +122,11 @@ class CompanyAppointmentControllerITest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.appointed_on", is("2025-08-26")))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.date_of_birth", not(contains("day"))))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.date_of_birth.year", is(1980)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.date_of_birth.month", is(1)));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.date_of_birth.month", is(1)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.contribution_currency_type", is("EGP")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.contribution_currency_value", is("1266.32")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.contribution_sub_types.[0].sub_type", is("money")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.contribution_sub_types.[1].sub_type", is("land-or-property")));
     }
 
     @Test
