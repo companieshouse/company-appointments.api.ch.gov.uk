@@ -20,6 +20,7 @@ class ItemsMapper {
     private final IdentificationMapper identificationMapper;
     private final OfficerRoleMapper roleMapper;
     private final IdentityVerificationDetailsMapper identityVerificationDetailsMapper;
+    private final ContributionSubTypesMapper contributionSubTypesMapper;
 
     ItemsMapper(AddressMapper addressMapper,
                 ContactDetailsMapper contactDetailsMapper,
@@ -28,7 +29,8 @@ class ItemsMapper {
                 FormerNamesMapper formerNamesMapper,
                 IdentificationMapper identificationMapper,
                 OfficerRoleMapper roleMapper,
-                IdentityVerificationDetailsMapper identityVerificationDetailsMapper) {
+                IdentityVerificationDetailsMapper identityVerificationDetailsMapper,
+                ContributionSubTypesMapper contributionSubTypesMapper) {
         this.addressMapper = addressMapper;
         this.contactDetailsMapper = contactDetailsMapper;
         this.nameMapper = nameMapper;
@@ -37,6 +39,7 @@ class ItemsMapper {
         this.identificationMapper = identificationMapper;
         this.roleMapper = roleMapper;
         this.identityVerificationDetailsMapper = identityVerificationDetailsMapper;
+        this.contributionSubTypesMapper = contributionSubTypesMapper;
     }
 
     List<OfficerAppointmentSummary> map(List<CompanyAppointmentDocument> appointments) {
@@ -66,7 +69,10 @@ class ItemsMapper {
                                 .officerRole(roleMapper.mapOfficerRole(data.getOfficerRole()))
                                 .principalOfficeAddress(addressMapper.map(data.getPrincipalOfficeAddress()))
                                 .resignedOn(localDateMapper.map(data.getResignedOn()))
-                                .responsibilities(data.getResponsibilities()))
+                                .responsibilities(data.getResponsibilities())
+                                .contributionCurrencyValue(data.getContributionCurrencyValue())
+                                .contributionCurrencyType(data.getContributionCurrencyType())
+                                .contributionSubTypes(contributionSubTypesMapper.map(data.getContributionSubTypes())))
                         .orElse(new OfficerAppointmentSummary()))
                 .toList();
     }
