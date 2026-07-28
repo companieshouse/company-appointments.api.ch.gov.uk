@@ -64,7 +64,7 @@ interface OfficerAppointmentsRepository extends MongoRepository<CompanyAppointme
                     + "}"
                     + "}"
     })
-    @Meta(allowDiskUse = true)
+    @Meta(allowDiskUse = "true")
     OfficerAppointments findOfficerAppointmentsIds(String officerId, boolean filterEnabled,
             List<String> filterStatuses, int startIndex, int pageSize);
 
@@ -85,7 +85,7 @@ interface OfficerAppointmentsRepository extends MongoRepository<CompanyAppointme
             "{ $skip: ?3 }",
             "{ $limit: ?4 }"
     })
-    @Meta(allowDiskUse = true)
+    @Meta(allowDiskUse = "true")
     List<CompanyAppointmentDocument> findRecentOfficerAppointments(String officerId, boolean filterEnabled,
             List<String> filterStatuses, int startIndex, int pageSize);
 
