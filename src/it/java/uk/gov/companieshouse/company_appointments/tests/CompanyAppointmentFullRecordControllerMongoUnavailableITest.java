@@ -12,8 +12,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.SimpleMongoClientDatabaseFactory;
@@ -92,7 +92,7 @@ class CompanyAppointmentFullRecordControllerMongoUnavailableITest {
     @DisplayName("Delete endpoint returns 502 BadGateway when MongoDB is unavailable")
     void testDeleteNewAppointmentCompanyNameStatusMongoUnavailable() throws Exception {
         when(fullRecordRepository.readByCompanyNumberAndID(any(), any())).thenThrow(new DataAccessException("..."){ });
-        
+
         mockMvc.perform(delete(FULL_RECORD_DELETE_ENDPOINT, COMPANY_NUMBER, APPOINTMENT_ID)
                         .contentType(MediaType.APPLICATION_JSON)
                         .header(X_REQUEST_ID, "5342342")

@@ -18,7 +18,7 @@ import java.time.ZoneId;
 import java.util.Optional;
 import java.util.stream.Stream;
 import org.jetbrains.annotations.NotNull;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -322,7 +322,7 @@ class CompanyAppointmentFullRecordServiceTest {
                 .thenThrow(new FailedToTransformException("message"));
 
         final var newFullRecordCompanyOfficerApi = new FullRecordCompanyOfficerApi();
-        Assert.assertThrows(ServiceUnavailableException.class, () ->
+        Assertions.assertThrows(ServiceUnavailableException.class, () ->
                 companyAppointmentService.upsertAppointmentDelta(newFullRecordCompanyOfficerApi));
     }
 
