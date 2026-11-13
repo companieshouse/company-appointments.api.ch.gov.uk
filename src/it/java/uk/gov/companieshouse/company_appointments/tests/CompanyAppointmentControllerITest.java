@@ -16,7 +16,6 @@ import static uk.gov.companieshouse.company_appointments.util.TestUtils.OFFICER_
 import static uk.gov.companieshouse.company_appointments.util.TestUtils.generateRandomEightCharCompanyNumber;
 import static uk.gov.companieshouse.company_appointments.util.TestUtils.generateRandomInternalId;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -49,6 +48,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import tools.jackson.databind.json.JsonMapper;
 import uk.gov.companieshouse.api.appointment.OfficerList;
 import uk.gov.companieshouse.api.metrics.AppointmentsApi;
 import uk.gov.companieshouse.api.metrics.CountsApi;
@@ -79,7 +79,7 @@ class CompanyAppointmentControllerITest {
     private static final MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:5");
 
     @Autowired
-    private ObjectMapper objectMapper;
+    private JsonMapper objectMapper;
 
     @MockitoBean
     private CompanyMetricsApiService companyMetricsApiService;
