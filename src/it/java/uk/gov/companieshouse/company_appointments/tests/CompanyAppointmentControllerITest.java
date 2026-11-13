@@ -16,7 +16,6 @@ import static uk.gov.companieshouse.company_appointments.util.TestUtils.OFFICER_
 import static uk.gov.companieshouse.company_appointments.util.TestUtils.generateRandomEightCharCompanyNumber;
 import static uk.gov.companieshouse.company_appointments.util.TestUtils.generateRandomInternalId;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -32,8 +31,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.system.CapturedOutput;
 import org.springframework.boot.test.system.OutputCaptureExtension;
@@ -48,6 +48,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import tools.jackson.databind.json.JsonMapper;
 import uk.gov.companieshouse.api.appointment.OfficerList;
 import uk.gov.companieshouse.api.metrics.AppointmentsApi;
 import uk.gov.companieshouse.api.metrics.CountsApi;
@@ -56,6 +57,7 @@ import uk.gov.companieshouse.api.model.ApiResponse;
 import uk.gov.companieshouse.company_appointments.CompanyAppointmentsApplication;
 import uk.gov.companieshouse.company_appointments.api.CompanyMetricsApiService;
 
+@ExtendWith(MockitoExtension.class)
 @Testcontainers
 @AutoConfigureMockMvc
 @SpringBootTest(classes = CompanyAppointmentsApplication.class, webEnvironment = SpringBootTest.WebEnvironment.MOCK)
@@ -77,7 +79,7 @@ class CompanyAppointmentControllerITest {
     private static final MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:5");
 
     @Autowired
-    private ObjectMapper objectMapper;
+    private JsonMapper objectMapper;
 
     @MockitoBean
     private CompanyMetricsApiService companyMetricsApiService;
@@ -87,7 +89,7 @@ class CompanyAppointmentControllerITest {
 
     @BeforeAll
     static void start() throws IOException {
-        System.setProperty("spring.data.mongodb.uri", mongoDBContainer.getReplicaSetUrl());
+        System.setProperty("spring.mongodb.uri", mongoDBContainer.getReplicaSetUrl());
         MongoTemplate mongoTemplate = new MongoTemplate(
                 new SimpleMongoClientDatabaseFactory(mongoDBContainer.getReplicaSetUrl()));
         mongoTemplate.createCollection("delta_appointments");
@@ -326,8 +328,6 @@ class CompanyAppointmentControllerITest {
     @Test
     void testReturn400BadRequestWithIncorrectOrderBy() throws Exception {
         when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(new ApiResponse<>(200, null, metricsApi));
-        when(metricsApi.getCounts()).thenReturn(new CountsApi()
-                .appointments(new AppointmentsApi()));
         ResultActions result = mockMvc.perform(get("/company/{company_number}/officers?order_by=invalid", COMPANY_NUMBER)
                 .header(ERIC_IDENTITY, "123")
                 .header(ERIC_IDENTITY_TYPE, "key")
@@ -389,15 +389,7 @@ class CompanyAppointmentControllerITest {
             "closed"})
     void testReturn200OKWithInactiveCompaniesWithActiveFilter(String companyStatus) throws Exception {
         // given
-        final int totalNumberOfAppointmentsForEachCompany = 189;
-        final int numberOfAppointmentsConsideredActiveForEachCompany = 126;
-        final int resignedCount = totalNumberOfAppointmentsForEachCompany - numberOfAppointmentsConsideredActiveForEachCompany;
-
         when(companyMetricsApiService.invokeGetMetricsApi(anyString())).thenReturn(new ApiResponse<>(200, null, metricsApi));
-        when(metricsApi.getCounts()).thenReturn(new CountsApi().appointments(new AppointmentsApi()
-                .totalCount(totalNumberOfAppointmentsForEachCompany)
-                .activeCount(numberOfAppointmentsConsideredActiveForEachCompany)
-                .resignedCount(resignedCount)));
 
         // when
         final String companyNumber = companyStatusToCompanyNumber.get(companyStatus);

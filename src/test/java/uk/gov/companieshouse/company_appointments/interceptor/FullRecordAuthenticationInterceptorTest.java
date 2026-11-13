@@ -9,7 +9,6 @@ import static org.mockito.Mockito.when;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.apache.http.HttpStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -67,7 +66,7 @@ class FullRecordAuthenticationInterceptorTest {
 
         // then
         assertThat(actual, is(false));
-        verify(response).setStatus(HttpStatus.SC_FORBIDDEN);
+        verify(response).setStatus(HttpServletResponse.SC_FORBIDDEN);
     }
 
     @ParameterizedTest(name = "invalid identityType: {0}")
@@ -128,7 +127,7 @@ class FullRecordAuthenticationInterceptorTest {
 
     private void checkUnauthorised(final boolean actual) {
         assertThat(actual, is(false));
-        verify(response).setStatus(HttpStatus.SC_UNAUTHORIZED);
+        verify(response).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
     }
 
     private void checkAuthorised(final boolean actual) {

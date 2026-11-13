@@ -3,7 +3,9 @@ package uk.gov.companieshouse.company_appointments.api;
 import static org.mockito.Mockito.verifyNoInteractions;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -17,6 +19,7 @@ import uk.gov.companieshouse.company_appointments.mapper.ResourceChangedRequestM
 import uk.gov.companieshouse.company_appointments.model.data.ResourceChangedRequest;
 
 @SpringBootTest
+@ExtendWith(MockitoExtension.class)
 class ResourceChangedApiServiceAspectFeatureFlagEnabledITest {
 
     @DynamicPropertySource
