@@ -6,7 +6,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.Arrays;
 import java.util.Map;
-import org.apache.http.HttpStatus;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -38,7 +37,7 @@ public class FullRecordAuthenticationInterceptor implements HandlerInterceptor {
                 return true;
             } else {
                 LOGGER.errorRequest(request, "User not authorised. Token has insufficient permissions.", logMap);
-                response.setStatus(HttpStatus.SC_UNAUTHORIZED);
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 return false;
             }
         }
@@ -47,7 +46,7 @@ public class FullRecordAuthenticationInterceptor implements HandlerInterceptor {
             logMap.put("identityType", identityType);
             LOGGER.errorRequest(request, "User not authorised. Identity type not correct", logMap);
 
-            response.setStatus(HttpStatus.SC_UNAUTHORIZED);
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return false;
         }
 
@@ -57,7 +56,7 @@ public class FullRecordAuthenticationInterceptor implements HandlerInterceptor {
                     "User not authorised. API key does not have sufficient privileges.",
                     logMap);
 
-            response.setStatus(HttpStatus.SC_FORBIDDEN);
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
             return false;
         }
 
