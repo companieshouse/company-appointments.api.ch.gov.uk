@@ -1,11 +1,6 @@
 package uk.gov.companieshouse.company_appointments.config;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.text.SimpleDateFormat;
 import java.time.Clock;
 import java.util.function.Supplier;
@@ -15,6 +10,11 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.SerializationFeature;
+import tools.jackson.databind.cfg.DateTimeFeature;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.module.SimpleModule;
 import uk.gov.companieshouse.api.InternalApiClient;
 import uk.gov.companieshouse.api.http.ApiKeyHttpClient;
 import uk.gov.companieshouse.company_appointments.interceptor.AuthenticationInterceptor;
@@ -67,14 +67,19 @@ public class Config implements WebMvcConfigurer {
 
     @Bean
     @Primary
-    public ObjectMapper objectMapper() {
-        return new ObjectMapper()
-                .registerModule(new JavaTimeModule())
-                .setDateFormat(new SimpleDateFormat("yyyy-MM-dd"))
-                .registerModule(new SimpleModule().addDeserializer(String.class, new EmptyFieldDeserializer()))
-                .setSerializationInclusion(JsonInclude.Include.NON_NULL)
-                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-                .configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+    public JsonMapper jsonMapper() {
+        // Jackson 2 defaults (e.g. unsorted properties) preserve the API's existing JSON output
+        return JsonMapper.builderWithJackson2Defaults()
+                .defaultDateFormat(new SimpleDateFormat("yyyy-MM-dd"))
+                // Jackson 2's setDateFormat() implicitly disabled timestamps, so dates are written as "yyyy-MM-dd"
+                .disable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .addModule(new SimpleModule().addDeserializer(String.class, new EmptyFieldDeserializer()))
+                .changeDefaultPropertyInclusion(inclusion -> inclusion
+                        .withValueInclusion(JsonInclude.Include.NON_NULL)
+                        .withContentInclusion(JsonInclude.Include.NON_NULL))
+                .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
+                .build();
     }
 
     @Bean

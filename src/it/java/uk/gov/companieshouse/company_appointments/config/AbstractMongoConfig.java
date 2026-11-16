@@ -21,7 +21,7 @@ public class AbstractMongoConfig {
     public static void setProperties(DynamicPropertyRegistry registry) {
         mongoDBContainer.setWaitStrategy(Wait.defaultWaitStrategy()
                 .withStartupTimeout(Duration.of(300, SECONDS)));
-        registry.add("spring.data.mongodb.uri", (() -> mongoDBContainer.getReplicaSetUrl() +
+        registry.add("spring.mongodb.uri", (() -> mongoDBContainer.getReplicaSetUrl() +
                 "?serverSelectionTimeoutMS=100&connectTimeoutMS=100"));
     }
 }

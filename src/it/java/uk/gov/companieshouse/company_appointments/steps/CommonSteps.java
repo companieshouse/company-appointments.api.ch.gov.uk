@@ -14,8 +14,6 @@ import static uk.gov.companieshouse.company_appointments.config.CucumberContext.
 import static uk.gov.companieshouse.company_appointments.config.WiremockTestConfig.getServeEvents;
 import static uk.gov.companieshouse.company_appointments.config.WiremockTestConfig.setupWiremock;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import io.cucumber.java.Before;
 import io.cucumber.java.BeforeAll;
@@ -28,11 +26,13 @@ import java.time.Duration;
 import org.apache.commons.io.IOUtils;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.boot.resttestclient.TestRestTemplate;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.SimpleMongoClientDatabaseFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.kafka.core.KafkaTemplate;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.json.JsonMapper;
 import uk.gov.companieshouse.api.chskafka.ChangedResource;
 import uk.gov.companieshouse.company_appointments.config.WiremockTestConfig;
 import uk.gov.companieshouse.company_appointments.repository.CompanyAppointmentRepository;
@@ -45,7 +45,7 @@ public class CommonSteps {
     private static final Logger LOGGER = LoggerFactory.getLogger(APPLICATION_NAME_SPACE);
 
     @Autowired
-    private ObjectMapper objectMapper;
+    private JsonMapper objectMapper;
 
     private static MongoTemplate mongoTemplate;
 
@@ -142,7 +142,7 @@ public class CommonSteps {
         ChangedResource payload = null;
         try {
             payload = objectMapper.readValue(body, ChangedResource.class);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             LOGGER.error("error getting payload from wiremock in getPayloadFromWiremock()");
         }
         return payload;
